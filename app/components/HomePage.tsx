@@ -29,11 +29,12 @@ const faqs = {
 
 export function HomePage({ locale }: { locale: Locale }) {
   const isTr = locale === "tr";
+  const languageTag = isTr ? "tr-TR" : "en-US";
   const t = copy[locale];
   const alternateHref = locale === "tr" ? "/en" : "/";
   const schema = [
-    { "@context": "https://schema.org", "@type": "WebSite", name: "ByteQuant", url: locale === "tr" ? siteUrl : `${siteUrl}/en`, inLanguage: locale, description: isTr ? "Tarayıcı içinde çalışan gizlilik odaklı prompt, metin, veri ve güvenlik araçları." : "Privacy-first prompt, text, data, and security tools that run in the browser." },
-    { "@context": "https://schema.org", "@type": "WebApplication", name: "ByteQuant", url: locale === "tr" ? siteUrl : `${siteUrl}/en`, applicationCategory: "ProductivityApplication", operatingSystem: "Any modern browser", inLanguage: locale, isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, featureList: tools.map((tool) => tool.title[locale]) },
+    { "@context": "https://schema.org", "@type": "WebSite", name: "ByteQuant", url: locale === "tr" ? siteUrl : `${siteUrl}/en`, inLanguage: languageTag, description: isTr ? "Tarayıcı içinde çalışan gizlilik odaklı prompt, metin, veri ve güvenlik araçları." : "Privacy-first prompt, text, data, and security tools that run in the browser." },
+    { "@context": "https://schema.org", "@type": "WebApplication", name: "ByteQuant", url: locale === "tr" ? siteUrl : `${siteUrl}/en`, applicationCategory: "ProductivityApplication", operatingSystem: "Any modern browser", inLanguage: languageTag, isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, featureList: tools.map((tool) => tool.title[locale]) },
     { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs[locale].map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
   ];
 

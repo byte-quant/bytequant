@@ -7,8 +7,9 @@ import { SiteShell } from "./SiteShell";
 
 export function BlogIndex({ locale }: { locale: Locale }) {
   const isTr = locale === "tr";
+  const languageTag = isTr ? "tr-TR" : "en-US";
   const alternateHref = locale === "tr" ? "/en/blog" : "/blog";
-  const schema = { "@context": "https://schema.org", "@type": "Blog", name: isTr ? "ByteQuant Rehberleri" : "ByteQuant Guides", url: `${siteUrl}${pathFor(locale, "blog")}`, inLanguage: locale, description: isTr ? "Gizlilik, prompt mühendisliği ve veri güvenliği rehberleri." : "Guides to privacy, prompt engineering, and data security.", blogPost: posts.map((post) => ({ "@type": "BlogPosting", headline: post.title[locale], url: `${siteUrl}${postPath(locale, post.slug)}`, datePublished: post.date })) };
+  const schema = { "@context": "https://schema.org", "@type": "Blog", name: isTr ? "ByteQuant Rehberleri" : "ByteQuant Guides", url: `${siteUrl}${pathFor(locale, "blog")}`, inLanguage: languageTag, description: isTr ? "Gizlilik, prompt mühendisliği ve veri güvenliği rehberleri." : "Guides to privacy, prompt engineering, and data security.", blogPost: posts.map((post) => ({ "@type": "BlogPosting", headline: post.title[locale], url: `${siteUrl}${postPath(locale, post.slug)}`, datePublished: post.date, inLanguage: languageTag })) };
   return (
     <SiteShell locale={locale} alternateHref={alternateHref}>
       <SchemaScript data={schema} />
@@ -19,4 +20,3 @@ export function BlogIndex({ locale }: { locale: Locale }) {
     </SiteShell>
   );
 }
-

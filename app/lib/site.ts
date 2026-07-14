@@ -57,3 +57,18 @@ export function postPath(locale: Locale, slug: string) {
   return locale === "tr" ? `/blog/${slug}` : `/en/blog/${slug}`;
 }
 
+/**
+ * Keeps canonical and hreflang declarations identical across every localized
+ * route. Turkish is the product's default locale, so x-default deliberately
+ * points to the Turkish URL instead of an artificial language selector.
+ */
+export function localizedAlternates(locale: Locale, trPath: string, enPath: string) {
+  return {
+    canonical: locale === "tr" ? trPath : enPath,
+    languages: {
+      "tr-TR": trPath,
+      "en-US": enPath,
+      "x-default": trPath,
+    },
+  };
+}

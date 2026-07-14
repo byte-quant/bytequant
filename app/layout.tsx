@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://bytequant.org"),
-  title: { default: "ByteQuant · Gizlilik Odaklı Tarayıcı İçi Araçlar", template: "%s · ByteQuant" },
+  title: { default: "ByteQuant · Gizlilik Odaklı Tarayıcı İçi Araçlar", template: "ByteQuant · %s" },
   description: "Prompt, metin, veri ve güvenlik işlemlerini tarayıcınızda tamamlayan 29 ücretsiz ve gizlilik odaklı araç.",
   applicationName: "ByteQuant",
   authors: [{ name: "ByteQuant Editorial", url: "https://bytequant.org/hakkimizda" }],

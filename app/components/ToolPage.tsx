@@ -10,6 +10,7 @@ import { ToolWorkbench } from "./ToolWorkbench";
 
 export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const isTr = locale === "tr";
+  const languageTag = isTr ? "tr-TR" : "en-US";
   const alternateHref = toolPath(locale === "tr" ? "en" : "tr", tool.slug);
   const related = getRelatedTools(tool);
   const faq = [
@@ -18,9 +19,9 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
     [isTr ? "Girdi kaydediliyor mu?" : "Is input saved?", isTr ? "Hayır. Araç girdisi localStorage veya başka bir kalıcı alanda saklanmaz. Yalnızca hassas içerik taşımayan araç kullanım sayacı, ana sayfadaki kişisel kısa yollar için bu cihazda tutulabilir." : "No. Tool input is not persisted to localStorage or another durable store. Only a non-sensitive tool-usage count may be kept on this device for personalized home-page shortcuts."],
   ];
   const schema = [
-    { "@context": "https://schema.org", "@type": "WebApplication", name: tool.title[locale], description: tool.description[locale], url: `${siteUrl}${toolPath(locale, tool.slug)}`, applicationCategory: "UtilitiesApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled", inLanguage: locale, isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, creator: { "@type": "Organization", name: "ByteQuant", url: siteUrl } },
-    { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
-    { "@context": "https://schema.org", "@type": "HowTo", name: isTr ? `${tool.title[locale]} nasıl kullanılır?` : `How to use ${tool.title[locale]}`, description: tool.short[locale], totalTime: "PT3M", inLanguage: locale, tool: [{ "@type": "HowToTool", name: isTr ? "Güncel bir web tarayıcısı" : "A current web browser" }], step: tool.steps[locale].map((text, index) => ({ "@type": "HowToStep", position: index + 1, name: isTr ? `${index + 1}. adım` : `Step ${index + 1}`, text, url: `${siteUrl}${toolPath(locale, tool.slug)}#how-to-step-${index + 1}` })) },
+    { "@context": "https://schema.org", "@type": "WebApplication", name: tool.title[locale], description: tool.description[locale], url: `${siteUrl}${toolPath(locale, tool.slug)}`, applicationCategory: "UtilitiesApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled", inLanguage: languageTag, isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, creator: { "@type": "Organization", name: "ByteQuant", url: siteUrl } },
+    { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: languageTag, mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
+    { "@context": "https://schema.org", "@type": "HowTo", name: isTr ? `${tool.title[locale]} nasıl kullanılır?` : `How to use ${tool.title[locale]}`, description: tool.short[locale], totalTime: "PT3M", inLanguage: languageTag, tool: [{ "@type": "HowToTool", name: isTr ? "Güncel bir web tarayıcısı" : "A current web browser" }], step: tool.steps[locale].map((text, index) => ({ "@type": "HowToStep", position: index + 1, name: isTr ? `${index + 1}. adım` : `Step ${index + 1}`, text, url: `${siteUrl}${toolPath(locale, tool.slug)}#how-to-step-${index + 1}` })) },
   ];
   return (
     <SiteShell locale={locale} alternateHref={alternateHref}>

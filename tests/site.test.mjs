@@ -6,7 +6,7 @@ const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
 test("exports the complete Turkish and English site", async () => {
-  const [home, english, sitemap, robots] = await Promise.all([read("index.html"), read("en/index.html"), read("sitemap.xml"), read("robots.txt")]);
+  const [home, english, sitemap, robots, llms] = await Promise.all([read("index.html"), read("en/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
   assert.match(home, /29 açıklanabilir araç/);
@@ -14,11 +14,21 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(english, /<html lang="en"/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
+  assert.match(home, /<title>ByteQuant ·/);
+  assert.match(home, /hrefLang="tr-TR"/);
+  assert.match(home, /hrefLang="en-US"/);
+  assert.match(home, /hrefLang="x-default"/);
   assert.match(sitemap, /araclar\/prompt-kalite-denetimi/);
   assert.match(sitemap, /en\/tools\/prompt-kalite-denetimi/);
   assert.match(sitemap, /araclar\/exif-meta-veri-temizleyici/);
   assert.match(sitemap, /en\/tools\/qr-kod-olusturucu/);
+  assert.match(sitemap, /hreflang="x-default"/);
   assert.match(robots, /sitemap\.xml/i);
+  for (const crawler of ["Google-Extended", "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Applebot-Extended", "CCBot"]) {
+    assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
+  }
+  assert.match(llms, /^# ByteQuant/m);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 29);
   assert.doesNotMatch(home, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
 
@@ -26,10 +36,12 @@ test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, turkishPosts, englishPosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root))]);
   assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 29);
   assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 29);
-  assert.ok(turkishPosts.length >= 8);
-  assert.ok(englishPosts.length >= 8);
+  assert.ok(turkishPosts.length >= 14);
+  assert.ok(englishPosts.length >= 14);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
+  await access(new URL("blog/exif-metadata-gizlilik-rehberi/index.html", root));
+  await access(new URL("en/blog/qr-kod-guvenligi-ve-gizlilik/index.html", root));
 });
 
 test("tool pages explain local processing and expose structured data", async () => {
@@ -39,6 +51,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /FAQPage/);
   assert.match(page, /HowTo/);
   assert.match(page, /İLGİLİ ARAÇLAR/);
+  assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
 });
 
@@ -61,6 +74,28 @@ test("exports the new bilingual tool package", async () => {
   assert.match(englishCron, /Cron Expression Explainer/);
   for (const page of [fewShot, markdown, jwt, qr, exif, password, englishCron]) {
     assert.match(page, /HowTo/);
+    assert.match(page, /Örnek veri yükle|Load example/);
     assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|axios/i);
   }
+});
+
+test("every localized tool exposes demo UX and HowTo schema", async () => {
+  const [turkishTools, englishTools, faq, englishFaq] = await Promise.all([
+    readdir(new URL("araclar/", root)),
+    readdir(new URL("en/tools/", root)),
+    read("sss/index.html"),
+    read("en/faq/index.html"),
+  ]);
+  for (const slug of turkishTools.filter((name) => !name.startsWith("."))) {
+    const page = await read(`araclar/${slug}/index.html`);
+    assert.match(page, /Örnek veri yükle/);
+    assert.match(page, /HowTo/);
+  }
+  for (const slug of englishTools.filter((name) => !name.startsWith("."))) {
+    const page = await read(`en/tools/${slug}/index.html`);
+    assert.match(page, /Load example/);
+    assert.match(page, /HowTo/);
+  }
+  assert.match(faq, /FAQPage/);
+  assert.match(englishFaq, /FAQPage/);
 });

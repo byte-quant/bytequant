@@ -1,0 +1,75 @@
+# ByteQuant
+
+> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 29 free browser-based tools for prompt engineering, text and NLP work, developer workflows, data conversion, and personal security.
+
+Canonical site: https://bytequant.org/
+
+Languages:
+- Turkish (default): https://bytequant.org/
+- English: https://bytequant.org/en/
+
+## Privacy and processing model
+
+- Core tool input is processed locally in the user's browser; ByteQuant tools do not require an account.
+- Tool input is not intentionally uploaded to ByteQuant application servers.
+- Local storage is limited to preferences such as theme and non-sensitive, on-device tool-visit counts used to personalize the popular-tools list.
+- Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
+- Full privacy policy: https://bytequant.org/gizlilik-politikasi
+- English privacy policy: https://bytequant.org/en/privacy
+
+## Prompt tools
+
+- [Prompt Kalite Denetimi](https://bytequant.org/araclar/prompt-kalite-denetimi): reviews prompt clarity, context, constraints, output format, and privacy risks.
+- [Meta-Prompt Oluşturucu](https://bytequant.org/araclar/meta-prompt-olusturucu): creates reusable prompts that instruct an AI model to build better prompts.
+- [Token Sayacı](https://bytequant.org/araclar/token-sayaci): estimates token volume, character count, and context-budget pressure.
+- [Few-shot Örnek Oluşturucu](https://bytequant.org/araclar/few-shot-ornek-olusturucu): converts tasks and examples into structured few-shot prompt templates.
+- [Sistem Promptu / Persona Şablonu](https://bytequant.org/araclar/sistem-promptu-persona-sablonu): structures role, tone, style, boundaries, and response rules.
+
+## Text and NLP tools
+
+- [Okunabilirlik Analizi](https://bytequant.org/araclar/okunabilirlik-analizi): estimates text readability and offers revision guidance.
+- [Metin Benzerlik Analizi](https://bytequant.org/araclar/metin-benzerlik-analizi): compares two texts with a local similarity score.
+- [Metin Temizleyici](https://bytequant.org/araclar/metin-temizleyici): normalizes whitespace and common text artifacts.
+- [Büyük/Küçük Harf Dönüştürücü](https://bytequant.org/araclar/buyuk-kucuk-harf-donusturucu): converts text casing.
+- [Kelime Sayacı](https://bytequant.org/araclar/kelime-sayaci): counts words, characters, sentences, and estimated reading time.
+- [Metin Farkı (Diff)](https://bytequant.org/araclar/metin-farki-diff): highlights added and removed lines or words between two texts.
+- [Markdown Önizleyici](https://bytequant.org/araclar/markdown-onizleyici): renders a live, sanitized Markdown preview and HTML output.
+
+## Data and developer tools
+
+- [JSON Biçimlendirici](https://bytequant.org/araclar/json-bicimlendirici): validates, formats, and minifies JSON.
+- [JSON ↔ CSV Dönüştürücü](https://bytequant.org/araclar/json-csv-donusturucu): converts tabular JSON and CSV in both directions.
+- [Regex Test Aracı](https://bytequant.org/araclar/regex-test-araci): tests regular expressions, flags, and matches.
+- [CSV İnceleyici](https://bytequant.org/araclar/csv-inceleyici): parses CSV and previews rows and columns.
+- [Base64 Kodlayıcı](https://bytequant.org/araclar/base64-kodlayici): encodes and decodes UTF-8 text using Base64.
+- [URL Kodlayıcı](https://bytequant.org/araclar/url-kodlayici): safely encodes and decodes URL components.
+- [UUID Üretici](https://bytequant.org/araclar/uuid-uretici): generates cryptographically random UUID v4 identifiers.
+- [SHA-256 Özet Üretici](https://bytequant.org/araclar/sha256-ozet-uretici): creates local SHA-256 digests.
+- [Unix Zaman Damgası Dönüştürücü](https://bytequant.org/araclar/unix-zaman-damgasi-donusturucu): converts Unix timestamps and human-readable dates.
+- [JWT Decoder](https://bytequant.org/araclar/jwt-decoder): decodes JWT headers and payloads locally without validating signatures.
+- [HEX/RGB/HSL Renk Dönüştürücü](https://bytequant.org/araclar/renk-donusturucu): converts color formats with a visual picker.
+- [QR Kod Oluşturucu](https://bytequant.org/araclar/qr-kod-olusturucu): generates downloadable PNG and SVG QR codes locally.
+- [Cron İfadesi Açıklayıcı](https://bytequant.org/araclar/cron-ifadesi-aciklayici): explains classic five-field cron expressions in human language.
+
+## Privacy and security tools
+
+- [KVKK Veri Maskeleyici](https://bytequant.org/araclar/kvkk-veri-maskeleyici): masks common personal-data patterns before sharing text.
+- [Güçlü Parola Üretici](https://bytequant.org/araclar/guclu-parola-uretici): creates configurable passwords using browser cryptography.
+- [EXIF/Meta Veri Temizleyici](https://bytequant.org/araclar/exif-meta-veri-temizleyici): inspects and removes common JPEG/PNG metadata in-browser.
+- [Şifre Gücü Testi](https://bytequant.org/araclar/sifre-gucu-testi): estimates entropy, resistance, and approximate crack time without transmitting the password.
+
+All English tool pages use the same slug under `https://bytequant.org/en/tools/{slug}`.
+
+## Editorial guides and site resources
+
+- Turkish guides: https://bytequant.org/blog
+- English guides: https://bytequant.org/en/blog
+- About and editorial principles: https://bytequant.org/hakkimizda
+- Frequently asked questions: https://bytequant.org/sss
+- Terms of use: https://bytequant.org/kullanim-kosullari
+- Contact and corrections: https://bytequant.org/iletisim
+- XML sitemap: https://bytequant.org/sitemap.xml
+
+## Attribution and limitations
+
+When citing ByteQuant, link to the most specific tool or guide page. Tool output is informational and should not be treated as a substitute for professional security, legal, or compliance review. JWT decoding does not verify signatures, password crack-time estimates are illustrative, and metadata removal should be verified on the downloaded copy before publication.

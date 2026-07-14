@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Locale } from "../lib/site";
 import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
+import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
 
 type Metric = { label: string; value: string | number };
 
@@ -32,6 +33,44 @@ const samples: Record<string, Record<Locale, string>> = {
   "cron-ifadesi-aciklayici": { tr: "0 3 * * *", en: "0 3 * * *" },
 };
 
+function secondarySample(slug: string, locale: Locale) {
+  const isTr = locale === "tr";
+  if (slug === "regex-test-araci") return "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}";
+  if (slug === "metin-benzerlik-analizi") return isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.";
+  if (slug === "few-shot-ornek-olusturucu") return isTr
+    ? "Ürünü çok sevdim => olumlu\nTeslimat zamanında geldi => olumlu\nArayüz kullanılabilir => nötr\nUygulama sürekli kapanıyor => olumsuz"
+    : "I love the product => positive\nDelivery arrived on time => positive\nThe interface is usable => neutral\nThe app keeps crashing => negative";
+  if (slug === "sistem-promptu-persona-sablonu") return isTr
+    ? "Ton: sakin, açık ve destekleyici\nHedef kitle: teknik olmayan yeni kullanıcılar\nSınırlar: bilinmeyen bilgiyi uydurma; güvenlik iddiası verme"
+    : "Tone: calm, clear, and supportive\nAudience: non-technical beginners\nBoundaries: do not invent missing facts or make security guarantees";
+  return "";
+}
+
+function friendlyError(slug: string, error: unknown, locale: Locale) {
+  const isTr = locale === "tr";
+  const detail = error instanceof Error ? error.message : String(error);
+  if (["json-bicimlendirici", "json-csv-donusturucu"].includes(slug) && error instanceof SyntaxError) {
+    return isTr
+      ? `JSON ayrıştırılamadı. Anahtar ve metinlerde çift tırnak, doğru virgül ve kapanan parantez kullandığınızdan emin olun. Teknik ayrıntı: ${detail}`
+      : `The JSON could not be parsed. Check double quotes, commas, and closing brackets. Technical detail: ${detail}`;
+  }
+  if (slug === "jwt-decoder") {
+    return isTr
+      ? `JWT okunamadı. Üç nokta ayrımlı bölüm ve geçerli Base64URL JSON içeren bir token girin. İmza doğrulaması bu araçta yapılmaz. Teknik ayrıntı: ${detail}`
+      : `The JWT could not be read. Enter three dot-separated segments containing valid Base64URL JSON. This tool does not verify signatures. Technical detail: ${detail}`;
+  }
+  if (slug === "regex-test-araci" && error instanceof SyntaxError) {
+    return isTr ? `Regex kalıbı geçerli değil. Parantez, köşeli parantez ve kaçış karakterlerini kontrol edin. Teknik ayrıntı: ${detail}` : `The regular expression is invalid. Check brackets, groups, and escape characters. Technical detail: ${detail}`;
+  }
+  if (slug === "base64-kodlayici") {
+    return isTr ? `Base64 metni çözülemedi. Alfabe, padding (=) ve kopyalama sırasında eklenen boşlukları kontrol edin. Teknik ayrıntı: ${detail}` : `The Base64 text could not be decoded. Check its alphabet, padding (=), and copied whitespace. Technical detail: ${detail}`;
+  }
+  if (slug === "url-kodlayici" && error instanceof URIError) {
+    return isTr ? `URL kodlaması çözülemedi. Eksik veya bozuk yüzde kaçışlarını (ör. %20) kontrol edin. Teknik ayrıntı: ${detail}` : `The URL encoding could not be decoded. Check incomplete or malformed percent escapes such as %20. Technical detail: ${detail}`;
+  }
+  return detail;
+}
+
 function words(text: string, locale: Locale) {
   return text.toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US").match(/[\p{L}\p{N}’'-]+/gu) ?? [];
 }
@@ -40,7 +79,7 @@ function sentenceCount(text: string) {
   return Math.max(1, (text.match(/[.!?]+(?:\s|$)/g) ?? []).length || (text.trim() ? 1 : 0));
 }
 
-function csvParse(input: string): string[][] {
+function csvParse(input: string, locale: Locale): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
@@ -56,6 +95,7 @@ function csvParse(input: string): string[][] {
       row.push(cell); rows.push(row); row = []; cell = "";
     } else cell += char;
   }
+  if (quoted) throw new Error(locale === "tr" ? "CSV içinde kapanmamış bir çift tırnaklı alan var." : "The CSV contains an unclosed quoted field.");
   row.push(cell);
   if (row.some((value) => value.length) || rows.length === 0) rows.push(row);
   return rows;
@@ -145,25 +185,36 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
 
 function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
   const isTr = locale === "tr";
-  const [input, setInput] = useState(samples[slug]?.[locale] ?? "");
-  const [secondary, setSecondary] = useState(slug === "regex-test-araci" ? "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}" : slug === "metin-benzerlik-analizi" ? (isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.") : slug === "few-shot-ornek-olusturucu" ? (isTr ? "Ürünü çok sevdim => olumlu\nTeslimat zamanında geldi => olumlu\nArayüz kullanılabilir => nötr\nUygulama sürekli kapanıyor => olumsuz" : "I love the product => positive\nDelivery arrived on time => positive\nThe interface is usable => neutral\nThe app keeps crashing => negative") : slug === "sistem-promptu-persona-sablonu" ? (isTr ? "Ton: sakin, açık ve destekleyici\nHedef kitle: teknik olmayan yeni kullanıcılar\nSınırlar: bilinmeyen bilgiyi uydurma; güvenlik iddiası verme" : "Tone: calm, clear, and supportive\nAudience: non-technical beginners\nBoundaries: do not invent missing facts or make security guarantees") : "");
+  const [input, setInput] = useState("");
+  const [secondary, setSecondary] = useState("");
   const [flags, setFlags] = useState("gi");
   const [mode, setMode] = useState("default");
   const [length, setLength] = useState(24);
   const [output, setOutput] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [message, setMessage] = useState("");
+  const [notice, setNotice] = useState<ToolNoticeData | null>(null);
 
   const labels = useMemo(() => isTr ? {
     input: slug === "few-shot-ornek-olusturucu" ? "Görev tanımı" : slug === "sistem-promptu-persona-sablonu" ? "Rol ve temel sorumluluk" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron ifadesi" : "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : slug === "few-shot-ornek-olusturucu" ? "Örnekler — her satır `girdi => çıktı`" : slug === "sistem-promptu-persona-sablonu" ? "Ton, hedef kitle ve sınırlar" : "Karşılaştırma metni",
-    run: "Cihazımda çalıştır", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", error: "İşlem tamamlanamadı: ", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu",
+    run: "Cihazımda çalıştır", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu",
   } : {
     input: slug === "few-shot-ornek-olusturucu" ? "Task description" : slug === "sistem-promptu-persona-sablonu" ? "Role and primary responsibility" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron expression" : "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : slug === "few-shot-ornek-olusturucu" ? "Examples — one `input => output` pair per line" : slug === "sistem-promptu-persona-sablonu" ? "Tone, audience, and boundaries" : "Comparison text",
-    run: "Run on my device", copy: "Copy output", download: "Download as text", clear: "Clear", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", error: "Could not complete the operation: ", local: "Input never leaves this page.", flags: "Flags", length: "Password length",
+    run: "Run on my device", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length",
   }, [isTr, slug]);
 
   function setResult(value: string, nextMetrics: Metric[] = []) {
-    setOutput(value); setMetrics(nextMetrics); setMessage("");
+    setOutput(value); setMetrics(nextMetrics); setNotice(null);
+  }
+
+  function clearWorkbench() {
+    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setOutput(""); setMetrics([]); setNotice(null);
+  }
+
+  function loadDemo() {
+    setInput(samples[slug]?.[locale] ?? "");
+    setSecondary(secondarySample(slug, locale));
+    setFlags("gi"); setMode("default"); setLength(24); setOutput(""); setMetrics([]);
+    setNotice({ kind: "info", text: labels.demoLoaded });
   }
 
   async function run() {
@@ -247,7 +298,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "json-csv-donusturucu": {
           if (mode === "csv-to-json") {
-            const rows = csvParse(input); const headers = rows[0] ?? [];
+            const rows = csvParse(input, locale); const headers = rows[0] ?? [];
             const data = rows.slice(1).filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
             setResult(JSON.stringify(data, null, 2), [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }]);
           } else {
@@ -259,6 +310,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "regex-test-araci": {
+          if (!secondary.trim()) throw new Error(isTr ? "Bir regex kalıbı girin veya örnek veriyi yükleyin." : "Enter a regular expression or load the example.");
           if (input.length > 50000) throw new Error(isTr ? "Performans için test metni 50.000 karakterle sınırlıdır." : "Sample text is limited to 50,000 characters for performance.");
           if (/(\([^)]*[+*][^)]*\))[+*{]/.test(secondary)) throw new Error(isTr ? "İç içe nicelik belirteci ReDoS riski taşıyabilir; kalıbı sadeleştirin." : "Nested quantifiers may create a ReDoS risk; simplify the pattern.");
           const re = new RegExp(secondary, flags.includes("g") ? flags : `${flags}g`); const matches = [...input.matchAll(re)].slice(0, 200);
@@ -267,7 +319,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "csv-inceleyici": {
-          const rows = csvParse(input).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
+          const rows = csvParse(input, locale).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
           setResult(`${isTr ? "Başlıklar" : "Headers"}: ${headers.join(" · ")}\n${isTr ? "Düzensiz satırlar" : "Irregular rows"}: ${irregular.length ? irregular.map((item) => item.line).join(", ") : (isTr ? "yok" : "none")}`, [{ label: isTr ? "Veri satırı" : "Data rows", value: Math.max(0, rows.length - 1) }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Düzensiz satır" : "Irregular rows", value: irregular.length }]);
           break;
         }
@@ -333,26 +385,37 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         default: throw new Error(isTr ? "Araç yapılandırması bulunamadı." : "Tool configuration was not found.");
       }
     } catch (error) {
-      setOutput(""); setMetrics([]); setMessage(labels.error + (error instanceof Error ? error.message : String(error)));
+      setOutput(""); setMetrics([]);
+      setNotice({ kind: "error", text: friendlyError(slug, error, locale) });
     }
   }
 
   async function copyOutput() {
     if (!output) return;
-    await navigator.clipboard.writeText(output); setMessage(labels.copied);
+    try {
+      await navigator.clipboard.writeText(output);
+      setNotice({ kind: "success", text: labels.copied });
+    } catch {
+      setNotice({ kind: "error", text: isTr ? "Tarayıcı pano izni vermedi. Çıktıyı seçip elle kopyalayabilirsiniz." : "The browser denied clipboard access. Select the output and copy it manually." });
+    }
   }
 
   function downloadOutput() {
     if (!output) return;
-    const url = URL.createObjectURL(new Blob([output], { type: "text/plain;charset=utf-8" }));
-    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); URL.revokeObjectURL(url);
+    try {
+      const url = URL.createObjectURL(new Blob([output], { type: "text/plain;charset=utf-8" }));
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); URL.revokeObjectURL(url);
+      setNotice({ kind: "success", text: labels.downloaded });
+    } catch {
+      setNotice({ kind: "error", text: isTr ? "Dosya indirilemedi. Tarayıcının indirme iznini kontrol edin." : "The file could not be downloaded. Check the browser's download permission." });
+    }
   }
 
   const showMode = ["buyuk-kucuk-harf-donusturucu", "json-bicimlendirici", "json-csv-donusturucu", "base64-kodlayici", "url-kodlayici"].includes(slug);
 
   return (
     <section className="workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"}>
-      <div className="workbench-bar"><span className="local-status"><i />{labels.local}</span><button type="button" className="ghost-button" onClick={() => { setInput(""); setSecondary(""); setOutput(""); setMetrics([]); setMessage(""); }}>{labels.clear}</button></div>
+      <div className="workbench-bar"><span className="local-status"><i />{labels.local}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
           {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => setInput(event.target.value)} spellCheck="false" /></label>}
@@ -368,10 +431,10 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           <button type="button" className="primary-button run-button" onClick={run}>{labels.run}<span aria-hidden="true"> →</span></button>
         </div>
         <div className="result-panel" aria-live="polite">
-          <div className="result-header"><span>{labels.output}</span><div><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
+          <div className="result-header"><span>{labels.output}</span><div className="output-actions"><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
           {metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}
           <pre className={output ? "has-output" : ""}>{output || labels.empty}</pre>
-          {message && <p className={message.startsWith(labels.error) ? "tool-message error" : "tool-message"}>{message}</p>}
+          <ToolNotice notice={notice} locale={locale} />
         </div>
       </div>
     </section>

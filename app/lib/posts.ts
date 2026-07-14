@@ -8,6 +8,7 @@ export type ArticleSection = {
 
 export type Post = {
   slug: string;
+  relatedTools: string[];
   date: string;
   readTime: Record<Locale, string>;
   title: Record<Locale, string>;
@@ -21,6 +22,7 @@ export type Post = {
 export const posts: Post[] = [
   {
     slug: "client-side-ai-araclari-nedir",
+    relatedTools: ["json-bicimlendirici", "kvkk-veri-maskeleyici", "sha256-ozet-uretici"],
     date: "2026-07-14",
     readTime: { tr: "8 dk", en: "7 min" },
     title: { tr: "Client-Side AI Araçları Nedir ve Neden Önemlidir?", en: "What Are Client-Side AI Tools and Why Do They Matter?" },
@@ -45,6 +47,7 @@ export const posts: Post[] = [
   },
   {
     slug: "prompt-muhendisliginde-gizlilik",
+    relatedTools: ["kvkk-veri-maskeleyici", "prompt-kalite-denetimi", "token-sayaci"],
     date: "2026-07-14",
     readTime: { tr: "9 dk", en: "8 min" },
     title: { tr: "Prompt Mühendisliğinde Gizlilik Nasıl Sağlanır?", en: "How to Protect Privacy in Prompt Engineering" },
@@ -69,6 +72,7 @@ export const posts: Post[] = [
   },
   {
     slug: "meta-prompt-nedir",
+    relatedTools: ["meta-prompt-olusturucu", "sistem-promptu-persona-sablonu", "few-shot-ornek-olusturucu"],
     date: "2026-07-14",
     readTime: { tr: "7 dk", en: "6 min" },
     title: { tr: "Meta Prompt Nedir ve Nasıl Kullanılır?", en: "What Is a Meta Prompt and How Do You Use One?" },
@@ -93,6 +97,7 @@ export const posts: Post[] = [
   },
   {
     slug: "tarayici-ici-nlp-kvkk-avantajlari",
+    relatedTools: ["okunabilirlik-analizi", "metin-temizleyici", "kvkk-veri-maskeleyici"],
     date: "2026-07-14",
     readTime: { tr: "8 dk", en: "7 min" },
     title: { tr: "Tarayıcı İçi NLP Araçlarının KVKK Avantajları", en: "KVKK Benefits of In-Browser NLP Tools" },
@@ -117,6 +122,7 @@ export const posts: Post[] = [
   },
   {
     slug: "gelismis-prompt-kalite-kontrolu",
+    relatedTools: ["prompt-kalite-denetimi", "few-shot-ornek-olusturucu", "token-sayaci"],
     date: "2026-07-14",
     readTime: { tr: "10 dk", en: "9 min" },
     title: { tr: "Gelişmiş Prompt Kalite Kontrolü Teknikleri", en: "Advanced Prompt Quality-Control Techniques" },
@@ -141,6 +147,7 @@ export const posts: Post[] = [
   },
   {
     slug: "sentetik-veri-ve-gizlilik-riskleri",
+    relatedTools: ["json-csv-donusturucu", "kvkk-veri-maskeleyici", "uuid-uretici"],
     date: "2026-07-14",
     readTime: { tr: "9 dk", en: "8 min" },
     title: { tr: "Sentetik Veri Üretimi ve Gizlilik Riskleri", en: "Synthetic Data Generation and Privacy Risks" },
@@ -165,6 +172,7 @@ export const posts: Post[] = [
   },
   {
     slug: "promptlari-daha-guvenli-hale-getirme",
+    relatedTools: ["kvkk-veri-maskeleyici", "prompt-kalite-denetimi", "sistem-promptu-persona-sablonu"],
     date: "2026-07-14",
     readTime: { tr: "8 dk", en: "7 min" },
     title: { tr: "Prompt'larınızı Nasıl Daha Güvenli Hale Getirirsiniz?", en: "How to Make Your Prompts Safer" },
@@ -189,6 +197,7 @@ export const posts: Post[] = [
   },
   {
     slug: "bytequant-araclarini-kullanma-rehberi",
+    relatedTools: ["prompt-kalite-denetimi", "json-bicimlendirici", "kvkk-veri-maskeleyici"],
     date: "2026-07-14",
     readTime: { tr: "11 dk", en: "10 min" },
     title: { tr: "ByteQuant Araçlarını Etkili Kullanma Rehberi", en: "A Practical Guide to Using ByteQuant Tools" },
@@ -209,6 +218,156 @@ export const posts: Post[] = [
         { heading: "Example content workflow", paragraphs: ["Use Word Counter for scope, Readability Analyzer for sentence density, Text Cleaner for copy artifacts, and Case Converter for heading standards. Text Similarity can quantify change between versions. Treat scores as signals rather than goals; editorial purpose still decides what is good."], bullets: ["Measure length and structure", "Review readability", "Clean formatting", "Compare versions"] },
         { heading: "Prompt and privacy workflow", paragraphs: ["Structure a rough instruction with Meta Prompt Builder, find missing goals and constraints with Prompt Quality Checker, then run Data Masker before adding real records. Token Counter estimates context size. Always read masked output manually because contextual identifiers may not match a regular expression." ] },
         { heading: "Data workflow and safe output", paragraphs: ["Validate API samples with JSON Formatter, move flat records with JSON ↔ CSV Converter, inspect column consistency with CSV Inspector, and test parsing patterns in Regex Tester. Keep an original backup; nested JSON and very large files may need desktop tooling.", "Copying or downloading moves data outside the page. Check clipboard history and downloads on shared devices, store generated passwords in a password manager, and never use plain SHA-256 for password storage." ] },
+      ],
+    },
+  },
+  {
+    slug: "json-jwt-api-hata-ayiklama-rehberi",
+    relatedTools: ["json-bicimlendirici", "jwt-decoder", "base64-kodlayici", "unix-zaman-damgasi-donusturucu"],
+    date: "2026-07-14",
+    readTime: { tr: "10 dk", en: "9 min" },
+    title: { tr: "JSON ve JWT ile API Hatalarını Sistematik Ayıklama", en: "A Systematic Workflow for Debugging JSON, JWTs, and APIs" },
+    excerpt: { tr: "Bozuk gövde, yanlış kodlama, süre aşımı ve JWT iddialarını güvenli bir sırayla inceleyerek API hatalarının kaynağını bulun.", en: "Trace malformed bodies, encoding mistakes, expiry, and JWT claims in a safe, repeatable order." },
+    description: { tr: "JSON doğrulama, JWT inceleme, Base64 kodlama ve Unix zaman damgası kontrolünü birleştiren uygulamalı API hata ayıklama rehberi.", en: "A practical API-debugging guide that combines JSON validation, JWT inspection, Base64 handling, and Unix timestamp checks." },
+    category: { tr: "Geliştirici iş akışları", en: "Developer workflows" },
+    visualSuggestion: { tr: "İstek gövdesinden kimlik doğrulama ve zaman kontrolüne ilerleyen dört aşamalı bir hata ayıklama hattı.", en: "A four-stage debugging pipeline from request body to authentication and time validation." },
+    sections: {
+      tr: [
+        { heading: "Önce hatayı katmanlara ayırın", paragraphs: ["Bir API isteği başarısız olduğunda gövde biçimi, HTTP aktarımı, kimlik doğrulama ve iş kuralını aynı anda değiştirmek tanıyı zorlaştırır. Önce durum kodunu, yanıtın Content-Type değerini ve ham gövdeyi kaydedin; ardından tek katmanı değiştirerek yeniden deneyin. 400 sınıfı her zaman bozuk JSON, 401 sınıfı da her zaman süresi geçmiş token anlamına gelmez.", "Üretim tokenlarını veya müşteri kayıtlarını hata takip sistemine kopyalamayın. Yapıyı koruyan sentetik bir örnek hazırlamak, hem gizliliği korur hem de hatanın tekrar üretilebilir olmasını sağlar."], bullets: ["Beklenen ve gerçek durum kodunu ayırın.", "Ham yanıtı biçimlendirmeden önce saklayın.", "Her denemede yalnızca bir değişkeni değiştirin."] },
+        { heading: "JSON gövdesini sözleşmeye göre doğrulayın", paragraphs: ["Önce metnin sözdizimsel olarak geçerli JSON olup olmadığını kontrol edin. Sondaki virgül, tek tırnak, kaçırılmamış satır sonu ve sayı yerine gönderilen metin sık rastlanan sorunlardır. Geçerli JSON yine de doğru veri değildir: zorunlu alanlar, null davranışı, tarih biçimi ve iç içe nesne yapısı API sözleşmesiyle karşılaştırılmalıdır.", "Biçimlendirici çıktısı alan adlarını ve tip farklarını görünür kılar. Büyük gövdelerde önce en küçük hatalı örneğe inin; gereksiz alanları çıkararak sorunun belirli bir değerden mi, yoksa şemadan mı kaynaklandığını anlayın."] },
+        { heading: "JWT'yi doğrulama yapıyormuş gibi yorumlamayın", paragraphs: ["JWT'nin header ve payload bölümleri Base64URL ile kodlanmıştır; şifrelenmiş olmak zorunda değildir. Payload içindeki sub, aud, iss, exp ve nbf alanlarını okumak tanı koymaya yardım eder, fakat yalnızca decode etmek imzanın doğru olduğunu kanıtlamaz. İmza ve algoritma denetimi güvenilir bir sunucu kitaplığıyla, beklenen anahtar ve issuer yapılandırmasıyla yapılmalıdır.", "alg değerini tokenın kendisinden körü körüne kabul etmeyin. Beklenen algoritmayı sunucu tarafında sabitleyin; audience ve issuer eşleşmesini, anahtar rotasyonunu ve saat sapması toleransını açıkça test edin."], bullets: ["Tokenı günlüklerde tam olarak saklamayın.", "Decode ile signature verification ayrımını koruyun.", "exp, nbf, aud ve iss alanlarını birlikte inceleyin."] },
+        { heading: "Zaman ve kodlama tuzaklarını kapatın", paragraphs: ["Unix zamanı saniye veya milisaniye olabilir. On üç basamaklı bir değeri saniye kabul etmek tarihi binlerce yıl ileri taşır; exp değerleri çoğunlukla saniyedir. UTC ile yerel saat gösterimini yan yana kontrol edin ve istemci-sunucu saat farkını ölçün.", "Base64 ile Base64URL aynı alfabe değildir; JWT bölümlerinde tire ve alt çizgi kullanılır, padding kaldırılabilir. Tanı sonunda düzeltilen örneği bir regresyon testine dönüştürün. Böylece sorun tekrarlandığında yalnızca arayüzde değil, otomatik testte de görünür olur."] },
+      ],
+      en: [
+        { heading: "Split the failure into layers", paragraphs: ["Changing the request body, transport, authentication, and business logic at the same time makes an API failure harder to diagnose. Record the status code, response Content-Type, and raw body first, then change one layer per attempt. A 400 is not always malformed JSON, and a 401 is not always an expired token.", "Do not paste production tokens or customer records into tickets. Build a synthetic sample that preserves the structure and still reproduces the failure."], bullets: ["Separate expected and actual status codes.", "Keep the raw response before formatting it.", "Change one variable in each experiment."] },
+        { heading: "Validate JSON against the contract", paragraphs: ["Check syntax before meaning. Trailing commas, single quotes, unescaped newlines, and strings in numeric fields are common. Valid JSON can still violate the API contract, so compare required fields, null behavior, date formats, and nested shapes with the schema.", "A formatted view makes key and type differences visible. Reduce a large body to the smallest failing sample to learn whether one value or the overall shape causes the error."] },
+        { heading: "Do not mistake decoding for verification", paragraphs: ["JWT headers and payloads use Base64URL and are not necessarily encrypted. Reading sub, aud, iss, exp, and nbf helps diagnosis, but decoding does not prove the signature. Verify it on a trusted server with the expected key, issuer, audience, and algorithm.", "Never accept the token's alg value as the policy. Pin allowed algorithms server-side and test key rotation and clock-skew behavior explicitly."], bullets: ["Never log a complete bearer token.", "Keep decoding and signature verification distinct.", "Review exp, nbf, aud, and iss together."] },
+        { heading: "Close time and encoding traps", paragraphs: ["Unix timestamps may be seconds or milliseconds. A thirteen-digit value interpreted as seconds produces a wildly incorrect date; JWT exp values are normally seconds. Compare UTC and local views and measure clock drift between client and server.", "Base64URL replaces characters and may omit padding. Once the cause is known, preserve the corrected sample as a regression test so the same bug becomes visible before deployment."] },
+      ],
+    },
+  },
+  {
+    slug: "markdown-diff-editor-icerik-is-akisi",
+    relatedTools: ["markdown-onizleyici", "metin-farki-diff", "metin-temizleyici", "okunabilirlik-analizi"],
+    date: "2026-07-14",
+    readTime: { tr: "9 dk", en: "8 min" },
+    title: { tr: "Markdown ve Diff ile Güvenli Editoryal İş Akışı", en: "A Safer Editorial Workflow with Markdown and Diff" },
+    excerpt: { tr: "İçeriği yayınlamadan önce yapı, bağlantı, anlam ve sürüm farklarını kontrollü bir inceleme hattında doğrulayın.", en: "Review structure, links, meaning, and version changes in a controlled pre-publication pipeline." },
+    description: { tr: "Markdown önizleme, metin farkı, temizleme ve okunabilirlik araçlarını birleştiren tekrar edilebilir içerik kalite süreci.", en: "A repeatable content-quality process combining Markdown preview, text diffing, cleanup, and readability checks." },
+    category: { tr: "İçerik operasyonları", en: "Content operations" },
+    visualSuggestion: { tr: "Taslak, önizleme, diff incelemesi ve yayın onayı arasında dönen editoryal akış.", en: "An editorial loop across draft, preview, diff review, and publication approval." },
+    sections: {
+      tr: [
+        { heading: "Kaynağı tek gerçek olarak koruyun", paragraphs: ["Markdown dosyasını içerik kaynağı, HTML önizlemeyi ise türetilmiş çıktı olarak ele alın. Kaynak ve kopyalanmış HTML ayrı ayrı düzenlenirse kısa sürede birbirinden kopar. Başlık hiyerarşisi, liste girintisi, kod çiti ve bağlantı hedefleri önce kaynakta düzeltilmelidir.", "Yayın platformuna yapıştırmadan önce metni temizlemek görünmez boşlukları ve farklı satır sonlarını azaltır. Ancak kod örneklerindeki anlamlı boşlukları otomatik temizliğe karşı ayrıca kontrol edin."] },
+        { heading: "Önizlemeyi görsel kontrolden fazlası yapın", paragraphs: ["Anlık önizleme; kırık başlık seviyelerini, taşan kod bloklarını ve yanlış iç içe listeleri erken gösterir. Yalnızca masaüstünde bakmayın: uzun URL, geniş tablo ve kesintisiz kod dizilerinin dar ekranda yatay taşmasını da sınayın.", "Markdown içindeki ham HTML veya javascript benzeri tehlikeli URL'ler yayın hattında sanitize edilmelidir. Önizleme güvenli görünse bile hedef CMS farklı bir dönüştürücü kullanıyorsa son ortamda yeniden kontrol gerekir."], bullets: ["Tek bir H1 kullanın.", "Başlık seviyelerini atlamayın.", "Bağlantı metnini hedefi anlatacak biçimde yazın.", "Kod ve tabloları mobil genişlikte test edin."] },
+        { heading: "Diff incelemesini anlam odaklı yürütün", paragraphs: ["Satır diff'i taşınan paragrafları büyük bir silme-ekleme gibi gösterebilir; kelime diff'i ise küçük anlam değişikliklerini daha iyi ortaya çıkarır. Önce satır düzeyinde kapsamı, sonra kritik cümlelerde kelime düzeyini inceleyin. Özellikle olumsuzluk ekleri, sayılar, tarih, kapsam ve garanti bildiren ifadeler gözden kaçmamalıdır.", "Biçimsel değişikliği içerik değişikliğinden ayırmak için ilk turda boşlukları normalize edebilirsiniz. Fakat son onayda özgün metni karşılaştırın; Markdown girintisi ve satır sonu bazı yapılarda semantiktir."] },
+        { heading: "Yayın kapısını ölçülebilir hale getirin", paragraphs: ["İyi bir kontrol listesi; kırık bağlantı, başlık yapısı, okunabilirlik, kişisel veri, iddia kaynağı ve diff onayını kapsar. Okunabilirlik puanı tek başına kalite değildir; hedef kitlenin bilgi düzeyi ve teknik terimlerin açıklanmasıyla birlikte yorumlanmalıdır.", "Onaylanan sürümün kaynak dosyasını ve değişiklik özetini saklayın. Böylece bir düzeltmenin neden yapıldığı anlaşılır, geri alma kolaylaşır ve sonraki editör yalnızca nihai metni değil karar bağlamını da görür."] },
+      ],
+      en: [
+        { heading: "Keep one source of truth", paragraphs: ["Treat Markdown as the content source and rendered HTML as derived output. Editing both independently creates drift. Fix heading hierarchy, list indentation, code fences, and link targets in the source first.", "Cleaning copied text can remove invisible spaces and inconsistent line endings, but review code samples where whitespace is meaningful."] },
+        { heading: "Make preview more than a visual check", paragraphs: ["Live preview exposes skipped headings, overflowing code blocks, and broken nested lists. Test narrow screens too, especially long URLs, wide tables, and unbroken code.", "Raw HTML and dangerous URL schemes need sanitization in the publishing pipeline. If the target CMS uses another renderer, verify the final environment as well."], bullets: ["Use a single H1.", "Do not skip heading levels.", "Write descriptive link text.", "Test code and tables at mobile width."] },
+        { heading: "Review diffs for meaning", paragraphs: ["Line diffs show broad movement; word diffs expose small semantic changes. Review scope at line level and critical sentences at word level. Pay special attention to negation, numbers, dates, scope, and warranty language.", "Whitespace normalization can separate formatting noise from content changes, but compare the original source before approval because Markdown indentation can carry meaning."] },
+        { heading: "Create a measurable publication gate", paragraphs: ["A practical gate checks links, headings, readability, personal data, claim sources, and the final diff. A readability score is a signal, not a quality verdict; interpret it for the audience and explain unavoidable technical terms.", "Keep the approved source and a change summary. This preserves decision context, supports rollback, and helps the next editor understand why the wording changed."] },
+      ],
+    },
+  },
+  {
+    slug: "exif-metadata-gizlilik-rehberi",
+    relatedTools: ["exif-meta-veri-temizleyici", "sha256-ozet-uretici", "kvkk-veri-maskeleyici"],
+    date: "2026-07-14",
+    readTime: { tr: "10 dk", en: "9 min" },
+    title: { tr: "Fotoğraf Paylaşmadan Önce EXIF ve Meta Veri Güvenliği", en: "EXIF and Metadata Safety Before Sharing a Photo" },
+    excerpt: { tr: "Konum, cihaz, çekim zamanı ve düzenleme izlerini paylaşım öncesinde tespit edip temizlenmiş kopyayı doğrulayın.", en: "Find location, device, capture-time, and editing traces, then verify the cleaned copy before sharing." },
+    description: { tr: "JPEG ve PNG dosyalarındaki hassas meta verilerin riskini, tarayıcı içi temizleme yöntemini ve doğrulama adımlarını açıklayan rehber.", en: "A guide to sensitive JPEG/PNG metadata, in-browser removal, and verification of the sanitized result." },
+    category: { tr: "Görsel gizliliği", en: "Image privacy" },
+    visualSuggestion: { tr: "Orijinal fotoğraf, meta veri katmanı ve doğrulanmış temiz kopyayı gösteren üç panelli şema.", en: "A three-panel diagram showing the original photo, metadata layer, and verified clean copy." },
+    sections: {
+      tr: [
+        { heading: "Pikselin dışında ne paylaşılır?", paragraphs: ["Bir JPEG dosyası kamera modeli, lens, çekim tarihi, yön, yazılım ve GPS koordinatı gibi EXIF alanları taşıyabilir. PNG dosyalarında da metin blokları, renk profilleri ve uygulamaya özgü ek parçalar bulunabilir. Dosya adı ve bulut hizmetinin oluşturduğu paylaşım kaydı ise görüntünün iç meta verisinden ayrı bir katmandır.", "Risk bağlama bağlıdır. Bir ürün fotoğrafındaki kamera modeli önemsiz olabilirken evde çekilmiş bir görselin kesin koordinatı, çocukların rutini veya çalışma yeri hakkında bilgi verebilir."] },
+        { heading: "Temizleme neden yeniden kodlama gerektirir?", paragraphs: ["Tarayıcıda güvenli ve uyumlu yaklaşım, görüntüyü piksel olarak çözüp temiz bir canvas üzerine yeniden çizmek ve yeni dosya üretmektir. Bu işlem yaygın EXIF bloklarını taşımadan görseli yeniden kodlar. Bunun bedeli JPEG'de küçük kalite veya dosya boyutu değişimi, animasyonlu ya da özel renk profilli dosyalarda özellik kaybı olabilir.", "Orijinal dosyayı değiştirmek yerine yeni bir kopya üretmek geri dönüşü korur. Temiz kopyaya açıklayıcı fakat kişisel bilgi içermeyen yeni bir ad verin."] },
+        { heading: "Önce tara, sonra doğrula", paragraphs: ["Temizlemeden önce gösterilen alanları risk açısından inceleyin; GPS, tarih ve cihaz bilgisi bulunmaması dosyada hiçbir ek veri olmadığı garantisi değildir. Formatlar üreticiye özgü alanlar taşıyabilir ve tarayıcı API'leri her varyantı açıklamayabilir.", "İndirdiğiniz temiz dosyayı araca yeniden yükleyin ve meta veri listesini tekrar kontrol edin. Kritik yayınlarda ikinci bir bağımsız masaüstü aracıyla doğrulama yapın. Görselin kendisinde görünen plaka, yüz, belge veya konum işaretleri meta veri temizliğiyle kaybolmaz."], bullets: ["Temiz kopyayı tekrar tarayın.", "Piksel içindeki hassas ayrıntıları ayrıca inceleyin.", "Orijinali kontrollü bir yerde saklayın."] },
+        { heading: "Kurumsal paylaşım standardı kurun", paragraphs: ["Haber, saha çalışması veya müşteri destek süreçlerinde görseller için sabit bir kabul hattı oluşturun: kaynak doğrulama, kişisel veri kontrolü, meta veri temizleme, görsel redaksiyon ve yayın onayı. Mesajlaşma uygulamalarının meta veriyi otomatik kaldırdığı varsayımına güvenmeyin; davranış uygulama ve gönderim biçimine göre değişebilir.", "Dosya bütünlüğünü daha sonra kanıtlamanız gerekiyorsa orijinalin SHA-256 özetini erişimi sınırlı kayıtta tutabilirsiniz. Özet dosyayı gizlemez; yalnızca aynı içeriğin değişip değişmediğini karşılaştırmaya yarar."] },
+      ],
+      en: [
+        { heading: "What travels beyond the pixels", paragraphs: ["JPEG files can contain camera, lens, time, orientation, software, and GPS EXIF fields. PNG can carry text chunks, color profiles, and application-specific data. File names and cloud-sharing records are separate metadata layers.", "Risk depends on context. A camera model may be harmless in a product shot, while exact coordinates from a home photo can expose routines or location."] },
+        { heading: "Why removal often means re-encoding", paragraphs: ["A broadly compatible browser approach decodes the pixels, draws them to a clean canvas, and exports a new image without copying common EXIF blocks. JPEG quality or size may change, and animation or specialist color profiles can be lost.", "Create a new copy instead of overwriting the source. Use a descriptive new name that contains no personal information."] },
+        { heading: "Inspect, clean, and verify", paragraphs: ["A short detected-field list is not proof that every proprietary block is absent. After cleaning, upload the downloaded copy again and inspect it. For high-risk publication, verify with an independent desktop tool.", "Metadata removal cannot hide faces, plates, documents, reflections, or landmarks visible in the pixels."], bullets: ["Scan the cleaned copy again.", "Review sensitive details inside the image.", "Keep the source in controlled storage."] },
+        { heading: "Build an organizational sharing standard", paragraphs: ["Use a fixed intake pipeline for journalism, field work, or customer support: source verification, personal-data review, metadata removal, visual redaction, and publication approval. Do not assume a messaging app always strips metadata; behavior changes by app and transfer mode.", "If later integrity evidence is needed, record a SHA-256 digest of the source in restricted storage. A digest does not conceal a file; it only helps detect changes."] },
+      ],
+    },
+  },
+  {
+    slug: "parola-entropisi-kirilma-suresi",
+    relatedTools: ["sifre-gucu-testi", "guclu-parola-uretici", "sha256-ozet-uretici"],
+    date: "2026-07-14",
+    readTime: { tr: "11 dk", en: "10 min" },
+    title: { tr: "Parola Entropisi ve Kırılma Süresi Nasıl Yorumlanır?", en: "How to Interpret Password Entropy and Crack-Time Estimates" },
+    excerpt: { tr: "Bit cinsinden entropinin ne söylediğini, tahminlerin hangi varsayımlara dayandığını ve pratikte neyin daha önemli olduğunu öğrenin.", en: "Understand what entropy measures, which assumptions drive crack-time estimates, and what matters in practice." },
+    description: { tr: "Parola uzunluğu, rastgelelik, benzersizlik, çevrimdışı saldırılar ve çok faktörlü kimlik doğrulama arasındaki ilişkiyi açıklayan güvenlik rehberi.", en: "A security guide to password length, randomness, uniqueness, offline attacks, and multi-factor authentication." },
+    category: { tr: "Hesap güvenliği", en: "Account security" },
+    visualSuggestion: { tr: "Uzunluk, karakter uzayı, saldırı hızı ve benzersizliğin tahmine etkisini gösteren terazi diyagramı.", en: "A balance diagram connecting length, character space, attack speed, and uniqueness." },
+    sections: {
+      tr: [
+        { heading: "Entropi bir modeldir, garanti değildir", paragraphs: ["Rastgele seçilen L uzunluğundaki bir parolanın teorik entropisi yaklaşık L × log2(N) formülüyle hesaplanır; N her konumdaki olası karakter sayısıdır. Bu formül yalnızca seçim gerçekten rastgeleyse anlamlıdır. İnsanların oluşturduğu kalıplar, sözlük kelimeleri, klavye yürüyüşleri ve yıl ekleri teorik uzayı ciddi biçimde küçültür.", "Bir güç ölçer bu nedenle kesin hüküm değil, karşılaştırma sinyali üretir. 'P@rola2026!' karmaşık görünse de tahmin edilebilir dönüşümler içerir; parola yöneticisinin ürettiği daha uzun rastgele bir değer genellikle daha güçlüdür."] },
+        { heading: "Kırılma süresi varsayımlara bağlıdır", paragraphs: ["Çevrimiçi saldırıda hız; oran sınırlama, hesap kilidi ve çok faktörlü doğrulamayla düşer. Ele geçirilmiş parola veritabanına karşı çevrimdışı saldırıda ise kullanılan hash algoritması, maliyet ayarı ve saldırgan donanımı belirleyicidir. Saniyede deneme sayısı milyonlarca kat değişebildiği için tek bir 'kırılması şu kadar sürer' değeri evrensel değildir.", "Tahminleri en kötü durum aralığı olarak okuyun. Hizmet sağlayıcının parolaları Argon2id, scrypt veya uygun maliyetli bcrypt gibi parola amaçlı yöntemlerle ve benzersiz salt ile saklaması gerekir."] },
+        { heading: "Uzun, rastgele ve benzersiz olanı seçin", paragraphs: ["Her hesap için ayrı parola kullanmak, küçük bir uzunluk artışından daha kritik olabilir. Aynı güçlü parola iki hizmette kullanılırsa bir ihlal diğer hesabı da tehlikeye atar. Parola yöneticisi 16–24 karakterlik rastgele değerleri üretip saklamayı pratik hale getirir.", "Hatırlanması gereken ana parola için rastgele seçilmiş birden çok kelimeden oluşan uzun bir ifade kullanılabilir. Kelimeleri kendiniz anlamlı bir cümle olarak seçerseniz gerçek rastgelelik azalır; üretim yöntemini de güvenlik değerlendirmesine dahil edin."], bullets: ["Her hesapta benzersiz değer kullanın.", "Mümkünse parola yöneticisiyle üretin.", "SMS yerine phishing-resistant MFA seçeneklerini tercih edin.", "İhlal bildirimi geldiğinde parolayı değiştirin."] },
+        { heading: "Yerel testte bile sır yönetimini unutmayın", paragraphs: ["ByteQuant güç testi girdiyi tarayıcı içinde değerlendirir ve sunucuya göndermez. Yine de gerçek bir parolayı ortak ekranda, ekran kaydında veya güvenilmeyen tarayıcı eklentilerinin bulunduğu cihazda yazmak risklidir. En güvenli yaklaşım kalıbı benzer bir örnekle değerlendirmek ve üretimi parola yöneticisine bırakmaktır.", "SHA-256 hızlı bir özet algoritmasıdır ve tek başına parola depolamak için uygun değildir. Hız saldırganın da çok hızlı tahmin yapmasına izin verir; parola saklama sistemleri özellikle yavaş ve ayarlanabilir maliyetli olmalıdır."] },
+      ],
+      en: [
+        { heading: "Entropy is a model, not a guarantee", paragraphs: ["A random password of length L drawn from N symbols has roughly L × log2(N) bits of theoretical entropy. The estimate only applies when selection is genuinely random. Human patterns, dictionary words, keyboard walks, and appended years shrink the real search space.", "A strength meter is therefore a comparison signal. A transformed word such as 'P@ssword2026!' can be predictable, while a longer value generated by a password manager is usually stronger."] },
+        { heading: "Crack time depends on assumptions", paragraphs: ["Online guessing is constrained by rate limits, lockouts, and MFA. Offline guessing after a database leak depends on the password hash, cost setting, and attacker hardware. Attempt rates can differ by millions of times, so no single crack-time number is universal.", "Read estimates as scenarios. Services should use a password-specific function such as Argon2id, scrypt, or appropriately configured bcrypt with unique salts."] },
+        { heading: "Choose long, random, and unique", paragraphs: ["Uniqueness across accounts can matter more than a small increase in complexity. Reusing one strong password lets a breach spread. A manager makes 16–24 random characters practical.", "For a master password, a long passphrase built from independently selected random words can work well. A meaningful sentence chosen by a person is less random, so evaluate the generation method too."], bullets: ["Use a unique value per account.", "Generate with a password manager where possible.", "Prefer phishing-resistant MFA over SMS.", "Change credentials after a relevant breach."] },
+        { heading: "Local testing still needs secret hygiene", paragraphs: ["ByteQuant evaluates input in the browser and does not send it to an application server. A real password can still be exposed on shared screens, recordings, clipboard history, or devices with untrusted extensions. Test a structurally similar sample and let a password manager generate the real secret.", "Plain SHA-256 is fast and unsuitable for password storage by itself. Password storage must deliberately slow guesses with an adjustable password-hashing function."] },
+      ],
+    },
+  },
+  {
+    slug: "cron-unix-zamanlama-hata-ayiklama",
+    relatedTools: ["cron-ifadesi-aciklayici", "unix-zaman-damgasi-donusturucu", "regex-test-araci"],
+    date: "2026-07-14",
+    readTime: { tr: "9 dk", en: "8 min" },
+    title: { tr: "Cron ve Unix Zamanında Güvenilir Zamanlama", en: "Reliable Scheduling with Cron and Unix Time" },
+    excerpt: { tr: "Saat dilimi, DST, alan sırası ve saniye-milisaniye farklarının zamanlanmış görevleri bozmasını önleyin.", en: "Prevent time zones, DST, field order, and second-vs-millisecond mistakes from breaking scheduled jobs." },
+    description: { tr: "Beş alanlı cron ifadelerini ve Unix zaman damgalarını üretimde güvenli biçimde doğrulamak için kontrol listesi.", en: "A production-minded checklist for validating five-field cron expressions and Unix timestamps." },
+    category: { tr: "Operasyon ve otomasyon", en: "Operations & automation" },
+    visualSuggestion: { tr: "Yerel saat, UTC, cron planı ve gerçek çalışma kaydını aynı zaman çizelgesinde gösteren görsel.", en: "A timeline comparing local time, UTC, the cron plan, and actual execution logs." },
+    sections: {
+      tr: [
+        { heading: "Cron lehçesini baştan belirleyin", paragraphs: ["Klasik cron beş alan kullanır: dakika, saat, ayın günü, ay ve haftanın günü. Bazı kütüphaneler başa saniye, sona yıl ekler; bazıları ? veya L gibi uzantılar kabul eder. Bir ifadeyi başka ortama taşımadan önce motorun belgelerini ve alan sayısını doğrulayın.", "`0 3 * * *` tipik beş alanlı yorumda her gün 03:00 demektir. Ancak hangi saat dilimindeki 03:00 olduğu zamanlayıcı yapılandırmasına bağlıdır; ifadede görünmeyen bu varsayımı çalışma kaydına ekleyin."] },
+        { heading: "Ayın günü ve haftanın günü tuzağı", paragraphs: ["Birçok cron uygulamasında ayın günü ile haftanın günü birlikte kısıtlandığında davranış basit bir AND değildir; motor bunlardan biri eşleştiğinde çalışabilir. Üretim platformunuzun semantiğini test etmeden 'ayın 1'i ve pazartesi' gibi bir planı yayınlamayın.", "Aralık, liste ve adım ifadelerini küçük örneklerle doğrulayın. `*/15`, `1-5` ve `1,15` görsel olarak benzer yoğunlukta olsa da çok farklı takvimler üretir. Açıklayıcı insan dilini kontrol olarak kullanın, asıl motor davranışını testle kanıtlayın."] },
+        { heading: "Saat dilimi ve yaz saati senaryoları", paragraphs: ["Yerel saatle çalışan görevler yaz saati geçişinde atlanabilir veya iki kez çalışabilir. Türkiye sabit UTC+3 kullanırken hedef müşteriler veya bulut bölgesi farklı kurallara sahip olabilir. Kritik işleri mümkünse UTC ile zamanlayın ve kullanıcıya gösterirken yerel saate dönüştürün.", "Bir görevin tam bir kez çalışması gerekiyorsa yalnızca cron'a güvenmeyin. İdempotency anahtarı, son çalışma kaydı ve tekrar deneme politikası kullanın. Böylece zamanlayıcı aynı dakikayı iki kez tetiklese bile iş sonucu yinelenmez."], bullets: ["Zaman dilimini yapılandırmada açıkça yazın.", "DST başlangıç ve bitiş tarihlerini test edin.", "Kritik görevleri idempotent tasarlayın."] },
+        { heading: "Unix zamanını gözlemlenebilir kılın", paragraphs: ["Unix değerinin saniye mi milisaniye mi olduğunu alan adı veya şemada belirtin. Loglarda ham değerle birlikte ISO 8601 UTC karşılığını tutmak tanıyı hızlandırır. Negatif değerler 1970 öncesini, çok büyük değerler birim karışıklığını gösterebilir.", "Yayın öncesi en az beş sonraki çalışma zamanını üretin ve beklenen iş takvimiyle karşılaştırın. Dağıtımdan sonra planlanan zaman, gerçek başlangıç, bitiş ve sonuç durumunu ölçün; sessizce çalışmayan bir zamanlayıcı başarılı bir otomasyon değildir."] },
+      ],
+      en: [
+        { heading: "Name the cron dialect", paragraphs: ["Classic cron has five fields: minute, hour, day of month, month, and day of week. Some libraries add seconds or years and support extensions such as ? or L. Verify field count and engine documentation before moving an expression between platforms.", "`0 3 * * *` usually means 03:00 daily, but the time zone is external to the expression. Record that hidden assumption with the job configuration."] },
+        { heading: "Day-of-month and day-of-week semantics", paragraphs: ["Many engines do not combine restricted day-of-month and day-of-week fields with a simple AND. A job may run when either matches. Test expressions such as 'the first of the month and Monday' on the production engine.", "Validate ranges, lists, and steps with small examples. Human-language explanations are useful review aids, but engine tests remain the authority."] },
+        { heading: "Time zones and daylight saving", paragraphs: ["Local-time jobs can be skipped or duplicated around DST. Schedule critical work in UTC where practical and convert only for display. If an operation must happen once, use idempotency keys, a last-run record, and an explicit retry policy."], bullets: ["State the time zone in configuration.", "Test both DST transitions.", "Make critical jobs idempotent."] },
+        { heading: "Make Unix time observable", paragraphs: ["Specify seconds or milliseconds in field names and schemas. Log the raw value together with its ISO 8601 UTC representation. Negative values may be valid before 1970; unexpectedly huge values often reveal a unit mismatch.", "Generate at least the next five occurrences before deployment. In production, measure scheduled time, actual start, finish, and outcome—a scheduler that fails silently is not reliable automation."] },
+      ],
+    },
+  },
+  {
+    slug: "qr-kod-guvenligi-ve-gizlilik",
+    relatedTools: ["qr-kod-olusturucu", "url-kodlayici", "renk-donusturucu"],
+    date: "2026-07-14",
+    readTime: { tr: "9 dk", en: "8 min" },
+    title: { tr: "QR Kod Güvenliği: Üretmeden ve Taramadan Önce", en: "QR Code Safety Before You Generate or Scan" },
+    excerpt: { tr: "QR kodların görünmeyen hedeflerini, tasarım toleranslarını ve güvenli paylaşım kontrollerini uygulamalı olarak değerlendirin.", en: "Evaluate hidden destinations, design tolerances, and safer sharing controls for QR codes." },
+    description: { tr: "Güvenilir QR kod üretimi, URL doğrulama, hata düzeltme, görsel erişilebilirlik ve phishing riskleri için kapsamlı rehber.", en: "A guide to trustworthy QR generation, URL validation, error correction, visual accessibility, and phishing risk." },
+    category: { tr: "Bağlantı güvenliği", en: "Link security" },
+    visualSuggestion: { tr: "Metin, kodlanan URL, QR matrisi ve tarama sonrası doğrulama ekranını bağlayan akış.", en: "A flow connecting source text, encoded URL, QR matrix, and post-scan verification." },
+    sections: {
+      tr: [
+        { heading: "QR kod yalnızca bir veri taşıyıcısıdır", paragraphs: ["QR kod, metni veya URL'yi görsel bir matrise kodlar; hedefin güvenilirliğini kanıtlamaz. Kullanıcı kodun içeriğini çıplak gözle göremediği için saldırganlar sahte giriş sayfalarını, ödeme adreslerini veya zararlı indirmeleri fiziksel etiketlerle gizleyebilir.", "Kod üretmeden önce hedef URL'yi tam olarak yazın, HTTPS kullanımını ve alan adını kontrol edin. Kısaltılmış bağlantılar yönetimi kolaylaştırabilir ama gerçek hedefi gizlediği için hassas işlemlerde ek güven sorusu yaratır."] },
+        { heading: "Taranabilir tasarımın sınırları", paragraphs: ["QR çevresindeki sessiz alan, yüksek kontrast ve yeterli fiziksel boyut tarama başarısı için gereklidir. Açık zemin üzerinde koyu modüller en güvenilir başlangıçtır. Renk markaya uyarlanabilir, fakat düşük kontrast ve şeffaf arka plan farklı kameralarla başarısız olabilir.", "Hata düzeltme seviyesi küçük hasarlara tolerans sağlar; aşırı logo kaplamasını güvenli hale getirmez. Ekran, mat baskı, parlak yüzey ve düşük ışık gibi gerçek kullanım koşullarında birden çok cihazla test edin."], bullets: ["Sessiz alanı kırpmayın.", "Yüksek kontrast kullanın.", "Baskı boyutunu tarama mesafesine göre seçin.", "Kodun altına okunabilir kısa hedef yazın."] },
+        { heading: "İçerik ve gizlilik kararını ayırın", paragraphs: ["Kartvizit QR'ı e-posta ve telefon gibi kişisel verileri doğrudan içerebilir. Kod yerel üretilse bile baskı veya ekran görüntüsü paylaşıldığında veri kalıcı biçimde çoğalır. Gerekli olmayan alanları çıkarmak ve herkese açık iletişim adresi kullanmak veri minimizasyonuna yardımcı olur.", "Dinamik QR hizmetleri yönlendirme ve analiz sunar, fakat üçüncü taraf takip ve hizmet sürekliliği getirir. Statik QR doğrudan veriyi taşır ve aracı sunucu gerektirmez; hedef değişirse kodun yeniden basılması gerekir."] },
+        { heading: "Yayın ve tarama kontrol listesi", paragraphs: ["Üretimden sonra QR'ı bağımsız bir okuyucuyla tarayıp çözülen metni kaynakla birebir karşılaştırın. Özellikle ödeme adreslerinde ilk ve son karakterleri kontrol etmek yetmez; tam değeri doğrulayın. PNG baskıda kolaylık, SVG ise ölçeklenebilirlik sunar; baskı tedarikçisinin dosyayı değiştirmediğini son prova üzerinde test edin.", "Bir QR tararken işletim sisteminin hedef önizlemesini okuyun, alan adındaki benzer harflere dikkat edin ve parola yöneticisinin beklenmeyen bir alan adında doldurma yapmamasını güven sinyali olarak değerlendirin. Şüpheli kodlarda kişisel bilgi veya ödeme bilgisi girmeyin."] },
+      ],
+      en: [
+        { heading: "A QR code is only a carrier", paragraphs: ["A QR matrix encodes text or a URL; it does not prove the destination is trustworthy. Because people cannot read the target visually, attackers can hide phishing pages, payment addresses, or downloads behind physical stickers.", "Before generation, inspect the complete URL, HTTPS status, and domain. Short links simplify management but hide the destination and add risk in sensitive flows."] },
+        { heading: "Design within scanning tolerances", paragraphs: ["A quiet zone, strong contrast, and adequate physical size are essential. Dark modules on a light background are the safest baseline. Brand colors can work, but low contrast and transparency fail on some cameras.", "Error correction tolerates limited damage; it does not make extreme logo overlays safe. Test multiple devices on screens, matte print, glossy surfaces, and low light."], bullets: ["Do not crop the quiet zone.", "Use strong contrast.", "Match print size to scanning distance.", "Print a readable destination below the code."] },
+        { heading: "Separate content and privacy decisions", paragraphs: ["A contact QR may directly embed an email address or phone number. Local generation does not stop that data from spreading through print or screenshots. Minimize fields and prefer a public contact identity.", "Dynamic QR services add redirection and analytics but also third-party tracking and service dependency. Static QR points directly to its data but must be reprinted when the target changes."] },
+        { heading: "A publish-and-scan checklist", paragraphs: ["Scan the generated code with an independent reader and compare decoded text with the source. Verify complete payment addresses. PNG is convenient for print; SVG scales cleanly—test the final proof because print workflows may alter either.", "When scanning, read the operating system's destination preview, watch for look-alike domains, and treat a password manager refusing to fill on an unexpected domain as a warning. Do not enter credentials or payment details when the target is uncertain."] },
       ],
     },
   },
