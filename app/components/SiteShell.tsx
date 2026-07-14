@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { copy, pathFor, type Locale } from "../lib/site";
+import { ConsentManager, PrivacySettingsButton } from "./ConsentManager";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteShell({ children, locale, alternateHref }: { children: ReactNode; locale: Locale; alternateHref: string }) {
@@ -45,12 +46,12 @@ export function SiteShell({ children, locale, alternateHref }: { children: React
             <span className="privacy-pill">● {locale === "tr" ? "Tarayıcı içinde işlenir" : "Processed in your browser"}</span>
           </div>
           <div><h2>{locale === "tr" ? "Keşfet" : "Explore"}</h2><Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div>
-          <div><h2>{locale === "tr" ? "Kurumsal" : "Company"}</h2><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "contact")}>{t.nav.contact}</Link><Link href={pathFor(locale, "privacy")}>{locale === "tr" ? "Gizlilik politikası" : "Privacy policy"}</Link><Link href={pathFor(locale, "terms")}>{locale === "tr" ? "Kullanım koşulları" : "Terms of use"}</Link></div>
+          <div><h2>{locale === "tr" ? "Kurumsal" : "Company"}</h2><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "contact")}>{t.nav.contact}</Link><Link href={pathFor(locale, "privacy")}>{locale === "tr" ? "Gizlilik politikası" : "Privacy policy"}</Link><Link href={pathFor(locale, "cookies")}>{locale === "tr" ? "Çerez ve yerel depolama" : "Cookies & local storage"}</Link><PrivacySettingsButton locale={locale} /><Link href={pathFor(locale, "terms")}>{locale === "tr" ? "Kullanım koşulları" : "Terms of use"}</Link></div>
           <div><h2>{locale === "tr" ? "Sosyal" : "Social"}</h2><a href="https://x.com/byte_quant" rel="me noopener noreferrer">X · @byte_quant</a><a href="https://www.instagram.com/byte.quant" rel="me noopener noreferrer">Instagram · @byte.quant</a><a href="mailto:bytequant@yahoo.com">bytequant@yahoo.com</a></div>
         </div>
         <div className="container footer-bottom"><span>© 2026 ByteQuant. {locale === "tr" ? "Tüm hakları saklıdır." : "All rights reserved."}</span><span>{locale === "tr" ? "Ücretsiz araçlar · Reklamlarla desteklenebilir" : "Free tools · May be supported by advertising"}</span></div>
       </footer>
+      <ConsentManager locale={locale} />
     </div>
   );
 }
-

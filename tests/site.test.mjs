@@ -22,6 +22,8 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(sitemap, /en\/tools\/prompt-kalite-denetimi/);
   assert.match(sitemap, /araclar\/exif-meta-veri-temizleyici/);
   assert.match(sitemap, /en\/tools\/qr-kod-olusturucu/);
+  assert.match(sitemap, /cerez-politikasi/);
+  assert.match(sitemap, /en\/cookies/);
   assert.match(sitemap, /hreflang="x-default"/);
   assert.match(robots, /sitemap\.xml/i);
   for (const crawler of ["Google-Extended", "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Applebot-Extended", "CCBot"]) {
@@ -30,6 +32,28 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(llms, /^# ByteQuant/m);
   assert.equal((llms.match(/^- \[/gm) ?? []).length, 29);
   assert.doesNotMatch(home, /codex-preview|react-loading-skeleton|Your site is taking shape/);
+  assert.doesNotMatch(home, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
+});
+
+test("exports consent, storage, and security disclosures", async () => {
+  const [cookies, englishCookies, privacy, security, llms] = await Promise.all([
+    read("cerez-politikasi/index.html"),
+    read("en/cookies/index.html"),
+    read("gizlilik-politikasi/index.html"),
+    read(".well-known/security.txt"),
+    read("llms.txt"),
+  ]);
+  for (const page of [cookies, englishCookies]) {
+    assert.match(page, /bq-consent-v1/);
+    assert.match(page, /bq-tool-usage-v1/);
+    assert.match(page, /180/);
+    assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
+  }
+  assert.match(privacy, /Google-certified CMP|CMP/);
+  assert.match(security, /Contact: mailto:bytequant@yahoo\.com/);
+  assert.match(security, /Canonical: https:\/\/bytequant\.org\/\.well-known\/security\.txt/);
+  assert.match(llms, /Optional tool-visit counting is off until/);
+  assert.match(llms, /https:\/\/bytequant\.org\/en\/cookies/);
 });
 
 test("exports all tool and guide routes", async () => {
@@ -40,6 +64,8 @@ test("exports all tool and guide routes", async () => {
   assert.ok(englishPosts.length >= 14);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
+  await access(new URL("cerez-politikasi/index.html", root));
+  await access(new URL("en/cookies/index.html", root));
   await access(new URL("blog/exif-metadata-gizlilik-rehberi/index.html", root));
   await access(new URL("en/blog/qr-kod-guvenligi-ve-gizlilik/index.html", root));
 });
@@ -50,6 +76,9 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /application\/ld\+json/);
   assert.match(page, /FAQPage/);
   assert.match(page, /HowTo/);
+  assert.match(page, /BreadcrumbList/);
+  assert.match(page, /WebApplication/);
+  assert.match(page, /tool-transparency/);
   assert.match(page, /İLGİLİ ARAÇLAR/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);

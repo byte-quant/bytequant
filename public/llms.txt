@@ -12,10 +12,14 @@ Languages:
 
 - Core tool input is processed locally in the user's browser; ByteQuant tools do not require an account.
 - Tool input is not intentionally uploaded to ByteQuant application servers.
-- Local storage is limited to preferences such as theme and non-sensitive, on-device tool-visit counts used to personalize the popular-tools list.
+- Local storage is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts used to personalize the popular-tools list.
+- Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
+- ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
 - Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
 - Full privacy policy: https://bytequant.org/gizlilik-politikasi
 - English privacy policy: https://bytequant.org/en/privacy
+- Cookie and local-storage policy: https://bytequant.org/cerez-politikasi
+- English cookie and local-storage policy: https://bytequant.org/en/cookies
 
 ## Prompt tools
 

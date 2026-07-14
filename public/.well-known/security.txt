@@ -1,0 +1,6 @@
+Contact: mailto:bytequant@yahoo.com
+Expires: 2027-07-15T00:00:00.000Z
+Preferred-Languages: tr, en
+Canonical: https://bytequant.org/.well-known/security.txt
+Policy: https://bytequant.org/gizlilik-politikasi
+Policy: https://bytequant.org/en/privacy

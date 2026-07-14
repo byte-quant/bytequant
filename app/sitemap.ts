@@ -5,8 +5,8 @@ import { pathFor, postPath, siteUrl, toolPath } from "./lib/site";
 
 export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
-  const updated = new Date("2026-07-14T00:00:00.000Z");
-  const staticKeys = ["home", "blog", "about", "privacy", "terms", "contact", "faq"] as const;
+  const updated = new Date("2026-07-15T00:00:00.000Z");
+  const staticKeys = ["home", "blog", "about", "privacy", "cookies", "terms", "contact", "faq"] as const;
   const languages = (trPath: string, enPath: string) => ({
     "tr-TR": `${siteUrl}${trPath}`,
     "en-US": `${siteUrl}${enPath}`,

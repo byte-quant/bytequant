@@ -42,10 +42,10 @@ export const copy = {
   },
 } as const;
 
-export function pathFor(locale: Locale, key: "home" | "tools" | "blog" | "about" | "privacy" | "terms" | "contact" | "faq") {
+export function pathFor(locale: Locale, key: "home" | "tools" | "blog" | "about" | "privacy" | "cookies" | "terms" | "contact" | "faq") {
   const routes = locale === "tr"
-    ? { home: "/", tools: "/#araclar", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" }
-    : { home: "/en", tools: "/en#tools", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" };
+    ? { home: "/", tools: "/#araclar", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" }
+    : { home: "/en", tools: "/en#tools", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" };
   return routes[key];
 }
 

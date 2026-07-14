@@ -7,7 +7,8 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("bq-theme");
+    let saved: string | null = null;
+    try { saved = window.localStorage.getItem("bq-theme"); } catch { /* Theme follows the system when storage is unavailable. */ }
     const next = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     const frame = window.requestAnimationFrame(() => {
       setDark(next);
@@ -20,7 +21,7 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
     const next = !dark;
     setDark(next);
     document.documentElement.dataset.theme = next ? "dark" : "light";
-    window.localStorage.setItem("bq-theme", next ? "dark" : "light");
+    try { window.localStorage.setItem("bq-theme", next ? "dark" : "light"); } catch { /* The visual change still applies for this page view. */ }
   }
 
   return (

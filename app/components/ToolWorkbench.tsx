@@ -59,8 +59,14 @@ function friendlyError(slug: string, error: unknown, locale: Locale) {
       ? `JWT okunamadı. Üç nokta ayrımlı bölüm ve geçerli Base64URL JSON içeren bir token girin. İmza doğrulaması bu araçta yapılmaz. Teknik ayrıntı: ${detail}`
       : `The JWT could not be read. Enter three dot-separated segments containing valid Base64URL JSON. This tool does not verify signatures. Technical detail: ${detail}`;
   }
-  if (slug === "regex-test-araci" && error instanceof SyntaxError) {
+  if (slug === "regex-test-araci" && (error instanceof SyntaxError || /invalid regular expression|unterminated|invalid flags/i.test(detail))) {
     return isTr ? `Regex kalıbı geçerli değil. Parantez, köşeli parantez ve kaçış karakterlerini kontrol edin. Teknik ayrıntı: ${detail}` : `The regular expression is invalid. Check brackets, groups, and escape characters. Technical detail: ${detail}`;
+  }
+  if (slug === "regex-test-araci" && detail === "REGEX_TIMEOUT") {
+    return isTr ? "Regex 600 ms güvenlik sınırını aştı. Geri izlemeyi azaltmak için iç içe tekrarları ve belirsiz grupları sadeleştirin." : "The regex exceeded the 600 ms safety limit. Reduce backtracking by simplifying nested repetition and ambiguous groups.";
+  }
+  if (slug === "regex-test-araci" && detail === "REGEX_WORKER") {
+    return isTr ? "Regex güvenli çalışma alanı başlatılamadı. Tarayıcınızın Worker desteğini veya içerik engelleyicisini kontrol edin." : "The safe regex worker could not start. Check browser Worker support or content-blocking settings.";
   }
   if (slug === "base64-kodlayici") {
     return isTr ? `Base64 metni çözülemedi. Alfabe, padding (=) ve kopyalama sırasında eklenen boşlukları kontrol edin. Teknik ayrıntı: ${detail}` : `The Base64 text could not be decoded. Check its alphabet, padding (=), and copied whitespace. Technical detail: ${detail}`;
@@ -79,7 +85,22 @@ function sentenceCount(text: string) {
   return Math.max(1, (text.match(/[.!?]+(?:\s|$)/g) ?? []).length || (text.trim() ? 1 : 0));
 }
 
-function csvParse(input: string, locale: Locale): string[][] {
+function detectCsvDelimiter(input: string) {
+  const firstLine = input.replace(/^\uFEFF/, "").split(/\r?\n/).find((line) => line.trim()) ?? "";
+  const candidates = [",", ";", "\t"];
+  const counts = candidates.map((delimiter) => {
+    let quoted = false;
+    let count = 0;
+    for (let index = 0; index < firstLine.length; index += 1) {
+      if (firstLine[index] === '"') quoted = !quoted;
+      else if (firstLine[index] === delimiter && !quoted) count += 1;
+    }
+    return { delimiter, count };
+  });
+  return counts.sort((a, b) => b.count - a.count)[0]?.count ? counts.sort((a, b) => b.count - a.count)[0].delimiter : ",";
+}
+
+function csvParse(input: string, locale: Locale, delimiter = detectCsvDelimiter(input)): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
@@ -89,7 +110,7 @@ function csvParse(input: string, locale: Locale): string[][] {
     if (char === '"') {
       if (quoted && input[i + 1] === '"') { cell += '"'; i += 1; }
       else quoted = !quoted;
-    } else if (char === "," && !quoted) { row.push(cell); cell = ""; }
+    } else if (char === delimiter && !quoted) { row.push(cell); cell = ""; }
     else if ((char === "\n" || char === "\r") && !quoted) {
       if (char === "\r" && input[i + 1] === "\n") i += 1;
       row.push(cell); rows.push(row); row = []; cell = "";
@@ -130,6 +151,73 @@ function secureIndex(max: number) {
   const value = new Uint32Array(1);
   do crypto.getRandomValues(value); while (value[0] >= limit);
   return value[0] % max;
+}
+
+function secureShuffle(values: string[]) {
+  for (let index = values.length - 1; index > 0; index -= 1) {
+    const target = secureIndex(index + 1);
+    [values[index], values[target]] = [values[target], values[index]];
+  }
+  return values;
+}
+
+function generateSecurePassword(requestedLength: number) {
+  const groups = [
+    "ABCDEFGHJKLMNPQRSTUVWXYZ",
+    "abcdefghijkmnopqrstuvwxyz",
+    "23456789",
+    "!@#$%*-_+=?",
+  ];
+  const alphabet = groups.join("");
+  const length = Math.min(128, Math.max(12, requestedLength));
+  const characters = groups.map((group) => group[secureIndex(group.length)]);
+  while (characters.length < length) characters.push(alphabet[secureIndex(alphabet.length)]);
+  return secureShuffle(characters).join("");
+}
+
+function generateUuid() {
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => (Number(char) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> Number(char) / 4).toString(16));
+}
+
+type SafeRegexMatch = { index: number; text: string; groups: (string | null)[] };
+
+async function runRegexSafely(input: string, pattern: string, flags: string): Promise<SafeRegexMatch[]> {
+  const workerSource = [
+    "self.onmessage=function(event){try{",
+    "const input=event.data.input,pattern=event.data.pattern;",
+    "const flags=event.data.flags.includes('g')?event.data.flags:event.data.flags+'g';",
+    "const expression=new RegExp(pattern,flags),matches=[];let match;",
+    "while((match=expression.exec(input))&&matches.length<200){",
+    "matches.push({index:match.index,text:match[0],groups:Array.from(match).slice(1).map(function(value){return value===undefined?null:value;})});",
+    "if(match[0]==='')expression.lastIndex+=1;",
+    "}self.postMessage({matches:matches});",
+    "}catch(error){self.postMessage({error:error instanceof Error?error.message:String(error)});}};",
+  ].join("");
+  const url = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
+  const worker = new Worker(url);
+  try {
+    return await new Promise<SafeRegexMatch[]>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        worker.terminate();
+        reject(new Error("REGEX_TIMEOUT"));
+      }, 600);
+      worker.onmessage = (event: MessageEvent<{ matches?: SafeRegexMatch[]; error?: string }>) => {
+        window.clearTimeout(timeout);
+        if (event.data.error) reject(new Error(event.data.error));
+        else resolve(event.data.matches ?? []);
+      };
+      worker.onerror = () => {
+        window.clearTimeout(timeout);
+        reject(new Error("REGEX_WORKER"));
+      };
+      worker.postMessage({ input, pattern, flags });
+    });
+  } finally {
+    worker.terminate();
+    URL.revokeObjectURL(url);
+  }
 }
 
 function decodeBase64Url(value: string) {
@@ -190,34 +278,42 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const [flags, setFlags] = useState("gi");
   const [mode, setMode] = useState("default");
   const [length, setLength] = useState(24);
+  const [quantity, setQuantity] = useState(5);
   const [output, setOutput] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [notice, setNotice] = useState<ToolNoticeData | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const labels = useMemo(() => isTr ? {
     input: slug === "few-shot-ornek-olusturucu" ? "Görev tanımı" : slug === "sistem-promptu-persona-sablonu" ? "Rol ve temel sorumluluk" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron ifadesi" : "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : slug === "few-shot-ornek-olusturucu" ? "Örnekler — her satır `girdi => çıktı`" : slug === "sistem-promptu-persona-sablonu" ? "Ton, hedef kitle ve sınırlar" : "Karşılaştırma metni",
-    run: "Cihazımda çalıştır", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu",
+    run: "Cihazımda çalıştır", running: "İşleniyor…", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu", quantity: "Üretilecek UUID", shortcut: "Ctrl/⌘ + Enter",
   } : {
     input: slug === "few-shot-ornek-olusturucu" ? "Task description" : slug === "sistem-promptu-persona-sablonu" ? "Role and primary responsibility" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron expression" : "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : slug === "few-shot-ornek-olusturucu" ? "Examples — one `input => output` pair per line" : slug === "sistem-promptu-persona-sablonu" ? "Tone, audience, and boundaries" : "Comparison text",
-    run: "Run on my device", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length",
+    run: "Run on my device", running: "Processing…", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length", quantity: "UUID quantity", shortcut: "Ctrl/⌘ + Enter",
   }, [isTr, slug]);
 
   function setResult(value: string, nextMetrics: Metric[] = []) {
     setOutput(value); setMetrics(nextMetrics); setNotice(null);
   }
 
+  function resetResult() {
+    setOutput(""); setMetrics([]); setNotice(null);
+  }
+
   function clearWorkbench() {
-    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setOutput(""); setMetrics([]); setNotice(null);
+    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); resetResult();
   }
 
   function loadDemo() {
     setInput(samples[slug]?.[locale] ?? "");
     setSecondary(secondarySample(slug, locale));
-    setFlags("gi"); setMode("default"); setLength(24); setOutput(""); setMetrics([]);
+    setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setOutput(""); setMetrics([]);
     setNotice({ kind: "info", text: labels.demoLoaded });
   }
 
   async function run() {
+    if (busy) return;
+    setBusy(true);
     try {
       if (!noInputTools.has(slug) && !input.trim()) throw new Error(isTr ? "Önce bir girdi yazın." : "Enter some input first.");
       const list = words(input, locale);
@@ -298,9 +394,9 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "json-csv-donusturucu": {
           if (mode === "csv-to-json") {
-            const rows = csvParse(input, locale); const headers = rows[0] ?? [];
+            const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter); const headers = rows[0] ?? [];
             const data = rows.slice(1).filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
-            setResult(JSON.stringify(data, null, 2), [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }]);
+            setResult(JSON.stringify(data, null, 2), [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Algılanan ayraç" : "Detected delimiter", value: delimiter === "\t" ? "TAB" : delimiter }]);
           } else {
             const data = JSON.parse(input); if (!Array.isArray(data) || !data.every((item) => item && typeof item === "object" && !Array.isArray(item))) throw new Error(isTr ? "Düz nesnelerden oluşan bir JSON dizisi gerekir." : "A JSON array of flat objects is required.");
             const headers = [...new Set(data.flatMap((item) => Object.keys(item)))];
@@ -312,21 +408,25 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         case "regex-test-araci": {
           if (!secondary.trim()) throw new Error(isTr ? "Bir regex kalıbı girin veya örnek veriyi yükleyin." : "Enter a regular expression or load the example.");
           if (input.length > 50000) throw new Error(isTr ? "Performans için test metni 50.000 karakterle sınırlıdır." : "Sample text is limited to 50,000 characters for performance.");
+          if (secondary.length > 500) throw new Error(isTr ? "Regex kalıbı güvenli inceleme için 500 karakterle sınırlıdır." : "The regex pattern is limited to 500 characters for safe inspection.");
           if (/(\([^)]*[+*][^)]*\))[+*{]/.test(secondary)) throw new Error(isTr ? "İç içe nicelik belirteci ReDoS riski taşıyabilir; kalıbı sadeleştirin." : "Nested quantifiers may create a ReDoS risk; simplify the pattern.");
-          const re = new RegExp(secondary, flags.includes("g") ? flags : `${flags}g`); const matches = [...input.matchAll(re)].slice(0, 200);
-          const report = matches.length ? matches.map((match, index) => `${index + 1}. [${match.index}] ${JSON.stringify(match[0])}${match.length > 1 ? ` | ${isTr ? "gruplar" : "groups"}: ${match.slice(1).map((v) => JSON.stringify(v)).join(", ")}` : ""}`).join("\n") : (isTr ? "Eşleşme bulunamadı." : "No matches found.");
+          const matches = await runRegexSafely(input, secondary, flags);
+          const report = matches.length ? matches.map((match, index) => `${index + 1}. [${match.index}] ${JSON.stringify(match.text)}${match.groups.length ? ` | ${isTr ? "gruplar" : "groups"}: ${match.groups.map((value) => JSON.stringify(value)).join(", ")}` : ""}`).join("\n") : (isTr ? "Eşleşme bulunamadı." : "No matches found.");
           setResult(report, [{ label: isTr ? "Eşleşme" : "Matches", value: matches.length }, { label: isTr ? "Metin uzunluğu" : "Text length", value: input.length }]);
           break;
         }
         case "csv-inceleyici": {
-          const rows = csvParse(input, locale).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
-          setResult(`${isTr ? "Başlıklar" : "Headers"}: ${headers.join(" · ")}\n${isTr ? "Düzensiz satırlar" : "Irregular rows"}: ${irregular.length ? irregular.map((item) => item.line).join(", ") : (isTr ? "yok" : "none")}`, [{ label: isTr ? "Veri satırı" : "Data rows", value: Math.max(0, rows.length - 1) }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Düzensiz satır" : "Irregular rows", value: irregular.length }]);
+          const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
+          setResult(`${isTr ? "Başlıklar" : "Headers"}: ${headers.join(" · ")}\n${isTr ? "Düzensiz satırlar" : "Irregular rows"}: ${irregular.length ? irregular.map((item) => item.line).join(", ") : (isTr ? "yok" : "none")}`, [{ label: isTr ? "Veri satırı" : "Data rows", value: Math.max(0, rows.length - 1) }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Düzensiz satır" : "Irregular rows", value: irregular.length }, { label: isTr ? "Ayraç" : "Delimiter", value: delimiter === "\t" ? "TAB" : delimiter }]);
           break;
         }
         case "base64-kodlayici": {
           if (mode === "decode") {
-            const bytes = Uint8Array.from(atob(input.trim()), (char) => char.charCodeAt(0));
-            setResult(new TextDecoder().decode(bytes), [{ label: isTr ? "Çözülen bayt" : "Decoded bytes", value: bytes.length }]);
+            const compact = input.trim().replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+            if (!/^[A-Za-z0-9+/]*={0,2}$/.test(compact) || compact.length % 4 === 1) throw new Error(isTr ? "Geçerli standart veya URL-safe Base64 girin." : "Enter valid standard or URL-safe Base64.");
+            const padded = compact.padEnd(Math.ceil(compact.length / 4) * 4, "=");
+            const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+            setResult(new TextDecoder("utf-8", { fatal: true }).decode(bytes), [{ label: isTr ? "Çözülen bayt" : "Decoded bytes", value: bytes.length }]);
           } else {
             const bytes = new TextEncoder().encode(input); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
             setResult(btoa(binary), [{ label: isTr ? "Kaynak bayt" : "Source bytes", value: bytes.length }]);
@@ -366,14 +466,13 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "guclu-parola-uretici": {
-          const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*-_+=?"; let password = "";
-          for (let index = 0; index < Math.min(128, Math.max(12, length)); index += 1) password += alphabet[secureIndex(alphabet.length)];
+          const password = generateSecurePassword(length);
           setResult(password, [{ label: isTr ? "Uzunluk" : "Length", value: password.length }, { label: isTr ? "Kaynak" : "Source", value: "Web Crypto" }]);
           break;
         }
         case "uuid-uretici": {
-          const value = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => (Number(char) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> Number(char) / 4).toString(16));
-          setResult(value, [{ label: isTr ? "Sürüm" : "Version", value: "UUID v4" }]);
+          const values = Array.from({ length: Math.min(50, Math.max(1, quantity)) }, generateUuid);
+          setResult(values.join("\n"), [{ label: isTr ? "Üretilen" : "Generated", value: values.length }, { label: isTr ? "Sürüm" : "Version", value: "UUID v4" }, { label: isTr ? "Kaynak" : "Source", value: "Web Crypto" }]);
           break;
         }
         case "sha256-ozet-uretici": {
@@ -387,6 +486,8 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
     } catch (error) {
       setOutput(""); setMetrics([]);
       setNotice({ kind: "error", text: friendlyError(slug, error, locale) });
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -414,21 +515,22 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const showMode = ["buyuk-kucuk-harf-donusturucu", "json-bicimlendirici", "json-csv-donusturucu", "base64-kodlayici", "url-kodlayici"].includes(slug);
 
   return (
-    <section className="workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"}>
-      <div className="workbench-bar"><span className="local-status"><i />{labels.local}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench}>{labels.clear}</button></div></div>
+    <section className="workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"} aria-busy={busy} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); void run(); } }}>
+      <div className="workbench-bar"><span className="local-status"><i />{labels.local}<small>{labels.shortcut}</small></span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo} disabled={busy}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench} disabled={busy}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
-          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => setInput(event.target.value)} spellCheck="false" /></label>}
-          {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input value={secondary} onChange={(event) => setSecondary(event.target.value)} spellCheck="false" /> : <textarea value={secondary} rows={5} onChange={(event) => setSecondary(event.target.value)} spellCheck="false" />}</label>}
-          {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => setFlags(event.target.value.replace(/[^dgimsuvy]/g, ""))} /></label>}
-          {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => setLength(Number(event.target.value))} /></label>}
-          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select value={mode} onChange={(event) => setMode(event.target.value)}>
+          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / 100.000</small></label>}
+          {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input value={secondary} maxLength={500} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" /> : <textarea value={secondary} maxLength={50000} rows={5} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" />}<small className="field-counter">{secondary.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / {slug === "regex-test-araci" ? "500" : "50.000"}</small></label>}
+          {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => { setFlags(event.target.value.replace(/[^dgimsuvy]/g, "")); resetResult(); }} /></label>}
+          {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => { setLength(Number(event.target.value)); resetResult(); }} /><small className="field-help">{isTr ? "Her parola büyük/küçük harf, rakam ve sembol içerir." : "Every password includes upper/lowercase, digits, and symbols."}</small></label>}
+          {slug === "uuid-uretici" && <label className="field-label compact-field"><span>{labels.quantity}</span><input type="number" min="1" max="50" value={quantity} onChange={(event) => { setQuantity(Math.min(50, Math.max(1, Number(event.target.value) || 1))); resetResult(); }} /><small className="field-help">{isTr ? "Tek işlemde 1–50 kriptografik UUID v4." : "Generate 1–50 cryptographic UUID v4 values at once."}</small></label>}
+          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
             {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{isTr ? "Başlık biçimi" : "Title case"}</option><option value="sentence">{isTr ? "Cümle biçimi" : "Sentence case"}</option><option value="upper">{isTr ? "BÜYÜK HARF" : "UPPERCASE"}</option><option value="lower">{isTr ? "küçük harf" : "lowercase"}</option></>}
             {slug === "json-bicimlendirici" && <><option value="default">{isTr ? "Biçimlendir" : "Pretty print"}</option><option value="minify">{isTr ? "Küçült" : "Minify"}</option></>}
             {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
             {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{isTr ? "Kodla" : "Encode"}</option><option value="decode">{isTr ? "Çöz" : "Decode"}</option></>}
           </select></label>}
-          <button type="button" className="primary-button run-button" onClick={run}>{labels.run}<span aria-hidden="true"> →</span></button>
+          <button type="button" className="primary-button run-button" onClick={run} disabled={busy}>{busy ? labels.running : labels.run}<span aria-hidden="true"> →</span></button>
         </div>
         <div className="result-panel" aria-live="polite">
           <div className="result-header"><span>{labels.output}</span><div className="output-actions"><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
