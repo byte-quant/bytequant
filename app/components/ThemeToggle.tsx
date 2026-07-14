@@ -9,8 +9,11 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
   useEffect(() => {
     const saved = window.localStorage.getItem("bq-theme");
     const next = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setDark(next);
-    document.documentElement.dataset.theme = next ? "dark" : "light";
+    const frame = window.requestAnimationFrame(() => {
+      setDark(next);
+      document.documentElement.dataset.theme = next ? "dark" : "light";
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function toggle() {
@@ -26,4 +29,3 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
     </button>
   );
 }
-

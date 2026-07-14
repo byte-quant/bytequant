@@ -6,11 +6,12 @@ import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
+import { PopularTools } from "./ToolUsage";
 
 const faqs = {
   tr: [
     ["ByteQuant'a yazdığım metinler sunucuya gönderiliyor mu?", "Hayır. Araçların temel analiz ve dönüşüm işlemleri tarayıcınızda JavaScript ve Web API'leriyle çalışır. Girdi alanlarındaki içerik ByteQuant sunucularına gönderilmez."],
-    ["Araçları kullanmak için üyelik gerekiyor mu?", "Hayır. Araçlar ücretsizdir ve hesap açmadan kullanılabilir. Tema tercihi dışında araç girdileri varsayılan olarak tarayıcı depolamasına kaydedilmez."],
+    ["Araçları kullanmak için üyelik gerekiyor mu?", "Hayır. Araçlar ücretsizdir ve hesap açmadan kullanılabilir. Araç girdileri tarayıcı depolamasına kaydedilmez; tema ve kişisel popüler araç sayacı yalnızca bu cihazda, hassas içerik olmadan tutulabilir."],
     ["Sonuçlar hukuki veya güvenlik garantisi verir mi?", "Hayır. Maskeleme ve analiz araçları ön kontrol sağlar. KVKK, GDPR, güvenlik veya hukuki kararlar için yetkin uzman incelemesi gerekir."],
     ["Token sayacı neden yaklaşık sonuç verir?", "Her model farklı bir tokenizer kullanır. ByteQuant, veriyi dışarı göndermeden hızlı planlama yapabilmeniz için karakter ve dil yapısına dayalı yaklaşık değer üretir."],
     ["Araçlar mobil cihazlarda çalışır mı?", "Evet. Güncel mobil tarayıcılarda temel araçlar çalışır. Web Crypto gibi bazı özellikler tarayıcı desteğine bağlıdır."],
@@ -18,7 +19,7 @@ const faqs = {
   ],
   en: [
     ["Is text entered into ByteQuant sent to a server?", "No. Core analysis and transformation run in your browser using JavaScript and Web APIs. Tool input is not sent to ByteQuant servers."],
-    ["Do I need an account?", "No. The tools are free and require no account. Apart from the theme preference, tool input is not saved to browser storage by default."],
+    ["Do I need an account?", "No. The tools are free and require no account. Tool input is not saved to browser storage; theme and personal popular-tool counts may stay on this device without sensitive content."],
     ["Do results provide legal or security assurance?", "No. Masking and analysis are pre-checks. KVKK, GDPR, security, and legal decisions require qualified human review."],
     ["Why is the token count approximate?", "Each model uses a different tokenizer. ByteQuant estimates from characters and language so you can plan without transmitting the text."],
     ["Do the tools work on mobile?", "Yes. Core tools work in current mobile browsers. Some features, including Web Crypto operations, depend on browser support."],
@@ -44,9 +45,9 @@ export function HomePage({ locale }: { locale: Locale }) {
           <div className="hero-copy">
             <span className="eyebrow"><i />{isTr ? "Gizlilik, bir ayar değil; mimari karar" : "Privacy is an architecture decision, not a setting"}</span>
             <h1>{isTr ? <>Hassas verileriniz tarayıcıdan çıkmadan <em>işlerinizi tamamlayın.</em></> : <>Get work done <em>without sensitive data leaving your browser.</em></>}</h1>
-            <p>{isTr ? "Promptları iyileştirin, metinleri analiz edin, veriyi dönüştürün ve kişisel bilgileri maskeleyin. 18 açıklanabilir araç; üyelik, yükleme ve uzak API olmadan çalışır." : "Improve prompts, analyze text, transform data, and mask personal information. Eighteen explainable tools work without accounts, uploads, or remote APIs."}</p>
+            <p>{isTr ? `Promptları iyileştirin, metinleri analiz edin, veriyi dönüştürün ve kişisel bilgileri koruyun. ${tools.length} açıklanabilir araç; üyelik, sunucuya yükleme ve uzak API olmadan çalışır.` : `Improve prompts, analyze text, transform data, and protect personal information. ${tools.length} explainable tools work without accounts, server uploads, or remote APIs.`}</p>
             <div className="hero-actions"><Link className="primary-button" href={pathFor(locale, "tools")}>{t.allTools}<span aria-hidden="true"> →</span></Link><Link className="secondary-button" href={pathFor(locale, "blog")}>{t.blogCta}</Link></div>
-            <div className="hero-trust"><span>✓ {isTr ? "Üyelik yok" : "No account"}</span><span>✓ {isTr ? "Dosya yükleme yok" : "No uploads"}</span><span>✓ {isTr ? "Açıklanabilir sonuç" : "Explainable output"}</span></div>
+            <div className="hero-trust"><span>✓ {isTr ? "Üyelik yok" : "No account"}</span><span>✓ {isTr ? "Sunucuya yükleme yok" : "No server upload"}</span><span>✓ {isTr ? "Açıklanabilir sonuç" : "Explainable output"}</span></div>
           </div>
           <div className="hero-product" aria-label={isTr ? "ByteQuant araç arayüzü örneği" : "ByteQuant tool interface preview"}>
             <div className="product-window">
@@ -63,7 +64,9 @@ export function HomePage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="proof-strip"><div className="container proof-grid"><div><strong>18</strong><span>{isTr ? "işlevsel araç" : "working tools"}</span></div><div><strong>4</strong><span>{isTr ? "odaklı kategori" : "focused categories"}</span></div><div><strong>0</strong><span>{isTr ? "zorunlu hesap" : "required accounts"}</span></div><div><strong>100%</strong><span>{isTr ? "tarayıcı içi çekirdek işlem" : "in-browser core processing"}</span></div></div></section>
+      <section className="proof-strip"><div className="container proof-grid"><div><strong>{tools.length}</strong><span>{isTr ? "işlevsel araç" : "working tools"}</span></div><div><strong>4</strong><span>{isTr ? "odaklı kategori" : "focused categories"}</span></div><div><strong>0</strong><span>{isTr ? "zorunlu hesap" : "required accounts"}</span></div><div><strong>100%</strong><span>{isTr ? "tarayıcı içi çekirdek işlem" : "in-browser core processing"}</span></div></div></section>
+
+      <PopularTools locale={locale} />
 
       <section className="section category-section" id={locale === "tr" ? "araclar" : "tools"}>
         <div className="container">
@@ -87,8 +90,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
       <section className="section faq-section"><div className="container faq-layout"><div><span className="kicker">{isTr ? "SIK SORULAN SORULAR" : "FREQUENTLY ASKED QUESTIONS"}</span><h2>{isTr ? "Başlamadan önce bilmeniz gerekenler" : "What to know before you start"}</h2><p>{isTr ? "Başka bir sorunuz varsa bize yazın; ürün davranışı ve gizlilik açıklamalarını açık tutmayı önemsiyoruz." : "If your question is not here, contact us. We value clear explanations of product behavior and privacy."}</p><Link className="secondary-button" href={pathFor(locale, "contact")}>{isTr ? "Bize ulaşın" : "Contact us"}</Link></div><div className="faq-list">{faqs[locale].map(([question, answer], index) => <details key={question} open={index === 0}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>
 
-      <section className="cta-band"><div className="container"><div><span>{isTr ? "18 ARAÇ · ÜCRETSİZ · ÜYELİKSİZ" : "18 TOOLS · FREE · NO ACCOUNT"}</span><h2>{isTr ? "İlk işleminizi cihazınızda tamamlayın." : "Complete your first task on-device."}</h2></div><Link className="light-button" href={toolPath(locale, "kvkk-veri-maskeleyici")}>{isTr ? "Gizlilik aracını deneyin" : "Try the privacy tool"} →</Link></div></section>
+      <section className="cta-band"><div className="container"><div><span>{isTr ? `${tools.length} ARAÇ · ÜCRETSİZ · ÜYELİKSİZ` : `${tools.length} TOOLS · FREE · NO ACCOUNT`}</span><h2>{isTr ? "İlk işleminizi cihazınızda tamamlayın." : "Complete your first task on-device."}</h2></div><Link className="light-button" href={toolPath(locale, "kvkk-veri-maskeleyici")}>{isTr ? "Gizlilik aracını deneyin" : "Try the privacy tool"} →</Link></div></section>
     </SiteShell>
   );
 }
-

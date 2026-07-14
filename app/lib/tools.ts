@@ -181,9 +181,124 @@ export const tools: Tool[] = [
     useCases: { tr: ["Metin bütünlüğü karşılaştırma", "İçerik parmak izi", "Test verisi özeti"], en: ["Text integrity comparison", "Content fingerprints", "Test-data digests"] },
     steps: { tr: ["Metni girin.", "SHA-256 hesaplamasını çalıştırın.", "Aynı girdinin aynı özeti verdiğini doğrulayın."], en: ["Enter text.", "Run the SHA-256 calculation.", "Verify identical input returns the same digest."] },
   },
+  {
+    slug: "few-shot-ornek-olusturucu", category: "prompt", mark: "19",
+    title: { tr: "Few-shot Örnek Oluşturucu", en: "Few-shot Example Builder" },
+    short: { tr: "Bir görevi örnek girdi–çıktı çiftleriyle yapılandırılmış bir prompta dönüştürün.", en: "Turn a task and example input-output pairs into a structured prompt." },
+    description: { tr: "Görev tanımı ile örnek girdi–çıktı çiftlerini bir araya getirerek modellerin beklenen deseni daha açık görmesini sağlayan yeniden kullanılabilir bir few-shot prompt üretir. Örnekler yalnızca tarayıcı belleğinde işlenir.", en: "Combines a task description with example input-output pairs to produce a reusable few-shot prompt that makes the expected pattern explicit. Examples are processed only in browser memory." },
+    useCases: { tr: ["Sınıflandırma ve etiketleme", "Tutarlı içerik biçimi", "Dönüşüm görevleri için örnekleme"], en: ["Classification and labeling", "Consistent content formats", "Demonstrating transformation tasks"] },
+    steps: { tr: ["Modelin yapacağı görevi açık bir cümleyle yazın.", "Her satıra `girdi => çıktı` biçiminde kaliteli örnekler ekleyin.", "Promptu üretip örneklerin çeşitliliğini ve doğruluğunu kontrol edin."], en: ["Describe the model's task in one clear sentence.", "Add strong examples as `input => output`, one per line.", "Generate the prompt and review example quality and coverage."] },
+  },
+  {
+    slug: "sistem-promptu-persona-sablonu", category: "prompt", mark: "20",
+    title: { tr: "Sistem Promptu / Persona Şablonu", en: "System Prompt / Persona Template" },
+    short: { tr: "Rol, ton, çalışma ilkeleri ve sınırları profesyonel bir sistem promptunda birleştirin.", en: "Combine role, tone, operating principles, and boundaries in a professional system prompt." },
+    description: { tr: "Bir rol tanımını görev, hedef kitle, ton, stil, güvenlik sınırları ve çıktı sözleşmesiyle yapılandırır. Üretilen şablon iddialı ama belirsiz persona cümleleri yerine denetlenebilir davranış kuralları kullanır.", en: "Structures a role around mission, audience, tone, style, safety boundaries, and an output contract. The template favors testable behavior rules over vague persona claims." },
+    useCases: { tr: ["Kurumsal asistan davranışı", "İçerik tonu standardı", "Destek botu sınırları"], en: ["Company assistant behavior", "Editorial tone standards", "Support-bot boundaries"] },
+    steps: { tr: ["Rolü ve temel sorumluluğu tanımlayın.", "Ton, hedef kitle ve değişmez sınırları ekleyin.", "Şablonu üretip gerçek örneklerle sınayın ve daraltın."], en: ["Define the role and primary responsibility.", "Add tone, audience, and non-negotiable boundaries.", "Generate the template, test it with real examples, and refine it."] },
+  },
+  {
+    slug: "metin-farki-diff", category: "text", mark: "21",
+    title: { tr: "Metin Farkı (Diff) Aracı", en: "Text Diff Tool" },
+    short: { tr: "İki sürümde eklenen ve silinen satır ya da kelimeleri renkli olarak görün.", en: "See added and removed lines or words across two versions." },
+    description: { tr: "İki metni satır veya kelime düzeyinde karşılaştırır; silinen parçaları kırmızı, eklenen parçaları yeşil olarak işaretler. Karşılaştırma LCS tabanlı ve tamamen istemci tarafındadır.", en: "Compares two texts at line or word level, marking removals in red and additions in green. The LCS-based comparison runs entirely client-side." },
+    useCases: { tr: ["Metin sürümü inceleme", "Editoryal düzeltme kontrolü", "Kod dışı yapılandırma karşılaştırma"], en: ["Reviewing text versions", "Checking editorial revisions", "Comparing non-code configuration"] },
+    steps: { tr: ["Eski ve yeni metni ayrı alanlara yapıştırın.", "Satır veya kelime karşılaştırmasını seçin.", "Renkli farkı inceleyip ekleme ve silme sayılarını doğrulayın."], en: ["Paste the old and new text into separate fields.", "Choose line-level or word-level comparison.", "Review the colored diff and verify addition and removal counts."] },
+  },
+  {
+    slug: "markdown-onizleyici", category: "text", mark: "22",
+    title: { tr: "Markdown Önizleyici", en: "Markdown Previewer" },
+    short: { tr: "Markdown metnini güvenli HTML önizlemesi ve kopyalanabilir kodla birlikte görün.", en: "Preview Markdown as safe HTML and inspect the generated code." },
+    description: { tr: "Başlık, liste, bağlantı, alıntı, vurgu ve kod bloklarını tarayıcıda anlık HTML'e dönüştürür. Ham HTML yürütülmez; giriş önce güvenli biçimde kaçışlanır.", en: "Converts headings, lists, links, quotes, emphasis, and code blocks to live HTML in the browser. Raw HTML is never executed; input is escaped first." },
+    useCases: { tr: ["README ve dokümantasyon", "İçerik taslağı önizleme", "Güvenli HTML çıktısı hazırlama"], en: ["README and documentation", "Previewing content drafts", "Preparing safe HTML output"] },
+    steps: { tr: ["Markdown metnini sol alana yazın veya yapıştırın.", "Sağdaki canlı önizlemeyi ve HTML kodunu kontrol edin.", "Üretilen HTML'i kopyalayın veya dosya olarak indirin."], en: ["Write or paste Markdown in the left field.", "Review the live preview and generated HTML on the right.", "Copy the HTML or download it as a file."] },
+  },
+  {
+    slug: "unix-zaman-damgasi-donusturucu", category: "data", mark: "23",
+    title: { tr: "Unix Zaman Damgası Dönüştürücü", en: "Unix Timestamp Converter" },
+    short: { tr: "Epoch saniyesi, milisaniye ve okunabilir tarih arasında iki yönlü dönüşüm yapın.", en: "Convert between epoch seconds, milliseconds, and human-readable dates." },
+    description: { tr: "Unix zaman damgasını yerel saat ve UTC tarihine çevirir; seçilen normal tarihin saniye ve milisaniye karşılığını üretir. Saat dilimi farkını açıkça gösterir.", en: "Converts Unix timestamps to local and UTC dates and returns seconds and milliseconds for a selected calendar date. Time-zone differences are displayed explicitly." },
+    useCases: { tr: ["Log kaydı inceleme", "API tarih alanı dönüştürme", "Saat dilimi hata ayıklama"], en: ["Inspecting log records", "Converting API date fields", "Debugging time-zone issues"] },
+    steps: { tr: ["Epoch değeri veya normal bir tarih girin.", "Saniye/milisaniye algısını ve saat dilimini kontrol edin.", "UTC, yerel tarih ve Unix sonuçlarını kopyalayın."], en: ["Enter an epoch value or a calendar date.", "Check unit detection and the displayed time zone.", "Copy the UTC, local, or Unix result."] },
+  },
+  {
+    slug: "jwt-decoder", category: "data", mark: "24",
+    title: { tr: "JWT Decoder", en: "JWT Decoder" },
+    short: { tr: "JWT Header ve Payload bölümlerini imza doğrulamadan yerel JSON olarak okuyun.", en: "Read JWT header and payload as local JSON without verifying the signature." },
+    description: { tr: "JSON Web Token'ın Base64URL kodlu Header ve Payload bölümlerini tarayıcıda çözer; exp, iat ve nbf zamanlarını okunabilir tarihle açıklar. İmzayı doğrulamaz ve tokenı hiçbir sunucuya göndermez.", en: "Decodes the Base64URL header and payload of a JSON Web Token in the browser and explains exp, iat, and nbf times. It does not verify the signature or send the token to a server." },
+    useCases: { tr: ["Kimlik doğrulama hata ayıklama", "Claim inceleme", "Süre sonu kontrolü"], en: ["Authentication debugging", "Inspecting claims", "Checking token expiry"] },
+    steps: { tr: ["Hassas olmayan test JWT'sini alana yapıştırın.", "Header, Payload ve zaman claim'lerini çözün.", "Sonucun yalnızca decode olduğunu; imza doğrulaması olmadığını unutmayın."], en: ["Paste a non-sensitive test JWT.", "Decode its header, payload, and time claims.", "Remember that decoding does not verify the signature."] },
+  },
+  {
+    slug: "renk-donusturucu", category: "data", mark: "25",
+    title: { tr: "HEX / RGB / HSL Renk Dönüştürücü", en: "HEX / RGB / HSL Color Converter" },
+    short: { tr: "HEX, RGB ve HSL değerlerini renk seçiciyle anlık olarak eşitleyin.", en: "Synchronize HEX, RGB, and HSL values instantly with a color picker." },
+    description: { tr: "HEX, RGB veya HSL biçimlerinden birini girerek diğer iki gösterimi hesaplar ve erişilebilir bir renk önizlemesi sunar. Dönüşümler tamamen tarayıcıda yapılır.", en: "Accepts HEX, RGB, or HSL input, calculates the other representations, and shows an accessible color preview. All conversion happens in the browser." },
+    useCases: { tr: ["Tasarım tokenı hazırlama", "CSS rengi dönüştürme", "Marka paleti kontrolü"], en: ["Preparing design tokens", "Converting CSS colors", "Reviewing brand palettes"] },
+    steps: { tr: ["Renk seçiciyi kullanın veya desteklenen bir değer girin.", "HEX, RGB ve HSL sonuçlarını birlikte inceleyin.", "İhtiyacınız olan biçimi tek tıklamayla kopyalayın."], en: ["Use the color picker or enter a supported value.", "Review the synchronized HEX, RGB, and HSL results.", "Copy the format you need with one click."] },
+  },
+  {
+    slug: "qr-kod-olusturucu", category: "data", mark: "26",
+    title: { tr: "QR Kod Oluşturucu", en: "QR Code Generator" },
+    short: { tr: "Metin veya URL için tarayıcıda QR kod üretip PNG ya da SVG indirin.", en: "Generate a QR code for text or a URL and download PNG or SVG." },
+    description: { tr: "Girilen içeriği üçüncü taraf QR servisine göndermeden tarayıcıda QR koda dönüştürür. Yüksek çözünürlüklü PNG ve ölçeklenebilir SVG indirme seçenekleri sunar.", en: "Turns input into a QR code in the browser without calling a third-party QR service. Download options include high-resolution PNG and scalable SVG." },
+    useCases: { tr: ["Bağlantı paylaşımı", "Etkinlik ve Wi-Fi bilgisi", "Basılı materyal hazırlama"], en: ["Sharing links", "Event and Wi-Fi details", "Preparing printed material"] },
+    steps: { tr: ["QR koda dönüştürülecek metin veya URL'yi girin.", "Oluşan kodu ikinci bir cihazla test edin.", "Kullanım amacına göre PNG veya SVG indirin."], en: ["Enter the text or URL to encode.", "Test the generated code with a second device.", "Download PNG or SVG for your intended medium."] },
+  },
+  {
+    slug: "cron-ifadesi-aciklayici", category: "data", mark: "27",
+    title: { tr: "Cron İfadesi Açıklayıcı", en: "Cron Expression Explainer" },
+    short: { tr: "Beş alanlı klasik cron ifadelerini doğrulayıp insan dilinde açıklayın.", en: "Validate classic five-field cron expressions and explain them in plain language." },
+    description: { tr: "Dakika, saat, ayın günü, ay ve haftanın günü alanlarını ayrı ayrı doğrular; yaygın ifadeleri kısa bir zamanlama cümlesine dönüştürür. Sunucu saat diliminin ayrıca kontrol edilmesi gerektiğini hatırlatır.", en: "Validates minute, hour, day-of-month, month, and day-of-week fields and turns common expressions into a short schedule. It also reminds you to verify the server time zone." },
+    useCases: { tr: ["CI/CD zamanlaması", "Yedekleme görevi kontrolü", "Sunucu işi dokümantasyonu"], en: ["CI/CD schedules", "Checking backup jobs", "Documenting server tasks"] },
+    steps: { tr: ["Beş alanlı cron ifadesini yapıştırın.", "Her alanın geçerli aralığını ve açıklamasını inceleyin.", "Canlı ortamda sunucu saat dilimini ayrıca doğrulayın."], en: ["Paste a five-field cron expression.", "Review the validation and explanation for every field.", "Verify the server time zone separately before production use."] },
+  },
+  {
+    slug: "exif-meta-veri-temizleyici", category: "security", mark: "28",
+    title: { tr: "EXIF / Meta Veri Temizleyici", en: "EXIF / Metadata Cleaner" },
+    short: { tr: "JPEG ve PNG görsellerdeki hassas metadatayı yerel olarak okuyup temiz bir kopya indirin.", en: "Inspect sensitive JPEG and PNG metadata locally and download a clean copy." },
+    description: { tr: "Seçtiğiniz JPEG veya PNG dosyasındaki cihaz, tarih, yazılım, GPS ve metin metadata alanlarını tarayıcıda inceler. Görseli canvas üzerinde yeniden kodlayarak metadata içermeyen yeni bir kopya üretir; dosya sunucuya yüklenmez.", en: "Inspects device, date, software, GPS, and text metadata in a selected JPEG or PNG inside the browser. It re-encodes pixels through canvas to create a clean copy; the file is never uploaded to a server." },
+    useCases: { tr: ["Fotoğraf paylaşımı öncesi gizlilik", "Destek kaydı ekran görüntüsü", "Yayınlanacak görsel temizliği"], en: ["Privacy before photo sharing", "Support-ticket screenshots", "Cleaning images before publication"] },
+    steps: { tr: ["En fazla 25 MB JPEG veya PNG dosyasını cihazınızdan seçin.", "Bulunan metadata alanlarını ve görsel boyutunu inceleyin.", "Temiz kopyayı üretip indirin; gerekirse indirdiğiniz dosyayı yeniden tarayın."], en: ["Select a JPEG or PNG up to 25 MB from your device.", "Review detected metadata and image dimensions.", "Generate and download the clean copy, then re-scan it if needed."] },
+  },
+  {
+    slug: "sifre-gucu-testi", category: "security", mark: "29",
+    title: { tr: "Şifre Gücü Test Aracı", en: "Password Strength Tester" },
+    short: { tr: "Uzunluk, çeşitlilik, tahmini entropi ve kırılma süresi üzerinden parolanızı değerlendirin.", en: "Assess a password using length, variety, estimated entropy, and crack time." },
+    description: { tr: "Parola uzunluğu, karakter havuzu, tekrarlar ve yaygın örüntüler üzerinden açıklanabilir bir güç tahmini üretir. Parola yalnızca tarayıcı belleğinde kalır; araç sızıntı veritabanı sorgusu yapmaz ve kesin güvenlik garantisi vermez.", en: "Produces an explainable estimate from password length, character pool, repetition, and common patterns. The password remains in browser memory; no breach database is queried and no absolute security guarantee is made." },
+    useCases: { tr: ["Yeni parola ön kontrolü", "Parola politikası eğitimi", "Uzunluk ve çeşitlilik karşılaştırması"], en: ["Pre-checking a new password", "Password-policy education", "Comparing length and character variety"] },
+    steps: { tr: ["Gerçek parolanızı paylaşılan cihazda girmeyin; mümkünse benzer bir örnek kullanın.", "Güç seviyesi, entropi ve uyarıları inceleyin.", "Kısa veya tahmin edilebilir yapıyı daha uzun benzersiz bir parola cümlesiyle değiştirin."], en: ["Avoid entering a real password on a shared device; use a representative sample when possible.", "Review the strength level, entropy estimate, and warnings.", "Replace short or predictable structure with a longer unique passphrase."] },
+  },
 ];
+
+const relatedBySlug: Record<string, string[]> = {
+  "prompt-kalite-denetimi": ["meta-prompt-olusturucu", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"],
+  "meta-prompt-olusturucu": ["sistem-promptu-persona-sablonu", "few-shot-ornek-olusturucu", "prompt-kalite-denetimi"],
+  "few-shot-ornek-olusturucu": ["sistem-promptu-persona-sablonu", "meta-prompt-olusturucu", "token-sayaci"],
+  "sistem-promptu-persona-sablonu": ["prompt-kalite-denetimi", "few-shot-ornek-olusturucu", "meta-prompt-olusturucu"],
+  "metin-benzerlik-analizi": ["metin-farki-diff", "okunabilirlik-analizi", "kelime-sayaci"],
+  "metin-farki-diff": ["metin-benzerlik-analizi", "markdown-onizleyici", "metin-temizleyici"],
+  "markdown-onizleyici": ["metin-farki-diff", "metin-temizleyici", "kelime-sayaci"],
+  "json-bicimlendirici": ["json-csv-donusturucu", "jwt-decoder", "base64-kodlayici"],
+  "json-csv-donusturucu": ["json-bicimlendirici", "csv-inceleyici", "base64-kodlayici"],
+  "jwt-decoder": ["base64-kodlayici", "unix-zaman-damgasi-donusturucu", "json-bicimlendirici"],
+  "unix-zaman-damgasi-donusturucu": ["jwt-decoder", "cron-ifadesi-aciklayici", "json-bicimlendirici"],
+  "renk-donusturucu": ["qr-kod-olusturucu", "base64-kodlayici", "url-kodlayici"],
+  "qr-kod-olusturucu": ["url-kodlayici", "renk-donusturucu", "base64-kodlayici"],
+  "cron-ifadesi-aciklayici": ["unix-zaman-damgasi-donusturucu", "regex-test-araci", "json-bicimlendirici"],
+  "exif-meta-veri-temizleyici": ["kvkk-veri-maskeleyici", "sha256-ozet-uretici", "sifre-gucu-testi"],
+  "sifre-gucu-testi": ["guclu-parola-uretici", "sha256-ozet-uretici", "exif-meta-veri-temizleyici"],
+  "guclu-parola-uretici": ["sifre-gucu-testi", "sha256-ozet-uretici", "uuid-uretici"],
+};
 
 export function getTool(slug: string) {
   return tools.find((tool) => tool.slug === slug);
 }
 
+export function getRelatedTools(tool: Tool, limit = 3) {
+  const preferred = (relatedBySlug[tool.slug] ?? [])
+    .map((slug) => getTool(slug))
+    .filter((item): item is Tool => Boolean(item));
+  const fallback = tools.filter((item) => item.category === tool.category && item.slug !== tool.slug && !preferred.some((candidate) => candidate.slug === item.slug));
+  return [...preferred, ...fallback].slice(0, limit);
+}

@@ -1,10 +1,10 @@
 # ByteQuant
 
-ByteQuant is a production-ready, bilingual (Turkish/English) static website for privacy-first browser tools. It contains 18 working utilities, eight full guides in both languages, standalone trust/legal pages, structured data, a complete sitemap, and a GitHub Pages deployment workflow.
+ByteQuant is a production-ready, bilingual (Turkish/English) static website for privacy-first browser tools. It contains 29 working utilities, eight full guides in both languages, standalone trust/legal pages, structured data, a complete sitemap, and a GitHub Pages deployment workflow.
 
 ## What is included
 
-- 18 on-device tools across Prompt, Text & NLP, Data & Developer, and Privacy & Security categories
+- 29 on-device tools across Prompt, Text & NLP, Data & Developer, and Privacy & Security categories
 - Individual SEO page, usage guide, limitations, FAQ schema, and related-tool links for every tool
 - Turkish and English home, tool, guide, About, Privacy, Terms, Contact, and FAQ pages
 - Eight original long-form guides in both languages
@@ -16,7 +16,7 @@ ByteQuant is a production-ready, bilingual (Turkish/English) static website for 
 
 ## Privacy model
 
-Core tool operations run in the active browser tab. Tool input is not transmitted to a ByteQuant server and is not persisted to `localStorage`. The only local preference is `bq-theme` (light/dark). Copying or downloading a result creates a user-controlled copy outside the page.
+Core tool operations run in the active browser tab. Tool input is not transmitted to a ByteQuant server and is not persisted to `localStorage`. Local storage is limited to `bq-theme` (light/dark) and `bq-tool-usage-v1` (non-sensitive per-tool visit counts used for personal shortcuts). Copying or downloading a result creates a user-controlled copy outside the page.
 
 The tools deliberately avoid remote AI APIs, analytics SDKs, and active advertising scripts. Pattern masking and heuristic scores are pre-checks, not legal or security guarantees.
 
@@ -70,4 +70,3 @@ Update the visible revision date when legal or privacy behavior changes. Do not 
 - Email: bytequant@yahoo.com
 - X: [@byte_quant](https://x.com/byte_quant)
 - Instagram: [@byte.quant](https://www.instagram.com/byte.quant)
-

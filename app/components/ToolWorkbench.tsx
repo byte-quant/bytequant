@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import type { Locale } from "../lib/site";
+import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
 
 type Metric = { label: string; value: string | number };
 
 const noInputTools = new Set(["guclu-parola-uretici", "uuid-uretici"]);
-const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci"]);
+const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"]);
 
 const samples: Record<string, Record<Locale, string>> = {
   "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points." },
@@ -17,7 +18,7 @@ const samples: Record<string, Record<Locale, string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":18}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":18}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":29}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":29}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -25,6 +26,10 @@ const samples: Record<string, Record<Locale, string>> = {
   "url-kodlayici": { tr: "gizlilik odaklı araçlar", en: "privacy-first tools" },
   "kvkk-veri-maskeleyici": { tr: "Ayşe'nin e-postası ayse@example.com, telefonu +90 555 123 45 67 ve IP adresi 192.168.1.24.", en: "Ada's email is ada@example.com, phone +1 202 555 0147, and IP address 192.168.1.24." },
   "sha256-ozet-uretici": { tr: "Bütünlüğü kontrol edilecek metin", en: "Text whose integrity will be checked" },
+  "few-shot-ornek-olusturucu": { tr: "Müşteri mesajını olumlu, nötr veya olumsuz olarak sınıflandır.", en: "Classify a customer message as positive, neutral, or negative." },
+  "sistem-promptu-persona-sablonu": { tr: "Teknik kavramları yeni başlayanlara açıklayan bir ürün eğitim uzmanı", en: "A product education specialist who explains technical concepts to beginners" },
+  "jwt-decoder": { tr: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature", en: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature" },
+  "cron-ifadesi-aciklayici": { tr: "0 3 * * *", en: "0 3 * * *" },
 };
 
 function words(text: string, locale: Locale) {
@@ -87,10 +92,61 @@ function secureIndex(max: number) {
   return value[0] % max;
 }
 
+function decodeBase64Url(value: string) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  const bytes = Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function explainCron(expression: string, isTr: boolean) {
+  const fields = expression.trim().split(/\s+/);
+  if (fields.length !== 5) throw new Error(isTr ? "Klasik cron ifadesi 5 alan içermelidir." : "A classic cron expression must contain five fields.");
+  const definitions = [
+    { name: isTr ? "Dakika" : "Minute", min: 0, max: 59 },
+    { name: isTr ? "Saat" : "Hour", min: 0, max: 23 },
+    { name: isTr ? "Ayın günü" : "Day of month", min: 1, max: 31 },
+    { name: isTr ? "Ay" : "Month", min: 1, max: 12 },
+    { name: isTr ? "Haftanın günü" : "Day of week", min: 0, max: 7 },
+  ];
+  function validate(field: string, min: number, max: number) {
+    const pieces = field.split(",");
+    for (const piece of pieces) {
+      if (piece === "*") continue;
+      const [range, stepText] = piece.split("/");
+      if (stepText && (!/^\d+$/.test(stepText) || Number(stepText) < 1)) return false;
+      if (range === "*") continue;
+      const bounds = range.split("-");
+      if (!bounds.every((item) => /^\d+$/.test(item) && Number(item) >= min && Number(item) <= max)) return false;
+      if (bounds.length > 2 || (bounds.length === 2 && Number(bounds[0]) > Number(bounds[1]))) return false;
+    }
+    return true;
+  }
+  fields.forEach((field, index) => { if (!validate(field, definitions[index].min, definitions[index].max)) throw new Error(`${definitions[index].name}: ${isTr ? "geçersiz değer" : "invalid value"} (${field})`); });
+  const [minute, hour, day, month, weekday] = fields;
+  let summary = isTr ? "Özel cron zamanlaması" : "Custom cron schedule";
+  if (minute === "*" && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? "Her dakika çalışır." : "Runs every minute.";
+  else if (/^\*\/\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her ${minute.slice(2)} dakikada bir çalışır.` : `Runs every ${minute.slice(2)} minutes.`;
+  else if (/^\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her saat ${minute.padStart(2, "0")}. dakikada çalışır.` : `Runs at minute ${minute.padStart(2, "0")} of every hour.`;
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her gün saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs every day at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && /^\d$/.test(weekday)) {
+    const daysTr = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+    const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    summary = isTr ? `Her ${daysTr[Number(weekday)]} saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs every ${daysEn[Number(weekday)]} at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
+  }
+  const details = fields.map((field, index) => `${definitions[index].name}: ${field === "*" ? (isTr ? "her değer" : "every value") : field}`).join("\n");
+  return `${summary}\n\n${details}\n\n${isTr ? "Saat dilimi: Cron çalıştırıcısının/sunucunun saat dilimini ayrıca doğrulayın." : "Time zone: verify the scheduler or server time zone separately."}`;
+}
+
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  if (specializedSlugs.has(slug)) return <SpecializedWorkbench slug={slug} locale={locale} />;
+  return <GenericToolWorkbench slug={slug} locale={locale} />;
+}
+
+function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
   const isTr = locale === "tr";
   const [input, setInput] = useState(samples[slug]?.[locale] ?? "");
-  const [secondary, setSecondary] = useState(slug === "regex-test-araci" ? "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}" : slug === "metin-benzerlik-analizi" ? (isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.") : "");
+  const [secondary, setSecondary] = useState(slug === "regex-test-araci" ? "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}" : slug === "metin-benzerlik-analizi" ? (isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.") : slug === "few-shot-ornek-olusturucu" ? (isTr ? "Ürünü çok sevdim => olumlu\nTeslimat zamanında geldi => olumlu\nArayüz kullanılabilir => nötr\nUygulama sürekli kapanıyor => olumsuz" : "I love the product => positive\nDelivery arrived on time => positive\nThe interface is usable => neutral\nThe app keeps crashing => negative") : slug === "sistem-promptu-persona-sablonu" ? (isTr ? "Ton: sakin, açık ve destekleyici\nHedef kitle: teknik olmayan yeni kullanıcılar\nSınırlar: bilinmeyen bilgiyi uydurma; güvenlik iddiası verme" : "Tone: calm, clear, and supportive\nAudience: non-technical beginners\nBoundaries: do not invent missing facts or make security guarantees") : "");
   const [flags, setFlags] = useState("gi");
   const [mode, setMode] = useState("default");
   const [length, setLength] = useState(24);
@@ -99,10 +155,10 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const [message, setMessage] = useState("");
 
   const labels = useMemo(() => isTr ? {
-    input: "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : "Karşılaştırma metni",
+    input: slug === "few-shot-ornek-olusturucu" ? "Görev tanımı" : slug === "sistem-promptu-persona-sablonu" ? "Rol ve temel sorumluluk" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron ifadesi" : "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : slug === "few-shot-ornek-olusturucu" ? "Örnekler — her satır `girdi => çıktı`" : slug === "sistem-promptu-persona-sablonu" ? "Ton, hedef kitle ve sınırlar" : "Karşılaştırma metni",
     run: "Cihazımda çalıştır", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", error: "İşlem tamamlanamadı: ", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu",
   } : {
-    input: "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : "Comparison text",
+    input: slug === "few-shot-ornek-olusturucu" ? "Task description" : slug === "sistem-promptu-persona-sablonu" ? "Role and primary responsibility" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron expression" : "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : slug === "few-shot-ornek-olusturucu" ? "Examples — one `input => output` pair per line" : slug === "sistem-promptu-persona-sablonu" ? "Tone, audience, and boundaries" : "Comparison text",
     run: "Run on my device", copy: "Copy output", download: "Download as text", clear: "Clear", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", error: "Could not complete the operation: ", local: "Input never leaves this page.", flags: "Flags", length: "Password length",
   }, [isTr, slug]);
 
@@ -131,6 +187,18 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "meta-prompt-olusturucu": {
           setResult(`${isTr ? "ROL" : "ROLE"}\n${isTr ? "Görevin amacına uygun, kanıta dayalı ve açık iletişim kuran bir uzman gibi çalış." : "Act as a domain-appropriate specialist who communicates clearly and relies on evidence."}\n\n${isTr ? "HEDEF" : "OBJECTIVE"}\n${input.trim()}\n\n${isTr ? "BAĞLAM VE SINIRLAR" : "CONTEXT AND CONSTRAINTS"}\n${secondary.trim() || (isTr ? "Yalnızca verilen bilgiyi kullan. Bilinmeyen noktaları varsayma; 'yetersiz bilgi' olarak işaretle." : "Use only the supplied information. Do not invent missing facts; mark them as 'insufficient information.'")}\n\n${isTr ? "ÇALIŞMA SÜRECİ" : "PROCESS"}\n1. ${isTr ? "Hedefi ve başarı ölçütünü yeniden ifade et." : "Restate the goal and success criteria."}\n2. ${isTr ? "Girdiyi çelişki, eksik bilgi ve hassas veri açısından kontrol et." : "Check the input for conflicts, missing information, and sensitive data."}\n3. ${isTr ? "Sonucu en açık ve kısa yapıda hazırla." : "Prepare the result in the clearest concise structure."}\n4. ${isTr ? "Son kontrolde iddiaları, kapsamı ve biçimi doğrula." : "Verify claims, scope, and format before finalizing."}\n\n${isTr ? "ÇIKTI SÖZLEŞMESİ" : "OUTPUT CONTRACT"}\n- ${isTr ? "Önce kısa sonuç özeti" : "Start with a short outcome summary"}\n- ${isTr ? "Ardından gerekçeli maddeler" : "Follow with reasoned bullet points"}\n- ${isTr ? "Son bölümde riskler ve sonraki adımlar" : "End with risks and next steps"}`, [{ label: isTr ? "Şablon bölümü" : "Template sections", value: 5 }, { label: isTr ? "Hedef kelimesi" : "Goal words", value: list.length }]);
+          break;
+        }
+        case "few-shot-ornek-olusturucu": {
+          const examples = secondary.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => { const divider = line.indexOf("=>"); if (divider < 1 || divider >= line.length - 2) throw new Error(isTr ? "Her örneği `girdi => çıktı` biçiminde yazın." : "Write every example as `input => output`."); return { input: line.slice(0, divider).trim(), output: line.slice(divider + 2).trim() }; });
+          if (examples.length < 2) throw new Error(isTr ? "Deseni göstermek için en az iki örnek ekleyin." : "Add at least two examples to demonstrate the pattern.");
+          const exampleBlock = examples.map((example, index) => `${isTr ? "ÖRNEK" : "EXAMPLE"} ${index + 1}\n${isTr ? "Girdi" : "Input"}: ${example.input}\n${isTr ? "Çıktı" : "Output"}: ${example.output}`).join("\n\n");
+          setResult(`${isTr ? "GÖREV" : "TASK"}\n${input.trim()}\n\n${isTr ? "TALİMATLAR" : "INSTRUCTIONS"}\n- ${isTr ? "Aşağıdaki örneklerdeki karar mantığını ve çıktı biçimini izle." : "Follow the decision pattern and output format demonstrated below."}\n- ${isTr ? "Örnekleri ezberlemek yerine yeni girdinin özelliklerini değerlendir." : "Evaluate the new input rather than copying an example."}\n- ${isTr ? "Belirsiz durumda varsayımını kısa biçimde belirt." : "State any assumption briefly when the input is ambiguous."}\n\n${exampleBlock}\n\n${isTr ? "YENİ GİRDİ" : "NEW INPUT"}\n{{input}}\n\n${isTr ? "ÇIKTI" : "OUTPUT"}\n`, [{ label: isTr ? "Örnek" : "Examples", value: examples.length }, { label: isTr ? "Görev kelimesi" : "Task words", value: list.length }]);
+          break;
+        }
+        case "sistem-promptu-persona-sablonu": {
+          const guidelines = secondary.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+          setResult(`${isTr ? "SİSTEM ROLÜ" : "SYSTEM ROLE"}\n${isTr ? `Sen ${input.trim()}.` : `You are ${input.trim()}.`}\n\n${isTr ? "AMAÇ" : "MISSION"}\n${isTr ? "Kullanıcının hedefini doğru anlayıp açık, yararlı ve doğrulanabilir bir yanıt üret. Başarıyı yalnızca akıcı metinle değil, talimatlara ve sınırlarına uyumla ölç." : "Understand the user's goal and produce a clear, useful, verifiable response. Measure success by adherence to instructions and boundaries, not fluency alone."}\n\n${isTr ? "İLETİŞİM VE DAVRANIŞ" : "COMMUNICATION AND BEHAVIOR"}\n${guidelines.length ? guidelines.map((item) => `- ${item}`).join("\n") : `- ${isTr ? "Sakin, açık ve doğrudan yaz." : "Write calmly, clearly, and directly."}\n- ${isTr ? "Teknik terimleri ilk kullanımda açıkla." : "Explain technical terms on first use."}`}\n\n${isTr ? "DEĞİŞMEZ SINIRLAR" : "NON-NEGOTIABLE BOUNDARIES"}\n- ${isTr ? "Bilinmeyen bilgi, kaynak veya sonucu uydurma." : "Do not invent missing facts, sources, or outcomes."}\n- ${isTr ? "Hassas veriyi gereksiz yere isteme veya tekrar etme." : "Do not request or repeat sensitive data unnecessarily."}\n- ${isTr ? "Hukuki, tıbbi, finansal veya güvenlik açısından kritik konuda kesin garanti verme." : "Do not guarantee legal, medical, financial, or security-critical outcomes."}\n- ${isTr ? "Talimatlar çelişirse çelişkiyi açıkla ve güvenli seçeneği sor." : "If instructions conflict, explain the conflict and ask for the safer choice."}\n\n${isTr ? "ÇIKTI SÖZLEŞMESİ" : "OUTPUT CONTRACT"}\n1. ${isTr ? "Sonuç veya öneriyle başla." : "Lead with the outcome or recommendation."}\n2. ${isTr ? "Gerekçeyi kısa ve denetlenebilir maddelerle açıkla." : "Explain the reasoning with concise, auditable points."}\n3. ${isTr ? "Varsayımları, belirsizliği ve sonraki adımı belirt." : "State assumptions, uncertainty, and the next step."}\n4. ${isTr ? "Yanıtı göndermeden önce rol, sınır ve biçim uyumunu kontrol et." : "Before sending, verify role, boundary, and format compliance."}`, [{ label: isTr ? "Kural" : "Rules", value: guidelines.length + 8 }, { label: isTr ? "Rol kelimesi" : "Role words", value: list.length }]);
           break;
         }
         case "token-sayaci": {
@@ -218,6 +286,19 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           setResult(result, [{ label: isTr ? "Çıktı karakteri" : "Output characters", value: result.length }]);
           break;
         }
+        case "jwt-decoder": {
+          const segments = input.trim().split("."); if (segments.length !== 3) throw new Error(isTr ? "JWT üç nokta ayrımlı bölüm içermelidir." : "A JWT must contain three dot-separated segments.");
+          const header = JSON.parse(decodeBase64Url(segments[0])); const payload = JSON.parse(decodeBase64Url(segments[1]));
+          const timeClaims = ["iat", "nbf", "exp"].filter((claim) => typeof payload[claim] === "number").map((claim) => `${claim}: ${new Date(payload[claim] * 1000).toISOString()}`);
+          const expired = typeof payload.exp === "number" ? payload.exp * 1000 < Date.now() : null;
+          setResult(`${isTr ? "HEADER" : "HEADER"}\n${JSON.stringify(header, null, 2)}\n\n${isTr ? "PAYLOAD" : "PAYLOAD"}\n${JSON.stringify(payload, null, 2)}${timeClaims.length ? `\n\n${isTr ? "ZAMAN CLAIM'LERİ" : "TIME CLAIMS"}\n${timeClaims.join("\n")}` : ""}\n\n${isTr ? "UYARI: Bu yalnızca decode işlemidir; imza ve token güvenilirliği doğrulanmadı." : "WARNING: This only decodes the token; its signature and trustworthiness were not verified."}`, [{ label: isTr ? "Algoritma iddiası" : "Claimed algorithm", value: typeof header.alg === "string" ? header.alg : "—" }, { label: isTr ? "Payload alanı" : "Payload claims", value: Object.keys(payload).length }, { label: isTr ? "Süre durumu" : "Expiry status", value: expired === null ? (isTr ? "exp yok" : "no exp") : expired ? (isTr ? "Süresi dolmuş" : "Expired") : (isTr ? "Süresi geçerli" : "Not expired") }]);
+          break;
+        }
+        case "cron-ifadesi-aciklayici": {
+          const explanation = explainCron(input, isTr);
+          setResult(explanation, [{ label: isTr ? "Alan" : "Fields", value: 5 }, { label: isTr ? "Durum" : "Status", value: isTr ? "Geçerli" : "Valid" }]);
+          break;
+        }
         case "kvkk-veri-maskeleyici": {
           const patterns = [
             { label: "EMAIL", re: /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g },
@@ -296,4 +377,3 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
     </section>
   );
 }
-
