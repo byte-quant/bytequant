@@ -1,0 +1,299 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { Locale } from "../lib/site";
+
+type Metric = { label: string; value: string | number };
+
+const noInputTools = new Set(["guclu-parola-uretici", "uuid-uretici"]);
+const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci"]);
+
+const samples: Record<string, Record<Locale, string>> = {
+  "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points." },
+  "meta-prompt-olusturucu": { tr: "Müşteri geri bildirimlerini temalara ayır ve uygulanabilir öneriler çıkar.", en: "Group customer feedback into themes and produce actionable recommendations." },
+  "token-sayaci": { tr: "Bu alana token ihtiyacını tahmin etmek istediğiniz metni yazın.", en: "Enter the text whose token demand you want to estimate." },
+  "okunabilirlik-analizi": { tr: "Açık ve anlaşılır metin, okuyucunun karar vermesini kolaylaştırır. Uzun cümleleri bölmek ve gereksiz terimleri açıklamak okunabilirliği artırır.", en: "Clear writing helps readers make decisions. Shorter sentences and explained terminology improve readability." },
+  "metin-benzerlik-analizi": { tr: "Tarayıcı içi araçlar veriyi cihazınızda işler.", en: "In-browser tools process data on your device." },
+  "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
+  "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
+  "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":18}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":18}" },
+  "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
+  "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
+  "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
+  "base64-kodlayici": { tr: "Merhaba ByteQuant", en: "Hello ByteQuant" },
+  "url-kodlayici": { tr: "gizlilik odaklı araçlar", en: "privacy-first tools" },
+  "kvkk-veri-maskeleyici": { tr: "Ayşe'nin e-postası ayse@example.com, telefonu +90 555 123 45 67 ve IP adresi 192.168.1.24.", en: "Ada's email is ada@example.com, phone +1 202 555 0147, and IP address 192.168.1.24." },
+  "sha256-ozet-uretici": { tr: "Bütünlüğü kontrol edilecek metin", en: "Text whose integrity will be checked" },
+};
+
+function words(text: string, locale: Locale) {
+  return text.toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US").match(/[\p{L}\p{N}’'-]+/gu) ?? [];
+}
+
+function sentenceCount(text: string) {
+  return Math.max(1, (text.match(/[.!?]+(?:\s|$)/g) ?? []).length || (text.trim() ? 1 : 0));
+}
+
+function csvParse(input: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+  for (let i = 0; i < input.length; i += 1) {
+    const char = input[i];
+    if (char === '"') {
+      if (quoted && input[i + 1] === '"') { cell += '"'; i += 1; }
+      else quoted = !quoted;
+    } else if (char === "," && !quoted) { row.push(cell); cell = ""; }
+    else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && input[i + 1] === "\n") i += 1;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += char;
+  }
+  row.push(cell);
+  if (row.some((value) => value.length) || rows.length === 0) rows.push(row);
+  return rows;
+}
+
+function csvEscape(value: unknown) {
+  const text = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function frequency(text: string, locale: Locale) {
+  const map = new Map<string, number>();
+  words(text, locale).forEach((word) => map.set(word, (map.get(word) ?? 0) + 1));
+  return map;
+}
+
+function similarity(a: string, b: string, locale: Locale) {
+  const fa = frequency(a, locale); const fb = frequency(b, locale);
+  const vocabulary = new Set([...fa.keys(), ...fb.keys()]);
+  let dot = 0; let ma = 0; let mb = 0;
+  vocabulary.forEach((token) => { const x = fa.get(token) ?? 0; const y = fb.get(token) ?? 0; dot += x * y; ma += x * x; mb += y * y; });
+  const cosine = ma && mb ? dot / (Math.sqrt(ma) * Math.sqrt(mb)) : 0;
+  const setA = new Set(fa.keys()); const setB = new Set(fb.keys());
+  const union = new Set([...setA, ...setB]);
+  const intersection = [...setA].filter((token) => setB.has(token)).length;
+  return { cosine, jaccard: union.size ? intersection / union.size : 0, shared: intersection };
+}
+
+function secureIndex(max: number) {
+  const maxUint = 0x100000000;
+  const limit = Math.floor(maxUint / max) * max;
+  const value = new Uint32Array(1);
+  do crypto.getRandomValues(value); while (value[0] >= limit);
+  return value[0] % max;
+}
+
+export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  const isTr = locale === "tr";
+  const [input, setInput] = useState(samples[slug]?.[locale] ?? "");
+  const [secondary, setSecondary] = useState(slug === "regex-test-araci" ? "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}" : slug === "metin-benzerlik-analizi" ? (isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.") : "");
+  const [flags, setFlags] = useState("gi");
+  const [mode, setMode] = useState("default");
+  const [length, setLength] = useState(24);
+  const [output, setOutput] = useState("");
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [message, setMessage] = useState("");
+
+  const labels = useMemo(() => isTr ? {
+    input: "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : "Karşılaştırma metni",
+    run: "Cihazımda çalıştır", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", error: "İşlem tamamlanamadı: ", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu",
+  } : {
+    input: "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : "Comparison text",
+    run: "Run on my device", copy: "Copy output", download: "Download as text", clear: "Clear", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", error: "Could not complete the operation: ", local: "Input never leaves this page.", flags: "Flags", length: "Password length",
+  }, [isTr, slug]);
+
+  function setResult(value: string, nextMetrics: Metric[] = []) {
+    setOutput(value); setMetrics(nextMetrics); setMessage("");
+  }
+
+  async function run() {
+    try {
+      if (!noInputTools.has(slug) && !input.trim()) throw new Error(isTr ? "Önce bir girdi yazın." : "Enter some input first.");
+      const list = words(input, locale);
+      switch (slug) {
+        case "prompt-kalite-denetimi": {
+          const checks = [
+            { label: isTr ? "Açık hedef" : "Clear goal", ok: /(?:hazırla|oluştur|yaz|analiz|karşılaştır|üret|çıkar|create|write|analy[sz]e|compare|produce|extract)/i.test(input) },
+            { label: isTr ? "Yeterli bağlam" : "Useful context", ok: list.length >= 18 },
+            { label: isTr ? "Çıktı biçimi" : "Output format", ok: /(?:liste|tablo|json|başlık|madde|format|list|table|heading|bullet)/i.test(input) },
+            { label: isTr ? "Kısıt veya sınır" : "Constraint", ok: /(?:en az|en fazla|yalnızca|kaçın|kullanma|zorunlu|at least|at most|only|avoid|must|do not)/i.test(input) },
+            { label: isTr ? "Hedef kitle veya ton" : "Audience or tone", ok: /(?:kullanıcı|okuyucu|müşteri|uzman|başlangıç|ton|audience|reader|customer|expert|beginner|tone)/i.test(input) },
+            { label: isTr ? "Kalite ölçütü" : "Quality criterion", ok: /(?:doğru|kaynak|kanıt|özgün|açık|kontrol|accurate|source|evidence|original|clear|verify)/i.test(input) },
+          ];
+          const score = Math.round(checks.filter((item) => item.ok).length / checks.length * 100);
+          const report = checks.map((item) => `${item.ok ? "✓" : "○"} ${item.label}${item.ok ? "" : isTr ? " — eklenmesi önerilir" : " — consider adding"}`).join("\n");
+          setResult(`${isTr ? "PROMPT KALİTE RAPORU" : "PROMPT QUALITY REPORT"}\n\n${report}\n\n${isTr ? "Öneri: Eksik bileşenleri doğal bir dille ekleyin; gereksiz uzunluktan kaçının." : "Recommendation: add missing components in natural language and avoid unnecessary length."}`, [{ label: isTr ? "Kalite skoru" : "Quality score", value: `${score}/100` }, { label: isTr ? "Karşılanan ölçüt" : "Checks passed", value: `${checks.filter((item) => item.ok).length}/${checks.length}` }, { label: isTr ? "Kelime" : "Words", value: list.length }]);
+          break;
+        }
+        case "meta-prompt-olusturucu": {
+          setResult(`${isTr ? "ROL" : "ROLE"}\n${isTr ? "Görevin amacına uygun, kanıta dayalı ve açık iletişim kuran bir uzman gibi çalış." : "Act as a domain-appropriate specialist who communicates clearly and relies on evidence."}\n\n${isTr ? "HEDEF" : "OBJECTIVE"}\n${input.trim()}\n\n${isTr ? "BAĞLAM VE SINIRLAR" : "CONTEXT AND CONSTRAINTS"}\n${secondary.trim() || (isTr ? "Yalnızca verilen bilgiyi kullan. Bilinmeyen noktaları varsayma; 'yetersiz bilgi' olarak işaretle." : "Use only the supplied information. Do not invent missing facts; mark them as 'insufficient information.'")}\n\n${isTr ? "ÇALIŞMA SÜRECİ" : "PROCESS"}\n1. ${isTr ? "Hedefi ve başarı ölçütünü yeniden ifade et." : "Restate the goal and success criteria."}\n2. ${isTr ? "Girdiyi çelişki, eksik bilgi ve hassas veri açısından kontrol et." : "Check the input for conflicts, missing information, and sensitive data."}\n3. ${isTr ? "Sonucu en açık ve kısa yapıda hazırla." : "Prepare the result in the clearest concise structure."}\n4. ${isTr ? "Son kontrolde iddiaları, kapsamı ve biçimi doğrula." : "Verify claims, scope, and format before finalizing."}\n\n${isTr ? "ÇIKTI SÖZLEŞMESİ" : "OUTPUT CONTRACT"}\n- ${isTr ? "Önce kısa sonuç özeti" : "Start with a short outcome summary"}\n- ${isTr ? "Ardından gerekçeli maddeler" : "Follow with reasoned bullet points"}\n- ${isTr ? "Son bölümde riskler ve sonraki adımlar" : "End with risks and next steps"}`, [{ label: isTr ? "Şablon bölümü" : "Template sections", value: 5 }, { label: isTr ? "Hedef kelimesi" : "Goal words", value: list.length }]);
+          break;
+        }
+        case "token-sayaci": {
+          const chars = input.length; const tokens = Math.max(1, Math.ceil(chars / (isTr ? 3.2 : 4)));
+          setResult(isTr ? `Yaklaşık ${tokens.toLocaleString("tr-TR")} token. Bu değer modelden bağımsız bir tahmindir; gerçek tokenizer sonucu değişebilir.` : `Approximately ${tokens.toLocaleString("en-US")} tokens. This is a model-agnostic estimate; exact tokenizer results vary.`, [{ label: isTr ? "Yaklaşık token" : "Estimated tokens", value: tokens }, { label: isTr ? "Kelime" : "Words", value: list.length }, { label: isTr ? "Karakter" : "Characters", value: chars }, { label: isTr ? "Satır" : "Lines", value: input.split(/\r?\n/).length }]);
+          break;
+        }
+        case "okunabilirlik-analizi": {
+          const sentences = sentenceCount(input); const syllables = list.reduce((sum, word) => sum + Math.max(1, (word.match(/[aeıioöuü]/gi) ?? []).length), 0);
+          const avg = list.length / sentences; const score = isTr ? Math.max(0, Math.min(100, 198.825 - 40.175 * (syllables / Math.max(1, list.length)) - 2.61 * avg)) : Math.max(0, Math.min(100, 206.835 - 1.015 * avg - 84.6 * (syllables / Math.max(1, list.length))));
+          const level = score >= 70 ? (isTr ? "Kolay" : "Easy") : score >= 50 ? (isTr ? "Orta" : "Moderate") : (isTr ? "Zor" : "Difficult");
+          setResult(isTr ? `${level} okunabilirlik. ${avg > 20 ? "Ortalama cümleler uzun; bazı cümleleri bölmeyi deneyin." : "Cümle uzunluğu dengeli görünüyor."} Bu skor yaklaşık bir dil göstergesidir.` : `${level} readability. ${avg > 20 ? "Average sentences are long; consider splitting some of them." : "Sentence length appears balanced."} This score is an approximate language indicator.`, [{ label: isTr ? "Okunabilirlik" : "Readability", value: Math.round(score) }, { label: isTr ? "Ort. cümle" : "Avg. sentence", value: avg.toFixed(1) }, { label: isTr ? "Cümle" : "Sentences", value: sentences }, { label: isTr ? "Kelime çeşitliliği" : "Lexical diversity", value: `${Math.round(new Set(list).size / Math.max(1, list.length) * 100)}%` }]);
+          break;
+        }
+        case "metin-benzerlik-analizi": {
+          if (!secondary.trim()) throw new Error(isTr ? "İkinci metni de girin." : "Enter the comparison text.");
+          const result = similarity(input, secondary, locale);
+          setResult(isTr ? `Sözcük tabanlı kosinüs benzerliği %${Math.round(result.cosine * 100)}, Jaccard örtüşmesi %${Math.round(result.jaccard * 100)}. Bu ölçüm bağlamsal yapay zekâ benzerliği değildir.` : `Word-based cosine similarity is ${Math.round(result.cosine * 100)}%; Jaccard overlap is ${Math.round(result.jaccard * 100)}%. This is not contextual AI similarity.`, [{ label: "Cosine", value: `${Math.round(result.cosine * 100)}%` }, { label: "Jaccard", value: `${Math.round(result.jaccard * 100)}%` }, { label: isTr ? "Ortak sözcük" : "Shared terms", value: result.shared }]);
+          break;
+        }
+        case "metin-temizleyici": {
+          const cleaned = input.replace(/[\t ]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+          setResult(cleaned, [{ label: isTr ? "Kaldırılan karakter" : "Characters removed", value: input.length - cleaned.length }, { label: isTr ? "Satır" : "Lines", value: cleaned.split(/\r?\n/).length }]);
+          break;
+        }
+        case "buyuk-kucuk-harf-donusturucu": {
+          const localeCode = isTr ? "tr-TR" : "en-US";
+          let converted = input;
+          if (mode === "upper") converted = input.toLocaleUpperCase(localeCode);
+          else if (mode === "lower") converted = input.toLocaleLowerCase(localeCode);
+          else if (mode === "sentence") converted = input.toLocaleLowerCase(localeCode).replace(/(^|[.!?]\s+)(\p{L})/gu, (_, start, char) => start + char.toLocaleUpperCase(localeCode));
+          else converted = input.toLocaleLowerCase(localeCode).replace(/(^|[\s–—-])(\p{L})/gu, (_, start, char) => start + char.toLocaleUpperCase(localeCode));
+          setResult(converted, [{ label: isTr ? "Karakter" : "Characters", value: converted.length }]);
+          break;
+        }
+        case "kelime-sayaci": {
+          const paragraphs = input.trim().split(/\n\s*\n/).filter(Boolean).length;
+          const readMinutes = Math.max(1, Math.ceil(list.length / 200));
+          setResult(isTr ? `Tahmini okuma süresi ${readMinutes} dakika. Uzunluk tek başına kalite göstergesi değildir; içeriğin amacı ve okuyucunun ihtiyacıyla birlikte değerlendirin.` : `Estimated reading time is ${readMinutes} minute${readMinutes === 1 ? "" : "s"}. Length alone does not indicate quality; evaluate it against purpose and reader needs.`, [{ label: isTr ? "Kelime" : "Words", value: list.length }, { label: isTr ? "Karakter" : "Characters", value: input.length }, { label: isTr ? "Cümle" : "Sentences", value: sentenceCount(input) }, { label: isTr ? "Paragraf" : "Paragraphs", value: paragraphs }]);
+          break;
+        }
+        case "json-bicimlendirici": {
+          const parsed = JSON.parse(input); const pretty = mode !== "minify";
+          setResult(JSON.stringify(parsed, null, pretty ? 2 : 0), [{ label: isTr ? "Durum" : "Status", value: isTr ? "Geçerli JSON" : "Valid JSON" }, { label: isTr ? "Üst düzey tür" : "Root type", value: Array.isArray(parsed) ? "Array" : typeof parsed }, { label: isTr ? "Bayt (yaklaşık)" : "Bytes (approx.)", value: new Blob([input]).size }]);
+          break;
+        }
+        case "json-csv-donusturucu": {
+          if (mode === "csv-to-json") {
+            const rows = csvParse(input); const headers = rows[0] ?? [];
+            const data = rows.slice(1).filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
+            setResult(JSON.stringify(data, null, 2), [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }]);
+          } else {
+            const data = JSON.parse(input); if (!Array.isArray(data) || !data.every((item) => item && typeof item === "object" && !Array.isArray(item))) throw new Error(isTr ? "Düz nesnelerden oluşan bir JSON dizisi gerekir." : "A JSON array of flat objects is required.");
+            const headers = [...new Set(data.flatMap((item) => Object.keys(item)))];
+            const csv = [headers.map(csvEscape).join(","), ...data.map((item) => headers.map((header) => csvEscape(item[header])).join(","))].join("\n");
+            setResult(csv, [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }]);
+          }
+          break;
+        }
+        case "regex-test-araci": {
+          if (input.length > 50000) throw new Error(isTr ? "Performans için test metni 50.000 karakterle sınırlıdır." : "Sample text is limited to 50,000 characters for performance.");
+          if (/(\([^)]*[+*][^)]*\))[+*{]/.test(secondary)) throw new Error(isTr ? "İç içe nicelik belirteci ReDoS riski taşıyabilir; kalıbı sadeleştirin." : "Nested quantifiers may create a ReDoS risk; simplify the pattern.");
+          const re = new RegExp(secondary, flags.includes("g") ? flags : `${flags}g`); const matches = [...input.matchAll(re)].slice(0, 200);
+          const report = matches.length ? matches.map((match, index) => `${index + 1}. [${match.index}] ${JSON.stringify(match[0])}${match.length > 1 ? ` | ${isTr ? "gruplar" : "groups"}: ${match.slice(1).map((v) => JSON.stringify(v)).join(", ")}` : ""}`).join("\n") : (isTr ? "Eşleşme bulunamadı." : "No matches found.");
+          setResult(report, [{ label: isTr ? "Eşleşme" : "Matches", value: matches.length }, { label: isTr ? "Metin uzunluğu" : "Text length", value: input.length }]);
+          break;
+        }
+        case "csv-inceleyici": {
+          const rows = csvParse(input).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
+          setResult(`${isTr ? "Başlıklar" : "Headers"}: ${headers.join(" · ")}\n${isTr ? "Düzensiz satırlar" : "Irregular rows"}: ${irregular.length ? irregular.map((item) => item.line).join(", ") : (isTr ? "yok" : "none")}`, [{ label: isTr ? "Veri satırı" : "Data rows", value: Math.max(0, rows.length - 1) }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Düzensiz satır" : "Irregular rows", value: irregular.length }]);
+          break;
+        }
+        case "base64-kodlayici": {
+          if (mode === "decode") {
+            const bytes = Uint8Array.from(atob(input.trim()), (char) => char.charCodeAt(0));
+            setResult(new TextDecoder().decode(bytes), [{ label: isTr ? "Çözülen bayt" : "Decoded bytes", value: bytes.length }]);
+          } else {
+            const bytes = new TextEncoder().encode(input); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+            setResult(btoa(binary), [{ label: isTr ? "Kaynak bayt" : "Source bytes", value: bytes.length }]);
+          }
+          break;
+        }
+        case "url-kodlayici": {
+          const result = mode === "decode" ? decodeURIComponent(input.trim()) : encodeURIComponent(input);
+          setResult(result, [{ label: isTr ? "Çıktı karakteri" : "Output characters", value: result.length }]);
+          break;
+        }
+        case "kvkk-veri-maskeleyici": {
+          const patterns = [
+            { label: "EMAIL", re: /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g },
+            { label: "IBAN", re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/gi },
+            { label: "CARD", re: /\b(?:\d[ -]*?){13,19}\b/g },
+            { label: "IP", re: /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g },
+            { label: "PHONE", re: /(?<!\d)(?:\+?\d{1,3}[ .-]?)?(?:\(?\d{3}\)?[ .-]?)\d{3}[ .-]?\d{2}[ .-]?\d{2}(?!\d)/g },
+            { label: "TCKN", re: /\b[1-9]\d{10}\b/g },
+          ];
+          let masked = input; const found: Metric[] = [];
+          patterns.forEach(({ label, re }) => { let count = 0; masked = masked.replace(re, () => { count += 1; return `[${label}_${count}]`; }); if (count) found.push({ label, value: count }); });
+          setResult(`${masked}\n\n${isTr ? "Not: Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. Paylaşmadan önce elle kontrol edin." : "Note: automatic masking cannot find all contextual personal data. Review manually before sharing."}`, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
+          break;
+        }
+        case "guclu-parola-uretici": {
+          const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%*-_+=?"; let password = "";
+          for (let index = 0; index < Math.min(128, Math.max(12, length)); index += 1) password += alphabet[secureIndex(alphabet.length)];
+          setResult(password, [{ label: isTr ? "Uzunluk" : "Length", value: password.length }, { label: isTr ? "Kaynak" : "Source", value: "Web Crypto" }]);
+          break;
+        }
+        case "uuid-uretici": {
+          const value = crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => (Number(char) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> Number(char) / 4).toString(16));
+          setResult(value, [{ label: isTr ? "Sürüm" : "Version", value: "UUID v4" }]);
+          break;
+        }
+        case "sha256-ozet-uretici": {
+          const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+          const value = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+          setResult(value, [{ label: isTr ? "Özet uzunluğu" : "Digest length", value: "256 bit" }, { label: isTr ? "Algoritma" : "Algorithm", value: "SHA-256" }]);
+          break;
+        }
+        default: throw new Error(isTr ? "Araç yapılandırması bulunamadı." : "Tool configuration was not found.");
+      }
+    } catch (error) {
+      setOutput(""); setMetrics([]); setMessage(labels.error + (error instanceof Error ? error.message : String(error)));
+    }
+  }
+
+  async function copyOutput() {
+    if (!output) return;
+    await navigator.clipboard.writeText(output); setMessage(labels.copied);
+  }
+
+  function downloadOutput() {
+    if (!output) return;
+    const url = URL.createObjectURL(new Blob([output], { type: "text/plain;charset=utf-8" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); URL.revokeObjectURL(url);
+  }
+
+  const showMode = ["buyuk-kucuk-harf-donusturucu", "json-bicimlendirici", "json-csv-donusturucu", "base64-kodlayici", "url-kodlayici"].includes(slug);
+
+  return (
+    <section className="workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"}>
+      <div className="workbench-bar"><span className="local-status"><i />{labels.local}</span><button type="button" className="ghost-button" onClick={() => { setInput(""); setSecondary(""); setOutput(""); setMetrics([]); setMessage(""); }}>{labels.clear}</button></div>
+      <div className="workbench-grid">
+        <div className="workbench-inputs">
+          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => setInput(event.target.value)} spellCheck="false" /></label>}
+          {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input value={secondary} onChange={(event) => setSecondary(event.target.value)} spellCheck="false" /> : <textarea value={secondary} rows={5} onChange={(event) => setSecondary(event.target.value)} spellCheck="false" />}</label>}
+          {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => setFlags(event.target.value.replace(/[^dgimsuvy]/g, ""))} /></label>}
+          {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => setLength(Number(event.target.value))} /></label>}
+          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select value={mode} onChange={(event) => setMode(event.target.value)}>
+            {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{isTr ? "Başlık biçimi" : "Title case"}</option><option value="sentence">{isTr ? "Cümle biçimi" : "Sentence case"}</option><option value="upper">{isTr ? "BÜYÜK HARF" : "UPPERCASE"}</option><option value="lower">{isTr ? "küçük harf" : "lowercase"}</option></>}
+            {slug === "json-bicimlendirici" && <><option value="default">{isTr ? "Biçimlendir" : "Pretty print"}</option><option value="minify">{isTr ? "Küçült" : "Minify"}</option></>}
+            {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
+            {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{isTr ? "Kodla" : "Encode"}</option><option value="decode">{isTr ? "Çöz" : "Decode"}</option></>}
+          </select></label>}
+          <button type="button" className="primary-button run-button" onClick={run}>{labels.run}<span aria-hidden="true"> →</span></button>
+        </div>
+        <div className="result-panel" aria-live="polite">
+          <div className="result-header"><span>{labels.output}</span><div><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
+          {metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}
+          <pre className={output ? "has-output" : ""}>{output || labels.empty}</pre>
+          {message && <p className={message.startsWith(labels.error) ? "tool-message error" : "tool-message"}>{message}</p>}
+        </div>
+      </div>
+    </section>
+  );
+}
+
