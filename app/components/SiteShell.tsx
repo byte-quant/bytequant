@@ -1,16 +1,25 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { copy, pathFor, type Locale } from "../lib/site";
+import { copy, organizationId, pathFor, siteUrl, websiteId, type Locale } from "../lib/site";
 import { ConsentManager, PrivacySettingsButton } from "./ConsentManager";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandLogo } from "./BrandLogo";
 import { CommandPalette } from "./CommandPalette";
 import { referencePath } from "../lib/references";
+import { SchemaScript } from "./SchemaScript";
 
 export function SiteShell({ children, locale, alternateHref }: { children: ReactNode; locale: Locale; alternateHref: string }) {
   const t = copy[locale];
+  const globalSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", "@id": organizationId, name: "ByteQuant", url: `${siteUrl}/`, logo: { "@type": "ImageObject", url: `${siteUrl}/favicon.png`, width: 512, height: 512 }, email: "bytequant@yahoo.com", sameAs: ["https://x.com/byte_quant", "https://www.instagram.com/byte.quant"] },
+      { "@type": "WebSite", "@id": websiteId, name: "ByteQuant", alternateName: ["Gizlilik odaklı üretkenlik araçları", "Privacy-first productivity tools"], url: `${siteUrl}/`, inLanguage: ["tr-TR", "en"], publisher: { "@id": organizationId } },
+    ],
+  };
   return (
     <div className="site-shell">
+      <SchemaScript data={globalSchema} />
       <a className="skip-link" href="#main-content">{locale === "tr" ? "İçeriğe geç" : "Skip to content"}</a>
       <header className="site-header">
         <div className="container header-inner">

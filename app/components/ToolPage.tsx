@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { categories, getRelatedTools, tools, type Tool } from "../lib/tools";
-import { pathFor, postPath, siteUrl, toolPath, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, toolPath, websiteId, type Locale } from "../lib/site";
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
@@ -12,7 +12,8 @@ import { posts } from "../lib/posts";
 
 export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const isTr = locale === "tr";
-  const languageTag = isTr ? "tr-TR" : "en-US";
+  const currentLanguage = languageTag(locale);
+  const pageUrl = absoluteUrl(toolPath(locale, tool.slug));
   const alternateHref = toolPath(locale === "tr" ? "en" : "tr", tool.slug);
   const related = getRelatedTools(tool);
   const relatedReference = references.find((guide) => guide.toolSlug === tool.slug);
@@ -23,10 +24,9 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
     [isTr ? "Girdi kaydediliyor mu?" : "Is input saved?", isTr ? "Hayır. Araç girdisi localStorage veya başka bir kalıcı alanda saklanmaz. Yalnızca açık rıza verirseniz araç slug'ı, sayaç ve son kullanım zamanı kişisel kısa yollar için bu cihazda tutulur; bu kayıt gizlilik tercihlerinden silinebilir." : "No. Tool input is not persisted to localStorage or another durable store. Only with your consent may tool slug, count, and last-used time be kept on this device for personal shortcuts; that record can be deleted through privacy choices."],
   ];
   const schema = [
-    { "@context": "https://schema.org", "@type": "WebApplication", name: tool.title[locale], description: tool.description[locale], url: `${siteUrl}${toolPath(locale, tool.slug)}`, applicationCategory: "UtilitiesApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled", inLanguage: languageTag, isAccessibleForFree: true, dateModified: "2026-07-15", featureList: tool.useCases[locale], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, creator: { "@type": "Organization", name: "ByteQuant", url: siteUrl }, privacyPolicy: `${siteUrl}${pathFor(locale, "privacy")}` },
-    { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: `${siteUrl}${pathFor(locale, "home")}` }, { "@type": "ListItem", position: 2, name: isTr ? "Araçlar" : "Tools", item: `${siteUrl}${pathFor(locale, "tools").split("#")[0]}` }, { "@type": "ListItem", position: 3, name: tool.title[locale], item: `${siteUrl}${toolPath(locale, tool.slug)}` }] },
-    { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: languageTag, mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
-    { "@context": "https://schema.org", "@type": "HowTo", name: isTr ? `${tool.title[locale]} nasıl kullanılır?` : `How to use ${tool.title[locale]}`, description: tool.short[locale], totalTime: "PT3M", inLanguage: languageTag, tool: [{ "@type": "HowToTool", name: isTr ? "Güncel bir web tarayıcısı" : "A current web browser" }], step: tool.steps[locale].map((text, index) => ({ "@type": "HowToStep", position: index + 1, name: isTr ? `${index + 1}. adım` : `Step ${index + 1}`, text, url: `${siteUrl}${toolPath(locale, tool.slug)}#how-to-step-${index + 1}` })) },
+    { "@context": "https://schema.org", "@type": "WebApplication", "@id": `${pageUrl}#application`, name: tool.title[locale], description: tool.description[locale], url: pageUrl, applicationCategory: "UtilitiesApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled", inLanguage: currentLanguage, isAccessibleForFree: true, dateModified: schemaDate("2026-07-15"), featureList: tool.useCases[locale], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, creator: { "@id": organizationId }, isPartOf: { "@id": websiteId }, privacyPolicy: absoluteUrl(pathFor(locale, "privacy")) },
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: isTr ? "Araçlar" : "Tools", item: absoluteUrl(pathFor(locale, "tools")) }, { "@type": "ListItem", position: 3, name: tool.title[locale], item: pageUrl }] },
+    { "@context": "https://schema.org", "@type": "HowTo", "@id": `${pageUrl}#how-to`, name: isTr ? `${tool.title[locale]} nasıl kullanılır?` : `How to use ${tool.title[locale]}`, description: tool.short[locale], totalTime: "PT3M", inLanguage: currentLanguage, isPartOf: { "@id": `${pageUrl}#application` }, tool: [{ "@type": "HowToTool", name: isTr ? "Güncel bir web tarayıcısı" : "A current web browser" }], step: tool.steps[locale].map((text, index) => ({ "@type": "HowToStep", position: index + 1, name: isTr ? `${index + 1}. adım` : `Step ${index + 1}`, text, url: `${pageUrl}#how-to-step-${index + 1}` })) },
   ];
   return (
     <SiteShell locale={locale} alternateHref={alternateHref}>

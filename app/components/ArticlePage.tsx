@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Post } from "../lib/posts";
 import { posts } from "../lib/posts";
 import { getTool, tools, type Tool } from "../lib/tools";
-import { pathFor, postPath, siteUrl, toolPath, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, siteUrl, toolPath, websiteId, type Locale } from "../lib/site";
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
@@ -15,7 +15,8 @@ function postRelevance(current: Post, candidate: Post) {
 
 export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
   const isTr = locale === "tr";
-  const languageTag = isTr ? "tr-TR" : "en-US";
+  const currentLanguage = languageTag(locale);
+  const pageUrl = absoluteUrl(postPath(locale, post.slug));
   const alternateHref = postPath(isTr ? "en" : "tr", post.slug);
   const relatedPosts = posts
     .filter((item) => item.slug !== post.slug)
@@ -25,26 +26,26 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
     .map((slug) => getTool(slug))
     .filter((tool): tool is Tool => Boolean(tool));
   const primaryTool = relatedTools[0];
-  const formattedDate = new Intl.DateTimeFormat(languageTag, {
+  const formattedDate = new Intl.DateTimeFormat(currentLanguage, {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${post.date}T00:00:00.000Z`));
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title[locale],
-    description: post.description[locale],
-    datePublished: post.date,
-    dateModified: post.date,
-    inLanguage: languageTag,
-    mainEntityOfPage: `${siteUrl}${postPath(locale, post.slug)}`,
-    about: relatedTools.map((tool) => ({ "@type": "SoftwareApplication", name: tool.title[locale], url: `${siteUrl}${toolPath(locale, tool.slug)}` })),
-    author: { "@type": "Organization", name: "ByteQuant Editorial", url: `${siteUrl}${pathFor(locale, "about")}` },
-    publisher: { "@type": "Organization", name: "ByteQuant", url: siteUrl },
-    image: `${siteUrl}/og.png`,
-  };
+  const modifiedDate = post.updated ?? post.date;
+  const formattedModifiedDate = new Intl.DateTimeFormat(currentLanguage, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${modifiedDate}T00:00:00.000Z`));
+  const wordCount = post.sections[locale].flatMap((section) => [...section.paragraphs, ...(section.bullets ?? [])]).join(" ").trim().split(/\s+/).length;
+  const schema = [
+    {
+      "@context": "https://schema.org", "@type": "BlogPosting", "@id": `${pageUrl}#article`, headline: post.title[locale], description: post.description[locale], url: pageUrl,
+      datePublished: schemaDate(post.date), dateModified: schemaDate(modifiedDate), inLanguage: currentLanguage, isAccessibleForFree: true, articleSection: post.category[locale], wordCount,
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl }, isPartOf: { "@id": websiteId },
+      about: relatedTools.map((tool) => ({ "@type": "SoftwareApplication", name: tool.title[locale], url: absoluteUrl(toolPath(locale, tool.slug)) })),
+      author: { "@type": "Organization", "@id": `${siteUrl}/#editorial`, name: "ByteQuant Editorial", url: absoluteUrl(pathFor(locale, "about")), parentOrganization: { "@id": organizationId } },
+      publisher: { "@id": organizationId }, citation: post.sources?.map((source) => source.url),
+    },
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: isTr ? "Rehberler" : "Guides", item: absoluteUrl(pathFor(locale, "blog")) }, { "@type": "ListItem", position: 3, name: post.title[locale], item: pageUrl }] },
+  ];
 
   return (
     <SiteShell locale={locale} alternateHref={alternateHref}>
@@ -63,12 +64,13 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
               <span>{post.category[locale]}</span><span>·</span>
               <time dateTime={post.date}>{formattedDate}</time><span>·</span>
               <span>{post.readTime[locale]}</span>
+              {post.updated && <><span>·</span><time dateTime={post.updated}>{isTr ? `Güncellendi ${formattedModifiedDate}` : `Updated ${formattedModifiedDate}`}</time></>}
             </div>
             <h1>{post.title[locale]}</h1>
             <p>{post.excerpt[locale]}</p>
             <div className="byline">
               <BrandLogo />
-              <div><strong>ByteQuant Editorial</strong><small>{isTr ? "Teknik inceleme ve ürün doğrulaması" : "Technical review and product verification"}</small></div>
+              <div><Link href={pathFor(locale, "about")}><strong>ByteQuant Editorial</strong></Link><small>{isTr ? "Teknik inceleme, birincil kaynak ve ürün doğrulaması" : "Technical review, primary sources, and product verification"}</small></div>
             </div>
           </div>
         </header>
@@ -87,6 +89,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
                 <span>{primaryTool.title[locale]} →</span>
               </Link>
             )}
+            {post.sources && <a href="#sources"><span>↗</span>{isTr ? "Kaynaklar" : "Sources"}</a>}
           </aside>
 
           <div className="article-body">
@@ -100,6 +103,8 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
                 {index === 1 && <AdSlot locale={locale} format="rectangle" />}
               </section>
             ))}
+
+            {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{isTr ? "Kaynaklar ve doğrulama" : "Sources and verification"}</h2><p>{isTr ? "Bu rehber hazırlanırken aşağıdaki birincil ve resmî belgeler kontrol edildi. Bağlantıların güncel sürüm ve değişiklik tarihlerini ayrıca inceleyin." : "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well."}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
 
             <section className="article-related-tools" aria-labelledby="article-related-tools-title">
               <span className="kicker">{isTr ? "İLGİLİ ARAÇLAR" : "RELATED TOOLS"}</span>
@@ -116,8 +121,8 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
             </section>
 
             <div className="article-note">
-              <strong>{isTr ? "Editoryal not" : "Editorial note"}</strong>
-              <p>{isTr ? `Görsel önerisi: ${post.visualSuggestion.tr} Bu içerik genel bilgilendirme amaçlıdır; hukuki veya güvenlik danışmanlığı değildir.` : `Visual suggestion: ${post.visualSuggestion.en} This article is general information, not legal or security advice.`}</p>
+              <strong>{isTr ? "Editoryal yöntem" : "Editorial method"}</strong>
+              <p>{isTr ? "İçerik, görünür ByteQuant ürün davranışı ve varsa listelenen birincil kaynaklarla karşılaştırılarak hazırlanır. Genel bilgilendirmedir; hukuki veya güvenlik danışmanlığı değildir." : "Content is checked against visible ByteQuant product behavior and the listed primary sources where available. It is general information, not legal or security advice."}</p>
             </div>
             <div className="article-cta">
               <div><span>{isTr ? "Bilgiyi uygulamaya dönüştürün" : "Turn guidance into action"}</span><h2>{isTr ? `${tools.length} araçla cihazınızda çalışmaya başlayın` : `Start working on-device with ${tools.length} tools`}</h2></div>

@@ -1,16 +1,23 @@
 import Link from "next/link";
 import { info, type InfoKey } from "../lib/info";
-import { pathFor, siteUrl, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, websiteId, type Locale } from "../lib/site";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 
 export function InfoPage({ pageKey, locale }: { pageKey: InfoKey; locale: Locale }) {
   const content = info[pageKey];
   const isTr = locale === "tr";
-  const languageTag = isTr ? "tr-TR" : "en-US";
+  const currentLanguage = languageTag(locale);
   const alternateHref = pathFor(locale === "tr" ? "en" : "tr", pageKey);
   const type = pageKey === "about" ? "AboutPage" : pageKey === "contact" ? "ContactPage" : pageKey === "faq" ? "FAQPage" : "WebPage";
-  const schema = pageKey === "faq" ? { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: languageTag, mainEntity: content.sections[locale].map((section) => ({ "@type": "Question", name: section.heading, acceptedAnswer: { "@type": "Answer", text: section.paragraphs.join(" ") } })) } : { "@context": "https://schema.org", "@type": type, name: content.title[locale], description: content.intro[locale], url: `${siteUrl}${pathFor(locale, pageKey)}`, inLanguage: languageTag, isPartOf: { "@type": "WebSite", name: "ByteQuant", url: siteUrl } };
+  const pageUrl = absoluteUrl(pathFor(locale, pageKey));
+  const mainEntity = pageKey === "faq"
+    ? content.sections[locale].map((section) => ({ "@type": "Question", name: section.heading, acceptedAnswer: { "@type": "Answer", text: section.paragraphs.join(" ") } }))
+    : pageKey === "about" || pageKey === "contact" ? { "@id": organizationId } : undefined;
+  const schema = [
+    { "@context": "https://schema.org", "@type": type, "@id": `${pageUrl}#page`, name: content.title[locale], description: content.intro[locale], url: pageUrl, inLanguage: currentLanguage, isPartOf: { "@id": websiteId }, ...(mainEntity ? { mainEntity } : {}) },
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: content.title[locale], item: pageUrl }] },
+  ];
   return (
     <SiteShell locale={locale} alternateHref={alternateHref}>
       <SchemaScript data={schema} />

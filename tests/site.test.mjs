@@ -4,6 +4,7 @@ import test from "node:test";
 
 const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
+const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
 
 test("exports the complete Turkish and English site", async () => {
   const [home, english, sitemap, robots, llms] = await Promise.all([read("index.html"), read("en/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt")]);
@@ -17,7 +18,10 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /hrefLang="tr-TR"/);
   assert.match(home, /hrefLang="en-US"/);
+  assert.match(home, /hrefLang="tr"/);
+  assert.match(home, /hrefLang="en"/);
   assert.match(home, /hrefLang="x-default"/);
+  assert.match(home, /href="https:\/\/bytequant\.org\/en\/" hrefLang="x-default"|hrefLang="x-default" href="https:\/\/bytequant\.org\/en\/"/);
   assert.match(sitemap, /araclar\/prompt-kalite-denetimi/);
   assert.match(sitemap, /en\/tools\/prompt-kalite-denetimi/);
   assert.match(sitemap, /araclar\/exif-meta-veri-temizleyici/);
@@ -28,6 +32,9 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(sitemap, /en\/tools\/pdf-birlestirme/);
   assert.match(sitemap, /referanslar\/regex-cheat-sheet/);
   assert.match(sitemap, /en\/references\/cron-cheat-sheet/);
+  assert.match(sitemap, /blog\/nextjs-hreflang-canonical-global-seo-rehberi/);
+  assert.match(sitemap, /en\/blog\/geo-aeo-ai-overviews-teknik-seo-rehberi/);
+  assert.match(sitemap, /blog\/json-ld-schema-nextjs-denetim-rehberi/);
   assert.match(sitemap, /cerez-politikasi/);
   assert.match(sitemap, /en\/cookies/);
   assert.match(sitemap, /hreflang="x-default"/);
@@ -67,8 +74,8 @@ test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, turkishPosts, englishPosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root))]);
   assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 38);
   assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 38);
-  assert.ok(turkishPosts.length >= 21);
-  assert.ok(englishPosts.length >= 21);
+  assert.ok(turkishPosts.length >= 24);
+  assert.ok(englishPosts.length >= 24);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
@@ -79,6 +86,9 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/meta-etiket-favicon-open-graph-seo/index.html", root));
   await access(new URL("blog/webp-png-jpg-gorsel-format-optimizasyonu/index.html", root));
   await access(new URL("en/blog/pdf-birlestirme-bolme-gizlilik-guvenlik/index.html", root));
+  await access(new URL("blog/nextjs-hreflang-canonical-global-seo-rehberi/index.html", root));
+  await access(new URL("en/blog/geo-aeo-ai-overviews-teknik-seo-rehberi/index.html", root));
+  await access(new URL("blog/json-ld-schema-nextjs-denetim-rehberi/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
 });
@@ -87,7 +97,7 @@ test("tool pages explain local processing and expose structured data", async () 
   const page = await read("araclar/kvkk-veri-maskeleyici/index.html");
   assert.match(page, /Girdi bu sayfadan ayrılmaz/);
   assert.match(page, /application\/ld\+json/);
-  assert.match(page, /FAQPage/);
+  assert.doesNotMatch(page, /FAQPage/);
   assert.match(page, /HowTo/);
   assert.match(page, /BreadcrumbList/);
   assert.match(page, /WebApplication/);
@@ -180,4 +190,37 @@ test("every localized tool exposes demo UX and HowTo schema", async () => {
   }
   assert.match(faq, /FAQPage/);
   assert.match(englishFaq, /FAQPage/);
+});
+
+test("exports the bilingual editorial discovery and structured-data package", async () => {
+  const [blog, englishBlog, article, englishArticle, feed, englishFeed] = await Promise.all([
+    read("blog/index.html"),
+    read("en/blog/index.html"),
+    read("blog/json-ld-schema-nextjs-denetim-rehberi/index.html"),
+    read("en/blog/nextjs-hreflang-canonical-global-seo-rehberi/index.html"),
+    read("feed.xml"),
+    read("en/feed.xml"),
+  ]);
+  assert.match(blog, /<strong>24<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>24<\/strong>\s*in-depth guides/);
+  assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
+  assert.match(blog, /application\/rss\+xml/);
+  assert.match(englishBlog, /application\/rss\+xml/);
+  for (const page of [blog, englishBlog, article, englishArticle]) {
+    assert.doesNotThrow(() => jsonLd(page));
+  }
+  const articleNodes = jsonLd(article).flatMap((value) => Array.isArray(value) ? value : [value]);
+  const articleSchema = articleNodes.find((value) => value["@type"] === "BlogPosting");
+  assert.ok(articleSchema);
+  assert.equal(articleSchema.publisher["@id"], "https://bytequant.org/#organization");
+  assert.match(articleSchema.datePublished, /T09:00:00\+03:00$/);
+  assert.ok(articleSchema.citation.length >= 2);
+  assert.match(article, /Kaynaklar ve doğrulama/);
+  assert.match(article, /developers\.google\.com/);
+  assert.doesNotMatch(article, /Görsel önerisi|Visual suggestion/);
+  assert.match(feed, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(feed, /<language>tr-TR<\/language>/);
+  assert.match(feed, /json-ld-schema-nextjs-denetim-rehberi/);
+  assert.match(englishFeed, /<language>en<\/language>/);
+  assert.match(englishFeed, /nextjs-hreflang-canonical-global-seo-rehberi/);
 });

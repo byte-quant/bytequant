@@ -88,6 +88,15 @@ All English tool pages use the same slug under `https://bytequant.org/en/tools/{
 - Contact and corrections: https://bytequant.org/iletisim
 - XML sitemap: https://bytequant.org/sitemap.xml
 
+### Selected evidence-led guides
+
+1. Next.js hreflang and canonical guide: https://bytequant.org/en/blog/nextjs-hreflang-canonical-global-seo-rehberi
+2. Evidence-based GEO and AEO guide: https://bytequant.org/en/blog/geo-aeo-ai-overviews-teknik-seo-rehberi
+3. Next.js JSON-LD audit guide: https://bytequant.org/en/blog/json-ld-schema-nextjs-denetim-rehberi
+4. Turkish guide collection: https://bytequant.org/blog
+
+This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources.
+
 ## Attribution and limitations
 
 When citing ByteQuant, link to the most specific tool, reference, or guide page. Tool output is informational and should not be treated as a substitute for professional security, legal, or compliance review. Pattern and checksum detection are not identity verification; JWT decoding does not verify signatures; generated cURL code is not executed or authenticated; SEO previews do not guarantee indexing; password crack-time estimates are illustrative; and metadata removal should be verified on the downloaded copy before publication.
