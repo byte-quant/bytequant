@@ -61,12 +61,12 @@ export function CommandPalette({ locale }: { locale: Locale }) {
         if (event.key === "ArrowDown") { event.preventDefault(); setActive((value) => Math.min(value + 1, results.length - 1)); }
         if (event.key === "ArrowUp") { event.preventDefault(); setActive((value) => Math.max(value - 1, 0)); }
         if (event.key === "Enter") { const link = document.getElementById(results[active]?.id) as HTMLAnchorElement | null; link?.click(); }
-      }} placeholder={isTr ? "33 araç ve 2 referansta ara…" : "Search 33 tools and 2 references…"} aria-controls="palette-results" /><button type="button" onClick={close} aria-label={isTr ? "Kapat" : "Close"}>Esc</button></div>
+      }} placeholder={isTr ? `${tools.length} araç ve ${references.length} referansta ara…` : `Search ${tools.length} tools and ${references.length} references…`} aria-controls="palette-results" /><button type="button" onClick={close} aria-label={isTr ? "Kapat" : "Close"}>Esc</button></div>
       <div className="palette-meta"><span>{isTr ? "Hızlı geçiş" : "Quick navigation"}</span><small>{results.length} {isTr ? "sonuç" : "results"}</small></div>
       <div id="palette-results" className="palette-results" role="listbox">{results.map((entry, index) => <Link id={entry.id} role="option" aria-selected={active === index} className={active === index ? "active" : ""} key={entry.id} href={entry.href} onMouseEnter={() => setActive(index)} onClick={close}><span className="palette-mark">{entry.mark}</span><span><strong>{entry.title}</strong><small>{entry.detail}</small></span><b>↵</b></Link>)}{results.length === 0 && <p>{isTr ? "Bu aramayla eşleşen hedef yok." : "No destination matches this search."}</p>}</div>
       <footer><span>↑↓ {isTr ? "seç" : "select"}</span><span>↵ {isTr ? "aç" : "open"}</span><span>Esc {isTr ? "kapat" : "close"}</span></footer>
     </section>
   </div> : null;
 
-  return <><button className="palette-trigger" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={isTr ? "33 araç ve 2 referansta ara" : "Search 33 tools and 2 references"}><span>⌕</span><b>{isTr ? "Ara" : "Search"}</b><kbd>⌘ K</kbd></button>{overlay && createPortal(overlay, document.body)}</>;
+  return <><button className="palette-trigger" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={isTr ? `${tools.length} araç ve ${references.length} referansta ara` : `Search ${tools.length} tools and ${references.length} references`}><span>⌕</span><b>{isTr ? "Ara" : "Search"}</b><kbd>⌘ K</kbd></button>{overlay && createPortal(overlay, document.body)}</>;
 }

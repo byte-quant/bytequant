@@ -65,7 +65,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="proof-strip"><div className="container proof-grid"><div><strong>{tools.length}</strong><span>{isTr ? "işlevsel araç" : "working tools"}</span></div><div><strong>4</strong><span>{isTr ? "odaklı kategori" : "focused categories"}</span></div><div><strong>0</strong><span>{isTr ? "zorunlu hesap" : "required accounts"}</span></div><div><strong>100%</strong><span>{isTr ? "tarayıcı içi çekirdek işlem" : "in-browser core processing"}</span></div></div></section>
+      <section className="proof-strip"><div className="container proof-grid"><div><strong>{tools.length}</strong><span>{isTr ? "işlevsel araç" : "working tools"}</span></div><div><strong>{Object.keys(categories).length}</strong><span>{isTr ? "odaklı kategori" : "focused categories"}</span></div><div><strong>0</strong><span>{isTr ? "zorunlu hesap" : "required accounts"}</span></div><div><strong>100%</strong><span>{isTr ? "tarayıcı içi çekirdek işlem" : "in-browser core processing"}</span></div></div></section>
 
       <PopularTools locale={locale} />
 

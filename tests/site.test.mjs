@@ -9,7 +9,7 @@ test("exports the complete Turkish and English site", async () => {
   const [home, english, sitemap, robots, llms] = await Promise.all([read("index.html"), read("en/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /33 açıklanabilir araç/);
+  assert.match(home, /38 açıklanabilir araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
@@ -24,6 +24,8 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(sitemap, /en\/tools\/qr-kod-olusturucu/);
   assert.match(sitemap, /araclar\/arac-zinciri-pipeline/);
   assert.match(sitemap, /en\/tools\/json-diff-karsilastirma/);
+  assert.match(sitemap, /araclar\/gorsel-format-donusturucu/);
+  assert.match(sitemap, /en\/tools\/pdf-birlestirme/);
   assert.match(sitemap, /referanslar\/regex-cheat-sheet/);
   assert.match(sitemap, /en\/references\/cron-cheat-sheet/);
   assert.match(sitemap, /cerez-politikasi/);
@@ -34,8 +36,8 @@ test("exports the complete Turkish and English site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 33);
-  assert.match(home, /33 araç ve 2 referansta ara/);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 38);
+  assert.match(home, /38 araç ve 2 referansta ara/);
   assert.doesNotMatch(home, /codex-preview|react-loading-skeleton|Your site is taking shape/);
   assert.doesNotMatch(home, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
 });
@@ -63,10 +65,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, turkishPosts, englishPosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 33);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 33);
-  assert.ok(turkishPosts.length >= 18);
-  assert.ok(englishPosts.length >= 18);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 38);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 38);
+  assert.ok(turkishPosts.length >= 21);
+  assert.ok(englishPosts.length >= 21);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
@@ -75,6 +77,8 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/qr-kod-guvenligi-ve-gizlilik/index.html", root));
   await access(new URL("blog/csv-kvkk-maskeleme-json-pipeline/index.html", root));
   await access(new URL("en/blog/meta-etiket-favicon-open-graph-seo/index.html", root));
+  await access(new URL("blog/webp-png-jpg-gorsel-format-optimizasyonu/index.html", root));
+  await access(new URL("en/blog/pdf-birlestirme-bolme-gizlilik-guvenlik/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
 });
@@ -134,6 +138,27 @@ test("exports the pipeline and developer workflow package", async () => {
   assert.match(pages[1], /imza\/kimlik doğrulaması|signatures, or identities/i);
   assert.match(pages[2], /komutunu çalıştırmadan|without executing/i);
   assert.match(pages[3], /indeksleme garantisi|indexing guarantee/i);
+});
+
+test("exports bilingual local image and PDF converters", async () => {
+  const pages = await Promise.all([
+    read("araclar/gorsel-format-donusturucu/index.html"),
+    read("araclar/gorsel-sikistirici/index.html"),
+    read("araclar/gorselden-pdf/index.html"),
+    read("araclar/pdf-birlestirme/index.html"),
+    read("araclar/pdf-bolme/index.html"),
+    read("en/tools/pdf-birlestirme/index.html"),
+  ]);
+  for (const page of pages) {
+    assert.match(page, /HowTo/);
+    assert.match(page, /Örnek veri yükle|Load example/);
+    assert.match(page, /active browser tab|etkin tarayıcı sekmesi/i);
+    assert.match(page, /İLGİLİ ARAÇLAR|RELATED TOOLS/);
+    assert.doesNotMatch(page, /axios|upload\s+to\s+(?:our|the)\s+server/i);
+  }
+  assert.match(pages[0], /gerçek vektörleştirme|vectorize PNG/i);
+  assert.match(pages[3], /korumasını aşmaz|never bypasses encryption/i);
+  assert.match(pages[4], /dijital imzalar|digital signatures/i);
 });
 
 test("every localized tool exposes demo UX and HowTo schema", async () => {

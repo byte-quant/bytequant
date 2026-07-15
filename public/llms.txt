@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 33 free browser-based tools for prompt engineering, text and NLP work, developer workflows, data conversion, and personal security.
+> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 38 free browser-based tools for prompt engineering, text and NLP work, developer workflows, PDF and image conversion, data conversion, and personal security.
 
 Canonical site: https://bytequant.org/
 
@@ -58,6 +58,14 @@ Languages:
 - [JSON Diff / Yapısal Karşılaştırma](https://bytequant.org/araclar/json-diff-karsilastirma): reports added, removed, changed, and type-changed JSON paths.
 - [cURL → Kod Dönüştürücü](https://bytequant.org/araclar/curl-kod-donusturucu): parses but never executes cURL and generates JavaScript, Node.js, Python, or PHP drafts.
 - [Meta Etiket / Favicon Üretici](https://bytequant.org/araclar/meta-etiket-favicon-uretici): generates escaped SEO, Open Graph, Twitter Card, favicon, and Next.js metadata drafts.
+
+## Image and PDF converters
+
+- [PNG / JPG / WebP / SVG Dönüştürücü](https://bytequant.org/araclar/gorsel-format-donusturucu): locally re-encodes supported images to PNG, JPG, or WebP and rasterizes SVG input.
+- [Görsel Sıkıştırıcı](https://bytequant.org/araclar/gorsel-sikistirici): resizes and compresses images to WebP or JPG with actual before-and-after byte reporting.
+- [Görselden PDF'e Dönüştürücü](https://bytequant.org/araclar/gorselden-pdf): combines ordered images into an A4 or image-sized PDF entirely in browser memory.
+- [PDF Birleştirme](https://bytequant.org/araclar/pdf-birlestirme): merges ordered PDF documents locally without bypassing encryption.
+- [PDF Bölme / Sayfa Ayırma](https://bytequant.org/araclar/pdf-bolme): extracts selected page ranges into a new local PDF.
 
 ## Privacy and security tools
 

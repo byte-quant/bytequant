@@ -1,6 +1,6 @@
 import type { Locale } from "./site";
 
-export type ToolCategory = "prompt" | "text" | "data" | "security";
+export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security";
 
 export type Tool = {
   slug: string;
@@ -28,6 +28,11 @@ export const categories: Record<ToolCategory, { label: Record<Locale, string>; d
     label: { tr: "Veri ve geliştirici", en: "Data & developer" },
     description: { tr: "JSON, CSV, Regex ve kodlama işlemlerini hızlıca tamamlayın.", en: "Handle JSON, CSV, Regex, and encoding tasks quickly." },
     mark: "D",
+  },
+  converter: {
+    label: { tr: "Dönüştürücüler", en: "Converters" },
+    description: { tr: "Görsel ve PDF dosyalarını cihazınızdan çıkarmadan dönüştürün, sıkıştırın ve düzenleyin.", en: "Convert, compress, and organize image and PDF files without sending them off-device." },
+    mark: "C",
   },
   security: {
     label: { tr: "Gizlilik ve güvenlik", en: "Privacy & security" },
@@ -301,6 +306,46 @@ export const tools: Tool[] = [
     useCases: { tr: ["Yeni sayfa SEO başlangıcı", "OG ve Twitter Card kontrol listesi", "Favicon ve manifest kurulum taslağı"], en: ["New-page SEO setup", "OG and Twitter Card checklist", "Favicon and manifest setup draft"] },
     steps: { tr: ["Site başlığı, açıklaması ve mutlak canonical URL'yi girin.", "Sosyal görsel ile favicon adreslerini ekleyip canlı önizleme ve uyarıları inceleyin.", "HTML veya Next.js taslağını kopyalayın; Search Console ve platform doğrulayıcılarında ayrıca test edin."], en: ["Enter a site title, description, and absolute canonical URL.", "Add social-image and favicon URLs, then review the live preview and warnings.", "Copy the HTML or Next.js draft and test it separately in Search Console and platform validators."] },
   },
+  {
+    slug: "gorsel-format-donusturucu", category: "converter", mark: "34",
+    title: { tr: "PNG / JPG / WebP / SVG Dönüştürücü", en: "PNG / JPG / WebP / SVG Converter" },
+    short: { tr: "PNG, JPG, WebP veya SVG görsellerini tarayıcıda PNG, JPG ya da WebP'ye dönüştürün.", en: "Convert PNG, JPG, WebP, or SVG images to PNG, JPG, or WebP in your browser." },
+    description: { tr: "Görsel piksellerini etkin tarayıcı sekmesindeki Canvas API ile yeniden kodlar; çıktı biçimi ve kaliteyi seçmenizi sağlar. SVG girdisi rasterleştirilir, dosya yüklenmez ve PNG'den SVG'ye gerçek vektörleştirme iddiası sunulmaz.", en: "Re-encodes image pixels with the Canvas API in the active browser tab and lets you choose output format and quality. SVG input is rasterized, no file is uploaded, and the tool does not claim to vectorize PNG into SVG." },
+    useCases: { tr: ["Web için WebP hazırlama", "JPG ile dosya boyutunu azaltma", "SVG önizlemesini PNG'ye rasterleştirme"], en: ["Preparing WebP for the web", "Reducing file size with JPG", "Rasterizing an SVG preview to PNG"] },
+    steps: { tr: ["En fazla 25 MB ve 40 megapiksel desteklenen bir görsel seçin.", "PNG, JPG veya WebP çıktısını ve destekleniyorsa kaliteyi belirleyin.", "Yerel önizlemeyi kontrol edip yeni dosyayı indirin; renk ve şeffaflığı kaynakla karşılaştırın."], en: ["Choose a supported image up to 25 MB and 40 megapixels.", "Select PNG, JPG, or WebP output and quality where supported.", "Review the local preview and download the new file; compare color and transparency with the source."] },
+  },
+  {
+    slug: "gorsel-sikistirici", category: "converter", mark: "35",
+    title: { tr: "Görsel Sıkıştırıcı", en: "Image Compressor" },
+    short: { tr: "Görselin kalite ve en uzun kenarını ayarlayıp WebP veya JPG olarak daha küçük bir kopya üretin.", en: "Adjust image quality and longest edge to produce a smaller WebP or JPG copy." },
+    description: { tr: "PNG, JPG veya WebP görselini tarayıcıda yeniden boyutlandırır ve seçilen kayıplı kaliteyle yeniden kodlar. Önce/sonra dosya boyutunu gösterir; sonuç her görselde daha küçük olmayabileceği için kullanıcıya gerçek ölçümü sunar.", en: "Resizes PNG, JPG, or WebP in-browser and re-encodes it at the selected lossy quality. It reports actual before-and-after size because some settings can produce a larger file." },
+    useCases: { tr: ["Core Web Vitals için görsel optimizasyonu", "E-posta ekini küçültme", "Mobil yükleme öncesi yeniden boyutlandırma"], en: ["Image optimization for Core Web Vitals", "Reducing email attachment size", "Resizing before mobile upload"] },
+    steps: { tr: ["Kaynak görseli seçin; hassas metadata için önce EXIF temizleyiciyi değerlendirin.", "WebP/JPG, en uzun kenar ve kalite değerlerini belirleyip sıkıştırmayı çalıştırın.", "Önce/sonra boyutunu ve görüntü kalitesini inceleyerek uygun kopyayı indirin."], en: ["Choose the source image; consider the EXIF cleaner first for sensitive metadata.", "Set WebP/JPG, longest edge, and quality, then run compression.", "Review actual size and visual quality before downloading the suitable copy."] },
+  },
+  {
+    slug: "gorselden-pdf", category: "converter", mark: "36",
+    title: { tr: "Görselden PDF'e Dönüştürücü", en: "Images to PDF Converter" },
+    short: { tr: "PNG, JPG, WebP ve SVG görsellerini sıralı, indirilebilir bir PDF dosyasında birleştirin.", en: "Combine PNG, JPG, WebP, and SVG images into one ordered downloadable PDF." },
+    description: { tr: "En fazla 20 görseli etkin tarayıcı sekmesinde rasterleştirip dosya sırasıyla PDF sayfalarına yerleştirir. A4 otomatik yön veya görsel boyutu seçilebilir; işlem MIT lisanslı pdf-lib ile dinamik olarak çalışır ve dosyalar sunucuya gönderilmez.", en: "Rasterizes up to 20 images in the active browser tab and places them on PDF pages in file order. Choose automatic A4 orientation or image-sized pages; the operation dynamically uses MIT-licensed pdf-lib and uploads nothing." },
+    useCases: { tr: ["Taranmış belgeleri tek PDF yapma", "Sunum görsellerini paylaşılabilir dosyada toplama", "Fatura veya makbuz görsellerini sıralama"], en: ["Combining scanned pages into one PDF", "Collecting presentation images in a shareable file", "Ordering invoice or receipt images"] },
+    steps: { tr: ["Toplam 50 MB'ı aşmayan en fazla 20 görsel seçin ve listelenen sırayı kontrol edin.", "A4 otomatik yön veya görsel boyutunda sayfa seçeneğini belirleyin.", "PDF'yi oluşturup sayfa sırası ve okunabilirliği kontrol ederek indirin."], en: ["Choose up to 20 images totaling no more than 50 MB and review their order.", "Select automatic A4 orientation or image-sized pages.", "Build the PDF, verify page order and readability, then download it."] },
+  },
+  {
+    slug: "pdf-birlestirme", category: "converter", mark: "37",
+    title: { tr: "PDF Birleştirme", en: "PDF Merge" },
+    short: { tr: "Birden fazla PDF dosyasını seçtiğiniz sırayla tek bir yerel PDF çıktısında birleştirin.", en: "Merge multiple PDFs in your chosen order into one local PDF output." },
+    description: { tr: "En fazla 15 PDF ve toplam 50 MB veriyi tarayıcı belleğinde açar, sayfaları görünür dosya sırasıyla yeni bir belgeye kopyalar. Şifre korumasını aşmaz; mevcut dijital imzalar yeni dosyada geçerliliğini kaybedebilir.", en: "Opens up to 15 PDFs totaling 50 MB in browser memory and copies pages into a new document in visible file order. It never bypasses encryption, and existing digital signatures may no longer remain valid." },
+    useCases: { tr: ["Rapor eklerini tek dosyada toplama", "Bölüm PDF'lerini sıralı teslim etme", "Taranmış dosya setini birleştirme"], en: ["Combining report appendices", "Delivering ordered document sections", "Merging a set of scanned files"] },
+    steps: { tr: ["En az iki, toplam 50 MB'ı aşmayan PDF seçin.", "Yukarı/aşağı düğmeleriyle birleştirme sırasını doğrulayın.", "Yeni PDF'yi oluşturup sayfa sayısı ve sırasını kontrol ederek indirin."], en: ["Choose at least two PDFs totaling no more than 50 MB.", "Verify merge order with the up and down controls.", "Create the new PDF, verify page count and order, then download it."] },
+  },
+  {
+    slug: "pdf-bolme", category: "converter", mark: "38",
+    title: { tr: "PDF Bölme / Sayfa Ayırma", en: "PDF Split / Page Extractor" },
+    short: { tr: "Bir PDF'ten “1-3,5” biçiminde seçtiğiniz sayfaları yeni bir PDF dosyasına ayırın.", en: "Extract selected pages such as “1-3,5” from a PDF into a new PDF file." },
+    description: { tr: "PDF sayfa sayısını tarayıcıda okur ve seçilen aralıkları yeni bir belgeye kopyalar. Şifreli belge korumasını kaldırmaz; form davranışı ve dijital imzalar kopyalanan belgede değişebilir.", en: "Reads the PDF page count in-browser and copies selected ranges into a new document. It does not remove encryption; form behavior and digital signatures may change in the copied document." },
+    useCases: { tr: ["Uzun rapordan ilgili bölümü çıkarma", "Belirli tarama sayfalarını paylaşma", "Ek veya kapak sayfalarını ayrı dosyaya alma"], en: ["Extracting a relevant report section", "Sharing selected scanned pages", "Separating appendices or cover pages"] },
+    steps: { tr: ["En fazla 50 MB tek PDF seçip algılanan toplam sayfayı doğrulayın.", "1-3,5 gibi bir aralık girin; yalnızca yetkili olduğunuz sayfaları işleyin.", "Yeni PDF'yi oluşturup seçilen sayfaları ve belge bütünlüğünü kontrol ederek indirin."], en: ["Choose one PDF up to 50 MB and verify the detected page count.", "Enter a range such as 1-3,5 and process only pages you are authorized to use.", "Build the new PDF, verify selected pages and document integrity, then download it."] },
+  },
 ];
 
 const relatedBySlug: Record<string, string[]> = {
@@ -318,13 +363,18 @@ const relatedBySlug: Record<string, string[]> = {
   "renk-donusturucu": ["qr-kod-olusturucu", "base64-kodlayici", "url-kodlayici"],
   "qr-kod-olusturucu": ["url-kodlayici", "renk-donusturucu", "base64-kodlayici"],
   "cron-ifadesi-aciklayici": ["unix-zaman-damgasi-donusturucu", "regex-test-araci", "json-bicimlendirici"],
-  "exif-meta-veri-temizleyici": ["kvkk-veri-maskeleyici", "sha256-ozet-uretici", "sifre-gucu-testi"],
+  "exif-meta-veri-temizleyici": ["gorsel-sikistirici", "gorsel-format-donusturucu", "kvkk-veri-maskeleyici"],
   "sifre-gucu-testi": ["guclu-parola-uretici", "sha256-ozet-uretici", "exif-meta-veri-temizleyici"],
   "guclu-parola-uretici": ["sifre-gucu-testi", "sha256-ozet-uretici", "uuid-uretici"],
   "arac-zinciri-pipeline": ["kvkk-veri-maskeleyici", "json-csv-donusturucu", "csv-inceleyici"],
   "json-diff-karsilastirma": ["json-bicimlendirici", "json-csv-donusturucu", "metin-farki-diff"],
   "curl-kod-donusturucu": ["json-bicimlendirici", "url-kodlayici", "jwt-decoder"],
   "meta-etiket-favicon-uretici": ["url-kodlayici", "renk-donusturucu", "qr-kod-olusturucu"],
+  "gorsel-format-donusturucu": ["gorsel-sikistirici", "gorselden-pdf", "exif-meta-veri-temizleyici"],
+  "gorsel-sikistirici": ["gorsel-format-donusturucu", "exif-meta-veri-temizleyici", "gorselden-pdf"],
+  "gorselden-pdf": ["gorsel-sikistirici", "pdf-birlestirme", "pdf-bolme"],
+  "pdf-birlestirme": ["pdf-bolme", "gorselden-pdf", "sha256-ozet-uretici"],
+  "pdf-bolme": ["pdf-birlestirme", "gorselden-pdf", "sha256-ozet-uretici"],
   "kvkk-veri-maskeleyici": ["arac-zinciri-pipeline", "exif-meta-veri-temizleyici", "json-csv-donusturucu"],
   "csv-inceleyici": ["arac-zinciri-pipeline", "json-csv-donusturucu", "json-bicimlendirici"],
 };

@@ -1,10 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import type { Locale } from "../lib/site";
 import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
 import { NewToolWorkbench, newWorkbenchSlugs } from "./NewToolWorkbenches";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
+
+const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
+const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
+  loading: () => <div className="workbench converter-loading" aria-busy="true" />,
+});
 
 type Metric = { label: string; value: string | number };
 
@@ -20,7 +26,7 @@ const samples: Record<string, Record<Locale, string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":33}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":33}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":38}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":38}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -284,6 +290,7 @@ function explainCron(expression: string, isTr: boolean) {
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  if (converterSlugs.has(slug)) return <ConverterWorkbench slug={slug} locale={locale} />;
   if (newWorkbenchSlugs.has(slug)) return <NewToolWorkbench slug={slug} locale={locale} />;
   if (specializedSlugs.has(slug)) return <SpecializedWorkbench slug={slug} locale={locale} />;
   return <GenericToolWorkbench slug={slug} locale={locale} />;

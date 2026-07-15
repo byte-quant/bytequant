@@ -1,10 +1,10 @@
 # ByteQuant
 
-ByteQuant is a production-ready, bilingual (Turkish/English) static website for privacy-first browser tools. It contains 29 working utilities, eight full guides in both languages, standalone trust/legal pages, structured data, a complete sitemap, and a GitHub Pages deployment workflow.
+ByteQuant is a production-ready, bilingual (Turkish/English) static website for privacy-first browser tools. It contains 38 working utilities, 21 full guides in both languages, standalone trust/legal pages, structured data, a complete sitemap, and a GitHub Pages deployment workflow.
 
 ## What is included
 
-- 29 on-device tools across Prompt, Text & NLP, Data & Developer, and Privacy & Security categories
+- 38 on-device tools across Prompt, Text & NLP, Data & Developer, Converters, and Privacy & Security categories
 - Individual SEO page, usage guide, limitations, FAQ schema, and related-tool links for every tool
 - Turkish and English home, tool, guide, About, Privacy, Terms, Contact, and FAQ pages
 - Eight original long-form guides in both languages
@@ -62,6 +62,8 @@ The site reserves `.ad-slot` areas but intentionally ships without a publisher I
 - Institutional/legal content: `app/lib/info.ts`
 - Client-side tool logic: `app/components/ToolWorkbench.tsx`
 - Design system: `app/globals.css`
+
+Direct runtime dependency licenses and the converter package's commercial-use status are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Update the visible revision date when legal or privacy behavior changes. Do not add analytics, external models, or advertising without updating the data-flow disclosure and consent behavior.
 
