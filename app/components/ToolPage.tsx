@@ -7,12 +7,14 @@ import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
 import { ToolUsageTracker } from "./ToolUsage";
 import { ToolWorkbench } from "./ToolWorkbench";
+import { referencePath, references } from "../lib/references";
 
 export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const isTr = locale === "tr";
   const languageTag = isTr ? "tr-TR" : "en-US";
   const alternateHref = toolPath(locale === "tr" ? "en" : "tr", tool.slug);
   const related = getRelatedTools(tool);
+  const relatedReference = references.find((guide) => guide.toolSlug === tool.slug);
   const faq = [
     [isTr ? "Bu araç verimi bir sunucuya gönderiyor mu?" : "Does this tool send input to a server?", isTr ? "Hayır. İşlem bu tarayıcı sekmesinde çalışır. Sonucu kopyalamayı veya indirmeyi seçerseniz veri sayfanın dışına sizin işleminizle çıkar." : "No. Processing runs in this browser tab. Data leaves the page only when you choose to copy or download the result."],
     [isTr ? "Sonuç kesin midir?" : "Is the result definitive?", isTr ? "Araç açıklanan kurallar ve tarayıcı API'leriyle tutarlı sonuç üretir; bağlama, veri kalitesine ve yöntem sınırlarına bağlı hatalar olabilir. Kritik kararları ayrıca doğrulayın." : "The tool produces consistent output from disclosed rules and browser APIs, but context, data quality, and method limitations can affect it. Verify high-impact decisions."],
@@ -38,6 +40,7 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
       </section>
       <section className="section tool-guide-section"><div className="container tool-guide-grid"><article><span className="kicker">{isTr ? "NASIL KULLANILIR?" : "HOW TO USE IT"}</span><h2>{isTr ? "Üç adımda sonuç" : "A result in three steps"}</h2><ol className="numbered-list">{tool.steps[locale].map((step, index) => <li id={`how-to-step-${index + 1}`} key={step}><span>{String(index + 1).padStart(2, "0")}</span><p>{step}</p></li>)}</ol></article><article><span className="kicker">{isTr ? "UYGUN SENARYOLAR" : "GOOD USE CASES"}</span><h2>{isTr ? "Bu araç ne zaman işe yarar?" : "When is this tool useful?"}</h2><ul className="check-list">{tool.useCases[locale].map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ul><div className="limit-note"><strong>{isTr ? "Önemli sınır" : "Important limitation"}</strong><p>{isTr ? "Otomatik sonuç bir ön değerlendirmedir. Hukuki, finansal, tıbbi veya güvenlik açısından kritik kararlar için tek başına kullanılmamalıdır." : "Automated output is a preliminary assessment. Do not use it alone for legal, financial, medical, or security-critical decisions."}</p></div></article></div></section>
       <div className="container"><AdSlot locale={locale} /></div>
+      {relatedReference && <section className="container tool-reference-link"><div><span className="kicker">{isTr ? "HIZLI BAŞVURU" : "QUICK REFERENCE"}</span><h2>{relatedReference.title[locale]}</h2><p>{relatedReference.description[locale]}</p></div><Link className="secondary-button" href={referencePath(locale, relatedReference.slug)}>{isTr ? "Cheat sheet’i aç" : "Open cheat sheet"} →</Link></section>}
       <section className="section related-section"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">{isTr ? "İLGİLİ ARAÇLAR" : "RELATED TOOLS"}</span><h2>{isTr ? "İş akışınıza devam edin" : "Continue your workflow"}</h2></div><Link className="text-link" href={pathFor(locale, "tools")}>{isTr ? `${tools.length} aracın tamamı` : `All ${tools.length} tools`} →</Link></div><div className="tool-grid">{related.map((item) => <ToolCard key={item.slug} tool={item} locale={locale} />)}</div></div></section>
       <section className="section compact-faq"><div className="container"><div className="section-heading centered"><span className="kicker">{isTr ? "ARAÇ HAKKINDA" : "ABOUT THIS TOOL"}</span><h2>{isTr ? "Sık sorulan sorular" : "Frequently asked questions"}</h2></div><div className="faq-list narrow">{faq.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>
     </SiteShell>

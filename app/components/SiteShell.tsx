@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 import { copy, pathFor, type Locale } from "../lib/site";
 import { ConsentManager, PrivacySettingsButton } from "./ConsentManager";
 import { ThemeToggle } from "./ThemeToggle";
+import { BrandLogo } from "./BrandLogo";
+import { CommandPalette } from "./CommandPalette";
+import { referencePath } from "../lib/references";
 
 export function SiteShell({ children, locale, alternateHref }: { children: ReactNode; locale: Locale; alternateHref: string }) {
   const t = copy[locale];
@@ -12,7 +15,7 @@ export function SiteShell({ children, locale, alternateHref }: { children: React
       <header className="site-header">
         <div className="container header-inner">
           <Link className="brand" href={pathFor(locale, "home")} aria-label={`${t.brand} ${t.nav.home}`}>
-            <span className="brand-mark" aria-hidden="true">BQ</span>
+            <BrandLogo />
             <span><strong>{t.brand}</strong><small>{t.descriptor}</small></span>
           </Link>
           <nav className="main-nav" aria-label={locale === "tr" ? "Ana menü" : "Main navigation"}>
@@ -22,6 +25,7 @@ export function SiteShell({ children, locale, alternateHref }: { children: React
             <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>
           </nav>
           <div className="header-actions">
+            <CommandPalette locale={locale} />
             <Link className="language-link" href={alternateHref} hrefLang={locale === "tr" ? "en" : "tr"}>{t.language}</Link>
             <ThemeToggle locale={locale} />
             <details className="mobile-menu">
@@ -41,11 +45,11 @@ export function SiteShell({ children, locale, alternateHref }: { children: React
       <footer className="site-footer">
         <div className="container footer-grid">
           <div className="footer-intro">
-            <div className="brand footer-brand"><span className="brand-mark" aria-hidden="true">BQ</span><span><strong>ByteQuant</strong><small>{t.descriptor}</small></span></div>
+            <div className="brand footer-brand"><BrandLogo /><span><strong>ByteQuant</strong><small>{t.descriptor}</small></span></div>
             <p>{locale === "tr" ? "Günlük metin, veri ve prompt işlerini doğrudan tarayıcınızda tamamlayın. Araç girdileri ByteQuant sunucularına gönderilmez." : "Complete everyday text, data, and prompt tasks directly in your browser. Tool inputs are not sent to ByteQuant servers."}</p>
             <span className="privacy-pill">● {locale === "tr" ? "Tarayıcı içinde işlenir" : "Processed in your browser"}</span>
           </div>
-          <div><h2>{locale === "tr" ? "Keşfet" : "Explore"}</h2><Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div>
+          <div><h2>{locale === "tr" ? "Keşfet" : "Explore"}</h2><Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={referencePath(locale, "regex-cheat-sheet")}>Regex cheat sheet</Link><Link href={referencePath(locale, "cron-cheat-sheet")}>Cron cheat sheet</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div>
           <div><h2>{locale === "tr" ? "Kurumsal" : "Company"}</h2><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "contact")}>{t.nav.contact}</Link><Link href={pathFor(locale, "privacy")}>{locale === "tr" ? "Gizlilik politikası" : "Privacy policy"}</Link><Link href={pathFor(locale, "cookies")}>{locale === "tr" ? "Çerez ve yerel depolama" : "Cookies & local storage"}</Link><PrivacySettingsButton locale={locale} /><Link href={pathFor(locale, "terms")}>{locale === "tr" ? "Kullanım koşulları" : "Terms of use"}</Link></div>
           <div><h2>{locale === "tr" ? "Sosyal" : "Social"}</h2><a href="https://x.com/byte_quant" rel="me noopener noreferrer">X · @byte_quant</a><a href="https://www.instagram.com/byte.quant" rel="me noopener noreferrer">Instagram · @byte.quant</a><a href="mailto:bytequant@yahoo.com">bytequant@yahoo.com</a></div>
         </div>

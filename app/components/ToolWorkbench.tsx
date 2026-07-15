@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Locale } from "../lib/site";
 import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
+import { NewToolWorkbench, newWorkbenchSlugs } from "./NewToolWorkbenches";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
 
 type Metric = { label: string; value: string | number };
@@ -19,7 +20,7 @@ const samples: Record<string, Record<Locale, string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":29}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":29}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":33}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":33}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -227,6 +228,20 @@ function decodeBase64Url(value: string) {
   return new TextDecoder().decode(bytes);
 }
 
+function passesLuhn(value: string) {
+  const digits = value.replace(/\D/g, ""); if (digits.length < 13 || digits.length > 19) return false;
+  let sum = 0; let double = false;
+  for (let index = digits.length - 1; index >= 0; index -= 1) { let digit = Number(digits[index]); if (double) { digit *= 2; if (digit > 9) digit -= 9; } sum += digit; double = !double; }
+  return sum % 10 === 0;
+}
+
+function passesTcknChecksum(value: string) {
+  if (!/^[1-9]\d{10}$/.test(value)) return false;
+  const digits = [...value].map(Number);
+  const tenth = ((digits[0] + digits[2] + digits[4] + digits[6] + digits[8]) * 7 - (digits[1] + digits[3] + digits[5] + digits[7])) % 10;
+  return (tenth + 10) % 10 === digits[9] && digits.slice(0, 10).reduce((sum, digit) => sum + digit, 0) % 10 === digits[10];
+}
+
 function explainCron(expression: string, isTr: boolean) {
   const fields = expression.trim().split(/\s+/);
   if (fields.length !== 5) throw new Error(isTr ? "Klasik cron ifadesi 5 alan içermelidir." : "A classic cron expression must contain five fields.");
@@ -262,11 +277,14 @@ function explainCron(expression: string, isTr: boolean) {
     const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     summary = isTr ? `Her ${daysTr[Number(weekday)]} saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs every ${daysEn[Number(weekday)]} at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
   }
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "1-5") summary = isTr ? `Pazartesi–cuma saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs Monday–Friday at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && /^\d+$/.test(day) && month === "*" && weekday === "*") summary = isTr ? `Her ayın ${day}. günü saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs on day ${day} of every month at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
   const details = fields.map((field, index) => `${definitions[index].name}: ${field === "*" ? (isTr ? "her değer" : "every value") : field}`).join("\n");
   return `${summary}\n\n${details}\n\n${isTr ? "Saat dilimi: Cron çalıştırıcısının/sunucunun saat dilimini ayrıca doğrulayın." : "Time zone: verify the scheduler or server time zone separately."}`;
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  if (newWorkbenchSlugs.has(slug)) return <NewToolWorkbench slug={slug} locale={locale} />;
   if (specializedSlugs.has(slug)) return <SpecializedWorkbench slug={slug} locale={locale} />;
   return <GenericToolWorkbench slug={slug} locale={locale} />;
 }
@@ -453,16 +471,16 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "kvkk-veri-maskeleyici": {
           const patterns = [
-            { label: "EMAIL", re: /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g },
-            { label: "IBAN", re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/gi },
-            { label: "CARD", re: /\b(?:\d[ -]*?){13,19}\b/g },
-            { label: "IP", re: /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g },
-            { label: "PHONE", re: /(?<!\d)(?:\+?\d{1,3}[ .-]?)?(?:\(?\d{3}\)?[ .-]?)\d{3}[ .-]?\d{2}[ .-]?\d{2}(?!\d)/g },
-            { label: "TCKN", re: /\b[1-9]\d{10}\b/g },
+            { label: "EMAIL", re: /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, validate: undefined },
+            { label: "IBAN", re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/gi, validate: undefined },
+            { label: "TCKN_CANDIDATE", re: /\b[1-9]\d{10}\b/g, validate: passesTcknChecksum },
+            { label: "CARD_CANDIDATE", re: /\b(?:\d[ -]*?){13,19}\b/g, validate: passesLuhn },
+            { label: "IP", re: /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g, validate: undefined },
+            { label: "PHONE", re: /(?<!\d)(?:\+?\d{1,3}[ .-]?)?(?:\(?\d{3}\)?[ .-]?)\d{3}[ .-]?\d{2}[ .-]?\d{2}(?!\d)/g, validate: undefined },
           ];
           let masked = input; const found: Metric[] = [];
-          patterns.forEach(({ label, re }) => { let count = 0; masked = masked.replace(re, () => { count += 1; return `[${label}_${count}]`; }); if (count) found.push({ label, value: count }); });
-          setResult(`${masked}\n\n${isTr ? "Not: Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. Paylaşmadan önce elle kontrol edin." : "Note: automatic masking cannot find all contextual personal data. Review manually before sharing."}`, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
+          patterns.forEach(({ label, re, validate }) => { let count = 0; masked = masked.replace(re, (candidate) => { if (validate && !validate(candidate)) return candidate; count += 1; return `[${label}_${count}]`; }); if (count) found.push({ label, value: count }); });
+          setResult(`${masked}\n\n${isTr ? "Not: Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. TCKN/kart checksum kontrolü yalnızca aday tespitidir; gerçek kimlik, sahiplik veya hukuki uygunluk doğrulaması değildir. Paylaşmadan önce elle kontrol edin." : "Note: automatic masking cannot find all contextual personal data. TCKN/card checksum checks identify candidates only; they do not verify identity, ownership, or legal compliance. Review manually before sharing."}`, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
           break;
         }
         case "guclu-parola-uretici": {

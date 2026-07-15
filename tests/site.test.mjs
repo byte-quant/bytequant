@@ -9,7 +9,7 @@ test("exports the complete Turkish and English site", async () => {
   const [home, english, sitemap, robots, llms] = await Promise.all([read("index.html"), read("en/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /29 açıklanabilir araç/);
+  assert.match(home, /33 açıklanabilir araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
@@ -22,6 +22,10 @@ test("exports the complete Turkish and English site", async () => {
   assert.match(sitemap, /en\/tools\/prompt-kalite-denetimi/);
   assert.match(sitemap, /araclar\/exif-meta-veri-temizleyici/);
   assert.match(sitemap, /en\/tools\/qr-kod-olusturucu/);
+  assert.match(sitemap, /araclar\/arac-zinciri-pipeline/);
+  assert.match(sitemap, /en\/tools\/json-diff-karsilastirma/);
+  assert.match(sitemap, /referanslar\/regex-cheat-sheet/);
+  assert.match(sitemap, /en\/references\/cron-cheat-sheet/);
   assert.match(sitemap, /cerez-politikasi/);
   assert.match(sitemap, /en\/cookies/);
   assert.match(sitemap, /hreflang="x-default"/);
@@ -30,7 +34,8 @@ test("exports the complete Turkish and English site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 29);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 33);
+  assert.match(home, /33 araç ve 2 referansta ara/);
   assert.doesNotMatch(home, /codex-preview|react-loading-skeleton|Your site is taking shape/);
   assert.doesNotMatch(home, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
 });
@@ -58,16 +63,20 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, turkishPosts, englishPosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 29);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 29);
-  assert.ok(turkishPosts.length >= 14);
-  assert.ok(englishPosts.length >= 14);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 33);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 33);
+  assert.ok(turkishPosts.length >= 18);
+  assert.ok(englishPosts.length >= 18);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
   await access(new URL("en/cookies/index.html", root));
   await access(new URL("blog/exif-metadata-gizlilik-rehberi/index.html", root));
   await access(new URL("en/blog/qr-kod-guvenligi-ve-gizlilik/index.html", root));
+  await access(new URL("blog/csv-kvkk-maskeleme-json-pipeline/index.html", root));
+  await access(new URL("en/blog/meta-etiket-favicon-open-graph-seo/index.html", root));
+  await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
+  await access(new URL("en/references/cron-cheat-sheet/index.html", root));
 });
 
 test("tool pages explain local processing and expose structured data", async () => {
@@ -106,6 +115,25 @@ test("exports the new bilingual tool package", async () => {
     assert.match(page, /Örnek veri yükle|Load example/);
     assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|axios/i);
   }
+});
+
+test("exports the pipeline and developer workflow package", async () => {
+  const pages = await Promise.all([
+    read("araclar/arac-zinciri-pipeline/index.html"),
+    read("araclar/json-diff-karsilastirma/index.html"),
+    read("araclar/curl-kod-donusturucu/index.html"),
+    read("araclar/meta-etiket-favicon-uretici/index.html"),
+    read("en/tools/arac-zinciri-pipeline/index.html"),
+  ]);
+  for (const page of pages) {
+    assert.match(page, /HowTo/);
+    assert.match(page, /Örnek veri yükle|Load example/);
+    assert.match(page, /active browser tab|etkin tarayıcı sekmesi/i);
+  }
+  assert.match(pages[0], /algoritmik tespit|algorithmic detection/i);
+  assert.match(pages[1], /imza\/kimlik doğrulaması|signatures, or identities/i);
+  assert.match(pages[2], /komutunu çalıştırmadan|without executing/i);
+  assert.match(pages[3], /indeksleme garantisi|indexing guarantee/i);
 });
 
 test("every localized tool exposes demo UX and HowTo schema", async () => {

@@ -269,6 +269,38 @@ export const tools: Tool[] = [
     useCases: { tr: ["Yeni parola ön kontrolü", "Parola politikası eğitimi", "Uzunluk ve çeşitlilik karşılaştırması"], en: ["Pre-checking a new password", "Password-policy education", "Comparing length and character variety"] },
     steps: { tr: ["Gerçek parolanızı paylaşılan cihazda girmeyin; mümkünse benzer bir örnek kullanın.", "Güç seviyesi, entropi ve uyarıları inceleyin.", "Kısa veya tahmin edilebilir yapıyı daha uzun benzersiz bir parola cümlesiyle değiştirin."], en: ["Avoid entering a real password on a shared device; use a representative sample when possible.", "Review the strength level, entropy estimate, and warnings.", "Replace short or predictable structure with a longer unique passphrase."] },
   },
+  {
+    slug: "arac-zinciri-pipeline", category: "data", mark: "30",
+    title: { tr: "Araç Zinciri: CSV → Maskeleme → JSON", en: "Tool Pipeline: CSV → Masking → JSON" },
+    short: { tr: "CSV verisini tek sayfada inceleyin, hassas alan adaylarını maskeleyin ve JSON ya da CSV indirin.", en: "Inspect CSV, mask sensitive-data candidates, and download JSON or CSV in one page." },
+    description: { tr: "CSV dosyasını etkin tarayıcı sekmesinde ayrıştırır; e-posta, telefon, IBAN, T.C. kimlik ve kart numarası adaylarını açıklanabilir kurallarla maskeler ve sonucu JSON veya CSV olarak indirir. Algoritmik tespit hukuki uygunluk ya da gerçek kimlik doğrulama değildir; insan kontrolü gerekir.", en: "Parses CSV in the active browser tab, masks email, phone, IBAN, Turkish ID, and payment-card candidates with explainable rules, then exports JSON or CSV. Algorithmic detection is neither legal compliance nor identity verification; human review is required." },
+    useCases: { tr: ["KVKK/GDPR için örnek veri hazırlama", "CSV verisini güvenli JSON taslağına dönüştürme", "Destek ve test kayıtlarını ön temizleme"], en: ["Preparing sample data for GDPR/KVKK", "Turning CSV into a safer JSON draft", "Pre-cleaning support and test records"] },
+    steps: { tr: ["CSV dosyası seçin veya metni yapıştırıp sütun önizlemesini kontrol edin.", "Maske türlerini seçin; bulunan adayları ve değişen hücreleri insan gözüyle doğrulayın.", "Temizlenmiş sonucu JSON ya da CSV olarak indirin; kaynak veriyi ayrıca koruyun."], en: ["Choose a CSV file or paste text and verify the column preview.", "Select masking types and manually review detected candidates and changed cells.", "Download the cleaned result as JSON or CSV and protect the source separately."] },
+  },
+  {
+    slug: "json-diff-karsilastirma", category: "data", mark: "31",
+    title: { tr: "JSON Diff / Yapısal Karşılaştırma", en: "JSON Diff / Structural Compare" },
+    short: { tr: "İki JSON değerinde eklenen, silinen, değişen ve türü değişen yolları bulun.", en: "Find added, removed, changed, and type-changed paths in two JSON values." },
+    description: { tr: "İki JSON nesnesini düz metin yerine anahtar, dizi indeksi, değer ve veri türü düzeyinde karşılaştırır. Sonuçları JSON Pointer benzeri yollarla listeler ve tamamen tarayıcıda çalışır; şema doğrulaması veya imza/kimlik doğrulaması yapmaz.", en: "Compares two JSON values by key, array index, value, and data type rather than plain text. It lists results with JSON Pointer-like paths and runs entirely in-browser; it does not validate schemas, signatures, or identities." },
+    useCases: { tr: ["API yanıtı sürüm karşılaştırması", "Yapılandırma değişikliği inceleme", "Test fixture regresyon kontrolü"], en: ["Comparing API response versions", "Reviewing configuration changes", "Checking fixture regressions"] },
+    steps: { tr: ["Eski ve yeni geçerli JSON değerlerini iki alana yapıştırın.", "Yapısal karşılaştırmayı çalıştırıp yol ve değişiklik türü filtrelerini inceleyin.", "Raporu kopyalayın veya JSON olarak indirin; anlamlı değişiklikleri şemayla ayrıca doğrulayın."], en: ["Paste valid old and new JSON values into the two fields.", "Run structural comparison and inspect path and change-type filters.", "Copy or download the report, then validate meaningful changes against the schema separately."] },
+  },
+  {
+    slug: "curl-kod-donusturucu", category: "data", mark: "32",
+    title: { tr: "cURL → Kod Dönüştürücü", en: "cURL to Code Converter" },
+    short: { tr: "Bir cURL komutundan JavaScript, Python, PHP ve Node.js kod taslağı üretin.", en: "Generate JavaScript, Python, PHP, and Node.js code drafts from a cURL command." },
+    description: { tr: "Yapıştırılan cURL komutunu çalıştırmadan yerel olarak ayrıştırır; URL, yöntem, header ve gövdeyi JavaScript fetch, Python requests, PHP cURL veya Node.js fetch taslağına dönüştürür. Üretilen kod kimlik bilgilerini doğrulamaz; gizli anahtarları paylaşmadan önce çıkarın.", en: "Locally parses a pasted cURL command without executing it and converts its URL, method, headers, and body to JavaScript fetch, Python requests, PHP cURL, or Node.js fetch. Generated code does not authenticate credentials; remove secrets before sharing." },
+    useCases: { tr: ["API dokümantasyonunu prototipleme", "İstekleri diller arasında taşıma", "cURL komutunu okunabilir kod olarak inceleme"], en: ["Prototyping API documentation", "Moving requests between languages", "Reviewing a cURL request as readable code"] },
+    steps: { tr: ["Güvenli örnek değerler içeren bir cURL komutunu yapıştırın.", "Komutu yerel olarak ayrıştırın ve hedef dili seçin; hiçbir ağ isteği gönderilmez.", "Üretilen taslağı kopyalayıp hata yönetimi, zaman aşımı ve gizli anahtar yönetimini projenize göre tamamlayın."], en: ["Paste a cURL command containing safe example values.", "Parse it locally and choose a target language; no network request is sent.", "Copy the draft and add project-specific error handling, timeouts, and secret management."] },
+  },
+  {
+    slug: "meta-etiket-favicon-uretici", category: "data", mark: "33",
+    title: { tr: "Meta Etiket / Favicon Üretici", en: "Meta Tag / Favicon Generator" },
+    short: { tr: "SEO, Open Graph, Twitter Card ve favicon etiketlerini tek bir güvenli HTML bloğunda üretin.", en: "Generate SEO, Open Graph, Twitter Card, and favicon tags in one safe HTML block." },
+    description: { tr: "Başlık, açıklama, canonical URL, sosyal görsel ve favicon yollarından kaçışlı HTML meta etiketleri, Next.js metadata taslağı ve manifest özeti üretir. Bu ön kontrol arama motoru indeksleme garantisi veya gerçek crawler doğrulaması değildir.", en: "Builds escaped HTML meta tags, a Next.js metadata draft, and a manifest summary from title, description, canonical URL, social image, and favicon paths. This preflight is not an indexing guarantee or real crawler verification." },
+    useCases: { tr: ["Yeni sayfa SEO başlangıcı", "OG ve Twitter Card kontrol listesi", "Favicon ve manifest kurulum taslağı"], en: ["New-page SEO setup", "OG and Twitter Card checklist", "Favicon and manifest setup draft"] },
+    steps: { tr: ["Site başlığı, açıklaması ve mutlak canonical URL'yi girin.", "Sosyal görsel ile favicon adreslerini ekleyip canlı önizleme ve uyarıları inceleyin.", "HTML veya Next.js taslağını kopyalayın; Search Console ve platform doğrulayıcılarında ayrıca test edin."], en: ["Enter a site title, description, and absolute canonical URL.", "Add social-image and favicon URLs, then review the live preview and warnings.", "Copy the HTML or Next.js draft and test it separately in Search Console and platform validators."] },
+  },
 ];
 
 const relatedBySlug: Record<string, string[]> = {
@@ -289,6 +321,12 @@ const relatedBySlug: Record<string, string[]> = {
   "exif-meta-veri-temizleyici": ["kvkk-veri-maskeleyici", "sha256-ozet-uretici", "sifre-gucu-testi"],
   "sifre-gucu-testi": ["guclu-parola-uretici", "sha256-ozet-uretici", "exif-meta-veri-temizleyici"],
   "guclu-parola-uretici": ["sifre-gucu-testi", "sha256-ozet-uretici", "uuid-uretici"],
+  "arac-zinciri-pipeline": ["kvkk-veri-maskeleyici", "json-csv-donusturucu", "csv-inceleyici"],
+  "json-diff-karsilastirma": ["json-bicimlendirici", "json-csv-donusturucu", "metin-farki-diff"],
+  "curl-kod-donusturucu": ["json-bicimlendirici", "url-kodlayici", "jwt-decoder"],
+  "meta-etiket-favicon-uretici": ["url-kodlayici", "renk-donusturucu", "qr-kod-olusturucu"],
+  "kvkk-veri-maskeleyici": ["arac-zinciri-pipeline", "exif-meta-veri-temizleyici", "json-csv-donusturucu"],
+  "csv-inceleyici": ["arac-zinciri-pipeline", "json-csv-donusturucu", "json-bicimlendirici"],
 };
 
 export function getTool(slug: string) {

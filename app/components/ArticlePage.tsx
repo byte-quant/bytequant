@@ -6,6 +6,7 @@ import { pathFor, postPath, siteUrl, toolPath, type Locale } from "../lib/site";
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
+import { BrandLogo } from "./BrandLogo";
 
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
@@ -66,7 +67,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
             <h1>{post.title[locale]}</h1>
             <p>{post.excerpt[locale]}</p>
             <div className="byline">
-              <span className="brand-mark">BQ</span>
+              <BrandLogo />
               <div><strong>ByteQuant Editorial</strong><small>{isTr ? "Teknik inceleme ve ürün doğrulaması" : "Technical review and product verification"}</small></div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 29 free browser-based tools for prompt engineering, text and NLP work, developer workflows, data conversion, and personal security.
+> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 33 free browser-based tools for prompt engineering, text and NLP work, developer workflows, data conversion, and personal security.
 
 Canonical site: https://bytequant.org/
 
@@ -54,6 +54,10 @@ Languages:
 - [HEX/RGB/HSL Renk Dönüştürücü](https://bytequant.org/araclar/renk-donusturucu): converts color formats with a visual picker.
 - [QR Kod Oluşturucu](https://bytequant.org/araclar/qr-kod-olusturucu): generates downloadable PNG and SVG QR codes locally.
 - [Cron İfadesi Açıklayıcı](https://bytequant.org/araclar/cron-ifadesi-aciklayici): explains classic five-field cron expressions in human language.
+- [Araç Zinciri: CSV → Maskeleme → JSON](https://bytequant.org/araclar/arac-zinciri-pipeline): parses CSV, applies reviewed personal-data candidate masking, and exports JSON or CSV without leaving the page.
+- [JSON Diff / Yapısal Karşılaştırma](https://bytequant.org/araclar/json-diff-karsilastirma): reports added, removed, changed, and type-changed JSON paths.
+- [cURL → Kod Dönüştürücü](https://bytequant.org/araclar/curl-kod-donusturucu): parses but never executes cURL and generates JavaScript, Node.js, Python, or PHP drafts.
+- [Meta Etiket / Favicon Üretici](https://bytequant.org/araclar/meta-etiket-favicon-uretici): generates escaped SEO, Open Graph, Twitter Card, favicon, and Next.js metadata drafts.
 
 ## Privacy and security tools
 
@@ -68,6 +72,8 @@ All English tool pages use the same slug under `https://bytequant.org/en/tools/{
 
 - Turkish guides: https://bytequant.org/blog
 - English guides: https://bytequant.org/en/blog
+- Regex quick reference: https://bytequant.org/referanslar/regex-cheat-sheet
+- Cron quick reference: https://bytequant.org/referanslar/cron-cheat-sheet
 - About and editorial principles: https://bytequant.org/hakkimizda
 - Frequently asked questions: https://bytequant.org/sss
 - Terms of use: https://bytequant.org/kullanim-kosullari
@@ -76,4 +82,4 @@ All English tool pages use the same slug under `https://bytequant.org/en/tools/{
 
 ## Attribution and limitations
 
-When citing ByteQuant, link to the most specific tool or guide page. Tool output is informational and should not be treated as a substitute for professional security, legal, or compliance review. JWT decoding does not verify signatures, password crack-time estimates are illustrative, and metadata removal should be verified on the downloaded copy before publication.
+When citing ByteQuant, link to the most specific tool, reference, or guide page. Tool output is informational and should not be treated as a substitute for professional security, legal, or compliance review. Pattern and checksum detection are not identity verification; JWT decoding does not verify signatures; generated cURL code is not executed or authenticated; SEO previews do not guarantee indexing; password crack-time estimates are illustrative; and metadata removal should be verified on the downloaded copy before publication.
