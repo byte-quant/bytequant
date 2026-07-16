@@ -1,12 +1,14 @@
 # ByteQuant
 
-> ByteQuant is a bilingual (Turkish and English), privacy-first collection of 38 free browser-based tools for prompt engineering, text and NLP work, developer workflows, PDF and image conversion, data conversion, and personal security.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 53 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
 
 Canonical site: https://bytequant.org/
 
 Languages:
 - Turkish (default): https://bytequant.org/
 - English: https://bytequant.org/en/
+- German: https://bytequant.org/de/
+- Simplified Chinese: https://bytequant.org/zh/
 
 ## Privacy and processing model
 
@@ -16,10 +18,14 @@ Languages:
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
 - Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
+- The installable PWA caches only same-origin application resources and previously visited GET pages. Tool inputs, passwords, selected files, and generated outputs are not written to the offline cache.
+- Local file, code, and URL scans are bounded heuristic pre-checks. They do not execute content or call a reputation API, and they are not antivirus, SAST certification, or proof of safety.
 - Full privacy policy: https://bytequant.org/gizlilik-politikasi
 - English privacy policy: https://bytequant.org/en/privacy
 - Cookie and local-storage policy: https://bytequant.org/cerez-politikasi
 - English cookie and local-storage policy: https://bytequant.org/en/cookies
+- German privacy policy: https://bytequant.org/de/privacy
+- Chinese privacy policy: https://bytequant.org/zh/privacy
 
 ## Prompt tools
 
@@ -74,7 +80,34 @@ Languages:
 - [EXIF/Meta Veri Temizleyici](https://bytequant.org/araclar/exif-meta-veri-temizleyici): inspects and removes common JPEG/PNG metadata in-browser.
 - [Şifre Gücü Testi](https://bytequant.org/araclar/sifre-gucu-testi): estimates entropy, resistance, and approximate crack time without transmitting the password.
 
-All English tool pages use the same slug under `https://bytequant.org/en/tools/{slug}`.
+## Calculation tools
+
+- [Yatırım Getiri Simülatörü](https://bytequant.org/araclar/yatirim-getiri-simulatoru): models recurring contributions, return, fees, and inflation with transparent monthly compounding; it is not investment advice.
+- [Ölçü / Birim Dönüştürücü](https://bytequant.org/araclar/birim-donusturucu): converts common length, mass, temperature, volume, and data-size units locally.
+- [Not Ortalaması Hesaplayıcı](https://bytequant.org/araclar/not-ortalamasi-hesaplayici): calculates weighted grades, validates total weights, and estimates remaining target scores.
+- [GPA Çevirici](https://bytequant.org/araclar/gpa-cevirici): provides clearly labeled linear estimates among common grade scales; it is not official equivalency.
+
+## Everyday document tools
+
+- [Kaynakça / Atıf Formatlayıcı](https://bytequant.org/araclar/kaynakca-atif-formatlayici): creates reviewable APA 7 and MLA 9 citation drafts.
+- [Fatura Şablonu Oluşturucu](https://bytequant.org/araclar/fatura-sablonu-olusturucu): builds a local invoice draft with line items, tax, totals, and explicit jurisdiction limitations.
+- [Basit Sözleşme Şablonu](https://bytequant.org/araclar/basit-sozlesme-sablonu): structures a neutral services-agreement draft that requires qualified legal review.
+
+## AI workflow tools
+
+- [Aşırı Kesinlik Dil Tarayıcısı](https://bytequant.org/araclar/asiri-kesinlik-dil-tarayicisi): flags absolute or guarantee language with explainable lexical rules.
+- [Konuşma Dışa Aktarma Formatlayıcı](https://bytequant.org/araclar/konusma-disa-aktarma-formatlayici): normalizes role transcripts and JSON messages into Markdown, JSONL, or plain text.
+- [Token / Bağlam Bütçesi Planlayıcı](https://bytequant.org/araclar/token-baglam-butcesi-planlayici): allocates context limits across system prompts, history, sources, input, output, and reserve.
+- [Sistem Promptu Netlik Kontrolü](https://bytequant.org/araclar/sistem-promptu-netlik-kontrolu): checks purpose, role, boundaries, priority, uncertainty, and output contracts without calling a model.
+- [Rol / Persona Tutarlılık Kontrolü](https://bytequant.org/araclar/rol-persona-tutarlilik-kontrolu): compares persona rules and sample responses for lexical boundary conflicts.
+
+## Code and file security pre-checks
+
+- [Yerel Dosya Risk Ön Taraması](https://bytequant.org/araclar/dosya-risk-on-taramasi): inspects filename, magic bytes, extension mismatch, macro-capable types, entropy, and bounded text indicators without executing or uploading the file.
+- [Kod Güvenliği Ön Taraması](https://bytequant.org/araclar/kod-guvenligi-on-taramasi): runs a time-bounded local Worker over source code for dangerous APIs, possible secrets, weak crypto, and injection candidates.
+- [URL Güvenlik Ön Kontrolü](https://bytequant.org/araclar/url-guvenlik-on-kontrolu): parses a URL without visiting it and flags embedded credentials, IP hosts, Punycode, redirect parameters, and obfuscation signals.
+
+Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/tools/{slug}`, and `/zh/tools/{slug}`.
 
 ## Editorial guides and site resources
 
@@ -93,7 +126,11 @@ All English tool pages use the same slug under `https://bytequant.org/en/tools/{
 1. Next.js hreflang and canonical guide: https://bytequant.org/en/blog/nextjs-hreflang-canonical-global-seo-rehberi
 2. Evidence-based GEO and AEO guide: https://bytequant.org/en/blog/geo-aeo-ai-overviews-teknik-seo-rehberi
 3. Next.js JSON-LD audit guide: https://bytequant.org/en/blog/json-ld-schema-nextjs-denetim-rehberi
-4. Turkish guide collection: https://bytequant.org/blog
+4. Privacy-first PWA and offline caching guide: https://bytequant.org/en/blog/pwa-kurulum-offline-onbellek-gizlilik-rehberi
+5. Browser file-risk triage guide: https://bytequant.org/en/blog/tarayicida-dosya-risk-taramasi-sinirlari
+6. Code pre-scan, SAST, and manual review guide: https://bytequant.org/en/blog/kod-guvenligi-on-tarama-sast-kod-inceleme
+7. Token and context budget guide: https://bytequant.org/en/blog/token-baglam-butcesi-sistem-promptu-kontrol-listesi
+8. Turkish guide collection: https://bytequant.org/blog
 
 This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources.
 

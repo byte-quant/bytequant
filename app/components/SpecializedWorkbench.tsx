@@ -23,14 +23,19 @@ export const specializedSlugs = new Set([
 ]);
 
 function WorkbenchFrame({ locale, children, onClear, onDemo }: { locale: Locale; children: ReactNode; onClear?: () => void; onDemo: () => void | Promise<void> }) {
-  const isTr = locale === "tr";
+  const copy = {
+    tr: { aria: "Araç çalışma alanı", local: "Girdi bu sayfadan ayrılmaz.", demo: "Örnek veri yükle", clear: "Temizle" },
+    en: { aria: "Tool workbench", local: "Input never leaves this page.", demo: "Load example", clear: "Clear" },
+    de: { aria: "Werkzeug-Arbeitsbereich", local: "Die Eingabe verlässt diese Seite nicht.", demo: "Beispiel laden", clear: "Leeren" },
+    zh: { aria: "工具工作区", local: "输入不会离开此页面。", demo: "加载示例", clear: "清除" },
+  }[locale];
   return (
-    <section className="workbench specialized-workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"}>
+    <section className="workbench specialized-workbench" aria-label={copy.aria}>
       <div className="workbench-bar">
-        <span className="local-status"><i />{isTr ? "Girdi bu sayfadan ayrılmaz." : "Input never leaves this page."}</span>
+        <span className="local-status"><i />{copy.local}</span>
         <div className="workbench-bar-actions">
-          <button type="button" className="demo-button" onClick={onDemo}>{isTr ? "Örnek veri yükle" : "Load example"}</button>
-          {onClear && <button type="button" className="ghost-button" onClick={onClear}>{isTr ? "Temizle" : "Clear"}</button>}
+          <button type="button" className="demo-button" onClick={onDemo}>{copy.demo}</button>
+          {onClear && <button type="button" className="ghost-button" onClick={onClear}>{copy.clear}</button>}
         </div>
       </div>
       {children}
@@ -392,8 +397,8 @@ function ExifWorkbench({ locale }: { locale: Locale }) {
 }
 
 function formatDuration(seconds: number, locale: Locale) {
-  const isTr = locale === "tr"; if (!Number.isFinite(seconds) || seconds > 1e24) return isTr ? "trilyonlarca yıl" : "trillions of years";
-  const units = [{ value: 31557600, tr: "yıl", en: "years" }, { value: 86400, tr: "gün", en: "days" }, { value: 3600, tr: "saat", en: "hours" }, { value: 60, tr: "dakika", en: "minutes" }, { value: 1, tr: "saniye", en: "seconds" }]; const unit = units.find((item) => seconds >= item.value) ?? units.at(-1)!; const amount = Math.max(0.001, seconds / unit.value); return `${amount >= 100 ? amount.toExponential(1) : amount.toFixed(amount < 10 ? 1 : 0)} ${unit[locale]}`;
+  if (!Number.isFinite(seconds) || seconds > 1e24) return { tr: "trilyonlarca yıl", en: "trillions of years", de: "Billionen Jahre", zh: "数万亿年" }[locale];
+  const units = [{ value: 31557600, tr: "yıl", en: "years", de: "Jahre", zh: "年" }, { value: 86400, tr: "gün", en: "days", de: "Tage", zh: "天" }, { value: 3600, tr: "saat", en: "hours", de: "Stunden", zh: "小时" }, { value: 60, tr: "dakika", en: "minutes", de: "Minuten", zh: "分钟" }, { value: 1, tr: "saniye", en: "seconds", de: "Sekunden", zh: "秒" }]; const unit = units.find((item) => seconds >= item.value) ?? units.at(-1)!; const amount = Math.max(0.001, seconds / unit.value); return `${amount >= 100 ? amount.toExponential(1) : amount.toFixed(amount < 10 ? 1 : 0)} ${unit[locale]}`;
 }
 function analyzePassword(password: string, locale: Locale) {
   let pool = 0; if (/[a-z]/.test(password)) pool += 26; if (/[A-Z]/.test(password)) pool += 26; if (/\d/.test(password)) pool += 10; if (/[^\w\s]/.test(password)) pool += 33; if (/\s/.test(password)) pool += 1;

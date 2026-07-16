@@ -12,9 +12,14 @@ export const newWorkbenchSlugs = new Set([
 ]);
 
 function Frame({ locale, children, onDemo, onClear }: { locale: Locale; children: ReactNode; onDemo: () => void; onClear: () => void }) {
-  const isTr = locale === "tr";
-  return <section className="workbench specialized-workbench" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"}>
-    <div className="workbench-bar"><span className="local-status"><i />{isTr ? "Girdi yalnızca etkin tarayıcı sekmesinde işlenir." : "Input is processed only in the active browser tab."}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={onDemo}>{isTr ? "Örnek veri yükle" : "Load example"}</button><button type="button" className="ghost-button" onClick={onClear}>{isTr ? "Temizle" : "Clear"}</button></div></div>
+  const copy = {
+    tr: { aria: "Araç çalışma alanı", local: "Girdi yalnızca etkin tarayıcı sekmesinde işlenir.", demo: "Örnek veri yükle", clear: "Temizle" },
+    en: { aria: "Tool workbench", local: "Input is processed only in the active browser tab.", demo: "Load example", clear: "Clear" },
+    de: { aria: "Werkzeug-Arbeitsbereich", local: "Die Eingabe wird nur im aktiven Browser-Tab verarbeitet.", demo: "Beispiel laden", clear: "Leeren" },
+    zh: { aria: "工具工作区", local: "输入仅在当前浏览器标签页中处理。", demo: "加载示例", clear: "清除" },
+  }[locale];
+  return <section className="workbench specialized-workbench" aria-label={copy.aria}>
+    <div className="workbench-bar"><span className="local-status"><i />{copy.local}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={onDemo}>{copy.demo}</button><button type="button" className="ghost-button" onClick={onClear}>{copy.clear}</button></div></div>
     {children}
   </section>;
 }

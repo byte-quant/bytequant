@@ -1,14 +1,15 @@
 import type { Locale } from "./site";
+export type ReferenceLocale = "tr" | "en";
 
-export type ReferenceEntry = { expression: string; meaning: Record<Locale, string>; example?: string };
+export type ReferenceEntry = { expression: string; meaning: Record<ReferenceLocale, string>; example?: string };
 export type ReferenceGuide = {
   slug: string;
-  title: Record<Locale, string>;
-  description: Record<Locale, string>;
-  intro: Record<Locale, string>;
+  title: Record<ReferenceLocale, string>;
+  description: Record<ReferenceLocale, string>;
+  intro: Record<ReferenceLocale, string>;
   toolSlug: string;
-  sections: { title: Record<Locale, string>; entries: ReferenceEntry[] }[];
-  faq: { question: Record<Locale, string>; answer: Record<Locale, string> }[];
+  sections: { title: Record<ReferenceLocale, string>; entries: ReferenceEntry[] }[];
+  faq: { question: Record<ReferenceLocale, string>; answer: Record<ReferenceLocale, string> }[];
 };
 
 export const references: ReferenceGuide[] = [

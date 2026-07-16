@@ -1,7 +1,6 @@
-import type { Locale } from "./site";
-
 export type InfoKey = "about" | "privacy" | "cookies" | "terms" | "contact" | "faq";
-type Localized<T> = Record<Locale, T>;
+export type InfoLocale = "tr" | "en";
+type Localized<T> = Record<InfoLocale, T>;
 
 export type InfoSection = { heading: string; paragraphs: string[]; bullets?: string[]; links?: { label: string; href: string }[] };
 export type InfoContent = {

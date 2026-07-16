@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Post } from "../lib/posts";
+import type { EditorialLocale, Post } from "../lib/posts";
 import { posts } from "../lib/posts";
 import { getTool, tools, type Tool } from "../lib/tools";
-import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, siteUrl, toolPath, websiteId, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, siteUrl, toolPath, websiteId } from "../lib/site";
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
@@ -13,7 +13,7 @@ function postRelevance(current: Post, candidate: Post) {
   return sharedTools * 3 + (candidate.category.tr === current.category.tr ? 2 : 0);
 }
 
-export function ArticlePage({ post, locale }: { post: Post; locale: Locale }) {
+export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLocale }) {
   const isTr = locale === "tr";
   const currentLanguage = languageTag(locale);
   const pageUrl = absoluteUrl(postPath(locale, post.slug));

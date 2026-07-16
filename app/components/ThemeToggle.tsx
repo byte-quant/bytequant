@@ -25,7 +25,7 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
   }
 
   return (
-    <button className="icon-button" type="button" onClick={toggle} aria-label={locale === "tr" ? "Renk temasını değiştir" : "Change color theme"} title={locale === "tr" ? "Tema" : "Theme"}>
+    <button className="icon-button" type="button" onClick={toggle} aria-label={{ tr: "Renk temasını değiştir", en: "Change color theme", de: "Farbschema ändern", zh: "切换颜色主题" }[locale]} title={{ tr: "Tema", en: "Theme", de: "Design", zh: "主题" }[locale]}>
       <span aria-hidden="true">{dark ? "☀" : "◐"}</span>
     </button>
   );

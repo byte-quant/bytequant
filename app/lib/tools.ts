@@ -1,6 +1,7 @@
 import type { Locale } from "./site";
+import { localizeTool, type BaseTool } from "./tool-locales";
 
-export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security";
+export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security" | "calculation" | "general" | "ai" | "codeSecurity";
 
 export type Tool = {
   slug: string;
@@ -15,33 +16,53 @@ export type Tool = {
 
 export const categories: Record<ToolCategory, { label: Record<Locale, string>; description: Record<Locale, string>; mark: string }> = {
   prompt: {
-    label: { tr: "Prompt araçları", en: "Prompt tools" },
-    description: { tr: "Daha açık, sınanabilir ve yeniden kullanılabilir yapay zekâ talimatları hazırlayın.", en: "Build clearer, testable, and reusable AI instructions." },
+    label: { tr: "Prompt araçları", en: "Prompt tools", de: "Prompt-Werkzeuge", zh: "提示词工具" },
+    description: { tr: "Daha açık, sınanabilir ve yeniden kullanılabilir yapay zekâ talimatları hazırlayın.", en: "Build clearer, testable, and reusable AI instructions.", de: "Erstellen Sie klarere, prüfbare und wiederverwendbare KI-Anweisungen.", zh: "构建更清晰、可测试且可复用的 AI 指令。" },
     mark: "P",
   },
   text: {
-    label: { tr: "Metin ve NLP", en: "Text & NLP" },
-    description: { tr: "Metnin yapısını, okunabilirliğini ve benzerliğini cihazınızda inceleyin.", en: "Inspect structure, readability, and similarity directly on your device." },
+    label: { tr: "Metin ve NLP", en: "Text & NLP", de: "Text & NLP", zh: "文本与 NLP" },
+    description: { tr: "Metnin yapısını, okunabilirliğini ve benzerliğini cihazınızda inceleyin.", en: "Inspect structure, readability, and similarity directly on your device.", de: "Prüfen Sie Struktur, Lesbarkeit und Ähnlichkeit direkt auf Ihrem Gerät.", zh: "直接在设备上检查文本结构、可读性和相似度。" },
     mark: "T",
   },
   data: {
-    label: { tr: "Veri ve geliştirici", en: "Data & developer" },
-    description: { tr: "JSON, CSV, Regex ve kodlama işlemlerini hızlıca tamamlayın.", en: "Handle JSON, CSV, Regex, and encoding tasks quickly." },
+    label: { tr: "Veri ve geliştirici", en: "Data & developer", de: "Daten & Entwicklung", zh: "数据与开发" },
+    description: { tr: "JSON, CSV, Regex ve kodlama işlemlerini hızlıca tamamlayın.", en: "Handle JSON, CSV, Regex, and encoding tasks quickly.", de: "Erledigen Sie JSON-, CSV-, Regex- und Kodierungsaufgaben schnell.", zh: "快速处理 JSON、CSV、正则表达式和编码任务。" },
     mark: "D",
   },
   converter: {
-    label: { tr: "Dönüştürücüler", en: "Converters" },
-    description: { tr: "Görsel ve PDF dosyalarını cihazınızdan çıkarmadan dönüştürün, sıkıştırın ve düzenleyin.", en: "Convert, compress, and organize image and PDF files without sending them off-device." },
+    label: { tr: "Dönüştürücüler", en: "Converters", de: "Konverter", zh: "转换工具" },
+    description: { tr: "Görsel ve PDF dosyalarını cihazınızdan çıkarmadan dönüştürün, sıkıştırın ve düzenleyin.", en: "Convert, compress, and organize image and PDF files without sending them off-device.", de: "Konvertieren, komprimieren und ordnen Sie Bilder und PDFs, ohne sie hochzuladen.", zh: "无需上传，即可转换、压缩和整理图片与 PDF。" },
     mark: "C",
   },
   security: {
-    label: { tr: "Gizlilik ve güvenlik", en: "Privacy & security" },
-    description: { tr: "Hassas verileri maskeleyin ve güvenli tanımlayıcılar üretin.", en: "Mask sensitive data and generate secure identifiers." },
+    label: { tr: "Gizlilik ve güvenlik", en: "Privacy & security", de: "Datenschutz & Sicherheit", zh: "隐私与安全" },
+    description: { tr: "Hassas verileri maskeleyin ve güvenli tanımlayıcılar üretin.", en: "Mask sensitive data and generate secure identifiers.", de: "Maskieren Sie sensible Daten und erzeugen Sie sichere Kennungen.", zh: "遮蔽敏感数据并生成安全标识符。" },
     mark: "S",
+  },
+  calculation: {
+    label: { tr: "Hesaplama araçları", en: "Calculation tools", de: "Rechenwerkzeuge", zh: "计算工具" },
+    description: { tr: "Finans, eğitim ve günlük ölçümleri şeffaf formüllerle hesaplayın.", en: "Calculate finance, education, and everyday measurements with transparent formulas.", de: "Berechnen Sie Finanzen, Bildung und Alltagswerte mit transparenten Formeln.", zh: "使用透明公式计算财务、教育和日常数值。" },
+    mark: "N",
+  },
+  general: {
+    label: { tr: "Genel kullanıcı araçları", en: "Everyday tools", de: "Alltagswerkzeuge", zh: "日常工具" },
+    description: { tr: "Belge ve günlük üretkenlik işlerini cihazınızda tamamlayın.", en: "Complete document and everyday productivity tasks on-device.", de: "Erledigen Sie Dokument- und Alltagsaufgaben direkt auf dem Gerät.", zh: "在设备上完成文档和日常效率任务。" },
+    mark: "G",
+  },
+  ai: {
+    label: { tr: "AI araçları", en: "AI tools", de: "KI-Werkzeuge", zh: "AI 工具" },
+    description: { tr: "Model girdilerini, bağlam bütçelerini ve konuşma çıktılarını uzak API olmadan hazırlayın.", en: "Prepare model inputs, context budgets, and conversation exports without a remote API.", de: "Bereiten Sie Modelleingaben, Kontextbudgets und Gesprächsexporte ohne Remote-API vor.", zh: "无需远程 API，即可准备模型输入、上下文预算和对话导出。" },
+    mark: "AI",
+  },
+  codeSecurity: {
+    label: { tr: "Kod ve dosya güvenliği", en: "Code & file security", de: "Code- & Dateisicherheit", zh: "代码与文件安全" },
+    description: { tr: "Dosya, URL ve kaynak kodunda açıklanabilir yerel risk ön taramaları çalıştırın.", en: "Run explainable local risk pre-scans for files, URLs, and source code.", de: "Führen Sie erklärbare lokale Risiko-Vorprüfungen für Dateien, URLs und Quellcode aus.", zh: "对文件、网址和源代码执行可解释的本地风险预扫描。" },
+    mark: "CS",
   },
 };
 
-export const tools: Tool[] = [
+const baseTools: BaseTool[] = [
   {
     slug: "prompt-kalite-denetimi", category: "prompt", mark: "01",
     title: { tr: "Prompt Kalite Denetimi", en: "Prompt Quality Checker" },
@@ -346,7 +367,129 @@ export const tools: Tool[] = [
     useCases: { tr: ["Uzun rapordan ilgili bölümü çıkarma", "Belirli tarama sayfalarını paylaşma", "Ek veya kapak sayfalarını ayrı dosyaya alma"], en: ["Extracting a relevant report section", "Sharing selected scanned pages", "Separating appendices or cover pages"] },
     steps: { tr: ["En fazla 50 MB tek PDF seçip algılanan toplam sayfayı doğrulayın.", "1-3,5 gibi bir aralık girin; yalnızca yetkili olduğunuz sayfaları işleyin.", "Yeni PDF'yi oluşturup seçilen sayfaları ve belge bütünlüğünü kontrol ederek indirin."], en: ["Choose one PDF up to 50 MB and verify the detected page count.", "Enter a range such as 1-3,5 and process only pages you are authorized to use.", "Build the new PDF, verify selected pages and document integrity, then download it."] },
   },
+  {
+    slug: "yatirim-getiri-simulatoru", category: "calculation", mark: "39",
+    title: { tr: "Yatırım Getiri Simülatörü", en: "Investment Return Simulator" },
+    short: { tr: "Başlangıç tutarı, düzenli katkı, getiri, ücret ve enflasyonla farklı senaryoları karşılaştırın.", en: "Compare scenarios using an initial amount, recurring contribution, return, fees, and inflation." },
+    description: { tr: "Aylık bileşik büyüme varsayımıyla nominal ve enflasyona göre düzeltilmiş portföy değerini, toplam katkıyı ve ücret etkisini hesaplar. Sonuç yalnızca matematiksel senaryodur; yatırım tavsiyesi, vergi hesabı veya getiri garantisi değildir.", en: "Calculates nominal and inflation-adjusted portfolio value, total contributions, and fee impact using monthly compounding. It is a mathematical scenario—not investment advice, tax calculation, or a return guarantee." },
+    useCases: { tr: ["Düzenli yatırım senaryosu karşılaştırma", "Ücret ve enflasyon etkisini görme", "Uzun vadeli hedef için kaba planlama"], en: ["Comparing recurring-investment scenarios", "Understanding fee and inflation impact", "Rough long-term goal planning"] },
+    steps: { tr: ["Başlangıç tutarı, aylık katkı ve süreyi girin.", "Yıllık tahmini getiri, ücret ve enflasyon varsayımlarını ekleyin.", "Nominal ve reel sonuçları karşılaştırın; finansal karar için bağımsız uzman görüşü alın."], en: ["Enter the starting amount, monthly contribution, and duration.", "Add assumed annual return, fee, and inflation.", "Compare nominal and real results and seek independent advice for financial decisions."] },
+  },
+  {
+    slug: "birim-donusturucu", category: "calculation", mark: "40",
+    title: { tr: "Ölçü / Birim Dönüştürücü", en: "Measurement / Unit Converter" },
+    short: { tr: "Uzunluk, kütle, sıcaklık, hacim ve veri boyutu birimlerini anlık dönüştürün.", en: "Convert length, mass, temperature, volume, and data-size units instantly." },
+    description: { tr: "Yaygın metrik ve emperyal birimleri tarayıcı içinde görünür formüllerle dönüştürür; sıcaklık için doğrusal olmayan ofseti doğru uygular. Sonuçlar günlük kullanım içindir; düzenlemeye tabi ölçümlerde kalibre edilmiş sistem kullanın.", en: "Converts common metric and imperial units in-browser with visible formulas and correct temperature offsets. Results are for everyday use; regulated measurements require calibrated systems." },
+    useCases: { tr: ["Tarif ve seyahat ölçülerini çevirme", "Teknik dokümanda birim kontrolü", "Dosya boyutu karşılaştırma"], en: ["Converting recipe and travel measurements", "Checking units in technical documents", "Comparing data sizes"] },
+    steps: { tr: ["Ölçü kategorisini ve kaynak birimi seçin.", "Değeri girip hedef birimi belirleyin.", "Sonucu, kullanılan katsayıyı ve yuvarlamayı kontrol edin."], en: ["Choose a measurement category and source unit.", "Enter a value and select the target unit.", "Review the result, factor, and rounding."] },
+  },
+  {
+    slug: "not-ortalamasi-hesaplayici", category: "calculation", mark: "41",
+    title: { tr: "Not Ortalaması Hesaplayıcı", en: "Weighted Grade Calculator" },
+    short: { tr: "Ders veya değerlendirme notlarını ağırlıklarıyla hesaplayın ve toplam ağırlığı doğrulayın.", en: "Calculate course or assessment grades with weights and validate the weight total." },
+    description: { tr: "Satır bazlı not ve ağırlıklardan ağırlıklı ortalama üretir; geçersiz değerleri ve yüzde toplamındaki sapmayı gösterir. Okulun yuvarlama, geçme ve eksik not kuralları farklı olabilir; sonuç resmî transkript değildir.", en: "Produces a weighted average from row-based scores and weights and reports invalid values or weight-total gaps. School rounding, pass, and missing-grade rules may differ; output is not an official transcript." },
+    useCases: { tr: ["Dönem içi ağırlıklı ortalama", "Proje ve sınav paylarını kontrol", "Hedef not senaryosu"], en: ["Term weighted average", "Checking project and exam shares", "Target-grade scenarios"] },
+    steps: { tr: ["Her notu ve yüzde ağırlığını ayrı satıra girin.", "Toplam ağırlık ile geçersiz satır uyarılarını kontrol edin.", "Sonucu kurumunuzun resmî hesap yöntemiyle doğrulayın."], en: ["Enter each score and percentage weight on its own row.", "Check total weight and any invalid-row warnings.", "Verify the result against your institution's official method."] },
+  },
+  {
+    slug: "gpa-cevirici", category: "calculation", mark: "42",
+    title: { tr: "GPA Çevirici", en: "GPA Converter" },
+    short: { tr: "4.0, 5.0, 10.0 ve 100'lük not ölçekleri arasında açıklanmış yaklaşık dönüşüm yapın.", en: "Estimate conversions among 4.0, 5.0, 10.0, and 100-point grade scales." },
+    description: { tr: "Yaygın not ölçekleri arasında doğrusal bir yaklaşık dönüşüm sunar ve formülü açıkça gösterir. Üniversiteler ülke, ders ve harf notuna göre farklı doğrusal olmayan tablolar kullanabilir; sonuç resmî denklik değildir.", en: "Provides a clearly labeled linear estimate among common grading scales and shows the formula. Institutions may use country-, course-, or letter-grade-specific nonlinear tables; output is not an official equivalency." },
+    useCases: { tr: ["Başvuru öncesi kaba ölçek karşılaştırma", "Farklı not sistemlerini açıklama", "Resmî tabloya hazırlık"], en: ["Rough pre-application scale comparison", "Explaining different grade systems", "Preparing to use an official table"] },
+    steps: { tr: ["Kaynak not ölçeğini ve değeri seçin.", "Hedef ölçeği belirleyip yaklaşık sonucu görün.", "Başvuru veya denklik için kurumun resmî tablosunu kullanın."], en: ["Choose the source grade scale and value.", "Select the target scale and view the estimate.", "Use the institution's official table for applications or equivalency."] },
+  },
+  {
+    slug: "kaynakca-atif-formatlayici", category: "general", mark: "43",
+    title: { tr: "Kaynakça / Atıf Formatlayıcı (APA/MLA)", en: "Citation Formatter (APA/MLA)" },
+    short: { tr: "Kitap, makale ve web kaynağı bilgilerini APA 7 veya MLA 9 taslağına dönüştürün.", en: "Turn book, article, and web-source details into an APA 7 or MLA 9 draft." },
+    description: { tr: "Yazar, tarih, başlık, yayın, DOI ve URL alanlarından yerel bir kaynakça taslağı üretir. İtalik, büyük/küçük harf, çok yazarlı kaynak ve kurum kuralları farklılaşabileceği için güncel stil kılavuzuyla son kontrol gerekir.", en: "Builds a local bibliography draft from author, date, title, publication, DOI, and URL fields. Italics, capitalization, multiple authors, and institutional rules require a final check against the current style guide." },
+    useCases: { tr: ["Ödev kaynakçası taslağı", "Web kaynağını standartlaştırma", "DOI/URL alanlarını düzenleme"], en: ["Drafting an assignment bibliography", "Standardizing a web source", "Organizing DOI and URL fields"] },
+    steps: { tr: ["Kaynak türü ve atıf stilini seçin.", "Bibliyografik alanları kaynaktaki bilgilerle doldurun.", "Taslağı güncel APA/MLA kılavuzu ve kurum kurallarıyla doğrulayın."], en: ["Choose source type and citation style.", "Fill the bibliographic fields from the source.", "Verify the draft against the current APA/MLA guide and institutional rules."] },
+  },
+  {
+    slug: "fatura-sablonu-olusturucu", category: "general", mark: "44",
+    title: { tr: "Fatura Şablonu Oluşturucu", en: "Invoice Template Generator" },
+    short: { tr: "Taraf, kalem, vergi ve toplam bilgileriyle yazdırılabilir yerel bir fatura taslağı hazırlayın.", en: "Create a printable local invoice draft with party, line-item, tax, and total details." },
+    description: { tr: "Fatura bilgilerini tarayıcıda işler, kalemleri ve vergiyi hesaplar ve yazdırılabilir bir taslak üretir. E-fatura göndermez; ülkeye özgü vergi, seri numarası, para birimi ve saklama yükümlülüklerini otomatik doğrulamaz.", en: "Processes invoice details in-browser, calculates line items and tax, and creates a printable draft. It does not issue e-invoices or validate country-specific tax, numbering, currency, or retention requirements." },
+    useCases: { tr: ["Serbest çalışan fatura taslağı", "Kalem ve vergi toplamı kontrolü", "Müşteri önizlemesi hazırlama"], en: ["Freelancer invoice drafts", "Checking item and tax totals", "Preparing a client preview"] },
+    steps: { tr: ["Satıcı, müşteri, numara, tarih ve para birimini girin.", "Kalemleri miktar ve birim fiyatla ekleyip vergi oranını belirleyin.", "Önizlemeyi kontrol edin; yasal zorunlulukları doğrulayıp yazdırın."], en: ["Enter seller, customer, number, date, and currency.", "Add line items with quantity and unit price, then set tax.", "Review the preview, verify legal requirements, and print."] },
+  },
+  {
+    slug: "basit-sozlesme-sablonu", category: "general", mark: "45",
+    title: { tr: "Basit Sözleşme Şablonu", en: "Simple Contract Template" },
+    short: { tr: "Taraflar, hizmet, bedel, süre, fesih ve imza alanlarından tarafsız bir sözleşme taslağı oluşturun.", en: "Build a neutral contract draft from parties, scope, fee, term, termination, and signature fields." },
+    description: { tr: "Girilen olguları düzenli başlıklara yerleştirerek genel bir hizmet sözleşmesi taslağı üretir. Bu araç hukuk hizmeti sunmaz, ülkeye özgü emredici hükümleri bilmez ve elektronik imza geçerliliğini sağlamaz; imzadan önce uzman incelemesi gerekir.", en: "Places entered facts into a structured general service-agreement draft. It is not legal advice, does not know jurisdiction-specific mandatory terms, and does not establish e-signature validity; qualified review is required before signing." },
+    useCases: { tr: ["Görüşme için ilk taslak", "Kapsam ve teslimatı netleştirme", "Uzman incelemesine hazırlık"], en: ["First draft for discussion", "Clarifying scope and deliverables", "Preparing for qualified review"] },
+    steps: { tr: ["Taraf, kapsam, teslimat, bedel ve süre bilgilerini girin.", "Fesih ve uygulanacak hukuk alanlarını açıkça tanımlayın.", "Taslağı düzenleyin ve imzadan önce yetkin hukuk uzmanına inceletin."], en: ["Enter parties, scope, deliverables, fee, and term.", "Define termination and governing-law fields clearly.", "Edit the draft and obtain qualified legal review before signing."] },
+  },
+  {
+    slug: "asiri-kesinlik-dil-tarayicisi", category: "ai", mark: "46",
+    title: { tr: "Aşırı Kesinlik Dil Tarayıcısı", en: "Overconfidence Language Scanner" },
+    short: { tr: "Metindeki mutlak, garantici veya kanıtsız kesinlik ifadelerini işaretleyip daha dengeli seçenekler görün.", en: "Flag absolute, guaranteeing, or unsupported certainty language and review calibrated alternatives." },
+    description: { tr: "Her zaman, kesinlikle, garanti, imkânsız ve risksiz gibi ifadeleri açıklanabilir kurallarla bulur; bağlamı koruyan daha ölçülü alternatifler önerir. Bu dilbilimsel ön kontroldür; gerçeklik doğrulaması veya model tabanlı niyet analizi değildir.", en: "Finds terms such as always, definitely, guaranteed, impossible, and risk-free with explainable rules and suggests more calibrated alternatives. It is a language pre-check, not fact verification or model-based intent analysis." },
+    useCases: { tr: ["Pazarlama iddialarını gözden geçirme", "AI yanıt tonunu kalibre etme", "Risk açıklamasını dengeleme"], en: ["Reviewing marketing claims", "Calibrating AI response tone", "Balancing risk disclosures"] },
+    steps: { tr: ["İncelenecek metni girin.", "Kesinlik işaretlerini ve önerilen alternatifleri çalıştırın.", "Her bulguyu gerçek bağlam ve kanıt düzeyiyle insan olarak değerlendirin."], en: ["Enter the text to review.", "Run the certainty markers and suggested alternatives.", "Evaluate every finding against real context and evidence level."] },
+  },
+  {
+    slug: "konusma-disa-aktarma-formatlayici", category: "ai", mark: "47",
+    title: { tr: "Konuşma Dışa Aktarma Formatlayıcı", en: "Conversation Export Formatter" },
+    short: { tr: "Konuşma dökümlerini Markdown, JSONL veya sade metin olarak düzenleyin ve hassas alanları gözden geçirin.", en: "Normalize conversation transcripts as Markdown, JSONL, or plain text and review sensitive fields." },
+    description: { tr: "Rol: içerik satırlarını veya yaygın JSON mesaj dizilerini tarayıcıda ayrıştırıp tutarlı dışa aktarma biçimi üretir. Paylaşmadan önce kişisel veri, gizli anahtar ve üçüncü taraf içerik haklarını kullanıcı kontrol etmelidir.", en: "Parses role-prefixed lines or common JSON message arrays in-browser and produces consistent exports. Before sharing, users must review personal data, secrets, and third-party content rights." },
+    useCases: { tr: ["Sohbet arşivini Markdown'a çevirme", "Model değerlendirmesi için JSONL hazırlama", "Kişisel veri ön kontrolü"], en: ["Converting a chat archive to Markdown", "Preparing JSONL for model evaluation", "Personal-data pre-checks"] },
+    steps: { tr: ["Konuşmayı rol satırları veya JSON mesaj dizisi olarak yapıştırın.", "Hedef biçimi seçip yerel ayrıştırmayı çalıştırın.", "Hassas içerikleri kaldırın ve yalnızca yetkili olduğunuz konuşmaları dışa aktarın."], en: ["Paste the conversation as role lines or a JSON message array.", "Choose the target format and run local parsing.", "Remove sensitive content and export only conversations you are authorized to use."] },
+  },
+  {
+    slug: "token-baglam-butcesi-planlayici", category: "ai", mark: "48",
+    title: { tr: "Token / Bağlam Bütçesi Planlayıcı", en: "Token / Context Budget Planner" },
+    short: { tr: "Bağlam penceresini sistem talimatı, geçmiş, kaynak, kullanıcı girdisi, çıktı ve güvenlik payına bölün.", en: "Allocate a context window across system instructions, history, sources, user input, output, and safety margin." },
+    description: { tr: "Seçilen bağlam sınırında bölümlere ayrılan yaklaşık token bütçesini hesaplar ve aşım riskini görünür kılar. Model tokenizer'ı, gizli sistem ekleri ve sağlayıcı rezervleri sonucu değiştirebilir; değerler planlama tahminidir.", en: "Calculates an approximate sectioned token budget for a chosen context limit and surfaces overflow risk. Model tokenizers, hidden system additions, and provider reserves can change actual usage; values are planning estimates." },
+    useCases: { tr: ["RAG bağlam paylaştırma", "Uzun konuşma bütçesi", "Çıktı payı ve güvenlik rezervi"], en: ["RAG context allocation", "Long-conversation budgeting", "Output share and safety reserve"] },
+    steps: { tr: ["Model bağlam sınırını ve beklenen çıktı payını girin.", "Sistem, geçmiş, kaynak ve kullanıcı girdisi tahminlerini ekleyin.", "Kalan rezervi kontrol edip gerçek tokenizer ölçümüyle doğrulayın."], en: ["Enter the model context limit and expected output allocation.", "Add estimates for system, history, sources, and user input.", "Review remaining reserve and verify with the actual tokenizer."] },
+  },
+  {
+    slug: "sistem-promptu-netlik-kontrolu", category: "ai", mark: "49",
+    title: { tr: "Sistem Promptu Netlik Kontrolü", en: "System Prompt Clarity Checker" },
+    short: { tr: "Amaç, yetki, sınır, çelişki, belirsizlik ve çıktı sözleşmesini şeffaf kurallarla kontrol edin.", en: "Check purpose, authority, boundaries, conflicts, ambiguity, and output contract with transparent rules." },
+    description: { tr: "Sistem promptunu tamamen yerel kurallarla inceler; görev kapsamı, talimat önceliği, başarısızlık davranışı, veri sınırları ve çıktı biçimindeki boşlukları listeler. Araç bir model çağırmaz ve güvenli davranış garantisi vermez.", en: "Reviews a system prompt using fully local rules and lists gaps in scope, instruction priority, failure behavior, data boundaries, and output format. It calls no model and does not guarantee safe behavior." },
+    useCases: { tr: ["Üretim öncesi prompt inceleme", "Talimat çelişkisi bulma", "Güvenlik sınırlarını netleştirme"], en: ["Pre-production prompt review", "Finding instruction conflicts", "Clarifying safety boundaries"] },
+    steps: { tr: ["Sistem promptunu eksiksiz yapıştırın.", "Kural tabanlı netlik kontrolünü çalıştırıp bulguları inceleyin.", "Promptu güncelleyin ve gerçek model davranışını ayrıca test edin."], en: ["Paste the complete system prompt.", "Run the rule-based clarity check and review findings.", "Update the prompt and test actual model behavior separately."] },
+  },
+  {
+    slug: "rol-persona-tutarlilik-kontrolu", category: "ai", mark: "50",
+    title: { tr: "Rol / Persona Tutarlılık Kontrolü", en: "Role / Persona Consistency Checker" },
+    short: { tr: "Persona tanımı ile örnek yanıtları ton, rol, sınır ve yasaklı davranış açısından karşılaştırın.", en: "Compare a persona definition and sample responses for tone, role, boundaries, and prohibited behavior." },
+    description: { tr: "Persona kuralları ve örnek cevaplarda görülen ton, birinci şahıs, yetki, kesinlik ve sınır ifadelerini karşılaştırır. Heuristik sonuçlar semantik model testi, jailbreak değerlendirmesi veya red-team çalışması değildir.", en: "Compares tone, first-person identity, authority, certainty, and boundary signals between persona rules and sample replies. Heuristic results are not semantic model testing, jailbreak evaluation, or red teaming." },
+    useCases: { tr: ["Bot persona kalite kontrolü", "Örnek yanıt uyumu", "Rol ve yetki sınırı denetimi"], en: ["Bot persona QA", "Sample-response alignment", "Role and authority boundary checks"] },
+    steps: { tr: ["Persona/rol kurallarını ilk alana girin.", "Örnek model yanıtlarını ikinci alana ekleyin.", "Bulguları bağlam içinde inceleyip gerçek model testleriyle doğrulayın."], en: ["Enter persona and role rules in the first field.", "Add sample model responses to the second field.", "Review findings in context and verify with real model tests."] },
+  },
+  {
+    slug: "dosya-risk-on-taramasi", category: "codeSecurity", mark: "51",
+    title: { tr: "Yerel Dosya Risk Ön Taraması", en: "Local File Risk Pre-Scan" },
+    short: { tr: "Dosyanın uzantı, imza, çift uzantı, makro göstergesi ve sınırlı içerik örneklerini yüklemeden inceleyin.", en: "Inspect extension, signature, double extension, macro indicators, and bounded content samples without uploading." },
+    description: { tr: "Dosya adı, boyut, magic byte, MIME uyumu ve riskli metin kalıplarını tarayıcı içinde inceler; dosyayı çalıştırmaz veya sunucuya göndermez. Bu araç antivirüs değildir ve yeni, paketlenmiş ya da karmaşık zararlıyı kesin olarak bulamaz veya güvenli ilan edemez.", en: "Inspects filename, size, magic bytes, MIME consistency, and risky text patterns in-browser without executing or uploading the file. It is not antivirus and cannot conclusively detect or clear new, packed, or complex malware." },
+    useCases: { tr: ["İndirilmiş dosyayı ilk triyaj", "Uzantı/imza uyumsuzluğu", "Makro ve betik göstergesi arama"], en: ["Initial triage of a downloaded file", "Extension/signature mismatch checks", "Macro and script indicator search"] },
+    steps: { tr: ["Yalnızca incelemeye yetkili olduğunuz dosyayı seçin.", "Boyut sınırlı yerel taramayı çalıştırın; dosya hiçbir zaman açılıp çalıştırılmaz.", "Şüpheli bulguda dosyayı izole edin ve güncel profesyonel güvenlik ürünüyle doğrulayın."], en: ["Choose only a file you are authorized to inspect.", "Run the size-bounded local scan; the file is never opened or executed.", "If findings are suspicious, isolate the file and verify with a current professional security product."] },
+  },
+  {
+    slug: "kod-guvenligi-on-taramasi", category: "codeSecurity", mark: "52",
+    title: { tr: "Kod Güvenliği Ön Taraması", en: "Code Security Pre-Scan" },
+    short: { tr: "Kaynak kodunda riskli API, tehlikeli sink, zayıf kripto ve gömülü sır kalıplarını yerel olarak bulun.", en: "Find risky APIs, dangerous sinks, weak crypto, and embedded-secret patterns locally in source code." },
+    description: { tr: "Kod metnini zaman sınırlı Web Worker içinde açıklanabilir Regex kurallarıyla tarar; eval, innerHTML, shell komutu, SQL birleştirme, zayıf hash ve olası anahtar kalıplarını satır numarasıyla raporlar. Derleme akışını veya veri akışını anlamadığı için tam SAST ve uzman kod incelemesinin yerini tutmaz.", en: "Scans code in a time-bounded Web Worker with explainable regex rules and reports eval, innerHTML, shell commands, SQL concatenation, weak hashes, and possible secrets with line numbers. It cannot understand full builds or data flow and does not replace SAST or expert review." },
+    useCases: { tr: ["Pull request ön kontrolü", "Kod örneğinde sır arama", "Güvenlik incelemesine hazırlık"], en: ["Pull-request pre-checks", "Secret discovery in snippets", "Preparing for security review"] },
+    steps: { tr: ["Yalnızca inceleme yetkiniz bulunan kaynak kodunu yapıştırın.", "Dil seçip yerel, zaman sınırlı taramayı çalıştırın.", "Her bulguyu veri akışı ve bağlamla doğrulayın; sırları derhal döndürün/iptal edin."], en: ["Paste only source code you are authorized to inspect.", "Choose a language and run the local time-bounded scan.", "Verify each finding against data flow and context; rotate exposed secrets immediately."] },
+  },
+  {
+    slug: "url-guvenlik-on-kontrolu", category: "codeSecurity", mark: "53",
+    title: { tr: "URL Güvenlik Ön Kontrolü", en: "URL Security Pre-Check" },
+    short: { tr: "URL'yi ziyaret etmeden kimlik bilgisi, IP host, Punycode, yönlendirme parametresi ve gizleme sinyallerini inceleyin.", en: "Inspect credentials, IP hosts, Punycode, redirect parameters, and obfuscation signals without visiting the URL." },
+    description: { tr: "URL nesnesini tarayıcıda ayrıştırır ve kullanıcı adı/parola, sayısal IP, xn-- alanı, çok sayıda alt alan, kodlanmış karakter ve yönlendirme parametrelerini işaretler. Ağ isteği yapmadığı için itibar, sertifika, indirme veya sayfa içeriğini doğrulayamaz.", en: "Parses a URL in-browser and flags embedded credentials, numeric IPs, xn-- domains, excessive subdomains, encoded characters, and redirect parameters. Because it makes no request, it cannot verify reputation, certificates, downloads, or page content." },
+    useCases: { tr: ["Şüpheli bağlantı ilk kontrolü", "Yönlendirme parametresi inceleme", "Punycode ve IP host farkındalığı"], en: ["Initial suspicious-link checks", "Inspecting redirect parameters", "Punycode and IP-host awareness"] },
+    steps: { tr: ["Bağlantıyı tıklamadan metin olarak alana yapıştırın.", "Yerel yapısal analizi çalıştırıp host ve parametre bulgularını inceleyin.", "Şüphede bağlantıyı açmayın; kurumunuzun izole itibar ve güvenlik süreçlerini kullanın."], en: ["Paste the link as text without opening it.", "Run local structural analysis and review host and parameter findings.", "If uncertain, do not open it; use your organization's isolated reputation and security process."] },
+  },
 ];
+
+export const tools: Tool[] = baseTools.map(localizeTool);
 
 const relatedBySlug: Record<string, string[]> = {
   "prompt-kalite-denetimi": ["meta-prompt-olusturucu", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"],
@@ -377,6 +520,21 @@ const relatedBySlug: Record<string, string[]> = {
   "pdf-bolme": ["pdf-birlestirme", "gorselden-pdf", "sha256-ozet-uretici"],
   "kvkk-veri-maskeleyici": ["arac-zinciri-pipeline", "exif-meta-veri-temizleyici", "json-csv-donusturucu"],
   "csv-inceleyici": ["arac-zinciri-pipeline", "json-csv-donusturucu", "json-bicimlendirici"],
+  "yatirim-getiri-simulatoru": ["birim-donusturucu", "not-ortalamasi-hesaplayici", "gpa-cevirici"],
+  "birim-donusturucu": ["yatirim-getiri-simulatoru", "gpa-cevirici", "not-ortalamasi-hesaplayici"],
+  "not-ortalamasi-hesaplayici": ["gpa-cevirici", "birim-donusturucu", "yatirim-getiri-simulatoru"],
+  "gpa-cevirici": ["not-ortalamasi-hesaplayici", "birim-donusturucu", "kaynakca-atif-formatlayici"],
+  "kaynakca-atif-formatlayici": ["konusma-disa-aktarma-formatlayici", "markdown-onizleyici", "kelime-sayaci"],
+  "fatura-sablonu-olusturucu": ["basit-sozlesme-sablonu", "birim-donusturucu", "sha256-ozet-uretici"],
+  "basit-sozlesme-sablonu": ["fatura-sablonu-olusturucu", "metin-farki-diff", "sha256-ozet-uretici"],
+  "asiri-kesinlik-dil-tarayicisi": ["sistem-promptu-netlik-kontrolu", "rol-persona-tutarlilik-kontrolu", "prompt-kalite-denetimi"],
+  "konusma-disa-aktarma-formatlayici": ["token-baglam-butcesi-planlayici", "kvkk-veri-maskeleyici", "json-bicimlendirici"],
+  "token-baglam-butcesi-planlayici": ["token-sayaci", "sistem-promptu-netlik-kontrolu", "konusma-disa-aktarma-formatlayici"],
+  "sistem-promptu-netlik-kontrolu": ["rol-persona-tutarlilik-kontrolu", "asiri-kesinlik-dil-tarayicisi", "sistem-promptu-persona-sablonu"],
+  "rol-persona-tutarlilik-kontrolu": ["sistem-promptu-netlik-kontrolu", "asiri-kesinlik-dil-tarayicisi", "prompt-kalite-denetimi"],
+  "dosya-risk-on-taramasi": ["kod-guvenligi-on-taramasi", "url-guvenlik-on-kontrolu", "sha256-ozet-uretici"],
+  "kod-guvenligi-on-taramasi": ["dosya-risk-on-taramasi", "url-guvenlik-on-kontrolu", "regex-test-araci"],
+  "url-guvenlik-on-kontrolu": ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "url-kodlayici"],
 };
 
 export function getTool(slug: string) {

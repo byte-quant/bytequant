@@ -1,11 +1,11 @@
 import Link from "next/link";
-import type { ReferenceGuide } from "../lib/references";
+import type { ReferenceGuide, ReferenceLocale } from "../lib/references";
 import { referencePath } from "../lib/references";
-import { absoluteUrl, languageTag, organizationId, pathFor, schemaDate, siteUrl, toolPath, websiteId, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, schemaDate, siteUrl, toolPath, websiteId } from "../lib/site";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 
-export function ReferencePage({ guide, locale }: { guide: ReferenceGuide; locale: Locale }) {
+export function ReferencePage({ guide, locale }: { guide: ReferenceGuide; locale: ReferenceLocale }) {
   const isTr = locale === "tr"; const url = absoluteUrl(referencePath(locale, guide.slug));
   const schema = [
     { "@context": "https://schema.org", "@type": "TechArticle", "@id": `${url}#article`, headline: guide.title[locale], description: guide.description[locale], url, mainEntityOfPage: { "@type": "WebPage", "@id": url }, isPartOf: { "@id": websiteId }, datePublished: schemaDate("2026-07-15"), dateModified: schemaDate("2026-07-15"), inLanguage: languageTag(locale), author: { "@type": "Organization", "@id": `${siteUrl}/#editorial`, name: "ByteQuant Editorial", parentOrganization: { "@id": organizationId } }, publisher: { "@id": organizationId } },

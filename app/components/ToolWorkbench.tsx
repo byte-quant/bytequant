@@ -6,6 +6,7 @@ import type { Locale } from "../lib/site";
 import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
 import { NewToolWorkbench, newWorkbenchSlugs } from "./NewToolWorkbenches";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
+import { AdvancedWorkbench, advancedWorkbenchSlugs } from "./AdvancedWorkbenches";
 
 const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
@@ -17,7 +18,7 @@ type Metric = { label: string; value: string | number };
 const noInputTools = new Set(["guclu-parola-uretici", "uuid-uretici"]);
 const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"]);
 
-const samples: Record<string, Record<Locale, string>> = {
+const samples: Record<string, Record<"tr" | "en", string>> = {
   "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points." },
   "meta-prompt-olusturucu": { tr: "Müşteri geri bildirimlerini temalara ayır ve uygulanabilir öneriler çıkar.", en: "Group customer feedback into themes and produce actionable recommendations." },
   "token-sayaci": { tr: "Bu alana token ihtiyacını tahmin etmek istediğiniz metni yazın.", en: "Enter the text whose token demand you want to estimate." },
@@ -26,7 +27,7 @@ const samples: Record<string, Record<Locale, string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":38}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":38}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":53}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":53}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -293,6 +294,7 @@ export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   if (converterSlugs.has(slug)) return <ConverterWorkbench slug={slug} locale={locale} />;
   if (newWorkbenchSlugs.has(slug)) return <NewToolWorkbench slug={slug} locale={locale} />;
   if (specializedSlugs.has(slug)) return <SpecializedWorkbench slug={slug} locale={locale} />;
+  if (advancedWorkbenchSlugs.has(slug)) return <AdvancedWorkbench slug={slug} locale={locale} />;
   return <GenericToolWorkbench slug={slug} locale={locale} />;
 }
 
@@ -309,13 +311,16 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const [notice, setNotice] = useState<ToolNoticeData | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const labels = useMemo(() => isTr ? {
+  const labels = useMemo(() => {
+    if (locale === "de") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron-Ausdruck" : "Eingabe", second: slug === "regex-test-araci" ? "Regex-Muster" : "Vergleich / Zusatzangaben", run: "Auf meinem Gerät ausführen", running: "Verarbeitung…", copy: "Ausgabe kopieren", download: "Als Text herunterladen", clear: "Leeren", demo: "Beispiel laden", output: "Ergebnis", empty: "Das Ergebnis erscheint hier.", copied: "Ausgabe wurde kopiert.", downloaded: "Ausgabe wurde heruntergeladen.", demoLoaded: "Beispiel geladen; das Werkzeug kann jetzt ausgeführt werden.", local: "Eingabe verlässt diese Seite nicht.", flags: "Flags", length: "Passwortlänge", quantity: "UUID-Anzahl", shortcut: "Strg/⌘ + Enter" };
+    if (locale === "zh") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron 表达式" : "输入", second: slug === "regex-test-araci" ? "正则表达式" : "比较 / 补充信息", run: "在设备上运行", running: "处理中…", copy: "复制输出", download: "下载文本", clear: "清除", demo: "加载示例", output: "结果", empty: "结果将显示在这里。", copied: "输出已复制。", downloaded: "输出已下载。", demoLoaded: "示例已加载，现在可以运行工具。", local: "输入不会离开此页面。", flags: "标志", length: "密码长度", quantity: "UUID 数量", shortcut: "Ctrl/⌘ + Enter" };
+    return isTr ? {
     input: slug === "few-shot-ornek-olusturucu" ? "Görev tanımı" : slug === "sistem-promptu-persona-sablonu" ? "Rol ve temel sorumluluk" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron ifadesi" : "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : slug === "few-shot-ornek-olusturucu" ? "Örnekler — her satır `girdi => çıktı`" : slug === "sistem-promptu-persona-sablonu" ? "Ton, hedef kitle ve sınırlar" : "Karşılaştırma metni",
     run: "Cihazımda çalıştır", running: "İşleniyor…", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu", quantity: "Üretilecek UUID", shortcut: "Ctrl/⌘ + Enter",
   } : {
     input: slug === "few-shot-ornek-olusturucu" ? "Task description" : slug === "sistem-promptu-persona-sablonu" ? "Role and primary responsibility" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron expression" : "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : slug === "few-shot-ornek-olusturucu" ? "Examples — one `input => output` pair per line" : slug === "sistem-promptu-persona-sablonu" ? "Tone, audience, and boundaries" : "Comparison text",
     run: "Run on my device", running: "Processing…", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length", quantity: "UUID quantity", shortcut: "Ctrl/⌘ + Enter",
-  }, [isTr, slug]);
+  }; }, [isTr, locale, slug]);
 
   function setResult(value: string, nextMetrics: Metric[] = []) {
     setOutput(value); setMetrics(nextMetrics); setNotice(null);
@@ -330,7 +335,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   }
 
   function loadDemo() {
-    setInput(samples[slug]?.[locale] ?? "");
+    setInput(samples[slug]?.[locale === "tr" ? "tr" : "en"] ?? "");
     setSecondary(secondarySample(slug, locale));
     setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setOutput(""); setMetrics([]);
     setNotice({ kind: "info", text: labels.demoLoaded });

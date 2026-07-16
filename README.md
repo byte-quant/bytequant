@@ -1,73 +1,119 @@
 # ByteQuant
 
-ByteQuant is a production-ready, bilingual (Turkish/English) static website for privacy-first browser tools. It contains 38 working utilities, 21 full guides in both languages, standalone trust/legal pages, structured data, a complete sitemap, and a GitHub Pages deployment workflow.
+[![Website](https://img.shields.io/badge/website-bytequant.org-08747c)](https://bytequant.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/license-MIT-3657ff)](LICENSE)
 
-## What is included
+ByteQuant is a privacy-first, installable web application containing 53 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
 
-- 38 on-device tools across Prompt, Text & NLP, Data & Developer, Converters, and Privacy & Security categories
-- Individual SEO page, usage guide, limitations, FAQ schema, and related-tool links for every tool
-- Turkish and English home, tool, guide, About, Privacy, Terms, Contact, and FAQ pages
-- Eight original long-form guides in both languages
-- `WebSite`, `WebApplication`, `BlogPosting`, and `FAQPage` JSON-LD
-- Static `sitemap.xml`, `robots.txt`, web manifest, CNAME, and no-Jekyll marker
-- Responsive light/dark interface with keyboard focus, reduced-motion support, and mobile navigation
-- Reserved ad areas that are visibly separated from editorial content
-- A bespoke 1200×630 Open Graph card and matching favicon
+**Live site:** [bytequant.org](https://bytequant.org)
 
-## Privacy model
+## Product at a glance
 
-Core tool operations run in the active browser tab. Tool input is not transmitted to a ByteQuant server and is not persisted to `localStorage`. Local storage is limited to `bq-theme` (light/dark) and `bq-tool-usage-v1` (non-sensitive per-tool visit counts used for personal shortcuts). Copying or downloading a result creates a user-controlled copy outside the page.
+- 53 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
+- Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
+- 28 long-form editorial guides in Turkish and English; German and Chinese guide indexes link to accurately labeled English originals until editorial localization is complete
+- Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
+- On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
+- Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
+- Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
 
-The tools deliberately avoid remote AI APIs, analytics SDKs, and active advertising scripts. Pattern masking and heuristic scores are pre-checks, not legal or security guarantees.
+## Privacy and security model
+
+Core tool operations run in the active browser tab. Tool input is not sent to a ByteQuant application server and is not persisted in localStorage.
+
+The installable app's service worker caches only same-origin static resources and previously visited GET pages. It does **not** cache form input, selected files, passwords, generated output, POST data, or cross-origin resources.
+
+Local storage is limited to:
+
+- bq-consent-v1: consent choice with a 180-day lifetime
+- bq-theme: the user-selected theme
+- bq-tool-usage-v1: optional, consent-gated tool slug/count/last-use data—never tool content
+
+File, code, and URL security tools are deliberately framed as **heuristic pre-scans**:
+
+- files are sampled but never executed or uploaded;
+- code is scanned in a time-bounded Web Worker but is never executed;
+- URLs are parsed as text without DNS, HTTP, reputation, or certificate requests.
+
+These tools are not antivirus, a complete SAST platform, identity verification, legal compliance, or proof of safety. See [SECURITY.md](SECURITY.md) for reporting and trust boundaries.
+
+## Architecture
+
+~~~text
+Next.js App Router (static export)
+├─ Locale routes: tr / en / de / zh
+├─ Shared typed tool catalogue and localized metadata
+├─ Client-side workbenches
+│  ├─ Web APIs / Web Crypto / Canvas
+│  ├─ bounded Web Workers
+│  └─ dynamically loaded pdf-lib / qrcode where needed
+├─ PWA manifest + same-origin service worker
+└─ sitemap / robots / llms.txt / RSS / JSON-LD
+~~~
+
+No secret belongs in the client bundle. Source code is intentionally maintainable rather than obfuscated; obfuscation does not protect browser-side credentials and makes security review harder.
 
 ## Local development
 
-Requirements: Node.js 22+ and pnpm 11.
+Requirements:
 
-```bash
+- Node.js 22.13 or later
+- pnpm 11
+
+~~~bash
 pnpm install
 pnpm dev
-```
+~~~
 
-The production build is a fully static export:
+Run the complete quality gate:
 
-```bash
+~~~bash
+pnpm lint
 pnpm build
 pnpm test
-```
+~~~
 
-The deployable site is written to `out/`. Next.js production compilation minifies JavaScript and CSS. The maintainable source is intentionally not obfuscated: obfuscation does not protect client-side secrets and makes security review and maintenance harder.
+The deployable static site is written to out/.
+
+## Repository map
+
+| Area | Location |
+| --- | --- |
+| Tool catalogue and localized SEO copy | app/lib/tools.ts, app/lib/tool-locales.ts |
+| Calculation, AI, document, and security workbenches | app/components/AdvancedWorkbenches.tsx |
+| Existing client-side tool engine | app/components/ToolWorkbench.tsx |
+| Locale and hreflang routing | app/lib/site.ts |
+| Legal and trust content | app/lib/info.ts, app/lib/localized-info.ts |
+| Editorial guides | app/lib/posts.ts |
+| Design system | app/globals.css |
+| PWA | app/manifest.ts, app/components/PwaInstall.tsx, public/sw.js |
+| Output verification | tests/site.test.mjs |
 
 ## GitHub Pages deployment
 
-1. Push this project to the repository's `main` branch.
-2. In GitHub, open **Settings → Pages** and select **GitHub Actions** as the source.
-3. The included `.github/workflows/deploy.yml` workflow installs dependencies, builds, tests, and publishes `out/`.
-4. `public/CNAME` is already set to `bytequant.org`. Confirm the domain's DNS records in GitHub before enforcing HTTPS.
+1. Push the intended commit to main.
+2. Open **Settings → Pages** and select **GitHub Actions** as the source.
+3. The workflow in .github/workflows/deploy.yml installs dependencies, runs the build and tests, and publishes out/.
+4. public/CNAME targets bytequant.org; verify DNS and enforce HTTPS in repository settings.
 
-## AdSense integration checklist
+## Dependency and advertising policy
 
-The site reserves `.ad-slot` areas but intentionally ships without a publisher ID or ad script. Before activating ads:
+Runtime libraries must be open source, free to use commercially, pinned, and documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The current direct runtime dependencies use permissive licenses.
 
-1. Replace reserved slots only with the official responsive ad markup tied to the verified publisher account.
-2. Add a Google-certified consent management flow where required and update the Privacy Policy before any ad cookie is set.
-3. Keep tool input isolated from advertising code; never expose textarea or result values as ad targeting data.
-4. Test mobile layout, accidental-click spacing, navigation, policy pages, and content availability without ads.
-5. Review the current Google Publisher Policies immediately before applying. Site quality raises approval readiness but cannot guarantee approval.
+The site contains reserved advertising layout areas but no active AdSense publisher ID, advertising script, analytics SDK, or tracking cookie. Before any advertising activation:
 
-## Content and product maintenance
+1. configure a valid region-aware consent platform;
+2. update privacy and storage disclosures before loading the vendor;
+3. keep all tool input isolated from advertising code;
+4. rerun mobile, accessibility, performance, policy, and consent checks.
 
-- Tools: `app/lib/tools.ts`
-- Guides: `app/lib/posts.ts`
-- Institutional/legal content: `app/lib/info.ts`
-- Client-side tool logic: `app/components/ToolWorkbench.tsx`
-- Design system: `app/globals.css`
+SEO, AEO, GEO, and AdSense readiness are quality practices—not ranking, citation, indexing, or approval guarantees.
 
-Direct runtime dependency licenses and the converter package's commercial-use status are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## Contributing and contact
 
-Update the visible revision date when legal or privacy behavior changes. Do not add analytics, external models, or advertising without updating the data-flow disclosure and consent behavior.
-
-## Contact
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Security findings should follow [SECURITY.md](SECURITY.md), not a public issue.
 
 - Email: bytequant@yahoo.com
 - X: [@byte_quant](https://x.com/byte_quant)

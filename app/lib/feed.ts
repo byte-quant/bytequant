@@ -1,5 +1,5 @@
-import { posts } from "./posts";
-import { absoluteUrl, languageTag, pathFor, postPath, schemaDate, type Locale } from "./site";
+import { posts, type EditorialLocale } from "./posts";
+import { absoluteUrl, languageTag, pathFor, postPath, schemaDate } from "./site";
 
 function escapeXml(value: string) {
   return value.replace(/[<>&'\"]/g, (character) => ({
@@ -11,7 +11,7 @@ function escapeXml(value: string) {
   })[character] ?? character);
 }
 
-export function buildFeed(locale: Locale) {
+export function buildFeed(locale: EditorialLocale) {
   const isTr = locale === "tr";
   const orderedPosts = [...posts].sort((left, right) => right.date.localeCompare(left.date));
   const feedUrl = absoluteUrl(isTr ? "/feed.xml" : "/en/feed.xml");

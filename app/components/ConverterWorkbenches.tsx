@@ -14,9 +14,14 @@ type ImageMime = "image/png" | "image/jpeg" | "image/webp";
 type BlobResult = { url: string; blob: Blob; filename: string };
 
 function Frame({ locale, children, onDemo, onClear, busy = false }: { locale: Locale; children: ReactNode; onDemo: () => void | Promise<void>; onClear: () => void; busy?: boolean }) {
-  const isTr = locale === "tr";
-  return <section className="workbench specialized-workbench converter-workbench" aria-label={isTr ? "Dönüştürücü çalışma alanı" : "Converter workbench"}>
-    <div className="workbench-bar"><span className="local-status"><i />{isTr ? "Dosyalar yalnızca etkin tarayıcı sekmesinde işlenir." : "Files are processed only in the active browser tab."}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" disabled={busy} onClick={() => void onDemo()}>{isTr ? "Örnek veri yükle" : "Load example"}</button><button type="button" className="ghost-button" disabled={busy} onClick={onClear}>{isTr ? "Temizle" : "Clear"}</button></div></div>
+  const copy = {
+    tr: { aria: "Dönüştürücü çalışma alanı", local: "Dosyalar yalnızca etkin tarayıcı sekmesinde işlenir.", demo: "Örnek veri yükle", clear: "Temizle" },
+    en: { aria: "Converter workbench", local: "Files are processed only in the active browser tab.", demo: "Load example", clear: "Clear" },
+    de: { aria: "Konverter-Arbeitsbereich", local: "Dateien werden nur im aktiven Browser-Tab verarbeitet.", demo: "Beispiel laden", clear: "Leeren" },
+    zh: { aria: "转换工具工作区", local: "文件仅在当前浏览器标签页中处理。", demo: "加载示例", clear: "清除" },
+  }[locale];
+  return <section className="workbench specialized-workbench converter-workbench" aria-label={copy.aria}>
+    <div className="workbench-bar"><span className="local-status"><i />{copy.local}</span><div className="workbench-bar-actions"><button type="button" className="demo-button" disabled={busy} onClick={() => void onDemo()}>{copy.demo}</button><button type="button" className="ghost-button" disabled={busy} onClick={onClear}>{copy.clear}</button></div></div>
     {children}
   </section>;
 }

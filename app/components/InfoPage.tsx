@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { info, type InfoKey } from "../lib/info";
-import { absoluteUrl, languageTag, organizationId, pathFor, websiteId, type Locale } from "../lib/site";
+import { info, type InfoKey, type InfoLocale } from "../lib/info";
+import { absoluteUrl, languageTag, organizationId, pathFor, websiteId } from "../lib/site";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 
-export function InfoPage({ pageKey, locale }: { pageKey: InfoKey; locale: Locale }) {
+export function InfoPage({ pageKey, locale }: { pageKey: InfoKey; locale: InfoLocale }) {
   const content = info[pageKey];
   const isTr = locale === "tr";
   const currentLanguage = languageTag(locale);

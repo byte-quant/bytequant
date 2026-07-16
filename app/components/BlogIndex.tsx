@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { posts } from "../lib/posts";
-import { absoluteUrl, languageTag, organizationId, pathFor, postPath, websiteId, type Locale } from "../lib/site";
+import { posts, type EditorialLocale } from "../lib/posts";
+import { absoluteUrl, languageTag, organizationId, pathFor, postPath, websiteId } from "../lib/site";
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 
-export function BlogIndex({ locale }: { locale: Locale }) {
+export function BlogIndex({ locale }: { locale: EditorialLocale }) {
   const isTr = locale === "tr";
   const currentLanguage = languageTag(locale);
   const alternateHref = locale === "tr" ? "/en/blog" : "/blog";
