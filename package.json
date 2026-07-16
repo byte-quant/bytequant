@@ -12,6 +12,7 @@
     "build:sites": "vinext build",
     "start": "vinext start",
     "test": "node --test tests/site.test.mjs",
+    "audit:static": "node scripts/audit-static.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

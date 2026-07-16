@@ -6,6 +6,7 @@ import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate
 import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
+import { getLocalizedGuide } from "../lib/localized-guides";
 import { BrandLogo } from "./BrandLogo";
 
 function postRelevance(current: Post, candidate: Post) {
@@ -26,6 +27,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
     .map((slug) => getTool(slug))
     .filter((tool): tool is Tool => Boolean(tool));
   const primaryTool = relatedTools[0];
+  const isFourLanguageGuide = Boolean(getLocalizedGuide(post.slug));
   const formattedDate = new Intl.DateTimeFormat(currentLanguage, {
     day: "numeric",
     month: "long",
@@ -48,7 +50,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
   ];
 
   return (
-    <SiteShell locale={locale} alternateHref={alternateHref}>
+    <SiteShell locale={locale} alternateHref={alternateHref} languageHrefs={isFourLanguageGuide ? { tr: postPath("tr", post.slug), en: postPath("en", post.slug), de: postPath("de", post.slug), zh: postPath("zh", post.slug) } : undefined}>
       <SchemaScript data={schema} />
       <article className="article-page">
         <header className="article-header">

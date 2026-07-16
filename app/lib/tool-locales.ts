@@ -228,6 +228,42 @@ const translations: Record<string, TranslationPair> = {
     de: { title: "URL-Sicherheits-Vorprüfung", short: "Prüfen Sie URLs lokal auf Zugangsdaten, IP-Hosts, Punycode und Verschleierung.", description: "Analysiert die URL-Struktur ohne die Adresse aufzurufen. Heuristiken erkennen auffällige Merkmale, können aber weder Reputation noch tatsächlichen Seiteninhalt bestätigen." },
     zh: { title: "URL 安全预检查", short: "在本地检查凭据、IP 主机、Punycode 和混淆特征。", description: "无需访问目标即可分析 URL 结构。启发式规则能发现可疑特征，但无法确认信誉或网页实际内容。" },
   },
+  "prompt-sablon-degisken-doldurucu": {
+    de: { title: "Prompt-Vorlage & Variablenfüller", short: "Füllen Sie wiederverwendbare Prompts mit {{variablen}} konsistent aus.", description: "Erkennt benannte Platzhalter, setzt lokale variable=wert-Zeilen ein und lässt fehlende Werte sichtbar. Es wird kein Modell aufgerufen; Inhalt und sensible Daten müssen geprüft werden." },
+    zh: { title: "提示词模板与变量填充器", short: "安全一致地填充包含 {{变量}} 的可复用提示词。", description: "识别命名占位符，根据本地“变量=值”行进行替换，并保留缺失项。工具不调用模型；请检查内容准确性和敏感数据。" },
+  },
+  "yerel-metin-ozetleyici": {
+    de: { title: "Lokale Textzusammenfassung", short: "Extrahieren Sie wichtige Sätze anhand nachvollziehbarer Worthäufigkeit.", description: "Bewertet Sätze lokal nach Worthäufigkeit und gibt ausgewählte Originalsätze in Quellenreihenfolge zurück. Das Verfahren versteht Kontext nicht wie ein Mensch und kann wichtige Details übersehen." },
+    zh: { title: "本地文本摘要器", short: "基于可解释词频提取重要原句。", description: "在本地按词频为句子评分，并按原文顺序返回所选句子。该方法不能像人一样理解语境，可能遗漏关键细节。" },
+  },
+  "json-schema-olusturucu": {
+    de: { title: "JSON-Schema-Generator", short: "Leiten Sie aus Beispiel-JSON ein Draft-2020-12-Startschema ab.", description: "Erzeugt aus Objekten, Arrays und Grundtypen eines gültigen Beispiels ein editierbares Startschema. Optionale Felder, Formate und reale Varianten müssen anschließend modelliert werden." },
+    zh: { title: "JSON Schema 生成器", short: "从示例 JSON 推断 Draft 2020-12 起始 Schema。", description: "根据有效示例中的对象、数组、字段和基本类型生成可编辑的起始 Schema。可选字段、格式和真实数据变体仍需进一步建模。" },
+  },
+  "gorsel-boyutlandirici": {
+    de: { title: "Bildgrößen-Konverter", short: "Skalieren und konvertieren Sie PNG, JPG oder WebP mit erhaltenem Seitenverhältnis.", description: "Skaliert ein Bild lokal per Canvas bis 8192 Pixel und bietet Qualitätskontrolle für JPG/WebP. Die Ausgabe entsteht auf dem Gerät; professionelle Farbprofile und Metadaten bleiben nicht vollständig erhalten." },
+    zh: { title: "图片尺寸调整器", short: "保持宽高比调整 PNG、JPG 或 WebP 尺寸并转换格式。", description: "使用 Canvas 在本地将单张图片调整到最高 8192 像素，并控制 JPG/WebP 质量。输出在设备上生成；专业色彩配置和元数据不会全部保留。" },
+  },
+  "dosya-hash-karsilastirici": {
+    de: { title: "Datei-Hash-Rechner & Vergleich", short: "Berechnen und vergleichen Sie SHA-256 für eine oder zwei Dateien lokal.", description: "Erzeugt SHA-256-Digests per Web Crypto ohne Upload und vergleicht Dateien bytegenau. Ein gleicher Hash unterstützt Integritätsprüfungen, bestätigt aber weder Sicherheit noch Herkunft." },
+    zh: { title: "文件哈希计算与比较器", short: "在本地计算并比较一个或两个文件的 SHA-256。", description: "使用 Web Crypto 无需上传即可生成 SHA-256，并逐字节比较文件。哈希一致有助于核对完整性，但不能证明安全性或来源。" },
+  },
+  "kredi-odeme-hesaplayici": {
+    de: { title: "Kreditraten- & Rückzahlungsrechner", short: "Berechnen Sie gleichbleibende Raten aus Monatszins, Laufzeit und Gebühren.", description: "Berechnet mit der Annuitätenformel Monatsrate, Gesamtrückzahlung und einen Beispielplan. Kreditgeberspezifische Steuern, Versicherungen und Rundungen fehlen; es ist kein Angebot oder Finanzrat." },
+    zh: { title: "贷款还款与分期计算器", short: "根据月利率、期限和费用计算等额还款情景。", description: "使用标准年金公式计算月供、总还款和示例计划。不含机构特定税费、保险和舍入规则；结果不是贷款报价或财务建议。" },
+  },
+  "tarih-farki-hesaplayici": {
+    de: { title: "Datumsdifferenz-Rechner", short: "Berechnen Sie Tage, Wochen, ungefähre Jahre und Wochentage zwischen Daten.", description: "Vergleicht zwei Daten als UTC-Kalendertage, optional einschließlich beider Endpunkte. Feiertage und rechtliche Fristregeln sind nicht enthalten und müssen separat geprüft werden." },
+    zh: { title: "日期差计算器", short: "计算两个日期间的天数、周数、约合年数和工作日。", description: "按 UTC 日历日比较两个日期，可选择包含起止日期。不包含公共假日和法律期限规则，需另行核验。" },
+  },
+  "ai-yanit-degerlendirme-rubrigi": {
+    de: { title: "Bewertungsrubrik für KI-Antworten", short: "Erstellen Sie aufgabenspezifische Kriterien, Gewichte und vier Bewertungsstufen.", description: "Erzeugt eine wiederverwendbare Markdown-Rubrik und prüft die Gewichtssumme. Sie strukturiert menschliche Prüfung, bewertet Antworten aber nicht automatisch und garantiert keine Modellqualität." },
+    zh: { title: "AI 回答评估量表", short: "创建任务特定标准、权重和四级人工评估量表。", description: "生成可复用 Markdown 量表并校验权重总和，用于规范人工评审；不会自动评分，也不保证模型质量。" },
+  },
+  "csp-olusturucu-denetleyici": {
+    de: { title: "CSP-Generator & Prüfer", short: "Erzeugen Sie eine sichere CSP-Basis und prüfen Sie riskante Quellen.", description: "Analysiert CSP-Direktiven lokal und meldet fehlende Basisschutzwerte, Wildcards, HTTP, unsafe-eval und riskantes Inline-Script. Vor Durchsetzung muss jede Policy im Report-Only-Modus getestet werden." },
+    zh: { title: "CSP 生成与审计器", short: "生成安全 CSP 起始策略并检查高风险来源。", description: "在本地分析 CSP 指令，报告缺失基线、通配符、HTTP、unsafe-eval 和危险内联脚本。正式强制前必须先用 Report-Only 模式测试。" },
+  },
 };
 
 const categoryUseCases: Record<ToolCategory, Record<"de" | "zh", string[]>> = {

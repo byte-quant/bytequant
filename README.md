@@ -5,15 +5,15 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-3657ff)](LICENSE)
 
-ByteQuant is a privacy-first, installable web application containing 53 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
+ByteQuant is a privacy-first, installable web application containing 62 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
 
 **Live site:** [bytequant.org](https://bytequant.org)
 
 ## Product at a glance
 
-- 53 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
+- 62 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 28 long-form editorial guides in Turkish and English; German and Chinese guide indexes link to accurately labeled English originals until editorial localization is complete
+- 31 long-form editorial guides in Turkish and English, including three editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
