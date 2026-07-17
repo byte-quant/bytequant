@@ -19,6 +19,35 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "script-src-attr 'none'",
+  "worker-src 'self' blob:",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "media-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "manifest-src 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+function withSecurityHeaders(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", contentSecurityPolicy);
+  headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -31,16 +60,17 @@ const worker = {
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
-      return handleImageOptimization(request, {
+      const imageResponse = await handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
         transformImage: async (body, { width, format, quality }) => {
           const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();
         },
       }, allowedWidths);
+      return withSecurityHeaders(imageResponse);
     }
 
-    return handler.fetch(request, env, ctx);
+    return withSecurityHeaders(await handler.fetch(request, env, ctx));
   },
 };
 

@@ -86,8 +86,50 @@ function friendlyError(slug: string, error: unknown, locale: Locale) {
   return detail;
 }
 
+const localeTags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
+const ui = <T,>(locale: Locale, values: Record<Locale, T>) => values[locale];
+
 function words(text: string, locale: Locale) {
-  return text.toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US").match(/[\p{L}\p{N}’'-]+/gu) ?? [];
+  const normalized = text.toLocaleLowerCase(localeTags[locale]);
+  if (typeof Intl.Segmenter === "function") {
+    const segments = new Intl.Segmenter(localeTags[locale], { granularity: "word" }).segment(normalized);
+    return [...segments].filter((segment) => segment.isWordLike).map((segment) => segment.segment);
+  }
+  return normalized.match(/[\p{L}\p{N}’'-]+/gu) ?? [];
+}
+
+function estimateSyllables(word: string, locale: Locale) {
+  if (locale === "tr") return Math.max(1, (word.match(/[aeıioöuü]/gi) ?? []).length);
+  const groups = word.toLocaleLowerCase(localeTags[locale]).match(locale === "de" ? /[aeiouyäöü]+/gi : /[aeiouy]+/gi);
+  let count = groups?.length ?? 1;
+  if (locale === "en" && word.length > 3 && /e$/i.test(word) && !/(?:le|ye)$/i.test(word)) count -= 1;
+  return Math.max(1, count);
+}
+
+function tokenEstimate(text: string, locale: Locale) {
+  const hanLike = text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)?.length ?? 0;
+  const remaining = text.replace(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu, "");
+  const punctuation = remaining.match(/[^\p{L}\p{N}\s]/gu)?.length ?? 0;
+  const denominator = locale === "tr" ? 3.15 : locale === "de" ? 3.55 : 4;
+  const estimate = Math.max(1, Math.ceil(hanLike * 1.05 + remaining.length / denominator + punctuation * 0.18));
+  return { estimate, low: Math.max(1, Math.floor(estimate * 0.82)), high: Math.ceil(estimate * 1.2), hanLike };
+}
+
+function convertCase(input: string, mode: string, locale: Locale) {
+  const tag = localeTags[locale];
+  const protectedParts = input.split(/((?:https?:\/\/|www\.)\S+|[\p{L}\p{N}.+_-]+@[\p{L}\p{N}.-]+\.[\p{L}]{2,})/giu);
+  return protectedParts.map((part, index) => {
+    if (index % 2 === 1) return part;
+    if (mode === "upper") return part.toLocaleUpperCase(tag);
+    if (mode === "lower") return part.toLocaleLowerCase(tag);
+    const lowered = part.toLocaleLowerCase(tag);
+    if (mode === "sentence") return lowered.replace(/(^|[.!?。！？]\s*)(\p{L})/gu, (_, start, char: string) => start + char.toLocaleUpperCase(tag));
+    return lowered.replace(/\p{L}[\p{L}\p{M}]*/gu, (word, offset) => {
+      const original = part.slice(offset, offset + word.length);
+      if (original.length <= 6 && original.length >= 2 && original === original.toLocaleUpperCase(tag)) return original;
+      return word[0].toLocaleUpperCase(tag) + word.slice(1);
+    });
+  }).join("");
 }
 
 function sentenceCount(text: string) {
@@ -347,7 +389,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
     if (busy) return;
     setBusy(true);
     try {
-      if (!noInputTools.has(slug) && !input.trim()) throw new Error(isTr ? "Önce bir girdi yazın." : "Enter some input first.");
+      if (!noInputTools.has(slug) && !input.trim()) throw new Error(ui(locale, { tr: "Önce bir girdi yazın.", en: "Enter some input first.", de: "Geben Sie zuerst einen Wert ein.", zh: "请先输入内容。" }));
       const list = words(input, locale);
       switch (slug) {
         case "prompt-kalite-denetimi": {
@@ -381,15 +423,45 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "token-sayaci": {
-          const chars = input.length; const tokens = Math.max(1, Math.ceil(chars / (isTr ? 3.2 : 4)));
-          setResult(isTr ? `Yaklaşık ${tokens.toLocaleString("tr-TR")} token. Bu değer modelden bağımsız bir tahmindir; gerçek tokenizer sonucu değişebilir.` : `Approximately ${tokens.toLocaleString("en-US")} tokens. This is a model-agnostic estimate; exact tokenizer results vary.`, [{ label: isTr ? "Yaklaşık token" : "Estimated tokens", value: tokens }, { label: isTr ? "Kelime" : "Words", value: list.length }, { label: isTr ? "Karakter" : "Characters", value: chars }, { label: isTr ? "Satır" : "Lines", value: input.split(/\r?\n/).length }]);
+          const chars = input.length; const estimate = tokenEstimate(input, locale); const formatter = new Intl.NumberFormat(localeTags[locale]);
+          const budget = [4096, 8192, 16384, 32768].find((size) => estimate.high <= size);
+          setResult(ui(locale, {
+            tr: `Tahmini aralık ${formatter.format(estimate.low)}–${formatter.format(estimate.high)} token; orta değer ${formatter.format(estimate.estimate)}. Bu, Unicode yapısı ve noktalama yoğunluğunu hesaba katan modelden bağımsız bir planlama tahminidir. Gerçek sayı yalnızca hedef modelin tokenizer'ıyla belirlenir.`,
+            en: `Estimated range: ${formatter.format(estimate.low)}–${formatter.format(estimate.high)} tokens; midpoint ${formatter.format(estimate.estimate)}. This model-agnostic planning estimate accounts for Unicode script and punctuation density. Only the target model's tokenizer can provide an exact count.`,
+            de: `Geschätzter Bereich: ${formatter.format(estimate.low)}–${formatter.format(estimate.high)} Token; Mittelwert ${formatter.format(estimate.estimate)}. Diese modellunabhängige Planungsschätzung berücksichtigt Unicode-Schrift und Zeichensetzung. Exakt zählt nur der Tokenizer des Zielmodells.`,
+            zh: `估算范围为 ${formatter.format(estimate.low)}–${formatter.format(estimate.high)} 个 token，中值 ${formatter.format(estimate.estimate)}。该模型无关的规划估算考虑了 Unicode 文字与标点密度；精确数量只能由目标模型的 tokenizer 给出。`,
+          }), [
+            { label: ui(locale, { tr: "Tahmini token", en: "Estimated tokens", de: "Geschätzte Token", zh: "估算 token" }), value: estimate.estimate },
+            { label: ui(locale, { tr: "Güvenli üst tahmin", en: "Planning upper bound", de: "Planungsobergrenze", zh: "规划上限" }), value: estimate.high },
+            { label: ui(locale, { tr: "Sığdığı ilk bağlam", en: "First fitting context", de: "Erstes passendes Kontextfenster", zh: "首个可容纳上下文" }), value: budget ? `${budget / 1024}K` : ">32K" },
+            { label: ui(locale, { tr: "Kelime/segment", en: "Words/segments", de: "Wörter/Segmente", zh: "词/分段" }), value: list.length },
+            { label: ui(locale, { tr: "Karakter", en: "Characters", de: "Zeichen", zh: "字符" }), value: chars },
+          ]);
           break;
         }
         case "okunabilirlik-analizi": {
-          const sentences = sentenceCount(input); const syllables = list.reduce((sum, word) => sum + Math.max(1, (word.match(/[aeıioöuü]/gi) ?? []).length), 0);
-          const avg = list.length / sentences; const score = isTr ? Math.max(0, Math.min(100, 198.825 - 40.175 * (syllables / Math.max(1, list.length)) - 2.61 * avg)) : Math.max(0, Math.min(100, 206.835 - 1.015 * avg - 84.6 * (syllables / Math.max(1, list.length))));
-          const level = score >= 70 ? (isTr ? "Kolay" : "Easy") : score >= 50 ? (isTr ? "Orta" : "Moderate") : (isTr ? "Zor" : "Difficult");
-          setResult(isTr ? `${level} okunabilirlik. ${avg > 20 ? "Ortalama cümleler uzun; bazı cümleleri bölmeyi deneyin." : "Cümle uzunluğu dengeli görünüyor."} Bu skor yaklaşık bir dil göstergesidir.` : `${level} readability. ${avg > 20 ? "Average sentences are long; consider splitting some of them." : "Sentence length appears balanced."} This score is an approximate language indicator.`, [{ label: isTr ? "Okunabilirlik" : "Readability", value: Math.round(score) }, { label: isTr ? "Ort. cümle" : "Avg. sentence", value: avg.toFixed(1) }, { label: isTr ? "Cümle" : "Sentences", value: sentences }, { label: isTr ? "Kelime çeşitliliği" : "Lexical diversity", value: `${Math.round(new Set(list).size / Math.max(1, list.length) * 100)}%` }]);
+          const sentences = sentenceCount(input); const avg = list.length / sentences;
+          const syllables = list.reduce((sum, word) => sum + estimateSyllables(word, locale), 0);
+          const hanCharacters = input.match(/\p{Script=Han}/gu)?.length ?? 0;
+          const rawScore = locale === "tr" ? 198.825 - 40.175 * (syllables / Math.max(1, list.length)) - 2.61 * avg
+            : locale === "de" ? 180 - avg - 58.5 * (syllables / Math.max(1, list.length))
+              : locale === "zh" ? 100 - Math.max(0, hanCharacters / sentences - 18) * 2.8 - Math.max(0, avg - 14) * 1.2
+                : 206.835 - 1.015 * avg - 84.6 * (syllables / Math.max(1, list.length));
+          const score = Math.max(0, Math.min(100, rawScore));
+          const level = score >= 70 ? ui(locale, { tr: "Kolay", en: "Easy", de: "Leicht", zh: "较易" }) : score >= 50 ? ui(locale, { tr: "Orta", en: "Moderate", de: "Mittel", zh: "中等" }) : ui(locale, { tr: "Zor", en: "Difficult", de: "Schwierig", zh: "较难" });
+          const longSentence = avg > (locale === "zh" ? 14 : 20);
+          setResult(ui(locale, {
+            tr: `${level} okunabilirlik. ${longSentence ? "Ortalama cümleler uzun; ana fikir başına daha kısa cümleler deneyin." : "Cümle uzunluğu dengeli görünüyor."} Ateşman yaklaşımı yalnızca yüzey yapısını ölçer; doğruluk ve konu zorluğunu ölçmez.`,
+            en: `${level} readability. ${longSentence ? "Average sentences are long; consider one main idea per shorter sentence." : "Sentence length appears balanced."} Flesch-style scoring measures surface structure, not accuracy or subject difficulty.`,
+            de: `${level} lesbar. ${longSentence ? "Die Sätze sind im Mittel lang; formulieren Sie möglichst eine Hauptidee pro kürzerem Satz." : "Die Satzlänge wirkt ausgewogen."} Die Amstad-Näherung misst Oberflächenstruktur, nicht Richtigkeit oder fachliche Schwierigkeit.`,
+            zh: `可读性${level}。${longSentence ? "平均句子偏长，可尝试每个短句只表达一个主要观点。" : "句子长度较为均衡。"} 该结构性启发式只衡量表层长度，不衡量事实准确性或主题难度。`,
+          }), [
+            { label: ui(locale, { tr: "Okunabilirlik", en: "Readability", de: "Lesbarkeit", zh: "可读性" }), value: Math.round(score) },
+            { label: ui(locale, { tr: "Ort. cümle", en: "Avg. sentence", de: "Ø Satzlänge", zh: "平均句长" }), value: avg.toFixed(1) },
+            { label: ui(locale, { tr: "Cümle", en: "Sentences", de: "Sätze", zh: "句子" }), value: sentences },
+            { label: ui(locale, { tr: "Kelime çeşitliliği", en: "Lexical diversity", de: "Wortvielfalt", zh: "词汇多样性" }), value: `${Math.round(new Set(list).size / Math.max(1, list.length) * 100)}%` },
+          ]);
+          if (list.length < 30) setNotice({ kind: "warning", text: ui(locale, { tr: "Kısa örneklerde skor oynaktır; daha güvenilir karşılaştırma için en az 30 kelime kullanın.", en: "Scores are unstable on short samples; use at least 30 words for a more reliable comparison.", de: "Bei kurzen Stichproben schwankt der Wert; verwenden Sie mindestens 30 Wörter für einen belastbareren Vergleich.", zh: "短文本评分波动较大；建议至少使用 30 个词或分段进行更可靠的比较。" }) });
           break;
         }
         case "metin-benzerlik-analizi": {
@@ -404,13 +476,10 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "buyuk-kucuk-harf-donusturucu": {
-          const localeCode = isTr ? "tr-TR" : "en-US";
-          let converted = input;
-          if (mode === "upper") converted = input.toLocaleUpperCase(localeCode);
-          else if (mode === "lower") converted = input.toLocaleLowerCase(localeCode);
-          else if (mode === "sentence") converted = input.toLocaleLowerCase(localeCode).replace(/(^|[.!?]\s+)(\p{L})/gu, (_, start, char) => start + char.toLocaleUpperCase(localeCode));
-          else converted = input.toLocaleLowerCase(localeCode).replace(/(^|[\s–—-])(\p{L})/gu, (_, start, char) => start + char.toLocaleUpperCase(localeCode));
-          setResult(converted, [{ label: isTr ? "Karakter" : "Characters", value: converted.length }]);
+          const converted = convertCase(input, mode, locale);
+          const sourceChars = [...input]; const outputChars = [...converted];
+          const changed = sourceChars.reduce((count, char, index) => count + (char !== outputChars[index] ? 1 : 0), 0) + Math.max(0, outputChars.length - sourceChars.length);
+          setResult(converted, [{ label: ui(locale, { tr: "Karakter", en: "Characters", de: "Zeichen", zh: "字符" }), value: outputChars.length }, { label: ui(locale, { tr: "Değişen konum", en: "Changed positions", de: "Geänderte Positionen", zh: "变更位置" }), value: changed }, { label: ui(locale, { tr: "Korunan bağlantı/e-posta", en: "Protected links/emails", de: "Geschützte Links/E-Mails", zh: "受保护链接/邮箱" }), value: Math.max(0, input.split(/((?:https?:\/\/|www\.)\S+|[\p{L}\p{N}.+_-]+@[\p{L}\p{N}.-]+\.[\p{L}]{2,})/giu).filter((_, index) => index % 2 === 1).length) }]);
           break;
         }
         case "kelime-sayaci": {

@@ -118,7 +118,7 @@ export function absoluteUrl(path: string) {
 }
 
 export function localizedLanguageUrls(trPath: string, enPath: string) {
-  if (/^\/en\/(?:blog|references)\//.test(enPath)) return bilingualLanguageUrls(trPath, enPath);
+  if (/^\/en\/blog\//.test(enPath)) return bilingualLanguageUrls(trPath, enPath);
   const trUrl = absoluteUrl(trPath);
   const enUrl = absoluteUrl(enPath);
   const deUrl = absoluteUrl(localizedPath("de", trPath, enPath));

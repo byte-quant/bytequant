@@ -45,8 +45,11 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /en\/blog\/tarayicida-dosya-risk-taramasi-sinirlari/);
   assert.match(sitemap, /blog\/kod-guvenligi-on-tarama-sast-kod-inceleme/);
   assert.match(sitemap, /en\/blog\/token-baglam-butcesi-sistem-promptu-kontrol-listesi/);
-  assert.match(sitemap, /de\/blog\/lokale-produktivitaet-prompt-text-datum-workflow/);
-  assert.match(sitemap, /zh\/blog\/kredit-ai-bewertung-csp-entscheidungsworkflow/);
+  assert.match(sitemap, /de\/blog\/local-prompt-text-date-workflow/);
+  assert.match(sitemap, /zh\/blog\/loan-ai-rubric-csp-workflow/);
+  assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
+  assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
+  assert.doesNotMatch(sitemap, /lokale-produktivitaet|json-schema-bild|kredit-ai-bewertung/);
   assert.match(sitemap, /cerez-politikasi/);
   assert.match(sitemap, /en\/cookies/);
   assert.match(sitemap, /hreflang="x-default"/);
@@ -61,7 +64,7 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v5/);
+  assert.match(worker, /bytequant-shell-v6/);
   assert.doesNotMatch(worker, /localStorage/i);
   assert.match(worker, /cache\.put\(pageKey/);
   const navigationCacheBranch = worker.slice(worker.indexOf('if (request.mode === "navigate")'), worker.indexOf('if (["script", "style", "image", "font"]'));
@@ -119,10 +122,12 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/tarayicida-dosya-risk-taramasi-sinirlari/index.html", root));
   await access(new URL("blog/kod-guvenligi-on-tarama-sast-kod-inceleme/index.html", root));
   await access(new URL("en/blog/token-baglam-butcesi-sistem-promptu-kontrol-listesi/index.html", root));
-  await access(new URL("de/blog/lokale-produktivitaet-prompt-text-datum-workflow/index.html", root));
-  await access(new URL("zh/blog/kredit-ai-bewertung-csp-entscheidungsworkflow/index.html", root));
+  await access(new URL("de/blog/local-prompt-text-date-workflow/index.html", root));
+  await access(new URL("zh/blog/loan-ai-rubric-csp-workflow/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
+  await access(new URL("de/references/regex-cheat-sheet/index.html", root));
+  await access(new URL("zh/references/cron-cheat-sheet/index.html", root));
 });
 
 test("tool pages explain local processing and expose structured data", async () => {
@@ -244,9 +249,9 @@ test("exports the nine new growth tools and localized guides", async () => {
   }
 
   const guides = await Promise.all([
-    read("de/blog/lokale-produktivitaet-prompt-text-datum-workflow/index.html"),
-    read("zh/blog/json-schema-bild-hash-integritaet-workflow/index.html"),
-    read("de/blog/kredit-ai-bewertung-csp-entscheidungsworkflow/index.html"),
+    read("de/blog/local-prompt-text-date-workflow/index.html"),
+    read("zh/blog/json-schema-image-hash-workflow/index.html"),
+    read("de/blog/loan-ai-rubric-csp-workflow/index.html"),
   ]);
   for (const guide of guides) {
     assert.doesNotThrow(() => jsonLd(guide));
@@ -254,6 +259,35 @@ test("exports the nine new growth tools and localized guides", async () => {
     assert.match(guide, /hrefLang="de-DE"/);
     assert.match(guide, /hrefLang="zh-CN"/);
     assert.match(guide, /hrefLang="x-default"/);
+  }
+});
+
+test("keeps legacy mixed-language guide slugs as noindex canonical aliases", async () => {
+  const aliases = await Promise.all([
+    read("de/blog/lokale-produktivitaet-prompt-text-datum-workflow/index.html"),
+    read("zh/blog/json-schema-bild-hash-integritaet-workflow/index.html"),
+    read("en/blog/kredit-ai-bewertung-csp-entscheidungsworkflow/index.html"),
+  ]);
+  assert.match(aliases[0], /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+  assert.match(aliases[0], /rel="canonical" href="https:\/\/bytequant\.org\/de\/blog\/local-prompt-text-date-workflow\//);
+  assert.match(aliases[1], /rel="canonical" href="https:\/\/bytequant\.org\/zh\/blog\/json-schema-image-hash-workflow\//);
+  assert.match(aliases[2], /rel="canonical" href="https:\/\/bytequant\.org\/en\/blog\/loan-ai-rubric-csp-workflow\//);
+});
+
+test("exports localized reference content and reciprocal hreflang", async () => {
+  const [german, chinese] = await Promise.all([
+    read("de/references/regex-cheat-sheet/index.html"),
+    read("zh/references/cron-cheat-sheet/index.html"),
+  ]);
+  assert.match(german, /Grundbausteine/);
+  assert.match(chinese, /运行检查/);
+  for (const page of [german, chinese]) {
+    assert.match(page, /hrefLang="tr-TR"/);
+    assert.match(page, /hrefLang="en-US"/);
+    assert.match(page, /hrefLang="de-DE"/);
+    assert.match(page, /hrefLang="zh-CN"/);
+    assert.match(page, /FAQPage/);
+    assert.match(page, /TechArticle/);
   }
 });
 

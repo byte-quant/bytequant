@@ -1,15 +1,24 @@
 import type { Locale } from "./site";
-export type ReferenceLocale = "tr" | "en";
+type SourceReferenceLocale = "tr" | "en";
+export type ReferenceLocale = Locale;
 
-export type ReferenceEntry = { expression: string; meaning: Record<ReferenceLocale, string>; example?: string };
+export type ReferenceEntry = { expression: string; meaning: Record<SourceReferenceLocale, string>; example?: string };
 export type ReferenceGuide = {
   slug: string;
-  title: Record<ReferenceLocale, string>;
-  description: Record<ReferenceLocale, string>;
-  intro: Record<ReferenceLocale, string>;
+  title: Record<SourceReferenceLocale, string>;
+  description: Record<SourceReferenceLocale, string>;
+  intro: Record<SourceReferenceLocale, string>;
   toolSlug: string;
-  sections: { title: Record<ReferenceLocale, string>; entries: ReferenceEntry[] }[];
-  faq: { question: Record<ReferenceLocale, string>; answer: Record<ReferenceLocale, string> }[];
+  sections: { title: Record<SourceReferenceLocale, string>; entries: ReferenceEntry[] }[];
+  faq: { question: Record<SourceReferenceLocale, string>; answer: Record<SourceReferenceLocale, string> }[];
+};
+
+export type ReferenceCopy = {
+  title: string;
+  description: string;
+  intro: string;
+  sections: { title: string; entries: { expression: string; meaning: string; example?: string }[] }[];
+  faq: { question: string; answer: string }[];
 };
 
 export const references: ReferenceGuide[] = [
@@ -81,5 +90,95 @@ export const references: ReferenceGuide[] = [
   },
 ];
 
+type AdditionalCopy = Omit<ReferenceCopy, "sections"> & { sectionTitles: string[]; meanings: string[][] };
+
+const additionalCopy: Record<"de" | "zh", Record<string, AdditionalCopy>> = {
+  de: {
+    "regex-cheat-sheet": {
+      title: "Regex Cheat Sheet: Muster, Flags und sichere Tests",
+      description: "Praxisreferenz zu Zeichenklassen, Gruppen, Grenzen, Quantifizierern und Flags regulärer JavaScript-Ausdrücke.",
+      intro: "Diese Kurzreferenz gilt für die JavaScript-Regex-Syntax. Eine Übereinstimmung beweist weder Echtheit noch Vertrauenswürdigkeit einer Eingabe. E-Mail-, Identitäts-, URL- und Sicherheitsprüfungen benötigen zusätzlich Fachregeln und serverseitige Validierung.",
+      sectionTitles: ["Grundbausteine", "Wiederholung und Gruppierung", "JavaScript-Flags"],
+      meanings: [
+        ["Ein beliebiges Zeichen außer Zeilenumbruch", "Ziffer / Nicht-Ziffer", "ASCII-Wortzeichen / Umkehrung", "Bereich / negierte Zeichenklasse", "Anfang / Ende von Eingabe oder Zeile"],
+        ["Null-oder-mehr / eins-oder-mehr / optional", "Exakte oder begrenzte Wiederholung", "Erfassende / nicht erfassende Gruppe", "Benannte Erfassungsgruppe", "Positive / negative Vorwärtssuche"],
+        ["Alle Treffer finden, nicht beim ersten stoppen", "Groß-/Kleinschreibung ignorieren", "^ und $ zeilenweise anwenden", ". darf Zeilenumbrüche erfassen", "Unicode-Modi; Engine-Unterstützung prüfen"],
+      ],
+      faq: [
+        { question: "Kann Regex eine E-Mail-Adresse validieren?", answer: "Regex prüft nur einen Formatkandidaten. Zustellbarkeit und Besitz erfordern eine Bestätigungs-E-Mail." },
+        { question: "Was ist ein ReDoS-Risiko?", answer: "Schlecht entworfene verschachtelte Quantifizierer können extremes Backtracking auslösen. Begrenzen Sie Eingaben, testen Sie Muster und isolieren Sie nicht vertrauenswürdige Ausdrücke." },
+      ],
+    },
+    "cron-cheat-sheet": {
+      title: "Cron Cheat Sheet: Leitfaden für fünf Felder",
+      description: "Praxisreferenz zu klassischen Cron-Feldern, Platzhaltern, Bereichen, Listen, Schritten und sicherem Betrieb.",
+      intro: "Diese Seite verwendet das klassische Cron-Format mit fünf Feldern: Minute, Stunde, Monatstag, Monat und Wochentag. Quartz, systemd und Cloud-Scheduler können abweichen. Die Erklärung ist nur eine Vorprüfung; prüfen Sie Engine, Zeitzone und nächste Ausführungszeiten im Zielsystem.",
+      sectionTitles: ["Felder", "Häufige Zeitpläne", "Betriebliche Kontrollen"],
+      meanings: [
+        ["0–59", "0–23", "1–31", "1–12", "Meist 0–7; Sonntag ist 0 oder 7"],
+        ["Jede Minute", "Alle 15 Minuten", "Täglich um 03:00", "Montag bis Freitag um 09:30", "Am ersten Tag jedes Monats um 00:00", "Täglich um 06:00 und 18:00"],
+        ["Im Cron-Text unsichtbar; Scheduler-Konfiguration dokumentieren", "Lokale Jobs können ausfallen oder doppelt laufen", "Doppelte Ausführungen sicher beherrschen", "Geplanten/tatsächlichen Start und Ergebnis protokollieren"],
+      ],
+      faq: [
+        { question: "Enthält ein Cron-Ausdruck eine Zeitzone?", answer: "Das klassische Fünf-Felder-Format nicht. Zeitzone und Sommerzeit kommen aus Daemon-, Container- oder Plattformkonfiguration." },
+        { question: "Wie wirken Monatstag und Wochentag zusammen?", answer: "Engines unterscheiden sich; manche starten, wenn eines der Felder passt. Prüfen Sie die Dokumentation und die nächsten Läufe der Produktions-Engine." },
+      ],
+    },
+  },
+  zh: {
+    "regex-cheat-sheet": {
+      title: "正则表达式速查表：模式、标志与安全测试",
+      description: "通过示例掌握 JavaScript 正则表达式的字符类、分组、边界、量词和标志。",
+      intro: "本速查表面向 JavaScript 正则语法。匹配成功并不能证明输入真实或可信；电子邮件、身份、URL 与安全检查仍需业务规则和服务端验证。",
+      sectionTitles: ["核心构件", "重复与分组", "JavaScript 标志"],
+      meanings: [
+        ["除换行符外的任意单个字符", "数字 / 非数字", "ASCII 单词字符 / 其反集", "范围 / 否定字符类", "输入或行的开头 / 结尾"],
+        ["零次或多次 / 一次或多次 / 可选", "精确次数或范围重复", "捕获组 / 非捕获组", "命名捕获组", "正向 / 负向先行断言"],
+        ["查找全部匹配，而非在首个匹配处停止", "忽略大小写", "让 ^ 与 $ 按行生效", "允许 . 匹配换行符", "Unicode 模式；请检查引擎支持"],
+      ],
+      faq: [
+        { question: "正则表达式能验证电子邮件地址吗？", answer: "正则只能检查候选格式。可送达性和所有权仍需要验证邮件。" },
+        { question: "什么是 ReDoS 风险？", answer: "设计不当的嵌套量词可能造成大量回溯。请限制输入、测试模式，并隔离不受信任的表达式。" },
+      ],
+    },
+    "cron-cheat-sheet": {
+      title: "Cron 速查表：五字段调度指南",
+      description: "通过示例了解经典 Cron 字段、通配符、范围、列表、步长和生产安全。",
+      intro: "本页采用经典五字段 Cron：分钟、小时、月中日期、月份、星期。Quartz、systemd 和云调度器可能使用不同语法。本解释仅用于预检查；请在目标系统中核验实际引擎、时区与后续运行时间。",
+      sectionTitles: ["字段", "常见调度", "运行检查"],
+      meanings: [
+        ["0–59", "0–23", "1–31", "1–12", "通常为 0–7；星期日可为 0 或 7"],
+        ["每分钟", "每 15 分钟", "每天 03:00", "周一至周五 09:30", "每月第一天 00:00", "每天 06:00 与 18:00"],
+        ["Cron 文本中不可见；请记录调度器配置", "本地时间任务可能跳过或重复", "确保重复触发仍然安全", "记录计划/实际开始时间与结果"],
+      ],
+      faq: [
+        { question: "Cron 表达式包含时区吗？", answer: "经典五字段表达式不包含时区。时区由守护进程、容器或平台配置提供。" },
+        { question: "月中日期和星期字段如何共同生效？", answer: "不同引擎的语义可能不同；有些引擎任一字段匹配就会运行。请检查生产引擎文档与后续运行时间。" },
+      ],
+    },
+  },
+};
+
 export function getReference(slug: string) { return references.find((item) => item.slug === slug); }
-export function referencePath(locale: Locale, slug: string) { return locale === "tr" ? `/referanslar/${slug}` : `/en/references/${slug}`; }
+export function referenceCopy(guide: ReferenceGuide, locale: ReferenceLocale): ReferenceCopy {
+  if (locale === "tr" || locale === "en") return {
+    title: guide.title[locale],
+    description: guide.description[locale],
+    intro: guide.intro[locale],
+    sections: guide.sections.map((section) => ({ title: section.title[locale], entries: section.entries.map((entry) => ({ expression: entry.expression, meaning: entry.meaning[locale], example: entry.example })) })),
+    faq: guide.faq.map((item) => ({ question: item.question[locale], answer: item.answer[locale] })),
+  };
+  const copy = additionalCopy[locale][guide.slug];
+  if (!copy) throw new Error(`Missing ${locale} reference copy for ${guide.slug}`);
+  return {
+    title: copy.title,
+    description: copy.description,
+    intro: copy.intro,
+    sections: guide.sections.map((section, sectionIndex) => ({
+      title: copy.sectionTitles[sectionIndex],
+      entries: section.entries.map((entry, entryIndex) => ({ expression: entry.expression, meaning: copy.meanings[sectionIndex][entryIndex], example: entry.example })),
+    })),
+    faq: copy.faq,
+  };
+}
+export function referencePath(locale: Locale, slug: string) { return locale === "tr" ? `/referanslar/${slug}` : `/${locale}/references/${slug}`; }

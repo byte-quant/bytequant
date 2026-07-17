@@ -6,7 +6,7 @@ export type LocalizedGuide = { slug: string; date: string; updated?: string; rel
 
 export const localizedGuides: LocalizedGuide[] = [
   {
-    slug: "lokale-produktivitaet-prompt-text-datum-workflow",
+    slug: "local-prompt-text-date-workflow",
     date: "2026-07-16",
     relatedTools: ["prompt-sablon-degisken-doldurucu", "yerel-metin-ozetleyici", "tarih-farki-hesaplayici"],
     copy: {
@@ -39,7 +39,7 @@ export const localizedGuides: LocalizedGuide[] = [
     },
   },
   {
-    slug: "json-schema-bild-hash-integritaet-workflow",
+    slug: "json-schema-image-hash-workflow",
     date: "2026-07-16",
     relatedTools: ["json-schema-olusturucu", "gorsel-boyutlandirici", "dosya-hash-karsilastirici"],
     copy: {
@@ -72,7 +72,7 @@ export const localizedGuides: LocalizedGuide[] = [
     },
   },
   {
-    slug: "kredit-ai-bewertung-csp-entscheidungsworkflow",
+    slug: "loan-ai-rubric-csp-workflow",
     date: "2026-07-16",
     relatedTools: ["kredi-odeme-hesaplayici", "ai-yanit-degerlendirme-rubrigi", "csp-olusturucu-denetleyici"],
     copy: {
@@ -108,4 +108,18 @@ export const localizedGuides: LocalizedGuide[] = [
   },
 ];
 
-export function getLocalizedGuide(slug: string) { return localizedGuides.find((guide) => guide.slug === slug); }
+export const legacyLocalizedGuideSlugs = {
+  "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",
+  "json-schema-bild-hash-integritaet-workflow": "json-schema-image-hash-workflow",
+  "kredit-ai-bewertung-csp-entscheidungsworkflow": "loan-ai-rubric-csp-workflow",
+} as const;
+
+/**
+ * Editorial routes use one stable, ASCII, language-neutral slug identifier in
+ * every locale. Legacy German-mixed slugs remain resolvable as noindex aliases
+ * at the route layer so previously shared URLs do not become hard 404s.
+ */
+export function getLocalizedGuide(slug: string) {
+  const canonicalSlug = legacyLocalizedGuideSlugs[slug as keyof typeof legacyLocalizedGuideSlugs] ?? slug;
+  return localizedGuides.find((guide) => guide.slug === canonicalSlug);
+}

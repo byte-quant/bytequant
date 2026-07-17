@@ -9,10 +9,13 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
+    display_override: ["standalone", "minimal-ui"],
     orientation: "any",
     background_color: "#f5f7fb",
     theme_color: "#0a6c74",
     lang: "en",
+    dir: "ltr",
+    prefer_related_applications: false,
     categories: ["productivity", "utilities", "developer tools", "security"],
     icons: [
       { src: "/app-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

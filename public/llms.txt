@@ -19,6 +19,7 @@ Languages:
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
 - Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
 - The installable PWA caches only same-origin application resources and previously visited GET pages. Tool inputs, passwords, selected files, and generated outputs are not written to the offline cache.
+- ByteQuant distributes no native APK. On Android the browser creates the WebAPK/app wrapper; users who see an old-Android warning are instructed to cancel, update the browser, remove the stale install, and reinstall from a current browser menu.
 - Local file, code, and URL scans are bounded heuristic pre-checks. They do not execute content or call a reputation API, and they are not antivirus, SAST certification, or proof of safety.
 - Full privacy policy: https://bytequant.org/gizlilik-politikasi
 - English privacy policy: https://bytequant.org/en/privacy

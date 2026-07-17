@@ -755,7 +755,7 @@ export const posts: Post[] = [
     },
   },
   {
-    slug: "lokale-produktivitaet-prompt-text-datum-workflow",
+    slug: "local-prompt-text-date-workflow",
     relatedTools: ["prompt-sablon-degisken-doldurucu", "yerel-metin-ozetleyici", "tarih-farki-hesaplayici"],
     date: "2026-07-16",
     readTime: { tr: "10 dk", en: "10 min" },
@@ -780,7 +780,7 @@ export const posts: Post[] = [
     },
   },
   {
-    slug: "json-schema-bild-hash-integritaet-workflow",
+    slug: "json-schema-image-hash-workflow",
     relatedTools: ["json-schema-olusturucu", "gorsel-boyutlandirici", "dosya-hash-karsilastirici"],
     date: "2026-07-16",
     readTime: { tr: "11 dk", en: "11 min" },
@@ -805,7 +805,7 @@ export const posts: Post[] = [
     },
   },
   {
-    slug: "kredit-ai-bewertung-csp-entscheidungsworkflow",
+    slug: "loan-ai-rubric-csp-workflow",
     relatedTools: ["kredi-odeme-hesaplayici", "ai-yanit-degerlendirme-rubrigi", "csp-olusturucu-denetleyici"],
     date: "2026-07-16",
     readTime: { tr: "12 dk", en: "12 min" },
@@ -833,6 +833,13 @@ export const posts: Post[] = [
   },
 ];
 
+export const legacyPostSlugs = {
+  "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",
+  "json-schema-bild-hash-integritaet-workflow": "json-schema-image-hash-workflow",
+  "kredit-ai-bewertung-csp-entscheidungsworkflow": "loan-ai-rubric-csp-workflow",
+} as const;
+
 export function getPost(slug: string) {
-  return posts.find((post) => post.slug === slug);
+  const canonicalSlug = legacyPostSlugs[slug as keyof typeof legacyPostSlugs] ?? slug;
+  return posts.find((post) => post.slug === canonicalSlug);
 }

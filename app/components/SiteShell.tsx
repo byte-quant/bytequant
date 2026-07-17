@@ -45,7 +45,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
           <div className="header-actions">
             <CommandPalette locale={locale} />
             <PwaInstall locale={locale} compact />
-            <details className="language-menu"><summary aria-label={localized("Dili değiştir", "Change language", "Sprache ändern", "切换语言")}>◎ {localeNames[locale]}</summary><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}>{localeNames[item]}{item === locale ? " ✓" : ""}</Link>)}</div></details>
+            <details className="language-menu"><summary aria-label={localized("Dili değiştir", "Change language", "Sprache ändern", "切换语言")}><span className="language-menu-icon" aria-hidden="true">◎</span><span className="language-menu-label">{localeNames[locale]}</span></summary><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}>{localeNames[item]}{item === locale ? " ✓" : ""}</Link>)}</div></details>
             <ThemeToggle locale={locale} />
             <details className="mobile-menu">
               <summary aria-label={localized("Menüyü aç", "Open menu", "Menü öffnen", "打开菜单")}>☰</summary>

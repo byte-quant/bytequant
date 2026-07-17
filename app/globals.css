@@ -79,7 +79,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .install-trigger { min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--teal-dark); background: var(--surface); font-size: 9px; font-weight: 850; cursor: pointer; }
 .install-trigger:disabled { color: var(--muted); cursor: default; }
 .language-menu { position: relative; }
-.language-menu > summary { min-height: 38px; padding: 0 11px; display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: var(--surface); font-size: 9px; font-weight: 800; cursor: pointer; list-style: none; }
+.language-menu > summary { min-height: 38px; padding: 0 11px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: var(--surface); font-size: 9px; font-weight: 800; cursor: pointer; list-style: none; }
+.language-menu-icon { flex: 0 0 auto; font-size: 14px; line-height: 1; }
+.language-menu-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .language-menu > summary::-webkit-details-marker { display: none; }
 .language-menu > div { position: absolute; top: 46px; right: 0; width: 170px; padding: 7px; display: grid; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); box-shadow: var(--shadow-lg); }
 .language-menu a { padding: 9px 10px; border-radius: 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
@@ -154,9 +156,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .install-icon i { position: absolute; right: -7px; bottom: -7px; width: 29px; height: 29px; display: grid; place-items: center; border: 3px solid var(--surface); border-radius: 50%; color: #fff; background: var(--teal); font-size: 13px; font-style: normal; }
 .install-card h2 { margin: 7px 0 8px; color: var(--navy); font-size: clamp(25px, 3vw, 36px); line-height: 1.15; letter-spacing: -.04em; }
 .install-card p { margin: 0; color: var(--muted); font-size: 12px; }
+.install-card .install-security-note { margin-top: 12px; padding-left: 10px; border-left: 2px solid var(--teal); font-size: 10px; line-height: 1.55; }
 .install-card ul { margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; list-style: none; color: var(--green); font-size: 9px; font-weight: 800; }
 .install-actions { display: flex; align-items: stretch; flex-direction: column; gap: 8px; }
 .install-actions small { color: var(--muted); font-size: 9px; line-height: 1.45; }
+.install-actions .install-warning { padding: 10px; border: 1px solid color-mix(in srgb, #b66a00 34%, var(--line)); border-radius: 9px; color: #8b5100; background: color-mix(in srgb, #f6a623 9%, var(--surface)); }
 
 .advanced-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start; }
 .advanced-form-grid > .inline-fields, .advanced-form-grid > textarea, .advanced-form-grid > .field-label:has(textarea) { grid-column: 1 / -1; }
@@ -948,8 +952,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   .form-pair { grid-template-columns: 1fr; gap: 0; }
   .tool-reference-link { align-items: flex-start; flex-direction: column; }
   .tool-guide-link-grid { grid-template-columns: 1fr; }
-  .language-menu > summary { width: 38px; padding: 0; justify-content: center; font-size: 0; }
-  .language-menu > summary::first-letter { font-size: 14px; }
+  .language-menu > summary { width: 38px; padding: 0; justify-content: center; }
+  .language-menu-label { display: none; }
   .install-card { padding: 25px; grid-template-columns: 1fr; }
   .install-icon { width: 68px; height: 68px; }
   .install-actions { grid-column: auto; }

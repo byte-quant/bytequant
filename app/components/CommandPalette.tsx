@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { referencePath, references } from "../lib/references";
+import { referenceCopy, referencePath, references } from "../lib/references";
 import { toolPath, type Locale } from "../lib/site";
 import { categories, tools } from "../lib/tools";
 
@@ -12,7 +12,6 @@ function searchable(value: string, locale: Locale) {
 }
 
 export function CommandPalette({ locale }: { locale: Locale }) {
-  const referenceLocale = locale === "tr" ? "tr" : "en";
   const labels = {
     tr: { aria: "Araç ve referans ara", placeholder: `${tools.length} araç ve ${references.length} referansta ara…`, close: "Kapat", quick: "Hızlı geçiş", result: "sonuç", empty: "Bu aramayla eşleşen hedef yok.", select: "seç", open: "aç", search: "Ara" },
     en: { aria: "Search tools and references", placeholder: `Search ${tools.length} tools and ${references.length} references…`, close: "Close", quick: "Quick navigation", result: "results", empty: "No destination matches this search.", select: "select", open: "open", search: "Search" },
@@ -35,12 +34,12 @@ export function CommandPalette({ locale }: { locale: Locale }) {
     ...references.map((guide) => ({
       id: `reference-${guide.slug}`,
       href: referencePath(locale, guide.slug),
-      title: guide.title[referenceLocale],
+      title: referenceCopy(guide, locale).title,
       detail: { tr: "Referans", en: "Reference", de: "Referenz", zh: "参考" }[locale],
       mark: "↗",
-      search: `${guide.slug} ${guide.title.tr} ${guide.title.en} ${guide.description[referenceLocale]} cheat sheet`,
+      search: `${guide.slug} ${guide.title.tr} ${guide.title.en} ${referenceCopy(guide, locale).description} cheat sheet`,
     })),
-  ], [locale, referenceLocale]);
+  ], [locale]);
   const results = useMemo(() => {
     const term = searchable(query.trim(), locale);
     return (term ? entries.filter((entry) => searchable(entry.search, locale).includes(term)) : entries).slice(0, 12);
