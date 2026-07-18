@@ -264,6 +264,114 @@ const translations: Record<string, TranslationPair> = {
     de: { title: "CSP-Generator & Prüfer", short: "Erzeugen Sie eine sichere CSP-Basis und prüfen Sie riskante Quellen.", description: "Analysiert CSP-Direktiven lokal und meldet fehlende Basisschutzwerte, Wildcards, HTTP, unsafe-eval und riskantes Inline-Script. Vor Durchsetzung muss jede Policy im Report-Only-Modus getestet werden." },
     zh: { title: "CSP 生成与审计器", short: "生成安全 CSP 起始策略并检查高风险来源。", description: "在本地分析 CSP 指令，报告缺失基线、通配符、HTTP、unsafe-eval 和危险内联脚本。正式强制前必须先用 Report-Only 模式测试。" },
   },
+  "yaml-json-donusturucu": {
+    de: { title: "YAML ↔ JSON-Konverter", short: "Konvertieren Sie YAML und JSON mit sicherem Parsing und klaren Fehlern.", description: "Wandelt YAML mit begrenzter Alias-Auflösung in JSON und gültiges JSON in lesbares YAML um. Benutzerdefinierte Tags werden nicht ausgeführt; Ausgaben müssen gegen das Zielschema geprüft werden." },
+    zh: { title: "YAML ↔ JSON 转换器", short: "使用安全解析和清晰错误在 YAML 与 JSON 之间转换。", description: "将限制别名展开的 YAML 转换为 JSON，并把有效 JSON 转为可读 YAML。不会执行自定义标签；输出仍需按目标 Schema 核验。" },
+  },
+  "xml-bicimlendirici-dogrulayici": {
+    de: { title: "XML-Formatierer & Validator", short: "Validieren, formatieren oder minimieren Sie XML lokal.", description: "Parst XML mit DOMParser, zeigt Syntaxfehler und erzeugt lesbare oder minimierte Ausgabe. XSD, externe Entitäten und XML-Signaturen werden nicht validiert." },
+    zh: { title: "XML 格式化与验证器", short: "在本地验证、美化或压缩 XML。", description: "使用 DOMParser 解析 XML，显示语法错误并生成美化或压缩输出；不验证 XSD、外部实体或 XML 数字签名。" },
+  },
+  "json-flatten-unflatten": {
+    de: { title: "JSON abflachen / wiederherstellen", short: "Wandeln Sie verschachteltes JSON verlustfrei in JSON-Pointer-Pfade um.", description: "Konvertiert Objekte und Arrays in RFC-6901-Pfade und baut sie wieder auf. Schlüssel-Escapes bleiben erhalten; widersprüchliche Pfade erzeugen verständliche Fehler." },
+    zh: { title: "JSON 扁平化 / 还原", short: "把嵌套 JSON 无损转换为 JSON Pointer 路径并还原。", description: "在对象、数组与 RFC 6901 路径之间转换，保留键名转义，并对冲突路径给出明确错误。" },
+  },
+  "csv-tekil-satir-ayiklayici": {
+    de: { title: "CSV-Deduplizierer", short: "Finden und entfernen Sie doppelte CSV-Zeilen anhand ausgewählter Spalten.", description: "Erkennt Trennzeichen, verarbeitet zitierte Felder und behält je nach Schlüsselspalten den ersten oder letzten Datensatz. Großschreibung und Leerraum sind explizite Optionen." },
+    zh: { title: "CSV 去重与重复行查找", short: "按选定列查找并移除 CSV 重复行。", description: "识别分隔符、解析带引号字段，并按关键列保留首条或末条记录；大小写和空格归一化均为明确选项。" },
+  },
+  "url-sorgu-parametresi-analizoru": {
+    de: { title: "URL-Query-Parameter-Analyse", short: "Prüfen Sie URL-Bestandteile, doppelte Parameter und Tracking-Tags.", description: "Zerlegt eine URL ohne Aufruf in Host, Pfad, Fragment und Parameter und meldet Duplikate, leere Werte und gängige Tracking-Felder." },
+    zh: { title: "URL 查询参数分析器", short: "检查 URL 组成、重复参数与跟踪标签。", description: "无需访问目标即可拆分主机、路径、片段和查询参数，并报告重复键、空值及常见跟踪字段。" },
+  },
+  "html-varlik-kodlayici": {
+    de: { title: "HTML-Entity-Encoder/Decoder", short: "Kodieren Sie HTML-Sonderzeichen oder dekodieren Sie Entities als Text.", description: "Konvertiert Sonderzeichen und numerische Unicode-Entities lokal. Dekodierte Ausgabe wird nicht als HTML ausgeführt; Encoding allein ist kein kontextabhängiger XSS-Schutz." },
+    zh: { title: "HTML 实体编码 / 解码器", short: "编码 HTML 特殊字符或把实体解码为文本。", description: "在本地转换特殊字符与 Unicode 数字实体；解码结果不会作为 HTML 执行，编码本身也不是上下文感知的 XSS 防护。" },
+  },
+  "ip-cidr-alt-ag-hesaplayici": {
+    de: { title: "IPv4-CIDR- & Subnetzrechner", short: "Berechnen Sie Netz, Broadcast, Hostbereich und verfügbare IPv4-Adressen.", description: "Berechnet für /0 bis /32 Netmask, Wildcard, Netzwerk, Broadcast und klassischen Hostbereich. IPv6, Routerregeln und Cloud-Reservierungen sind nicht enthalten." },
+    zh: { title: "IPv4 CIDR 与子网计算器", short: "计算网络、广播、主机范围与可用 IPv4 地址。", description: "针对 /0 至 /32 计算掩码、反掩码、网络、广播和传统主机范围；不包含 IPv6、路由策略或云平台保留地址。" },
+  },
+  "robots-txt-olusturucu-denetleyici": {
+    de: { title: "Robots.txt-Generator & Prüfer", short: "Analysieren Sie robots.txt-Gruppen, Konflikte und kritische Sperren.", description: "Prüft User-agent, Allow, Disallow, Sitemap und unbekannte Direktiven lokal. Tatsächliches Crawling und Indexierung müssen mit dem Live-System verifiziert werden." },
+    zh: { title: "Robots.txt 生成与审计器", short: "分析 robots.txt 分组、冲突与关键抓取阻止。", description: "在本地检查 User-agent、Allow、Disallow、Sitemap 及未知指令；真实抓取和索引行为仍需在上线环境核验。" },
+  },
+  "hreflang-etiket-olusturucu": {
+    de: { title: "Hreflang-Generator & Prüfer", short: "Erzeugen Sie reziproke Hreflang-Tags und Sitemap-Alternativen.", description: "Validiert Sprach-/Regionscodes und absolute HTTPS-URLs, meldet Duplikate und fehlendes x-default und erzeugt HTML- sowie Sitemap-Entwürfe." },
+    zh: { title: "Hreflang 标签生成与审计器", short: "生成互相引用的 Hreflang 标签与 Sitemap 替代链接。", description: "验证语言地区代码与绝对 HTTPS URL，报告重复项或缺少 x-default，并生成 HTML 与 Sitemap 草稿。" },
+  },
+  "faq-json-ld-olusturucu": {
+    de: { title: "FAQPage-JSON-LD-Generator", short: "Erzeugen Sie valides FAQPage-JSON-LD aus sichtbaren Fragen und Antworten.", description: "Konvertiert Frage-Antwort-Zeilen in Schema.org FAQPage und meldet leere oder doppelte Fragen. Markierter Inhalt muss auf der Seite sichtbar sein; Rich Results sind nicht garantiert." },
+    zh: { title: "FAQPage JSON-LD 生成器", short: "根据页面可见问答生成有效 FAQPage JSON-LD。", description: "把问答行转换为 Schema.org FAQPage，并检查空白或重复问题；标记内容必须在页面可见，且不保证富媒体结果。" },
+  },
+  "utm-kampanya-url-olusturucu": {
+    de: { title: "UTM-Kampagnen-URL-Generator", short: "Erstellen Sie konsistente Tracking-URLs mit Quelle, Medium und Kampagne.", description: "Fügt UTM-Werte sicher kodiert zu einer HTTP(S)-URL hinzu, erhält vorhandene Parameter und öffnet oder überträgt die Adresse nicht." },
+    zh: { title: "UTM 营销 URL 生成器", short: "使用来源、媒介与活动字段生成一致的跟踪 URL。", description: "以安全编码向 HTTP(S) URL 添加 UTM 字段，保留现有参数，且不会打开地址或发送到分析服务。" },
+  },
+  "unicode-normalizasyon-inceleyici": {
+    de: { title: "Unicode-Normalisierung & Zeichenprüfung", short: "Prüfen Sie Normalformen, Codepoints und unsichtbare Zeichen.", description: "Normalisiert nach NFC/NFD/NFKC/NFKD und zeigt Codepoints, kombinierende Zeichen sowie gängige unsichtbare und Bidi-Steuerzeichen. Visuelle Gleichheit wird nicht garantiert." },
+    zh: { title: "Unicode 规范化与字符检查", short: "检查规范化形式、码点和不可见字符。", description: "支持 NFC/NFD/NFKC/NFKD，并显示码点、组合字符以及常见不可见和双向控制字符；不保证视觉等价。" },
+  },
+  "satir-siralayici-tekillestirici": {
+    de: { title: "Zeilensortierer & Deduplizierer", short: "Sortieren Sie Zeilen sprachabhängig und entfernen Sie Duplikate kontrolliert.", description: "Sortiert mit Intl.Collator alphabetisch, natürlich numerisch oder rückwärts und bietet explizite Optionen für Leerraum und Groß-/Kleinschreibung." },
+    zh: { title: "行排序与去重工具", short: "按语言规则排序行，并可控地移除空行或重复项。", description: "使用 Intl.Collator 进行字母、自然数字或逆序排序，并提供明确的空格和大小写选项。" },
+  },
+  "seo-slug-olusturucu": {
+    de: { title: "SEO- & URL-Slug-Generator", short: "Erzeugen Sie stabile, kleingeschriebene und URL-sichere Slugs.", description: "Normalisiert Unicode, bildet deutsche und türkische Zeichen explizit ab und bewahrt nicht abbildbare Zeichen als Code-Tokens. Veröffentlichte URLs dürfen nicht automatisch geändert werden." },
+    zh: { title: "SEO 与 URL Slug 生成器", short: "把标题转换为稳定、小写且 URL 安全的 Slug。", description: "规范化 Unicode，明确映射德语与土耳其语字符，并把无法映射的字符保留为编码 token；不应自动更改已发布 URL。" },
+  },
+  "kelime-sikligi-ngram-analizi": {
+    de: { title: "Wortfrequenz- & N-Gramm-Analyse", short: "Finden Sie häufige Wörter, Bigramme und Trigramme lokal.", description: "Segmentiert sprachabhängig mit Intl.Segmenter und zählt ein- bis dreiwortige N-Gramme. Die Werte belegen weder Bedeutung noch SEO-Ranking." },
+    zh: { title: "词频与 N-gram 分析", short: "在本地查找高频词、二元组与三元组。", description: "使用 Intl.Segmenter 按语言分词并统计一至三词 N-gram；结果不代表语义、质量或搜索排名。" },
+  },
+  "yuzde-degisim-hesaplayici": {
+    de: { title: "Prozentänderungs-, Erhöhungs- & Anteilsrechner", short: "Berechnen Sie Änderung, Anteil und Zielerhöhung mit sichtbaren Formeln.", description: "Berechnet Prozentänderung, Prozentpunkte, Anteil am Ganzen und Zu-/Abschläge und warnt explizit bei null oder negativen Ausgangswerten." },
+    zh: { title: "百分比变化、增减与占比计算器", short: "使用可见公式计算变化、占比与目标增幅。", description: "计算百分比变化、百分点、部分占整体比例及增减值，并明确提示零或负基准的数学限制。" },
+  },
+  "kdv-indirim-hesaplayici": {
+    de: { title: "MwSt.-/Steuer- & Rabattrechner", short: "Berechnen Sie Netto, Steuer und aufeinanderfolgende Rabatte transparent.", description: "Verwendet einen eingegebenen Steuersatz für Brutto/Netto und wendet Rabatte nacheinander an. Es wählt keine Sätze und ist keine Steuer- oder Rechnungsberatung." },
+    zh: { title: "增值税 / 税费与折扣计算器", short: "透明计算含税/未税价格和连续折扣。", description: "使用用户输入税率拆分净价与税额，并顺序应用多个折扣；不会选择法定税率，也不构成税务或开票建议。" },
+  },
+  "sure-mesai-hesaplayici": {
+    de: { title: "Dauer-, Arbeitszeit- & Pausenrechner", short: "Berechnen Sie Brutto- und Nettozeit über Mitternacht und Pausen hinweg.", description: "Berechnet verstrichene Zeit zwischen zwei Datumswerten und zieht Pausen ab. Ohne Offset gilt die Browser-Zeitzone; Arbeitsrecht und Lohnregeln sind nicht enthalten." },
+    zh: { title: "时长、工时与休息计算器", short: "计算跨夜和扣除休息后的总时长与净时长。", description: "计算两个日期时间之间的实际时长并扣除休息；没有时区偏移时使用浏览器本地时区，不包含劳动或工资规则。" },
+  },
+  "rastgele-secici-takim-karistirici": {
+    de: { title: "Kryptografische Zufallsauswahl & Team-Mischer", short: "Mischen, wählen oder teilen Sie Listen mit Web Crypto.", description: "Verwendet kryptografischen Fisher-Yates-Zufall für Gewinner oder ausgeglichene Teams. Teilnahmeberechtigung, Fairness der Eingangsliste und Gewinnspielrecht werden nicht geprüft." },
+    zh: { title: "加密随机选择与团队分组", short: "使用 Web Crypto 打乱列表、抽取条目或分组。", description: "使用加密随机 Fisher–Yates 算法生成获选者或均衡团队；不验证参与资格、输入公平性或抽奖法规。" },
+  },
+  "hatirlanabilir-parola-uretici": {
+    de: { title: "Merkbarer Passphrase-Generator", short: "Erzeugen Sie lange Passphrasen aus lesbaren synthetischen Wörtern.", description: "Erstellt ohne externe Wortliste kryptografisch zufällige, aussprechbare Tokens. Entropie ist eine theoretische Obergrenze; eindeutige Nutzung und Passwortmanager bleiben empfohlen." },
+    zh: { title: "易记 Passphrase 生成器", short: "使用 Web Crypto 和可读合成词生成长密码短语。", description: "无需外部词表即可生成加密随机、可发音的合成 token；熵值是理论上限，仍建议唯一使用并存入密码管理器。" },
+  },
+  "hmac-olusturucu-dogrulayici": {
+    de: { title: "HMAC-Generator & Prüfer", short: "Erzeugen Sie HMAC-SHA-256/384/512 und vergleichen Sie optional einen erwarteten Digest lokal.", description: "Erstellt HMAC per Web Crypto und prüft einen optionalen erwarteten Wert mit längennormalisiertem Bytevergleich. JavaScript-Laufzeiten garantieren keine konstante Ausführungszeit. HMAC ist weder Verschlüsselung noch Identitätsnachweis oder öffentliche Signatur." },
+    zh: { title: "HMAC 生成与验证器", short: "在本地生成 HMAC-SHA-256/384/512，并可比较预期摘要。", description: "使用 Web Crypto 生成 HMAC，并以长度归一的字节比较检查可选预期值；JavaScript 运行时不保证恒定执行时间。HMAC 不是加密、身份凭证或公钥签名。" },
+  },
+  "sri-butunluk-hash-uretici": {
+    de: { title: "Subresource-Integrity-Hashgenerator", short: "Erzeugen Sie SRI-Werte für lokale Dateien oder exakten Text.", description: "Berechnet sha256/384/512-Base64 aus exakten Bytes. SRI erkennt spätere Ressourcenänderungen, beweist aber weder Sicherheit noch Urheberschaft des Originals." },
+    zh: { title: "子资源完整性（SRI）哈希生成器", short: "为本地文件或精确文本生成 SRI 值。", description: "根据精确字节计算 sha256/384/512-Base64；SRI 可发现后续资源变化，但不能证明原始资源安全或归属正确。" },
+  },
+  "rag-parcalama-butcesi-planlayici": {
+    de: { title: "RAG-Chunking- & Kontextbudget-Planer", short: "Planen Sie Dokument, Chunk, Überlappung, Treffer und Ausgabe gemeinsam.", description: "Schätzt Chunkzahl, doppelte Token, abgerufenen Kontext und Ausgaberest. Retrieval-Qualität, Tokenizer, Embeddings und Dokumentstruktur müssen empirisch getestet werden." },
+    zh: { title: "RAG 分块与上下文预算规划器", short: "统一规划文档、分块、重叠、检索数量与输出预算。", description: "估算分块数、重复 token、检索上下文和剩余输出预算；检索质量、分词器、嵌入模型与文档结构仍需实验验证。" },
+  },
+  "prompt-enjeksiyon-on-taramasi": {
+    de: { title: "Prompt-Injection-Risiko-Vorprüfung", short: "Finden Sie lokale Signale für Anweisungsüberschreibung, Geheimnisabfrage und Tool-Missbrauch.", description: "Meldet mit erklärbaren Regeln Rollenwechsel, Ignore-Anweisungen, Secret-/Systemprompt-Anfragen und kodierte Befehle. Es ist keine semantische Klassifizierung, Sandbox oder Jailbreak-Garantie." },
+    zh: { title: "提示词注入风险预扫描", short: "在本地查找覆盖指令、索取秘密与滥用工具的信号。", description: "使用可解释规则报告角色切换、忽略既有指令、索取秘密/系统提示词及编码命令；不是语义分类、沙箱或越狱保证。" },
+  },
+  "prompt-test-vaka-matrisi": {
+    de: { title: "Prompt-Testfall-Matrix", short: "Erstellen Sie Normal-, Grenz-, Missbrauchs- und Mehrdeutigkeitsfälle für Prompts.", description: "Erzeugt aus Aufgabe, Zielverhalten und Risiken einen wiederholbaren Matrixentwurf mit Erfolgskriterien und Prüfernotizen. Das Werkzeug ruft kein Modell auf, führt keine Tests aus und zertifiziert keine Sicherheit." },
+    zh: { title: "提示词测试用例矩阵生成器", short: "为提示词构建正常、边界、滥用与歧义测试用例。", description: "根据任务、目标行为与风险生成可重复的矩阵草稿，分列展示成功标准和人工审核说明；不会调用模型、执行测试或提供安全认证。" },
+  },
+  "data-uri-donusturucu": {
+    de: { title: "Data-URI-Encoder / Decoder", short: "Wandeln Sie Text oder kleine Dateien in Data-URIs um und dekodieren Sie deren Metadaten und Inhalt.", description: "Erzeugt und dekodiert Data-URIs bis 5 MB lokal mit Browser-APIs. Medientyp und Bytes werden angezeigt; ein Data-URI beweist weder Vertrauen, Unschädlichkeit noch einen korrekten MIME-Typ." },
+    zh: { title: "Data URI 编码 / 解码器", short: "把文本或小文件转换为 Data URI，并解析其元数据与内容。", description: "使用浏览器 API 在本地生成或解析最大 5 MB 的 Data URI，并显示媒体类型与字节数；Data URI 不能证明来源可信、内容无害或 MIME 正确。" },
+  },
+  "http-guvenlik-basliklari-denetleyici": {
+    de: { title: "HTTP-Sicherheitsheader-Prüfer", short: "Prüfen Sie eingefügte Antwortheader auf CSP, HSTS, nosniff, Referrer- und Berechtigungsrichtlinien.", description: "Analysiert rohe HTTP-Header lokal und meldet Duplikate oder Lücken bei CSP, HSTS, nosniff, Referrer-, Berechtigungs- und Framing-Schutz. Es sendet keine Anfrage und prüft weder TLS noch Live-Weiterleitungen." },
+    zh: { title: "HTTP 安全响应头审计器", short: "检查粘贴的响应头中的 CSP、HSTS、nosniff、Referrer 与权限策略。", description: "在本地解析原始 HTTP 响应头，报告 CSP、HSTS、nosniff、Referrer、权限与防嵌入保护中的重复或缺失；不会发出请求，也不验证 TLS 或线上重定向。" },
+  },
 };
 
 const categoryUseCases: Record<ToolCategory, Record<"de" | "zh", string[]>> = {

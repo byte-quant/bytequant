@@ -106,6 +106,130 @@ export const localizedGuides: LocalizedGuide[] = [
       },
     },
   },
+  {
+    slug: "yaml-xml-json-csv-local-data-workflow",
+    date: "2026-07-18",
+    relatedTools: ["yaml-json-donusturucu", "xml-bicimlendirici-dogrulayici", "json-flatten-unflatten", "csv-tekil-satir-ayiklayici", "url-sorgu-parametresi-analizoru", "html-varlik-kodlayici", "data-uri-donusturucu"],
+    copy: {
+      de: {
+        title: "Lokale Datenkonvertierung: YAML, XML, JSON und CSV zuverlässig prüfen",
+        excerpt: "Konvertieren, normalisieren und bereinigen Sie strukturierte Daten im Browser, ohne Syntaxprüfung mit fachlicher Validierung zu verwechseln.",
+        description: "Ein technischer Leitfaden zu YAML/JSON, XML, flachem JSON, CSV-Deduplizierung, URL-Parametern und HTML-Entities mit klaren Prüfschritten.",
+        category: "Datenqualität",
+        readTime: "13 Min.",
+        sections: [
+          { heading: "Syntax ist erst die erste Prüfschicht", paragraphs: ["Ein Parser kann bestätigen, dass YAML, JSON oder XML formal lesbar ist. Er weiß jedoch nicht, ob Währung, Zeitzone, Kennung oder Pflichtfeld fachlich richtig sind. Bewahren Sie deshalb das Original, dokumentieren Sie Zeichencodierung und erwartetes Schema und prüfen Sie die Ausgabe mit repräsentativen Positiv- und Negativbeispielen.", "YAML-Aliase und mehrdeutige Typen, XML-Namespaces sowie große Dokumente brauchen besondere Grenzen. ByteQuant verarbeitet im aktiven Tab und begrenzt Alias-Auflösung; die Ausgabe bleibt dennoch ein Konvertierungsentwurf, kein Beweis für sichere Konfiguration."], bullets: ["Vor der Umwandlung eine unveränderte Kopie sichern.", "Schema und Pflichtfelder getrennt validieren.", "Null, leere Werte, Unicode und große Zahlen testen.", "Diff vor der Übernahme prüfen."] },
+          { heading: "Flaches JSON und CSV-Deduplizierung brauchen eine Schlüsselregel", paragraphs: ["Beim Flattening werden verschachtelte Pfade zu Schlüsseln. Punkte, Array-Indizes und vorhandene Sonderzeichen können kollidieren; die Rückwandlung muss deshalb mit demselben Pfadvertrag getestet werden. Ein Roundtrip-Test aus Objekt, flacher Form und Objekt zeigt früh, ob Struktur verloren geht.", "CSV-Zeilen sind nur bezüglich der gewählten Spalten doppelt. Groß-/Kleinschreibung, Leerzeichen, leere Werte und die Entscheidung ‚erste oder letzte Zeile behalten‘ verändern das Ergebnis. Berichten Sie Quellzeilen, eindeutige Zeilen und entfernte Schlüssel und löschen Sie die Quelldatei nicht."], bullets: ["Eindeutigkeitsschlüssel fachlich benennen.", "Anführungszeichen und eingebettete Zeilenumbrüche testen.", "Entfernte Datensätze stichprobenartig prüfen."] },
+          { heading: "URL-Parameter und HTML-Entities sind Kontextfragen", paragraphs: ["Doppelte Query-Parameter können je nach Server zuerst, zuletzt oder als Liste ausgewertet werden. Tracking-Parameter zu entfernen ändert die URL, beweist aber weder Datenschutz noch die Gleichheit der Serverantwort. Prüfen Sie Host, Pfad, Fragment, Signaturparameter und Weiterleitungen vor dem Teilen.", "HTML-Entity-Encoding schützt Text im HTML-Textkontext. Es ersetzt keine kontextabhängige Ausgabe-Kodierung für Attribute, URLs, CSS oder JavaScript und keine Sanitization von nicht vertrauenswürdigem HTML. Verwenden Sie DOM-APIs und ein geprüftes Sanitizing-Konzept, wenn Markup erlaubt werden soll."] },
+        ],
+      },
+      zh: {
+        title: "本地数据转换：可靠检查 YAML、XML、JSON 与 CSV",
+        excerpt: "在浏览器内转换、规范化和清理结构化数据，同时区分语法有效与业务正确。",
+        description: "涵盖 YAML/JSON、XML、扁平 JSON、CSV 去重、URL 参数与 HTML 实体的技术指南，并给出明确核验步骤。",
+        category: "数据质量",
+        readTime: "约 13 分钟",
+        sections: [
+          { heading: "语法只是第一层检查", paragraphs: ["解析器可以确认 YAML、JSON 或 XML 在形式上可读取，却不知道币种、时区、标识符和必填字段是否符合业务规则。应保留原始文件，记录字符编码和预期 Schema，并使用具有代表性的正确与错误样本核验输出。", "YAML 别名和隐式类型、XML 命名空间以及大型文档都需要专门限制。ByteQuant 在当前标签页处理并限制别名展开，但转换结果仍是待审核草稿，不是安全配置证明。"], bullets: ["转换前保存不可变原件。", "另行验证 Schema 与必填字段。", "测试 null、空值、Unicode 和大整数。", "采用前检查差异。"] },
+          { heading: "扁平 JSON 与 CSV 去重必须先定义键", paragraphs: ["扁平化会把嵌套路径变成键；点号、数组索引和原有特殊字符可能发生冲突。应使用同一套路径约定进行对象→扁平→对象的往返测试，确认结构没有丢失。", "CSV 重复只相对于选定列成立。大小写、空格、空值以及保留第一行还是最后一行都会改变结果。请同时报告源行、唯一行和被移除键，并保留源文件。"], bullets: ["明确记录唯一键的业务含义。", "测试引号和字段内换行。", "抽样核对被移除记录。"] },
+          { heading: "URL 参数与 HTML 实体取决于使用上下文", paragraphs: ["服务器可能把重复查询参数解释为首值、末值或列表。删除跟踪参数会改变 URL，但不能证明隐私合规，也不能保证响应相同。分享前检查主机、路径、片段、签名参数和重定向。", "HTML 实体编码只适用于 HTML 文本上下文。它不能替代属性、URL、CSS 或 JavaScript 的上下文输出编码，也不能净化不可信 HTML。若必须允许标记，请使用 DOM API 和经过审查的净化方案。"] },
+        ],
+      },
+    },
+  },
+  {
+    slug: "technical-seo-robots-hreflang-faq-utm-workflow",
+    date: "2026-07-18",
+    relatedTools: ["robots-txt-olusturucu-denetleyici", "hreflang-etiket-olusturucu", "faq-json-ld-olusturucu", "utm-kampanya-url-olusturucu", "seo-slug-olusturucu", "http-guvenlik-basliklari-denetleyici"],
+    copy: {
+      de: {
+        title: "Technisches SEO ohne Abkürzungen: Robots, Hreflang, FAQ, UTM und Slugs",
+        excerpt: "Bauen Sie stabile URL-Cluster, prüfbare Crawling-Regeln und sichtbare strukturierte Daten, ohne Ranking-Garantien zu versprechen.",
+        description: "Praxisleitfaden für Robots.txt, reziprokes Hreflang, FAQPage JSON-LD, UTM-Namensregeln und langlebige Slugs nach Google-Grundsätzen.",
+        category: "Technisches SEO",
+        readTime: "14 Min.",
+        sections: [
+          { heading: "Stabile URLs, Canonicals und Weiterleitungen gemeinsam planen", paragraphs: ["Ein Slug soll lesbar sein, doch Stabilität ist wichtiger als nachträgliche Keyword-Optimierung. Wenn sich eine veröffentlichte URL ändern muss, benötigen alte Varianten eine permanente Weiterleitung; Canonical, interne Links, Sitemap und Sprachalternativen müssen im selben Release aktualisiert werden.", "Ein gemeinsamer ASCII-Slug in mehreren Sprachordnern ist kein Sprachfehler, wenn sichtbarer Inhalt und Metadaten vollständig lokalisiert sind. Jede Sprachseite braucht einen Self-Canonical und das gleiche reziproke Hreflang-Cluster."], bullets: ["Kollisionen vor Veröffentlichung prüfen.", "Alte Pfade in Redirect-Tests behalten.", "Tracking-Parameter nicht kanonisieren.", "Jede Sprache auf HTTP 200 prüfen."] },
+          { heading: "Robots.txt steuert Crawling, nicht Zugriffsschutz", paragraphs: ["Robots.txt ist öffentlich und verhindert weder Zugriff noch zuverlässig die Indexierung einer bereits bekannten URL. Vertrauliche Inhalte benötigen Authentisierung und Autorisierung; zugängliche Seiten, die nicht indexiert werden sollen, brauchen passende Robots-Metadaten oder HTTP-Header.", "Prüfen Sie jede User-Agent-Gruppe, absolute HTTPS-Sitemaps und unbeabsichtigtes `Disallow: /`. Ein lokaler Strukturtest sieht keine CDN-Regel, keinen Live-Status und kein gerendertes Meta-Tag; kontrollieren Sie die bereitgestellte URL zusätzlich mit den Werkzeugen der Suchmaschine."] },
+          { heading: "Hreflang, FAQ und UTM müssen die sichtbare Realität abbilden", paragraphs: ["Jede Sprachversion listet sich selbst und alle Alternativen mit identischen vollqualifizierten URLs; `x-default` dient als Fallback. Ein korrekter Code hilft nicht, wenn eine Alternative weiterleitet oder auf eine andere Seite kanonisiert.", "FAQPage-Markup darf nur sichtbare Fragen und Antworten enthalten. Gültiges JSON-LD garantiert kein Rich Result und keine Position. UTM-Werte dienen der Messung: standardisieren Sie source, medium und campaign, vermeiden Sie personenbezogene Daten und testen Sie Zielhost, Fragment und Analytik vor Veröffentlichung."], bullets: ["Markup und sichtbaren Text gemeinsam ändern.", "Keine Bewertung oder Garantie erfinden.", "Interne Standardlinks ohne UTM ausgeben.", "Suchleistung als Ergebnis messen, nicht behaupten."] },
+        ],
+      },
+      zh: {
+        title: "不走捷径的技术 SEO：Robots、Hreflang、FAQ、UTM 与 Slug",
+        excerpt: "构建稳定 URL 集群、可核验抓取规则和可见结构化数据，不作排名保证。",
+        description: "依据 Google 基本原则讲解 robots.txt、互惠 hreflang、FAQPage JSON-LD、UTM 命名与长期稳定 slug。",
+        category: "技术 SEO",
+        readTime: "约 14 分钟",
+        sections: [
+          { heading: "同步设计稳定 URL、Canonical 与重定向", paragraphs: ["Slug 应清晰，但稳定性比发布后追逐关键词更重要。必须变更已发布 URL 时，旧地址应永久重定向，并在同一次发布中同步更新 canonical、内部链接、站点地图和语言替代。", "不同语言目录共用 ASCII slug 并非语言错误，前提是可见内容和元数据都已完整本地化。每个语言页面都应自我 canonical，并列出完全相同、互相对应的 hreflang 集群。"], bullets: ["发布前检查冲突。", "在重定向测试中保留旧路径。", "不要把跟踪参数写入 canonical。", "确认每个语言版本返回 HTTP 200。"] },
+          { heading: "Robots.txt 管理抓取，不是访问控制", paragraphs: ["robots.txt 是公开文件，不能阻止访问，也不能可靠移除搜索引擎已知 URL。敏感内容必须使用认证与授权；可访问但不应索引的页面应使用合适的 robots meta 或 HTTP 响应头。", "逐组检查 User-Agent、绝对 HTTPS sitemap，以及意外的 `Disallow: /`。本地结构检查无法看到 CDN 规则、线上状态或渲染后的 meta；部署后还应使用搜索引擎检查工具核验真实 URL。"] },
+          { heading: "Hreflang、FAQ 与 UTM 必须对应可见事实", paragraphs: ["每个语言版本都应列出自身和所有替代页，并使用一致的完整 URL；`x-default` 提供未匹配语言的回退。语言代码正确并不足够，替代 URL 若重定向或 canonical 到别处，集群仍然错误。", "FAQPage 标记只能包含页面上可见的问题与答案。有效 JSON-LD 不保证富媒体结果或排名。UTM 用于测量：统一 source、medium、campaign 命名，不放个人数据，并在发布前测试目标主机、片段和分析事件。"], bullets: ["同步修改标记和可见文本。", "不得虚构评分或保证。", "普通内部链接不添加 UTM。", "通过数据测量效果，不预先声称效果。"] },
+        ],
+      },
+    },
+  },
+  {
+    slug: "unicode-text-percentage-time-productivity-workflow",
+    date: "2026-07-18",
+    relatedTools: ["unicode-normalizasyon-inceleyici", "satir-siralayici-tekillestirici", "kelime-sikligi-ngram-analizi", "yuzde-degisim-hesaplayici", "kdv-indirim-hesaplayici", "sure-mesai-hesaplayici", "rastgele-secici-takim-karistirici"],
+    copy: {
+      de: {
+        title: "Versteckte Fehler in Texten und Alltagsrechnungen vermeiden",
+        excerpt: "Nutzen Sie Unicode-, Listen-, N-Gramm-, Prozent-, Steuer-, Zeit- und Zufallswerkzeuge mit nachvollziehbaren Annahmen.",
+        description: "Leitfaden zu Normalisierung, Deduplizierung, Formeln, Zeitzonen und Zufallsgrenzen bei kopierten Texten, Listen und Berechnungen.",
+        category: "Produktivität & Qualität",
+        readTime: "12 Min.",
+        sections: [
+          { heading: "Gleich aussehender Text kann technisch verschieden sein", paragraphs: ["Ein Zeichen kann als einzelner Codepoint oder als Grundzeichen plus Kombinationszeichen vorliegen. Unsichtbare Leer- und Richtungszeichen können Vergleiche, Slugs oder Sicherheitsprüfungen verändern. NFC, NFD, NFKC und NFKD haben unterschiedliche Zwecke; Kompatibilitätsformen führen bewusst manche typografischen Unterschiede zusammen.", "Bewahren Sie das Original und prüfen Sie Codepoints besonders bei Identitäten, Domains, Dateipfaden und Zugriffsregeln. Normalisierung verhindert keine Homograph-Angriffe, sondern macht nur manche Repräsentationsunterschiede sichtbar."] },
+          { heading: "Sortieren, Deduplizieren und N-Gramme messen Verschiedenes", paragraphs: ["Sprachabhängige Sortierung ordnet Daten; Deduplizierung löscht Datensätze. Groß-/Kleinschreibung und Leerzeichen dürfen nur ignoriert werden, wenn die Fachregel dies erlaubt. Protokollieren Sie Ausgangszeilen, eindeutige Zeilen und entfernte Einträge.", "N-Gramme zeigen Wiederholung, aber weder Absicht noch Textqualität oder SEO-Erfolg. Kleine Stichproben verzerren Anteile; Segmentierung in Sprachen ohne Leerzeichen hängt von Browser-Sprachdaten ab. Lesen Sie Häufigkeiten immer im Originalkontext."], bullets: ["Originalreihenfolge wiederherstellbar halten.", "Deduplizierungsschlüssel dokumentieren.", "Stichprobengröße mitberichten."] },
+          { heading: "Formel, Zeitzone und Auswahlverfahren offenlegen", paragraphs: ["Prozentänderung, Prozentpunkte, Steuer und aufeinanderfolgende Rabatte sind verschiedene Rechnungen. Bei Nullbasis ist eine Prozentänderung undefiniert; aktuelle Steuer- und Rundungsregeln müssen aus offizieller Quelle kommen. Eine mathematische Ausgabe ist keine Steuer- oder Rechtsberatung.", "Datum-Zeit ohne Offset verwendet die lokale Browserzone; Sommerzeit, Pausen und Lohnrundung können Ergebnisse ändern. Web Crypto kann eine starke Zufallsquelle liefern, aber doppelte oder unzulässige Einträge und Eingriffe nach der Auswahl bleiben Prozessfehler. Regulierte Ziehungen benötigen ein dokumentiertes unabhängiges Verfahren."] },
+        ],
+      },
+      zh: {
+        title: "避免文本与日常计算中的隐藏错误",
+        excerpt: "以可审计的假设使用 Unicode、列表、N-gram、百分比、税费、时长与随机工具。",
+        description: "解释复制文本、列表和日常数值场景中的规范化、去重、公式、时区与随机性边界。",
+        category: "效率与质量",
+        readTime: "约 12 分钟",
+        sections: [
+          { heading: "看起来相同的文本可能并非相同字节", paragraphs: ["一个字符既可由单一代码点表示，也可由基础字符加组合符号表示。不可见空格和双向控制符可能影响比较、slug 或安全审核。NFC、NFD、NFKC 与 NFKD 用途不同，兼容规范化会有意合并某些排版差异。", "请保留原文，尤其对身份标识、域名、文件路径和访问规则检查代码点。规范化不能解决同形异义攻击，只能让部分表示差异更容易发现。"] },
+          { heading: "排序、去重与 N-gram 衡量的是不同问题", paragraphs: ["区域感知排序只改变顺序，而去重会删除数据。只有业务规则允许时才能忽略大小写或空格。应同时记录源行、唯一行和被移除条目。", "N-gram 能显示重复，却不能衡量意图、质量或 SEO 成功。小样本会放大比例；无空格语言的分词还依赖浏览器语言数据。频率必须结合原句解读。"], bullets: ["保留可恢复的原始顺序。", "记录去重键。", "报告样本大小。"] },
+          { heading: "公开公式、时区和抽取过程", paragraphs: ["百分比变化、百分点、税费和连续折扣是不同运算。零基数的百分比变化没有定义；当前税率和舍入规则必须来自官方来源。数学结果不是税务或法律建议。", "不含偏移的日期时间使用浏览器本地时区，夏令时、休息和薪资舍入都可能改变结果。Web Crypto 可提供强随机源，但重复或不合格条目以及抽取后干预仍会破坏公平性。受监管抽奖应采用有记录的独立流程。"] },
+        ],
+      },
+    },
+  },
+  {
+    slug: "web-crypto-rag-prompt-injection-security-workflow",
+    date: "2026-07-18",
+    relatedTools: ["ip-cidr-alt-ag-hesaplayici", "hatirlanabilir-parola-uretici", "hmac-olusturucu-dogrulayici", "sri-butunluk-hash-uretici", "rag-parcalama-butcesi-planlayici", "prompt-enjeksiyon-on-taramasi", "prompt-test-vaka-matrisi"],
+    copy: {
+      de: {
+        title: "Lokaler Sicherheitsleitfaden für Web Crypto, RAG und Prompt Injection",
+        excerpt: "Ordnen Sie Passphrases, HMAC, SRI, CIDR, RAG-Budgets und Injection-Vorprüfungen ihren tatsächlichen Sicherheitsgrenzen zu.",
+        description: "Ein vertiefter Leitfaden dazu, was Browser-Kryptografie und KI-Inhaltsscanner beweisen, was sie nicht beweisen und wie Ergebnisse geprüft werden.",
+        category: "Sicherheit & KI",
+        readTime: "15 Min.",
+        sections: [
+          { heading: "Zufall und Geheimnisse benötigen einen kontrollierten Lebenszyklus", paragraphs: ["Kryptografisch zufällige synthetische Wörter vermeiden eine externe Wortlistenlizenz und menschliche Auswahlverzerrung. Die angezeigte Entropie beschreibt nur den theoretischen Erzeugungsraum; Bearbeitung, Wiederverwendung und kürzere Varianten verringern die reale Stärke.", "Verwenden Sie pro Konto ein einzigartiges Ergebnis, speichern Sie es in einem Passwortmanager und aktivieren Sie phishing-resistente Mehrfaktor-Authentisierung, wo sie verfügbar ist. Geben Sie erzeugte Geheimnisse nicht in Chats, Bildschirmfotos oder gemeinsame Logs."] },
+          { heading: "HMAC, SRI und CIDR beweisen unterschiedliche Dinge", paragraphs: ["HMAC prüft Nachrichtenintegrität zwischen Parteien mit demselben Geheimnis; es ist weder Verschlüsselung noch öffentlicher Herkunftsnachweis. Das Browserwerkzeug kann einen erwarteten Digest längennormalisiert vergleichen, doch JavaScript garantiert keine konstante Ausführungszeit. Produktionsserver sollten eine timing-resistente Plattform-API und die exakte Byte-Kanonisierung des Protokolls verwenden.", "SRI vergleicht geladene Ressourcenbytes mit einem veröffentlichten Hash, beweist aber nicht, dass die ursprüngliche Datei vertrauenswürdig war. CIDR berechnet Netzwerkgrenzen, entscheidet jedoch keine Firewall-Richtung, Cloud-Reserveadresse, IPv6-Regel oder Least-Privilege-Policy."], bullets: ["Kein Geheimnis in Client-Bundles einbauen.", "SRI-Änderungen wie Codeänderungen prüfen.", "Produktionsnetzregeln unabhängig gegenprüfen."] },
+          { heading: "RAG-Kapazität von Instruktionsvertrauen trennen", paragraphs: ["Chunkgröße, Überlappung und topK planen Kontextkapazität; sie beweisen keine Retrieval-Qualität. Messen Sie Recall, Precision, Quellenabdeckung und Zitatgenauigkeit mit repräsentativen Fragen und reservieren Sie Platz für System, Anfrage und Ausgabe.", "Behandeln Sie abgerufenen Inhalt als Daten, nicht als Systemanweisung. Eine lexikalische Injection-Vorprüfung kann bekannte Signale zeigen, übersieht aber semantische, neue oder verschleierte Angriffe. Quellen-Allowlist, getrennte Daten-/Instruktionskanäle, minimale Werkzeugrechte, Ausgabekontrolle und echte Red-Team-Tests bleiben notwendig."], bullets: ["Retrieval-Inhalt erhält keine Geheimnisse oder Autorität.", "Tool-Aufrufe mit Schema und Allowlist begrenzen.", "Einen unauffälligen Scan nie als Freigabe behandeln."] },
+        ],
+      },
+      zh: {
+        title: "Web Crypto、RAG 与提示词注入的本地安全指南",
+        excerpt: "正确理解口令、HMAC、SRI、CIDR、RAG 预算与注入预扫描各自的安全边界。",
+        description: "深入说明浏览器密码学和 AI 内容扫描能证明什么、不能证明什么，以及如何核验结果。",
+        category: "安全与 AI",
+        readTime: "约 15 分钟",
+        sections: [
+          { heading: "随机性与秘密需要受控生命周期", paragraphs: ["密码学随机的合成词可避免外部词表许可与人工选择偏差。显示的熵只描述理论生成空间；用户修改、复用或选择更短版本都会降低实际强度。", "每个账户使用唯一结果，存入密码管理器，并在支持时启用抗钓鱼多因素认证。不要通过聊天、截图或共享日志传递生成的秘密。"] },
+          { heading: "HMAC、SRI 与 CIDR 证明不同事实", paragraphs: ["HMAC 用于共享同一秘密的参与方检查消息完整性；它不是加密，也不是公开来源证明。浏览器工具可对预期摘要进行长度归一比较，但 JavaScript 不保证恒定执行时间。生产服务器应使用平台提供的抗时序比较 API，并严格遵守协议字节规范化。", "SRI 把加载资源的字节与已发布哈希比较，却不能证明原始文件可信。CIDR 计算网络边界，但不能决定防火墙方向、云保留地址、IPv6 规则或最小权限策略。"], bullets: ["不要把秘密写入客户端 bundle。", "像代码变更一样审核 SRI 更新。", "独立复核生产网络规则。"] },
+          { heading: "把 RAG 容量与指令信任分开", paragraphs: ["分块大小、重叠和 topK 用于规划上下文容量，不能证明检索质量。请用代表性问题测量召回率、精确率、来源覆盖和引用准确性，并为系统、查询和输出保留空间。", "检索内容应被视为数据，而非系统指令。词法注入预扫描可以显示已知信号，却可能漏掉语义、新型或混淆攻击。仍需来源白名单、分离的数据/指令通道、最小工具权限、输出验证和真实红队测试。"], bullets: ["检索内容不得获得秘密或权限。", "用 Schema 与白名单约束工具调用。", "不得把无发现扫描视为安全批准。"] },
+        ],
+      },
+    },
+  },
 ];
 
 export const legacyLocalizedGuideSlugs = {

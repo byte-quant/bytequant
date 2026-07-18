@@ -51,7 +51,7 @@ assert.ok(sitemapUrls.every((url) => {
   const match = /\/(?:araclar|tools|blog|referanslar|references)\/([^/]+)\/?$/.exec(pathname);
   return !match || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(match[1]);
 }), "Sitemap contains a non-canonical or non-ASCII slug.");
-for (const pathName of ["/de/references/regex-cheat-sheet/", "/zh/references/cron-cheat-sheet/", "/de/blog/local-prompt-text-date-workflow/", "/zh/blog/loan-ai-rubric-csp-workflow/"]) {
+for (const pathName of ["/de/references/regex-cheat-sheet/", "/zh/references/cron-cheat-sheet/", "/de/blog/local-prompt-text-date-workflow/", "/zh/blog/loan-ai-rubric-csp-workflow/", "/araclar/yaml-json-donusturucu/", "/en/tools/hreflang-etiket-olusturucu/", "/de/tools/hmac-olusturucu-dogrulayici/", "/zh/tools/prompt-enjeksiyon-on-taramasi/", "/araclar/prompt-test-vaka-matrisi/", "/en/tools/data-uri-donusturucu/", "/de/tools/http-guvenlik-basliklari-denetleyici/", "/de/blog/technical-seo-robots-hreflang-faq-utm-workflow/", "/zh/blog/web-crypto-rag-prompt-injection-security-workflow/"]) {
   assert.ok(sitemapUrls.some((url) => new URL(url).pathname === pathName), `Sitemap is missing ${pathName}`);
 }
 assert.ok(!sitemap.match(/lokale-produktivitaet|json-schema-bild|kredit-ai-bewertung/), "Legacy mixed-language slugs must not appear in the sitemap.");

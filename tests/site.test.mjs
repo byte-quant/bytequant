@@ -10,16 +10,17 @@ test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /62 açıklanabilir araç/);
+  assert.match(home, /89 açıklanabilir araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(german, /<html lang="de"/);
   assert.match(chinese, /<html lang="zh-CN"/);
-  assert.match(german, /62 nachvollziehbare Werkzeuge/);
-  assert.match(chinese, /62 个可解释工具/);
+  assert.match(german, /89 nachvollziehbare Werkzeuge/);
+  assert.match(chinese, /89 个可解释工具/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
   assert.match(home, /<title>ByteQuant ·/);
+  assert.match(home, /og-v2\.png/);
   assert.match(home, /hrefLang="tr-TR"/);
   assert.match(home, /hrefLang="en-US"/);
   assert.match(home, /hrefLang="tr"/);
@@ -36,6 +37,13 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /en\/tools\/json-diff-karsilastirma/);
   assert.match(sitemap, /araclar\/gorsel-format-donusturucu/);
   assert.match(sitemap, /en\/tools\/pdf-birlestirme/);
+  assert.match(sitemap, /araclar\/yaml-json-donusturucu/);
+  assert.match(sitemap, /en\/tools\/hreflang-etiket-olusturucu/);
+  assert.match(sitemap, /de\/tools\/hmac-olusturucu-dogrulayici/);
+  assert.match(sitemap, /zh\/tools\/prompt-enjeksiyon-on-taramasi/);
+  assert.match(sitemap, /araclar\/prompt-test-vaka-matrisi/);
+  assert.match(sitemap, /en\/tools\/data-uri-donusturucu/);
+  assert.match(sitemap, /de\/tools\/http-guvenlik-basliklari-denetleyici/);
   assert.match(sitemap, /referanslar\/regex-cheat-sheet/);
   assert.match(sitemap, /en\/references\/cron-cheat-sheet/);
   assert.match(sitemap, /blog\/nextjs-hreflang-canonical-global-seo-rehberi/);
@@ -47,6 +55,8 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /en\/blog\/token-baglam-butcesi-sistem-promptu-kontrol-listesi/);
   assert.match(sitemap, /de\/blog\/local-prompt-text-date-workflow/);
   assert.match(sitemap, /zh\/blog\/loan-ai-rubric-csp-workflow/);
+  assert.match(sitemap, /de\/blog\/technical-seo-robots-hreflang-faq-utm-workflow/);
+  assert.match(sitemap, /zh\/blog\/web-crypto-rag-prompt-injection-security-workflow/);
   assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
   assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
   assert.doesNotMatch(sitemap, /lokale-produktivitaet|json-schema-bild|kredit-ai-bewertung/);
@@ -58,13 +68,13 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 62);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 89);
   assert.match(home, /aria-label="Araç ve referans ara"/);
   assert.match(german, /aria-label="Werkzeuge und Referenzen durchsuchen"/);
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v6/);
+  assert.match(worker, /bytequant-shell-v7/);
   assert.doesNotMatch(worker, /localStorage/i);
   assert.match(worker, /cache\.put\(pageKey/);
   const navigationCacheBranch = worker.slice(worker.indexOf('if (request.mode === "navigate")'), worker.indexOf('if (["script", "style", "image", "font"]'));
@@ -97,14 +107,14 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 62);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 62);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 62);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 62);
-  assert.ok(turkishPosts.length >= 31);
-  assert.ok(englishPosts.length >= 31);
-  assert.ok(germanPosts.length >= 3);
-  assert.ok(chinesePosts.length >= 3);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 89);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 89);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 89);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 89);
+  assert.ok(turkishPosts.length >= 35);
+  assert.ok(englishPosts.length >= 35);
+  assert.ok(germanPosts.length >= 7);
+  assert.ok(chinesePosts.length >= 7);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
@@ -124,6 +134,10 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/token-baglam-butcesi-sistem-promptu-kontrol-listesi/index.html", root));
   await access(new URL("de/blog/local-prompt-text-date-workflow/index.html", root));
   await access(new URL("zh/blog/loan-ai-rubric-csp-workflow/index.html", root));
+  await access(new URL("de/blog/yaml-xml-json-csv-local-data-workflow/index.html", root));
+  await access(new URL("zh/blog/technical-seo-robots-hreflang-faq-utm-workflow/index.html", root));
+  await access(new URL("de/blog/unicode-text-percentage-time-productivity-workflow/index.html", root));
+  await access(new URL("zh/blog/web-crypto-rag-prompt-injection-security-workflow/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
   await access(new URL("de/references/regex-cheat-sheet/index.html", root));
@@ -134,7 +148,7 @@ test("tool pages explain local processing and expose structured data", async () 
   const page = await read("araclar/kvkk-veri-maskeleyici/index.html");
   assert.match(page, /Girdi bu sayfadan ayrılmaz/);
   assert.match(page, /application\/ld\+json/);
-  assert.doesNotMatch(page, /FAQPage/);
+  assert.match(page, /FAQPage/);
   assert.match(page, /HowTo/);
   assert.match(page, /BreadcrumbList/);
   assert.match(page, /WebApplication/);
@@ -262,6 +276,64 @@ test("exports the nine new growth tools and localized guides", async () => {
   }
 });
 
+test("exports 27 high-demand tools in every category and four localized deep guides", async () => {
+  const toolPaths = [
+    "araclar/yaml-json-donusturucu/index.html",
+    "araclar/csv-tekil-satir-ayiklayici/index.html",
+    "araclar/robots-txt-olusturucu-denetleyici/index.html",
+    "araclar/unicode-normalizasyon-inceleyici/index.html",
+    "araclar/kdv-indirim-hesaplayici/index.html",
+    "araclar/hmac-olusturucu-dogrulayici/index.html",
+    "en/tools/xml-bicimlendirici-dogrulayici/index.html",
+    "en/tools/url-sorgu-parametresi-analizoru/index.html",
+    "en/tools/hreflang-etiket-olusturucu/index.html",
+    "en/tools/satir-siralayici-tekillestirici/index.html",
+    "en/tools/sure-mesai-hesaplayici/index.html",
+    "en/tools/sri-butunluk-hash-uretici/index.html",
+    "de/tools/json-flatten-unflatten/index.html",
+    "de/tools/html-varlik-kodlayici/index.html",
+    "de/tools/faq-json-ld-olusturucu/index.html",
+    "de/tools/seo-slug-olusturucu/index.html",
+    "de/tools/rastgele-secici-takim-karistirici/index.html",
+    "de/tools/rag-parcalama-butcesi-planlayici/index.html",
+    "zh/tools/ip-cidr-alt-ag-hesaplayici/index.html",
+    "zh/tools/utm-kampanya-url-olusturucu/index.html",
+    "zh/tools/kelime-sikligi-ngram-analizi/index.html",
+    "zh/tools/yuzde-degisim-hesaplayici/index.html",
+    "zh/tools/hatirlanabilir-parola-uretici/index.html",
+    "zh/tools/prompt-enjeksiyon-on-taramasi/index.html",
+    "araclar/prompt-test-vaka-matrisi/index.html",
+    "en/tools/data-uri-donusturucu/index.html",
+    "de/tools/http-guvenlik-basliklari-denetleyici/index.html",
+  ];
+  for (const page of await Promise.all(toolPaths.map(read))) {
+    assert.match(page, /HowTo/);
+    assert.match(page, /FAQPage/);
+    assert.match(page, /WebApplication/);
+    assert.match(page, /Load example|Örnek veri yükle|Beispiel laden|加载示例/);
+    assert.doesNotMatch(page, /axios|pagead2\.googlesyndication\.com/i);
+  }
+
+  const guidePaths = [
+    "de/blog/yaml-xml-json-csv-local-data-workflow/index.html",
+    "zh/blog/yaml-xml-json-csv-local-data-workflow/index.html",
+    "de/blog/technical-seo-robots-hreflang-faq-utm-workflow/index.html",
+    "zh/blog/technical-seo-robots-hreflang-faq-utm-workflow/index.html",
+    "de/blog/unicode-text-percentage-time-productivity-workflow/index.html",
+    "zh/blog/unicode-text-percentage-time-productivity-workflow/index.html",
+    "de/blog/web-crypto-rag-prompt-injection-security-workflow/index.html",
+    "zh/blog/web-crypto-rag-prompt-injection-security-workflow/index.html",
+  ];
+  for (const guide of await Promise.all(guidePaths.map(read))) {
+    assert.doesNotThrow(() => jsonLd(guide));
+    assert.match(guide, /BlogPosting/);
+    assert.match(guide, /hrefLang="tr-TR"/);
+    assert.match(guide, /hrefLang="en-US"/);
+    assert.match(guide, /hrefLang="de-DE"/);
+    assert.match(guide, /hrefLang="zh-CN"/);
+  }
+});
+
 test("keeps legacy mixed-language guide slugs as noindex canonical aliases", async () => {
   const aliases = await Promise.all([
     read("de/blog/lokale-produktivitaet-prompt-text-datum-workflow/index.html"),
@@ -337,8 +409,8 @@ test("exports the bilingual editorial discovery and structured-data package", as
     read("feed.xml"),
     read("en/feed.xml"),
   ]);
-  assert.match(blog, /<strong>31<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>31<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>35<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>35<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);

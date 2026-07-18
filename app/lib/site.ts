@@ -7,7 +7,7 @@ export const siteUrl = "https://bytequant.org";
 export const contactEmail = "bytequant@yahoo.com";
 export const organizationId = `${siteUrl}/#organization`;
 export const websiteId = `${siteUrl}/#website`;
-export const ogImageUrl = `${siteUrl}/og.png`;
+export const ogImageUrl = `${siteUrl}/og-v2.png`;
 
 export const copy = {
   tr: {

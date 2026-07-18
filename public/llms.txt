@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 62 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 89 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
 
 Canonical site: https://bytequant.org/
 
@@ -36,6 +36,7 @@ Languages:
 - [Few-shot Örnek Oluşturucu](https://bytequant.org/araclar/few-shot-ornek-olusturucu): converts tasks and examples into structured few-shot prompt templates.
 - [Sistem Promptu / Persona Şablonu](https://bytequant.org/araclar/sistem-promptu-persona-sablonu): structures role, tone, style, boundaries, and response rules.
 - [Prompt Şablonu ve Değişken Doldurucu](https://bytequant.org/araclar/prompt-sablon-degisken-doldurucu): fills named prompt placeholders locally and reports missing variables.
+- [Prompt Test Vaka Matrisi Oluşturucu](https://bytequant.org/araclar/prompt-test-vaka-matrisi): drafts normal, boundary, abuse, and ambiguity cases without calling a model.
 
 ## Text and NLP tools
 
@@ -47,6 +48,10 @@ Languages:
 - [Metin Farkı (Diff)](https://bytequant.org/araclar/metin-farki-diff): highlights added and removed lines or words between two texts.
 - [Markdown Önizleyici](https://bytequant.org/araclar/markdown-onizleyici): renders a live, sanitized Markdown preview and HTML output.
 - [Yerel Metin Özetleyici](https://bytequant.org/araclar/yerel-metin-ozetleyici): extracts source sentences with an explainable word-frequency method.
+- [Unicode Normalizasyonu ve Karakter İnceleyici](https://bytequant.org/araclar/unicode-normalizasyon-inceleyici): compares Unicode normalization forms, code points, and invisible controls.
+- [Satır Sıralayıcı ve Tekilleştirici](https://bytequant.org/araclar/satir-siralayici-tekillestirici): locale-aware line sorting and controlled duplicate removal.
+- [SEO ve URL Slug Oluşturucu](https://bytequant.org/araclar/seo-slug-olusturucu): creates stable ASCII-safe slugs while preserving unmapped code points explicitly.
+- [Kelime Sıklığı ve N-gram Analizi](https://bytequant.org/araclar/kelime-sikligi-ngram-analizi): counts locale-aware words, bigrams, and trigrams locally.
 
 ## Data and developer tools
 
@@ -68,6 +73,16 @@ Languages:
 - [cURL → Kod Dönüştürücü](https://bytequant.org/araclar/curl-kod-donusturucu): parses but never executes cURL and generates JavaScript, Node.js, Python, or PHP drafts.
 - [Meta Etiket / Favicon Üretici](https://bytequant.org/araclar/meta-etiket-favicon-uretici): generates escaped SEO, Open Graph, Twitter Card, favicon, and Next.js metadata drafts.
 - [JSON Schema Oluşturucu](https://bytequant.org/araclar/json-schema-olusturucu): infers an editable Draft 2020-12 starter schema from sample JSON.
+- [YAML ↔ JSON Dönüştürücü](https://bytequant.org/araclar/yaml-json-donusturucu): safely parses YAML or JSON and converts in both directions with bounded aliases.
+- [XML Biçimlendirici ve Doğrulayıcı](https://bytequant.org/araclar/xml-bicimlendirici-dogrulayici): validates XML syntax and creates readable or minified output with DOMParser.
+- [JSON Düzleştirici / Geri Açıcı](https://bytequant.org/araclar/json-flatten-unflatten): maps nested data to RFC 6901 JSON Pointer paths and rebuilds it.
+- [CSV Tekilleştirici](https://bytequant.org/araclar/csv-tekil-satir-ayiklayici): removes duplicate CSV records by selected columns with explicit matching rules.
+- [URL Sorgu Parametresi Analizörü](https://bytequant.org/araclar/url-sorgu-parametresi-analizoru): inspects URL components, duplicate query values, and common tracking parameters without opening the link.
+- [HTML Varlık Kodlayıcı / Çözücü](https://bytequant.org/araclar/html-varlik-kodlayici): encodes HTML special characters and safely decodes supported named or numeric entities as text.
+- [Robots.txt Oluşturucu ve Denetleyici](https://bytequant.org/araclar/robots-txt-olusturucu-denetleyici): audits crawler groups, root blocks, sitemap declarations, and unknown directives.
+- [Hreflang Etiket Oluşturucu](https://bytequant.org/araclar/hreflang-etiket-olusturucu): validates locale URL clusters and produces reciprocal HTML and sitemap drafts.
+- [FAQPage JSON-LD Oluşturucu](https://bytequant.org/araclar/faq-json-ld-olusturucu): creates valid FAQPage JSON-LD from user-visible questions and answers.
+- [UTM Kampanya URL Oluşturucu](https://bytequant.org/araclar/utm-kampanya-url-olusturucu): adds consistently encoded campaign parameters without contacting an analytics service.
 
 ## Image and PDF converters
 
@@ -77,6 +92,7 @@ Languages:
 - [PDF Birleştirme](https://bytequant.org/araclar/pdf-birlestirme): merges ordered PDF documents locally without bypassing encryption.
 - [PDF Bölme / Sayfa Ayırma](https://bytequant.org/araclar/pdf-bolme): extracts selected page ranges into a new local PDF.
 - [Görsel Boyutlandırıcı](https://bytequant.org/araclar/gorsel-boyutlandirici): resizes and re-encodes PNG, JPG, or WebP with local Canvas processing.
+- [Data URI Kodlayıcı / Çözücü](https://bytequant.org/araclar/data-uri-donusturucu): locally converts small files or UTF-8 text to Data URIs and decodes bounded Data URI content.
 
 ## Privacy and security tools
 
@@ -85,6 +101,9 @@ Languages:
 - [EXIF/Meta Veri Temizleyici](https://bytequant.org/araclar/exif-meta-veri-temizleyici): inspects and removes common JPEG/PNG metadata in-browser.
 - [Şifre Gücü Testi](https://bytequant.org/araclar/sifre-gucu-testi): estimates entropy, resistance, and approximate crack time without transmitting the password.
 - [Dosya Hash Hesaplayıcı ve Karşılaştırıcı](https://bytequant.org/araclar/dosya-hash-karsilastirici): calculates and compares local SHA-256 file digests without uploading.
+- [Hatırlanabilir Parola / Passphrase Üretici](https://bytequant.org/araclar/hatirlanabilir-parola-uretici): creates pronounceable synthetic passphrases with Web Crypto and no external word list.
+- [HMAC Oluşturucu ve Doğrulayıcı](https://bytequant.org/araclar/hmac-olusturucu-dogrulayici): generates HMAC-SHA-256/384/512 locally for authorized test messages.
+- [Subresource Integrity Hash Üretici](https://bytequant.org/araclar/sri-butunluk-hash-uretici): creates standard SRI values from exact local-file bytes or pasted resource text.
 
 ## Calculation tools
 
@@ -93,6 +112,10 @@ Languages:
 - [Not Ortalaması Hesaplayıcı](https://bytequant.org/araclar/not-ortalamasi-hesaplayici): calculates weighted grades, validates total weights, and estimates remaining target scores.
 - [GPA Çevirici](https://bytequant.org/araclar/gpa-cevirici): provides clearly labeled linear estimates among common grade scales; it is not official equivalency.
 - [Kredi Ödeme ve Taksit Hesaplayıcı](https://bytequant.org/araclar/kredi-odeme-hesaplayici): models equal-payment loan scenarios with disclosed assumptions and costs.
+- [IPv4 CIDR ve Alt Ağ Hesaplayıcı](https://bytequant.org/araclar/ip-cidr-alt-ag-hesaplayici): calculates network, broadcast, mask, wildcard, and host ranges with 32-bit arithmetic.
+- [Yüzde Değişim, Artış ve Pay Hesaplayıcı](https://bytequant.org/araclar/yuzde-degisim-hesaplayici): separates percentage change, percentage points, share, and target adjustments.
+- [KDV / Vergi ve İndirim Hesaplayıcı](https://bytequant.org/araclar/kdv-indirim-hesaplayici): models user-supplied tax rates and sequential discounts without selecting legal rates.
+- [Süre, Mesai ve Mola Hesaplayıcı](https://bytequant.org/araclar/sure-mesai-hesaplayici): calculates gross and net elapsed time with explicit time-zone assumptions.
 
 ## Everyday document tools
 
@@ -100,6 +123,7 @@ Languages:
 - [Fatura Şablonu Oluşturucu](https://bytequant.org/araclar/fatura-sablonu-olusturucu): builds a local invoice draft with line items, tax, totals, and explicit jurisdiction limitations.
 - [Basit Sözleşme Şablonu](https://bytequant.org/araclar/basit-sozlesme-sablonu): structures a neutral services-agreement draft that requires qualified legal review.
 - [Tarih Farkı Hesaplayıcı](https://bytequant.org/araclar/tarih-farki-hesaplayici): compares UTC calendar dates, weeks, and weekdays without time-zone drift.
+- [Kriptografik Rastgele Seçici ve Takım Karıştırıcı](https://bytequant.org/araclar/rastgele-secici-takim-karistirici): uses Web Crypto for unbiased list shuffling, low-stakes picks, and balanced teams.
 
 ## AI workflow tools
 
@@ -109,6 +133,8 @@ Languages:
 - [Sistem Promptu Netlik Kontrolü](https://bytequant.org/araclar/sistem-promptu-netlik-kontrolu): checks purpose, role, boundaries, priority, uncertainty, and output contracts without calling a model.
 - [Rol / Persona Tutarlılık Kontrolü](https://bytequant.org/araclar/rol-persona-tutarlilik-kontrolu): compares persona rules and sample responses for lexical boundary conflicts.
 - [AI Yanıt Değerlendirme Rubriği](https://bytequant.org/araclar/ai-yanit-degerlendirme-rubrigi): builds weighted, four-level human-review rubrics without calling a model.
+- [RAG Parçalama ve Bağlam Bütçesi Planlayıcı](https://bytequant.org/araclar/rag-parcalama-butcesi-planlayici): estimates chunk count, overlap cost, retrieved context, and output reserve.
+- [Prompt Enjeksiyonu Risk Ön Taraması](https://bytequant.org/araclar/prompt-enjeksiyon-on-taramasi): reports explainable instruction-override and data-exfiltration signals without calling a model.
 
 ## Code and file security pre-checks
 
@@ -116,6 +142,7 @@ Languages:
 - [Kod Güvenliği Ön Taraması](https://bytequant.org/araclar/kod-guvenligi-on-taramasi): runs a time-bounded local Worker over source code for dangerous APIs, possible secrets, weak crypto, and injection candidates.
 - [URL Güvenlik Ön Kontrolü](https://bytequant.org/araclar/url-guvenlik-on-kontrolu): parses a URL without visiting it and flags embedded credentials, IP hosts, Punycode, redirect parameters, and obfuscation signals.
 - [CSP Oluşturucu ve Denetleyici](https://bytequant.org/araclar/csp-olusturucu-denetleyici): generates a secure starter and audits bounded Content-Security-Policy risks locally.
+- [HTTP Güvenlik Başlıkları Denetleyici](https://bytequant.org/araclar/http-guvenlik-basliklari-denetleyici): audits pasted response headers without contacting the target server.
 
 Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/tools/{slug}`, and `/zh/tools/{slug}`.
 
