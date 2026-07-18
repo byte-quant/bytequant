@@ -81,7 +81,7 @@ const conceptGroups = [
 const fileTools = new Set([
   "arac-zinciri-pipeline", "exif-meta-veri-temizleyici", "gorsel-format-donusturucu", "gorsel-sikistirici",
   "gorselden-pdf", "pdf-gorsele", "pdf-birlestirme", "pdf-bolme", "pdf-sifreleme", "heic-donusturucu",
-  "svg-png-donusturucu", "dosya-risk-on-taramasi", "sha256-dosya-butunluk-denetleyici",
+  "svg-png-donusturucu", "dosya-risk-on-taramasi", "dosya-hash-karsilastirici",
 ]);
 
 const categoryTerms: Record<ToolCategory, string[]> = {
@@ -179,7 +179,8 @@ export function extractAgentParameters(goal: string, locale: Locale): AgentParam
 
 type Recipe = { test: RegExp[]; steps: string[]; signal: Record<Locale, string> };
 const recipes: Recipe[] = [
-  { test: [/csv/i, /(mask|maskele|redact|kvkk|gdpr|gizli|privacy)/i], steps: ["arac-zinciri-pipeline"], signal: { tr: "CSV gizlilik ve dönüşüm zinciri", en: "CSV privacy and conversion workflow", de: "CSV-Datenschutz- und Konvertierungsablauf", zh: "CSV 隐私与转换流程" } },
+  { test: [/json[\s\S]{0,500}csv/i, /(mask|maskele|redact|kvkk|gdpr|gizli|privacy|hassas|sensitive|personenbezogen|敏感|隐私)/i], steps: ["json-bicimlendirici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"], signal: { tr: "JSON doğrulama, hassas veri maskeleme ve CSV teslim zinciri", en: "JSON validation, sensitive-data masking, and CSV delivery workflow", de: "JSON-Prüfung, Maskierung sensibler Daten und CSV-Ausgabe", zh: "JSON 验证、敏感数据遮蔽与 CSV 输出流程" } },
+  { test: [/csv/i, /(mask|maskele|redact|kvkk|gdpr|gizli|privacy|hassas|sensitive|personenbezogen|敏感|隐私)/i], steps: ["csv-inceleyici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"], signal: { tr: "CSV inceleme, gizlilik maskeleme ve dönüşüm zinciri", en: "CSV inspection, privacy masking, and conversion workflow", de: "CSV-Prüfung, Datenschutzmaskierung und Konvertierung", zh: "CSV 检查、隐私遮蔽与转换流程" } },
   { test: [/(prompt|system|persona|talimat|提示词)/i, /(güven|security|injection|test|netlik|clarity|安全|测试)/i], steps: ["sistem-promptu-netlik-kontrolu", "prompt-enjeksiyon-on-taramasi", "prompt-test-vaka-matrisi"], signal: { tr: "Prompt netliği ve güvenlik doğrulama zinciri", en: "Prompt clarity and safety validation chain", de: "Prompt-Klarheits- und Sicherheitskette", zh: "提示词清晰度与安全验证链" } },
   { test: [/(seo|canonical|hreflang|robots|schema|index|sitemap)/i], steps: ["seo-slug-olusturucu", "robots-txt-olusturucu-denetleyici", "hreflang-etiket-olusturucu", "faq-json-ld-olusturucu"], signal: { tr: "Teknik SEO yayın öncesi kontrolü", en: "Pre-publication technical SEO review", de: "Technische SEO-Prüfung vor Veröffentlichung", zh: "发布前技术 SEO 检查" } },
   { test: [/(header|başlık|csp|hsts|http|tls|响应头)/i, /(security|güven|audit|denet|安全)/i], steps: ["http-guvenlik-basliklari-denetleyici", "csp-olusturucu-denetleyici"], signal: { tr: "HTTP güvenlik başlığı ve CSP ön denetimi", en: "HTTP security-header and CSP pre-audit", de: "HTTP-Sicherheitsheader- und CSP-Vorprüfung", zh: "HTTP 安全响应头与 CSP 预审" } },
@@ -189,7 +190,7 @@ const recipes: Recipe[] = [
   { test: [/(rag|context|bağlam|retrieval|检索)/i], steps: ["rag-parcalama-butcesi-planlayici", "prompt-enjeksiyon-on-taramasi"], signal: { tr: "RAG kapasite ve talimat güveni ayrımı", en: "RAG capacity and instruction-trust separation", de: "RAG-Kapazität und Instruktionsvertrauen", zh: "RAG 容量与指令信任分离" } },
   { test: [/(image|görsel|resim|foto|bild|图片|照片)/i, /(privacy|gizlilik|exif|metadata|konum|gps|datenschutz|隐私|位置)/i], steps: ["exif-meta-veri-temizleyici", "gorsel-sikistirici", "gorsel-format-donusturucu"], signal: { tr: "Görsel meta veri temizleme ve teslim akışı", en: "Image metadata cleanup and delivery flow", de: "Bildmetadaten-Bereinigung und Ausgabe", zh: "图像元数据清理与交付流程" } },
   { test: [/(jwt|token)/i, /(decode|çöz|inspect|incele|ablauf|解码|检查)/i], steps: ["jwt-decoder", "unix-zaman-damgasi-donusturucu", "json-bicimlendirici"], signal: { tr: "JWT yapısı ve zaman alanları incelemesi", en: "JWT structure and timestamp inspection", de: "JWT-Struktur- und Zeitstempelprüfung", zh: "JWT 结构与时间戳检查" } },
-  { test: [/(code|kod|source|kaynak|quellcode|代码)/i, /(secret|gizli|security|güven|scan|tara|sicherheit|安全|扫描)/i], steps: ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "sha256-dosya-butunluk-denetleyici"], signal: { tr: "Kod ve dosya güvenliği ön denetimi", en: "Code and file safety pre-audit", de: "Code- und Dateisicherheits-Vorprüfung", zh: "代码与文件安全预审" } },
+  { test: [/(code|kod|source|kaynak|quellcode|代码)/i, /(secret|gizli|security|güven|scan|tara|sicherheit|安全|扫描)/i], steps: ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "dosya-hash-karsilastirici"], signal: { tr: "Kod ve dosya güvenliği ön denetimi", en: "Code and file safety pre-audit", de: "Code- und Dateisicherheits-Vorprüfung", zh: "代码与文件安全预审" } },
   { test: [/(citation|atıf|kaynakça|apa|mla|zitat|引用)/i], steps: ["kaynakca-atif-formatlayici", "unicode-normalizasyon-inceleyici"], signal: { tr: "Kaynakça biçimi ve Unicode tutarlılığı", en: "Citation formatting and Unicode consistency", de: "Zitierformat und Unicode-Konsistenz", zh: "引用格式与 Unicode 一致性" } },
 ];
 

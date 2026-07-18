@@ -8,7 +8,7 @@ export const siteUrl = BYTEQUANT_CANONICAL_ORIGIN;
 export const contactEmail = "bytequant@yahoo.com";
 export const organizationId = `${siteUrl}/#organization`;
 export const websiteId = `${siteUrl}/#website`;
-export const ogImageUrl = `${siteUrl}/og-v5.png`;
+export const ogImageUrl = `${siteUrl}/og.png`;
 
 export const copy = {
   tr: {

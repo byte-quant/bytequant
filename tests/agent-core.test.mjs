@@ -22,6 +22,12 @@ const catalog = [
   tool("json-bicimlendirici", "data", "01", "JSON Biçimlendirici", "JSON Formatter", "JSON-Formatierer", "JSON 格式化", "validate and format JSON"),
   tool("json-diff-karsilastirma", "data", "02", "JSON Diff", "JSON Diff", "JSON-Vergleich", "JSON 比较", "compare JSON structure"),
   tool("arac-zinciri-pipeline", "data", "03", "Araç Zinciri", "Tool Pipeline", "Werkzeug-Pipeline", "工具流水线", "CSV mask privacy convert"),
+  tool("csv-inceleyici", "data", "06", "CSV İnceleyici", "CSV Inspector", "CSV-Prüfer", "CSV 检查器", "inspect CSV rows and columns"),
+  tool("kvkk-veri-maskeleyici", "security", "07", "KVKK Veri Maskeleyici", "Privacy Data Masker", "Datenschutz-Maskierer", "隐私数据遮蔽", "mask redact personal sensitive data KVKK GDPR privacy"),
+  tool("json-csv-donusturucu", "data", "08", "JSON CSV Dönüştürücü", "JSON CSV Converter", "JSON-CSV-Konverter", "JSON CSV 转换器", "convert JSON CSV"),
+  tool("kod-guvenligi-on-taramasi", "codeSecurity", "09", "Kod Güvenliği Ön Taraması", "Code Safety Pre-scan", "Code-Sicherheitsprüfung", "代码安全预扫描", "scan source code for secrets security"),
+  tool("dosya-risk-on-taramasi", "codeSecurity", "10", "Dosya Risk Ön Taraması", "File Risk Pre-scan", "Dateirisiko-Prüfung", "文件风险预扫描", "scan file risk security"),
+  tool("dosya-hash-karsilastirici", "security", "11", "Dosya Hash Hesaplayıcı", "File Hash Calculator", "Datei-Hash-Rechner", "文件哈希计算器", "SHA-256 file integrity compare"),
   tool("prompt-kalite-denetimi", "prompt", "04", "Prompt Denetimi", "Prompt Review", "Prompt-Prüfung", "提示词审查", "prompt clarity"),
   tool("metin-temizleyici", "text", "05", "Metin Temizleyici", "Text Cleaner", "Textbereinigung", "文本清理", "clean text"),
 ];
@@ -41,9 +47,13 @@ test("local agent semantically ranks tools and extracts bounded parameters", () 
 test("local agent builds explicit workflows without executing tools", () => {
   const plan = createAgentPlan("CSV dosyasını KVKK için maskele ve JSON'a dönüştür", catalog, "tr");
   assert.equal(plan.version, AGENT_VERSION);
-  assert.equal(plan.steps[0]?.toolSlug, "arac-zinciri-pipeline");
+  assert.deepEqual(plan.steps.map((step) => step.toolSlug), ["csv-inceleyici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"]);
   assert.ok(plan.confidence >= 0.35 && plan.confidence <= 0.94);
   assert.ok(plan.limitations.some((value) => value.includes("büyük dil modeli")));
+  const privacyDelivery = createAgentPlan("JSON verisini doğrula, hassas alanları maskele ve CSV olarak hazırla", catalog, "tr");
+  assert.deepEqual(privacyDelivery.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"]);
+  const codeSafety = createAgentPlan("Kaynak kodu gizli anahtar ve güvenlik riski için tara", catalog, "tr");
+  assert.deepEqual(codeSafety.steps.map((step) => step.toolSlug), ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "dosya-hash-karsilastirici"]);
   const numbered = createAgentPlan("1. validate and format JSON\n2. compare JSON structure", catalog, "en");
   assert.equal(numbered.steps.length, 2);
   assert.deepEqual(numbered.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "json-diff-karsilastirma"]);
