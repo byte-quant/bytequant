@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "ByteQuant · Privacy-First Browser Tools",
     short_name: "ByteQuant",
-    description: "89 privacy-first tools for data, files, calculations, AI workflows, and code-security pre-checks. Core processing stays in your browser.",
+    description: "89 privacy-first tools plus a local, explainable workflow agent. Core processing, plans, and tool input stay in your browser.",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
@@ -23,9 +23,9 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/favicon.png", sizes: "512x512", type: "image/png", purpose: "any" },
     ],
     shortcuts: [
+      { name: "ByteQuant Local Agent", short_name: "Local Agent", description: "Plan a private multi-step tool workflow", url: "/en/agent/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "JSON Formatter", short_name: "JSON", description: "Validate and format JSON locally", url: "/en/tools/json-bicimlendirici/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "File Risk Pre-Scan", short_name: "File scan", description: "Inspect file risk signals without uploading", url: "/en/tools/dosya-risk-on-taramasi/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
-      { name: "Unit Converter", short_name: "Units", description: "Convert common measurement units locally", url: "/en/tools/birim-donusturucu/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
     ],
   };
 }

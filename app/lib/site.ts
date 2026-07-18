@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { BYTEQUANT_CANONICAL_ORIGIN } from "./brand-integrity";
 
 export const locales = ["tr", "en", "de", "zh"] as const;
 export type Locale = (typeof locales)[number];
 
-export const siteUrl = "https://bytequant.org";
+export const siteUrl = BYTEQUANT_CANONICAL_ORIGIN;
 export const contactEmail = "bytequant@yahoo.com";
 export const organizationId = `${siteUrl}/#organization`;
 export const websiteId = `${siteUrl}/#website`;
-export const ogImageUrl = `${siteUrl}/og-v2.png`;
+export const ogImageUrl = `${siteUrl}/og-v3.png`;
 
 export const copy = {
   tr: {
@@ -84,12 +85,12 @@ export const copy = {
   },
 } as const;
 
-export function pathFor(locale: Locale, key: "home" | "tools" | "blog" | "about" | "privacy" | "cookies" | "terms" | "contact" | "faq") {
+export function pathFor(locale: Locale, key: "home" | "tools" | "agent" | "blog" | "about" | "privacy" | "cookies" | "terms" | "contact" | "faq") {
   const routes = {
-    tr: { home: "/", tools: "/#araclar", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
-    en: { home: "/en", tools: "/en#tools", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
-    de: { home: "/de", tools: "/de#tools", blog: "/de/blog", about: "/de/about", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
-    zh: { home: "/zh", tools: "/zh#tools", blog: "/zh/blog", about: "/zh/about", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
+    tr: { home: "/", tools: "/#araclar", agent: "/ajan", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
+    en: { home: "/en", tools: "/en#tools", agent: "/en/agent", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
+    de: { home: "/de", tools: "/de#tools", agent: "/de/agent", blog: "/de/blog", about: "/de/about", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
+    zh: { home: "/zh", tools: "/zh#tools", agent: "/zh/agent", blog: "/zh/blog", about: "/zh/about", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
   } as const;
   return routes[locale][key];
 }

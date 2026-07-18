@@ -230,6 +230,35 @@ export const localizedGuides: LocalizedGuide[] = [
       },
     },
   },
+  {
+    slug: "browser-only-agentic-ai-tool-orchestration",
+    date: "2026-07-18",
+    relatedTools: ["arac-zinciri-pipeline", "prompt-enjeksiyon-on-taramasi", "prompt-test-vaka-matrisi", "http-guvenlik-basliklari-denetleyici", "token-baglam-butcesi-planlayici"],
+    copy: {
+      de: {
+        title: "Browser-only Agentic AI: sichere Werkzeug-Orchestrierung",
+        excerpt: "Semantische Suche, mehrstufige Pläne, sichtbare Begründungen, Fehlerübersetzung und lokale Spracheingabe ohne Upload verbinden.",
+        description: "Praxisleitfaden zu Werkzeugwahl, Nutzerfreigabe, Datenübergabe und lokaler Spracheingabe für einen vollständig browserbasierten Agenten.",
+        category: "Lokale KI-Architektur", readTime: "14 Min.",
+        sections: [
+          { heading: "Agentisch bedeutet nicht automatisch großes Sprachmodell", paragraphs: ["Eine agentische Oberfläche versteht ein Ziel, wählt Fähigkeiten, ordnet Schritte und verbindet Ausgaben. In einem begrenzten Werkzeugkatalog können mehrsprachige semantische Bewertung, versionierte Regeln und explizite Parameterextraktion schneller, prüfbarer und wirklich offline sein.", "Die Methode muss sichtbar bleiben. Ein System ohne generatives Modell darf kein LLM vortäuschen, sondern soll Treffer, Auswahlgründe, Plansicherheit und Grenzen zeigen. ByteQuant bezeichnet den lokalen Agenten deshalb als nachvollziehbare hybride Suche und Planung."], bullets: ["Modelltyp und Version nennen.", "Netzwerk und Speicherung getrennt erklären.", "Vorprüfung nicht als Verifikation bezeichnen."] },
+          { heading: "Planung und Ausführungsrecht trennen", paragraphs: ["Dateiauswahl, Codeausführung, Download und externe Anfrage sind keine harmlosen Planungsdetails. Jeder Schritt muss sichtbar und bearbeitbar bleiben; Nebenwirkungen erfordern eine ausdrückliche Nutzeraktion.", "Eine Werkzeugbrücke darf Text übergeben, aber keine Passwortfelder, Dateiauswahl oder Downloads automatisch bedienen. Plan und begrenzte Zwischenausgabe gehören nur in das sessionStorage des offenen Tabs."], bullets: ["Zweck und Eingabequelle pro Schritt anzeigen.", "Datei und Download manuell lassen.", "Wichtige Ergebnisse unabhängig prüfen."] },
+          { heading: "Lokale Sprache und ehrliche Transparenz", paragraphs: ["Nützliche Transparenz zeigt Signale, extrahierte Parameter, Auswahlgründe und Grenzen – keine verborgene Gedankenkette. Fehlererklärung durch lokale Muster ist außerdem keine Ursachenanalyse oder Sicherheitsfreigabe.", "Spracherkennung darf nur starten, wenn der Browser lokale Verarbeitung und das Sprachpaket bestätigt. `processLocally` muss erzwungen werden; ohne Unterstützung bleibt Texteingabe verfügbar. Sprache ist Komfort, keine Authentisierung."] },
+        ],
+      },
+      zh: {
+        title: "纯浏览器 Agentic AI：安全设计工具编排",
+        excerpt: "无需上传数据，把语义搜索、多步骤计划、可见理由、错误解释与设备端语音组合起来。",
+        description: "介绍纯浏览器助手的工具选择、用户授权、数据传递和安全设备端语音架构。",
+        category: "本地 AI 架构", readTime: "约 14 分钟",
+        sections: [
+          { heading: "Agentic 不等于必须使用大型语言模型", paragraphs: ["Agentic 界面会理解目标、选择能力、排列步骤，并把输出连接到下一步。在有限工具目录中，多语言语义评分、版本化规则和明确参数提取可以更快、更可审计，也真正离线。", "方法说明比名称重要。没有生成式模型的系统不应暗示自己是 LLM，而应展示匹配信号、选择理由、计划置信度与限制。因此 ByteQuant 把本地助手定义为可解释的混合搜索与规划引擎。"], bullets: ["公开模型类型与版本。", "分别说明网络与存储边界。", "不要把预检查称为验证。"] },
+          { heading: "把规划与执行权限分开", paragraphs: ["选择文件、运行代码、下载结果或访问外部地址都需要单独授权。安全编排应展示并允许编辑每一步，不能自动执行带副作用的动作。", "工具桥可以传递文本，但不得自动填写密码、选择文件或触发下载。计划与有限的中间输出只应保留在当前标签页的 sessionStorage 中。"], bullets: ["显示每步目的与输入来源。", "文件和下载保持手动。", "高影响结果需要独立复核。"] },
+          { heading: "设备端语音与诚实的透明度", paragraphs: ["有用的透明度展示匹配信号、提取参数、选用理由和边界，而不是隐藏思维链。基于本地规则解释错误也不等于根因分析或安全批准。", "只有浏览器确认设备端处理和语言可用时才能启动语音，并强制 `processLocally`；不支持时保留文本输入，不回退到远程识别。语音只是输入便利，不是身份验证。"] },
+        ],
+      },
+    },
+  },
 ];
 
 export const legacyLocalizedGuideSlugs = {

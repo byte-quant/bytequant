@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Locale } from "../lib/site";
+import { isAuthorizedByteQuantHostname } from "../lib/brand-integrity";
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,7 +28,7 @@ function androidInstallMode(userAgent: string): AndroidInstallMode {
 
 export function PwaRegistrar() {
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production") return;
+    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production" || !isAuthorizedByteQuantHostname(location.hostname)) return;
     const register = () => navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
     window.addEventListener("load", register, { once: true });
     return () => window.removeEventListener("load", register);

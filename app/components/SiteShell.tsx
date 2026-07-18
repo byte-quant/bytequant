@@ -38,6 +38,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
           </Link>
           <nav className="main-nav" aria-label={localized("Ana menü", "Main navigation", "Hauptnavigation", "主导航") }>
             <Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
+            <Link className="agent-nav-link" href={pathFor(locale, "agent")}>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
             <Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link>
             <Link href={pathFor(locale, "about")}>{t.nav.about}</Link>
             <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>
@@ -51,6 +52,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
               <summary aria-label={localized("Menüyü aç", "Open menu", "Menü öffnen", "打开菜单")}>☰</summary>
               <div className="mobile-menu-panel">
                 <Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
+                <Link className="agent-nav-link" href={pathFor(locale, "agent")}>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
                 <Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link>
                 <Link href={pathFor(locale, "about")}>{t.nav.about}</Link>
                 <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>
@@ -68,7 +70,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <p>{localized("Günlük metin, veri ve prompt işlerini doğrudan tarayıcınızda tamamlayın. Araç girdileri ByteQuant sunucularına gönderilmez.", "Complete everyday text, data, and prompt tasks directly in your browser. Tool inputs are not sent to ByteQuant servers.", "Erledigen Sie Text-, Daten- und Prompt-Aufgaben direkt im Browser. Werkzeugeingaben werden nicht an ByteQuant-Server gesendet.", "直接在浏览器中完成文本、数据和提示词任务。工具输入不会发送到 ByteQuant 服务器。")}</p>
             <span className="privacy-pill">● {localized("Tarayıcı içinde işlenir", "Processed in your browser", "Im Browser verarbeitet", "在浏览器中处理")}</span>
           </div>
-          <div><h2>{localized("Keşfet", "Explore", "Entdecken", "探索")}</h2><Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={referencePath(locale, "regex-cheat-sheet")}>Regex cheat sheet</Link><Link href={referencePath(locale, "cron-cheat-sheet")}>Cron cheat sheet</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div>
+          <div><h2>{localized("Keşfet", "Explore", "Entdecken", "探索")}</h2><Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link><Link href={pathFor(locale, "agent")}>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={referencePath(locale, "regex-cheat-sheet")}>Regex cheat sheet</Link><Link href={referencePath(locale, "cron-cheat-sheet")}>Cron cheat sheet</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div>
           <div><h2>{localized("Kurumsal", "Company", "Unternehmen", "公司信息")}</h2><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "contact")}>{t.nav.contact}</Link><Link href={pathFor(locale, "privacy")}>{localized("Gizlilik politikası", "Privacy policy", "Datenschutz", "隐私政策")}</Link><Link href={pathFor(locale, "cookies")}>{localized("Çerez ve yerel depolama", "Cookies & local storage", "Cookies & lokaler Speicher", "Cookie 与本地存储")}</Link><PrivacySettingsButton locale={locale} /><Link href={pathFor(locale, "terms")}>{localized("Kullanım koşulları", "Terms of use", "Nutzungsbedingungen", "使用条款")}</Link></div>
           <div><h2>{localized("Sosyal", "Social", "Social Media", "社交媒体")}</h2><a href="https://x.com/byte_quant" rel="me noopener noreferrer">X · @byte_quant</a><a href="https://www.instagram.com/byte.quant" rel="me noopener noreferrer">Instagram · @byte.quant</a><a href="mailto:bytequant@yahoo.com">bytequant@yahoo.com</a></div>
         </div>

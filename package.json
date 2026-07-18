@@ -11,8 +11,9 @@
     "build": "next build && node scripts/patch-static-language.mjs",
     "build:sites": "vinext build",
     "start": "vinext start",
-    "test": "node --test tests/site.test.mjs",
+    "test": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs --test tests/*.test.mjs",
     "audit:static": "node scripts/audit-static.mjs",
+    "audit:licenses": "node scripts/audit-licenses.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

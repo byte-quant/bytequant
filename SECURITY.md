@@ -20,5 +20,9 @@ The current production revision on the repository's default branch is supported.
 - URL checks make no DNS, HTTP, TLS, or reputation request.
 - Heuristic findings can contain false positives and false negatives; a clean result is not proof of safety.
 - Client-side code must never contain deploy-time or production secrets.
+- Local Agent uses deterministic semantic scoring and versioned rules. It calls no remote model, executes no tool without user action, and keeps its bounded plan state in tab-scoped sessionStorage.
+- Voice input is disabled unless the browser confirms on-device speech recognition and forced local processing; remote fallback is prohibited.
+- The interactive application is authorized for bytequant.org and www.bytequant.org only, with localhost exceptions for development. A browser-side domain guard, hardcoded canonical origin, and build signature support attribution but cannot prevent inspection or copying of code already delivered to a browser.
+- Production source maps are disabled. Deliberate obfuscation is avoided because it is not a secret-management control and impairs review.
 
 For critical decisions, use current professional security controls, qualified human review, isolation, and defense in depth.

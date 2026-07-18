@@ -10,6 +10,7 @@ import { ToolWorkbench } from "./ToolWorkbench";
 import { referenceCopy, referencePath, references } from "../lib/references";
 import { posts } from "../lib/posts";
 import { localizedGuides } from "../lib/localized-guides";
+import { AgentToolBridge } from "./AgentToolBridge";
 
 export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const editorialLocale = locale === "tr" ? "tr" : "en";
@@ -41,7 +42,7 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
       <ToolUsageTracker slug={tool.slug} />
       <div className="container page-top"><nav className="breadcrumbs" aria-label={localized("Sayfa yolu", "Breadcrumb", "Brotkrumen", "面包屑导航")}><Link href={pathFor(locale, "home")}>{localized("Ana sayfa", "Home", "Startseite", "首页")}</Link><span>/</span><Link href={pathFor(locale, "tools")}>{localized("Araçlar", "Tools", "Werkzeuge", "工具")}</Link><span>/</span><span>{tool.title[locale]}</span></nav></div>
       <section className="tool-hero"><div className="container"><div className="tool-title-row"><span className={`tool-mark tool-mark-xl category-${tool.category}`}>{tool.mark}</span><div><span className="kicker">{categories[tool.category].label[locale]}</span><h1>{tool.title[locale]}</h1><p>{tool.description[locale]}</p></div></div><div className="tool-assurances"><span>✓ {localized("Ücretsiz", "Free", "Kostenlos", "免费")}</span><span>✓ {localized("Üyelik yok", "No account", "Kein Konto", "无需账户")}</span><span>✓ {localized("Tarayıcı içinde", "In-browser", "Im Browser", "浏览器内")}</span></div></div></section>
-      <div className="container"><ToolWorkbench slug={tool.slug} locale={locale} /></div>
+      <div className="container"><AgentToolBridge slug={tool.slug} locale={locale} /><ToolWorkbench slug={tool.slug} locale={locale} /></div>
       <section className="container tool-transparency" aria-label={localized("Araç veri ve yöntem özeti", "Tool data and method summary", "Daten- und Methodenübersicht", "工具数据与方法摘要")}>
         <article><span>01</span><div><strong>{localized("İşleme sınırı", "Processing boundary", "Verarbeitungsgrenze", "处理边界")}</strong><p>{localized("Girdi yalnızca etkin tarayıcı sekmesinin belleğinde işlenir; ByteQuant sunucusuna gönderilmez.", "Input is processed only in the active browser tab's memory and is not sent to a ByteQuant server.", "Eingaben werden nur im Speicher des aktiven Browser-Tabs verarbeitet und nicht an ByteQuant-Server gesendet.", "输入仅在当前浏览器标签页的内存中处理，不会发送到 ByteQuant 服务器。")}</p></div></article>
         <article><span>02</span><div><strong>{localized("Kalıcı depolama", "Persistent storage", "Dauerhafte Speicherung", "持久存储")}</strong><p>{localized("Girdi ve çıktı kaydedilmez. İsteğe bağlı kullanım sayacı içerik değil yalnızca araç kimliği ve sayısını tutar.", "Input and output are not stored. The optional usage counter keeps only tool identity and count, never content.", "Ein- und Ausgabe werden nicht gespeichert. Der optionale Zähler enthält nur Werkzeugkennung und Anzahl, niemals Inhalte.", "输入和输出不会被保存。可选使用计数器只保留工具标识和次数，不保存内容。")}</p></div></article>

@@ -13,8 +13,9 @@ ByteQuant is a privacy-first, installable web application containing 89 browser-
 
 - 89 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 35 long-form editorial guides in Turkish and English, including seven editorially localized German and Simplified Chinese workflow editions
+- 36 long-form editorial guides in Turkish and English, including eight editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
+- Explainable Local Agent with multilingual semantic search, user-approved multi-step plans, parameter extraction, error translation, and verified on-device-only voice input
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
@@ -45,6 +46,10 @@ These tools are not antivirus, a complete SAST platform, identity verification, 
 Next.js App Router (static export)
 ├─ Locale routes: tr / en / de / zh
 ├─ Shared typed tool catalogue and localized metadata
+├─ Local Agent orchestration
+│  ├─ multilingual semantic scorer + versioned plan recipes
+│  ├─ tab-scoped session bridge across all 89 tools
+│  └─ no remote model, remote speech fallback, or hidden chain-of-thought
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas
 │  ├─ bounded Web Workers
@@ -53,7 +58,7 @@ Next.js App Router (static export)
 └─ sitemap / robots / llms.txt / RSS / JSON-LD
 ~~~
 
-No secret belongs in the client bundle. Source code is intentionally maintainable rather than obfuscated; obfuscation does not protect browser-side credentials and makes security review harder.
+No secret belongs in the client bundle. Source code is intentionally maintainable rather than obfuscated; obfuscation does not protect browser-side credentials and makes security review harder. Production source maps are disabled. Canonical metadata, a build signature, and an official-domain guard preserve attribution and block interactive use on unauthorized hosts, but no client-side mechanism can make delivered JavaScript impossible to inspect.
 
 ## Local development
 
@@ -85,6 +90,8 @@ The deployable static site is written to out/.
 | Calculation, AI, document, and security workbenches | app/components/AdvancedWorkbenches.tsx |
 | High-demand data, SEO, text, calculation, crypto, and RAG workbenches | app/components/DemandWorkbenches.tsx |
 | Existing client-side tool engine | app/components/ToolWorkbench.tsx |
+| Local semantic planner and error translator | app/lib/agent-core.ts |
+| Agent interface and tool bridge | app/components/AgenticAssistant.tsx, app/components/AgentToolBridge.tsx |
 | Locale and hreflang routing | app/lib/site.ts |
 | Legal and trust content | app/lib/info.ts, app/lib/localized-info.ts |
 | Editorial guides | app/lib/posts.ts |

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { referenceCopy, referencePath, references } from "../lib/references";
-import { toolPath, type Locale } from "../lib/site";
+import { pathFor, toolPath, type Locale } from "../lib/site";
 import { categories, tools } from "../lib/tools";
 
 function searchable(value: string, locale: Locale) {
@@ -23,6 +23,14 @@ export function CommandPalette({ locale }: { locale: Locale }) {
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const entries = useMemo(() => [
+    {
+      id: "local-agent",
+      href: pathFor(locale, "agent"),
+      title: { tr: "Yerel Ajan", en: "Local Agent", de: "Lokaler Agent", zh: "本地助手" }[locale],
+      detail: { tr: "Semantik arama ve akış planlama", en: "Semantic search and workflow planning", de: "Semantische Suche und Ablaufplanung", zh: "语义搜索与工作流规划" }[locale],
+      mark: "BQ",
+      search: "agent ajan ai semantic semantik workflow akış plan planner error hata voice ses local lokal 本地助手 语义 工作流",
+    },
     ...tools.map((tool) => ({
       id: `tool-${tool.slug}`,
       href: toolPath(locale, tool.slug),
@@ -42,7 +50,8 @@ export function CommandPalette({ locale }: { locale: Locale }) {
   ], [locale]);
   const results = useMemo(() => {
     const term = searchable(query.trim(), locale);
-    return (term ? entries.filter((entry) => searchable(entry.search, locale).includes(term)) : entries).slice(0, 12);
+    if (!term) return entries.slice(0, 12);
+    return entries.filter((entry) => searchable(entry.search, locale).includes(term)).slice(0, 12);
   }, [entries, query, locale]);
 
   useEffect(() => {
