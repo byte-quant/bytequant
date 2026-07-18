@@ -31,6 +31,14 @@ export function CommandPalette({ locale }: { locale: Locale }) {
       mark: "BQ",
       search: "agent ajan ai semantic semantik workflow akış plan planner error hata voice ses local lokal 本地助手 语义 工作流",
     },
+    {
+      id: "workstation",
+      href: pathFor(locale, "workstation"),
+      title: { tr: "İş İstasyonu", en: "Workstation", de: "Workstation", zh: "工作站" }[locale],
+      detail: { tr: "Görsel akış, şifreli projeler ve P2P", en: "Visual flows, encrypted projects, and P2P", de: "Visuelle Abläufe, verschlüsselte Projekte und P2P", zh: "可视化流程、加密项目与 P2P" }[locale],
+      mark: "IDE",
+      search: "workstation workspace ide node canvas flow graph p2p webrtc indexeddb encrypted şifreli görsel akış arbeitsbereich knoten 工作站 节点 加密",
+    },
     ...tools.map((tool) => ({
       id: `tool-${tool.slug}`,
       href: toolPath(locale, tool.slug),

@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   alternates: { canonical: BYTEQUANT_CANONICAL_ORIGIN },
   other: { "bytequant:canonical-origin": BYTEQUANT_CANONICAL_ORIGIN, "bytequant:build-signature": BYTEQUANT_BUILD_SIGNATURE },
   formatDetection: { email: false, address: false, telephone: false },
-  openGraph: { type: "website", siteName: "ByteQuant", locale: "tr_TR", alternateLocale: ["en_US", "de_DE", "zh_CN"], url: "https://bytequant.org", title: "ByteQuant · Yerel Ajan ve Gizlilik Odaklı Araçlar", description: "89 ücretsiz araç ve yerel, açıklanabilir akış planlayıcı. Üyelik, veri yükleme ve uzak model yok.", images: [{ url: "/og-v3.png", width: 1200, height: 630, alt: "ByteQuant Yerel Ajan ve 89 tarayıcı içi araç" }] },
-  twitter: { card: "summary_large_image", title: "ByteQuant · Yerel Ajan + 89 Araç", description: "Gizlilik odaklı, tarayıcı içinde çalışan araçlar ve açıklanabilir yerel planlayıcı.", images: ["/og-v3.png"] },
+  openGraph: { type: "website", siteName: "ByteQuant", locale: "tr_TR", alternateLocale: ["en_US", "de_DE", "zh_CN"], url: "https://bytequant.org", title: "ByteQuant · Yerel İş İstasyonu ve 89 Tarayıcı Aracı", description: "89 ücretsiz araç, görsel iş akışları, şifreli cihaz içi projeler ve sunucusuz P2P. Üyelik, veri yükleme ve uzak model yok.", images: [{ url: "/og-v4.png", width: 1200, height: 630, alt: "ByteQuant Yerel İş İstasyonu ve 89 tarayıcı içi araç" }] },
+  twitter: { card: "summary_large_image", title: "ByteQuant · Yerel İş İstasyonu + 89 Araç", description: "Görsel akışlar, şifreli cihaz içi projeler ve sunucusuz P2P ile gizlilik odaklı araçlar.", images: ["/og-v4.png"] },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   icons: { icon: [{ url: "/favicon.png", type: "image/png", sizes: "512x512" }], shortcut: "/favicon.png", apple: [{ url: "/favicon.png", sizes: "512x512", type: "image/png" }] },
 };

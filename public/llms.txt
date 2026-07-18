@@ -14,12 +14,16 @@ Languages:
 
 - Core tool input is processed locally in the user's browser; ByteQuant tools do not require an account.
 - Tool input is not intentionally uploaded to ByteQuant application servers.
-- Local storage is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts used to personalize the popular-tools list.
+- Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts used to personalize the popular-tools list.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
 - Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans and user-approved intermediate output are bounded to the current tab's sessionStorage.
 - Local Agent never selects files, runs tools, downloads output, or performs a network request without user action. Its decision summary exposes matched signals, extracted parameters, reasons, and limitations—not hidden chain-of-thought.
 - Voice input is offered only when the browser confirms on-device speech recognition and supports forced local processing. There is no fallback to remote recognition.
+- Workstation projects are saved only after explicit use, as AES-GCM-256 ciphertext in the browser's `bytequant-workspaces` IndexedDB database. A non-extractable device key stays in the same database. This is not protection against a compromised device, malicious extension, or hostile same-origin code.
+- Workstation handoff records are tab-scoped sessionStorage values. Tool selection, file input, passwords, code execution, network requests, and downloads remain user-controlled.
+- Peer collaboration uses only WebRTC DataChannel with no ByteQuant signaling server, STUN, or TURN. Manual offer/answer codes may disclose network candidates, connected peers receive the shared document, and some NAT/firewall combinations will not connect.
+- Recipe URLs always omit output and omit input by default. Opting in to input can expose it through the URL, browser history, clipboard, messaging service, and recipient device.
 - Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
 - The installable PWA caches only same-origin application resources and previously visited GET pages. Tool inputs, passwords, selected files, and generated outputs are not written to the offline cache.
 - ByteQuant distributes no native APK. On Android the browser creates the WebAPK/app wrapper; users who see an old-Android warning are instructed to cancel, update the browser, remove the stale install, and reinstall from a current browser menu.
@@ -40,6 +44,17 @@ Languages:
 - The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 89 tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
+
+## Visual Workstation
+
+- Turkish Workstation: https://bytequant.org/is-istasyonu
+- English Workstation: https://bytequant.org/en/workstation
+- German Workstation: https://bytequant.org/de/workstation
+- Simplified Chinese Workstation: https://bytequant.org/zh/workstation
+- Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
+- Users can arrange any of the 89 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, and optional manual WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
+- Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
 ## Prompt tools
 

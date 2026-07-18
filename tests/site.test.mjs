@@ -20,7 +20,7 @@ test("exports the complete four-language site", async () => {
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
   assert.match(home, /<title>ByteQuant ·/);
-  assert.match(home, /og-v3\.png/);
+  assert.match(home, /og-v4\.png/);
   assert.match(home, /hrefLang="tr-TR"/);
   assert.match(home, /hrefLang="en-US"/);
   assert.match(home, /hrefLang="tr"/);
@@ -61,6 +61,11 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /https:\/\/bytequant\.org\/en\/agent\//);
   assert.match(sitemap, /de\/blog\/browser-only-agentic-ai-tool-orchestration/);
   assert.match(sitemap, /zh\/blog\/browser-only-agentic-ai-tool-orchestration/);
+  assert.match(sitemap, /https:\/\/bytequant\.org\/is-istasyonu\//);
+  assert.match(sitemap, /https:\/\/bytequant\.org\/en\/workstation\//);
+  assert.match(sitemap, /de\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
+  assert.match(sitemap, /zh\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
+  assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/workspace\//);
   assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
   assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
   assert.doesNotMatch(sitemap, /lokale-produktivitaet|json-schema-bild|kredit-ai-bewertung/);
@@ -78,8 +83,9 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v8/);
+  assert.match(worker, /bytequant-shell-v9/);
   assert.match(worker, /\/en\/agent\//);
+  assert.match(worker, /\/en\/workstation\//);
   assert.doesNotMatch(worker, /localStorage/i);
   assert.match(worker, /cache\.put\(pageKey/);
   const navigationCacheBranch = worker.slice(worker.indexOf('if (request.mode === "navigate")'), worker.indexOf('if (["script", "style", "image", "font"]'));
@@ -104,6 +110,9 @@ test("exports consent, storage, and security disclosures", async () => {
     assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
   }
   assert.match(privacy, /Google-certified CMP|CMP/);
+  assert.match(privacy, /bytequant-workspaces/);
+  assert.match(privacy, /AES-GCM-256/);
+  assert.match(privacy, /WebRTC DataChannel/);
   assert.match(security, /Contact: mailto:bytequant@yahoo\.com/);
   assert.match(security, /Canonical: https:\/\/bytequant\.org\/\.well-known\/security\.txt/);
   assert.match(llms, /Optional tool-visit counting is off until/);
@@ -118,8 +127,8 @@ test("exports all tool and guide routes", async () => {
   assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 89);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
-  assert.ok(germanPosts.length >= 8);
-  assert.ok(chinesePosts.length >= 8);
+  assert.ok(germanPosts.length >= 9);
+  assert.ok(chinesePosts.length >= 9);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
@@ -147,6 +156,10 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/browser-only-agentic-ai-tool-orchestration/index.html", root));
   await access(new URL("de/blog/browser-only-agentic-ai-tool-orchestration/index.html", root));
   await access(new URL("zh/blog/browser-only-agentic-ai-tool-orchestration/index.html", root));
+  await access(new URL("blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
+  await access(new URL("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
+  await access(new URL("de/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
+  await access(new URL("zh/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
   await access(new URL("de/references/regex-cheat-sheet/index.html", root));
@@ -418,8 +431,8 @@ test("exports the bilingual editorial discovery and structured-data package", as
     read("feed.xml"),
     read("en/feed.xml"),
   ]);
-  assert.match(blog, /<strong>36<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>36<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>37<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>37<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -480,5 +493,39 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(englishGuide, /Browser-Only Agentic AI/);
   assert.match(guide, /BlogPosting/);
   assert.match(englishGuide, /developer\.mozilla\.org/);
-  await access(new URL("og-v3.png", root));
+  await access(new URL("og-v4.png", root));
+});
+
+test("exports the four-language visual workstation and private recipe importer", async () => {
+  const [turkish, english, german, chinese, importer, guide] = await Promise.all([
+    read("is-istasyonu/index.html"),
+    read("en/workstation/index.html"),
+    read("de/workstation/index.html"),
+    read("zh/workstation/index.html"),
+    read("workspace/index.html"),
+    read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
+  ]);
+  assert.match(turkish, /89 tarayıcı aracını görsel bir geliştirme ortamında/);
+  assert.match(english, /Connect 89 browser tools inside a visual development environment/);
+  assert.match(german, /89 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung/);
+  assert.match(chinese, /在可视化开发环境中连接 89 个浏览器工具/);
+  for (const page of [turkish, english, german, chinese]) {
+    assert.doesNotThrow(() => jsonLd(page));
+    assert.match(page, /WebApplication/);
+    assert.match(page, /HowTo/);
+    assert.match(page, /FAQPage/);
+    assert.match(page, /hrefLang="tr-TR"/);
+    assert.match(page, /hrefLang="en-US"/);
+    assert.match(page, /hrefLang="de-DE"/);
+    assert.match(page, /hrefLang="zh-CN"/);
+    assert.match(page, /hrefLang="x-default"/);
+    assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
+  }
+  assert.match(importer, /name="robots" content="noindex, nofollow, noarchive"|content="noindex, nofollow, noarchive" name="robots"/);
+  assert.match(importer, /rel="canonical" href="https:\/\/bytequant\.org\/en\/workstation\//);
+  assert.doesNotMatch(importer, /FAQPage|HowTo|WebApplication/);
+  assert.match(guide, /IndexedDB/);
+  assert.match(guide, /RTCDataChannel/);
+  assert.match(guide, /developer\.mozilla\.org/);
+  assert.match(guide, /rfc-editor\.org/);
 });

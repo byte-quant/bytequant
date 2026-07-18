@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "ByteQuant · Privacy-First Browser Tools",
     short_name: "ByteQuant",
-    description: "89 privacy-first tools plus a local, explainable workflow agent. Core processing, plans, and tool input stay in your browser.",
+    description: "89 privacy-first tools, an explainable local agent, and a visual workstation with encrypted on-device projects and serverless P2P.",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
@@ -23,9 +23,9 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/favicon.png", sizes: "512x512", type: "image/png", purpose: "any" },
     ],
     shortcuts: [
+      { name: "ByteQuant Workstation", short_name: "Workstation", description: "Build visual workflows with encrypted local projects", url: "/en/workstation/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "ByteQuant Local Agent", short_name: "Local Agent", description: "Plan a private multi-step tool workflow", url: "/en/agent/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "JSON Formatter", short_name: "JSON", description: "Validate and format JSON locally", url: "/en/tools/json-bicimlendirici/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
-      { name: "File Risk Pre-Scan", short_name: "File scan", description: "Inspect file risk signals without uploading", url: "/en/tools/dosya-risk-on-taramasi/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
     ],
   };
 }

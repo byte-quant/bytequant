@@ -13,9 +13,10 @@ ByteQuant is a privacy-first, installable web application containing 89 browser-
 
 - 89 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 36 long-form editorial guides in Turkish and English, including eight editorially localized German and Simplified Chinese workflow editions
+- 37 long-form editorial guides in Turkish and English, including nine editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
 - Explainable Local Agent with multilingual semantic search, user-approved multi-step plans, parameter extraction, error translation, and verified on-device-only voice input
+- Lazy-loaded visual Workstation across all 89 tools, with native node wiring, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
@@ -26,11 +27,15 @@ Core tool operations run in the active browser tab. Tool input is not sent to a 
 
 The installable app's service worker caches only same-origin static resources and previously visited GET pages. It does **not** cache form input, selected files, passwords, generated output, POST data, or cross-origin resources.
 
-Local storage is limited to:
+Storage outside explicitly saved Workstation projects is limited to:
 
 - bq-consent-v1: consent choice with a 180-day lifetime
 - bq-theme: the user-selected theme
 - bq-tool-usage-v1: optional, consent-gated tool slug/count/last-use data—never tool content
+
+Workstation projects are opt-in and stay in the browser's `bytequant-workspaces` IndexedDB database. Project documents are encrypted with AES-GCM-256 and a non-extractable device key stored in the same database. This reduces exposure at rest but does not protect a compromised device, malicious extension, or hostile same-origin script. Tab handoffs use bounded sessionStorage records. Recipe URLs omit output and omit input by default.
+
+Peer collaboration uses only WebRTC DataChannel with manual offer/answer exchange and an empty ICE-server list. ByteQuant operates no signaling, STUN, or TURN service. Connection codes can contain network candidates, every connected peer receives the shared document, and NAT or firewall policy can prevent a connection.
 
 File, code, and URL security tools are deliberately framed as **heuristic pre-scans**:
 
@@ -50,6 +55,11 @@ Next.js App Router (static export)
 │  ├─ multilingual semantic scorer + versioned plan recipes
 │  ├─ tab-scoped session bridge across all 89 tools
 │  └─ no remote model, remote speech fallback, or hidden chain-of-thought
+├─ Visual Workstation (route-level lazy bundle)
+│  ├─ native HTML/SVG nodes + explicit tool bridge
+│  ├─ AES-GCM encrypted IndexedDB projects
+│  ├─ gzip/Base64url recipes in a Web Worker
+│  └─ manual WebRTC DataChannel rooms; no signaling/STUN/TURN
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas
 │  ├─ bounded Web Workers
@@ -92,6 +102,7 @@ The deployable static site is written to out/.
 | Existing client-side tool engine | app/components/ToolWorkbench.tsx |
 | Local semantic planner and error translator | app/lib/agent-core.ts |
 | Agent interface and tool bridge | app/components/AgenticAssistant.tsx, app/components/AgentToolBridge.tsx |
+| Visual Workstation, storage, recipes, and P2P | app/components/WorkstationClient.tsx, app/lib/workspace-storage.ts, app/lib/workspace-recipe.ts, app/lib/workspace-p2p.ts |
 | Locale and hreflang routing | app/lib/site.ts |
 | Legal and trust content | app/lib/info.ts, app/lib/localized-info.ts |
 | Editorial guides | app/lib/posts.ts |

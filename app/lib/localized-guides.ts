@@ -259,6 +259,41 @@ export const localizedGuides: LocalizedGuide[] = [
       },
     },
   },
+  {
+    slug: "visual-workflow-indexeddb-webrtc-workstation",
+    date: "2026-07-19",
+    relatedTools: ["arac-zinciri-pipeline", "json-bicimlendirici", "kvkk-veri-maskeleyici", "base64-kodlayici", "sha256-ozet-uretici"],
+    copy: {
+      de: {
+        title: "Browser-Workstation: Visuelle Abläufe, IndexedDB und WebRTC",
+        excerpt: "Werkzeugknoten sicher verbinden, Projekte lokal verschlüsseln und die echten Grenzen serverloser Peer-Zusammenarbeit verstehen.",
+        description: "Praxisleitfaden zu visuellen Werkzeugketten, AES-GCM-verschlüsselten IndexedDB-Projekten, komprimierten Rezept-URLs und manueller WebRTC-Zusammenarbeit.",
+        category: "Browserbasierte Arbeitsabläufe",
+        readTime: "15 Min.",
+        sections: [
+          { heading: "Knoten, Kabel und Ausführung getrennt halten", paragraphs: ["Ein Knoten beschreibt Werkzeug, Eingabe und sichtbare Ausgabe; ein Kabel nur die beabsichtigte Datenübergabe. Eine gezeichnete Verbindung ist weder Ausführungserlaubnis noch Beweis für kompatible Datentypen.", "Sichere Orchestrierung übergibt Text nur auf Nutzerwunsch. Dateiauswahl, Passwortfelder, Codeausführung, Netzwerkanfragen und Downloads bleiben ausdrücklich manuell."], bullets: ["Stabile Werkzeugkennungen speichern.", "Eingaben vor der Übergabe prüfen.", "Fehler je Knoten sichtbar halten.", "Folgenreiche Aktionen nicht automatisieren."] },
+          { heading: "IndexedDB und AES-GCM richtig einordnen", paragraphs: ["Projektdokumente können mit frischem Initialisierungsvektor pro Datensatz und dem Projektbezeichner als authentifizierten Zusatzdaten verschlüsselt werden. Ein nicht exportierbarer CryptoKey in derselben IndexedDB hält den Ablauf serverlos.", "Diese Verschlüsselung schützt nicht vor einem kompromittierten Gerät, einer bösartigen Erweiterung oder feindlichem Code desselben Ursprungs. Werden Website-Daten und Schlüssel gelöscht, ist der Chiffretext nicht wiederherstellbar. Browserkontingent und datenschutzgerechte Backups bleiben Nutzeraufgaben."], bullets: ["Schema und Größe vor und nach Entschlüsselung prüfen.", "Für jeden Datensatz einen neuen 96-Bit-IV erzeugen.", "Kontingentfehler verständlich anzeigen.", "Löschfunktionen anbieten."] },
+          { heading: "Rezept-URLs sind kein geheimer Kanal", paragraphs: ["Knoten und Kanten lassen sich als begrenztes JSON definieren, gzip-komprimieren und Base64url-codieren. Importiert werden dürfen nur bekannte Versionen, Werkzeug-Slugs und gültige Referenzen innerhalb fester Größenlimits.", "URLs können in Verlauf, Zwischenablage, Nachrichten und Screenshots erscheinen. Ausgaben müssen immer und Eingaben standardmäßig entfernt werden. Ein noindex-Importpfad ist Suchmaschinenhygiene, aber keine Zugriffskontrolle."], bullets: ["Keine Passwörter oder Dateien serialisieren.", "Eingaben nur durch gesondertes Opt-in aufnehmen.", "Unbekannte Schemaversionen ablehnen."] },
+          { heading: "WebRTC benötigt weiterhin Signalisierung", paragraphs: ["RTCDataChannel schützt die Peer-Verbindung über DTLS, aber Angebot, Antwort und ICE-Kandidaten müssen ausgetauscht werden. Ohne Signalisierungsdienst geschieht dies manuell; die Codes können Netzwerkinformationen enthalten und gehören in einen getrennten vertrauenswürdigen Kanal.", "Ohne STUN und TURN können NAT, Unternehmens-Firewall oder Browserregeln die Verbindung verhindern. Die Anwendung darf nicht heimlich auf einen Server zurückfallen. Raumcodes sind keine Authentisierung, und jeder verbundene Peer erhält das geteilte Dokument."], bullets: ["iceServers leer lassen.", "Nachrichten chunk- und größenbegrenzen.", "Dokumentschema nach Empfang validieren.", "Verbindungsgrenzen sichtbar erklären."] },
+          { heading: "Leistung und Tests", paragraphs: ["Der Editor wird nur auf der Workstation-Route dynamisch geladen; Kompression gehört in einen Web Worker. Begrenzte SVG-Verbindungen, mobile Einspaltenansicht und normale Formsteuerung verhindern, dass ein Canvas zur Barriere wird.", "Automatische Tests müssen Rezept-Rundlauf, ungültige Schemata, AES-GCM-Manipulation, Kontingentwache, gefälschte Werkzeugpfade, Signalcodes sowie noindex und Canonical prüfen. Reale Peer-Erreichbarkeit bleibt netzabhängig und darf nicht garantiert werden."] },
+        ],
+      },
+      zh: {
+        title: "浏览器工作站：可视化流程、IndexedDB 与 WebRTC",
+        excerpt: "安全连接工具节点、在设备上加密项目，并理解无服务器对等协作的真实边界。",
+        description: "关于可视化工具链、AES-GCM 加密 IndexedDB 项目、压缩配方 URL 与手动 WebRTC 协作的实践指南。",
+        category: "浏览器内工作流",
+        readTime: "约 15 分钟",
+        sections: [
+          { heading: "区分节点、连线与执行权限", paragraphs: ["节点表示工具、输入和最近可见输出，连线只表示计划的数据传递。画出连线并不等于允许自动运行，也不能证明两端数据类型兼容。", "安全编排只在用户请求时传递文本。文件选择、密码字段、代码运行、网络请求和下载必须保持手动。"], bullets: ["保存稳定的工具标识。", "传递前审查输入和输出。", "每个节点显示错误状态。", "不自动执行高影响操作。"] },
+          { heading: "正确理解 IndexedDB 与 AES-GCM", paragraphs: ["项目记录可使用每条记录独立的随机 IV，并把项目 ID 作为认证附加数据进行 AES-GCM 加密。不可导出的 CryptoKey 存在同一 IndexedDB 中，使流程无需服务器。", "这不能防止已被入侵的设备、恶意扩展或同源恶意脚本。清除站点数据会同时删除密钥，使剩余密文无法恢复；浏览器配额和不含敏感数据的备份仍需用户管理。"], bullets: ["加密前后都验证结构与大小。", "每条记录使用新的 96 位 IV。", "清楚显示配额错误。", "提供项目删除控制。"] },
+          { heading: "配方 URL 不是秘密通道", paragraphs: ["节点和边可写成受限 JSON，再用 gzip 压缩与 Base64url 编码。导入端只能接受已知版本、合法工具 slug、有效引用及限定大小。", "URL 可能出现在历史、剪贴板、消息或截图中。输出必须始终排除，输入默认排除；noindex 导入页只是搜索卫生措施，不是访问控制。"], bullets: ["绝不序列化密码或文件。", "包含输入必须单独确认。", "拒绝未知结构版本。"] },
+          { heading: "WebRTC 仍然需要信令交换", paragraphs: ["RTCDataChannel 使用 DTLS 保护对等连接，但 SDP 提议、应答与 ICE 候选仍需交换。不使用信令服务时只能手动复制代码；代码可能包含网络信息，应通过独立可信渠道传递。", "没有 STUN 或 TURN 时，NAT、企业防火墙或浏览器策略可能阻断连接。应用不能暗中回退到服务器。房间码不是身份验证，每个连接对等方都能收到共享文档。"], bullets: ["保持 iceServers 为空。", "限制消息分片和总大小。", "接收后验证文档结构。", "明确展示连接限制。"] },
+          { heading: "性能、可访问性与测试", paragraphs: ["编辑器只在工作站路由动态加载，压缩放在 Web Worker 中。限制 SVG 连线数量、移动端单列布局并提供普通表单控制，可避免界面只依赖画布。", "自动测试应覆盖配方往返、非法结构、AES-GCM 篡改、配额保护、伪造工具路径、信令码以及 noindex/canonical。真实对等连接取决于网络拓扑，产品不能承诺必然成功。"] },
+        ],
+      },
+    },
+  },
 ];
 
 export const legacyLocalizedGuideSlugs = {
