@@ -22,7 +22,10 @@ export function CommandPalette({ locale }: { locale: Locale }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const entries = useMemo(() => [
+    { id: "page-home", href: pathFor(locale, "home"), title: { tr: "Ana sayfa", en: "Home", de: "Startseite", zh: "首页" }[locale], detail: { tr: "Kategoriler ve öne çıkan araçlar", en: "Categories and featured tools", de: "Kategorien und empfohlene Werkzeuge", zh: "类别与精选工具" }[locale], mark: "⌂", search: "home ana sayfa startseite 首页 categories kategoriler" },
     {
       id: "local-agent",
       href: pathFor(locale, "agent"),
@@ -39,6 +42,8 @@ export function CommandPalette({ locale }: { locale: Locale }) {
       mark: "IDE",
       search: "workstation workspace ide node canvas flow graph p2p webrtc indexeddb encrypted şifreli görsel akış arbeitsbereich knoten 工作站 节点 加密",
     },
+    { id: "page-blog", href: pathFor(locale, "blog"), title: { tr: "Rehberler", en: "Guides", de: "Leitfäden", zh: "指南" }[locale], detail: { tr: "Kaynaklı uygulama rehberleri", en: "Source-backed practical guides", de: "Quellenbasierte Praxisleitfäden", zh: "有来源的实践指南" }[locale], mark: "G", search: "blog guides rehber makale article leitfaden 指南 文章" },
+    { id: "page-faq", href: pathFor(locale, "faq"), title: { tr: "Sık sorulan sorular", en: "Frequently asked questions", de: "Häufige Fragen", zh: "常见问题" }[locale], detail: { tr: "Gizlilik, araçlar ve yerel işleme", en: "Privacy, tools, and local processing", de: "Datenschutz, Werkzeuge und lokale Verarbeitung", zh: "隐私、工具与本地处理" }[locale], mark: "?", search: "faq sss questions sorular fragen 常见问题 privacy gizlilik" },
     ...tools.map((tool) => ({
       id: `tool-${tool.slug}`,
       href: toolPath(locale, tool.slug),
@@ -71,19 +76,28 @@ export function CommandPalette({ locale }: { locale: Locale }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   useEffect(() => {
-    if (open) { document.body.classList.add("palette-open"); requestAnimationFrame(() => inputRef.current?.focus()); }
-    else document.body.classList.remove("palette-open");
+    if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null;
+      document.body.classList.add("palette-open"); requestAnimationFrame(() => inputRef.current?.focus());
+    } else { document.body.classList.remove("palette-open"); previousFocusRef.current?.focus(); }
     return () => document.body.classList.remove("palette-open");
   }, [open]);
 
   const close = () => { setOpen(false); setQuery(""); setActive(0); };
   const overlay = open ? <div className="palette-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-    <section className="command-palette" role="dialog" aria-modal="true" aria-label={labels.aria}>
+    <section ref={dialogRef} className="command-palette" role="dialog" aria-modal="true" aria-label={labels.aria} onKeyDown={(event) => {
+      if (event.key !== "Tab") return;
+      const focusable = [...(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled])') ?? [])];
+      if (!focusable.length) return;
+      const first = focusable[0]; const last = focusable.at(-1)!;
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }}>
       <div className="palette-search"><span>⌕</span><input ref={inputRef} value={query} onChange={(event) => { setQuery(event.target.value); setActive(0); }} onKeyDown={(event) => {
         if (event.key === "ArrowDown") { event.preventDefault(); setActive((value) => Math.min(value + 1, results.length - 1)); }
         if (event.key === "ArrowUp") { event.preventDefault(); setActive((value) => Math.max(value - 1, 0)); }
         if (event.key === "Enter") { const link = document.getElementById(results[active]?.id) as HTMLAnchorElement | null; link?.click(); }
-      }} placeholder={labels.placeholder} aria-controls="palette-results" /><button type="button" onClick={close} aria-label={labels.close}>Esc</button></div>
+      }} placeholder={labels.placeholder} role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="palette-results" aria-activedescendant={results[active]?.id} /><button type="button" onClick={close} aria-label={labels.close}>Esc</button></div>
       <div className="palette-meta"><span>{labels.quick}</span><small>{results.length} {labels.result}</small></div>
       <div id="palette-results" className="palette-results" role="listbox">{results.map((entry, index) => <Link id={entry.id} role="option" aria-selected={active === index} className={active === index ? "active" : ""} key={entry.id} href={entry.href} onMouseEnter={() => setActive(index)} onClick={close}><span className="palette-mark">{entry.mark}</span><span><strong>{entry.title}</strong><small>{entry.detail}</small></span><b>↵</b></Link>)}{results.length === 0 && <p>{labels.empty}</p>}</div>
       <footer><span>↑↓ {labels.select}</span><span>↵ {labels.open}</span><span>Esc {labels.close.toLocaleLowerCase()}</span></footer>

@@ -2,6 +2,7 @@ import { WORKSPACE_MAX_TEXT, validateWorkspaceDocument, type WorkspaceDocument }
 
 export const WORKSPACE_HANDOFF_KEY = "bytequant:workstation-handoff:v1";
 export const WORKSPACE_ACTIVE_KEY = "bytequant:workstation-active:v1";
+export const WORKSPACE_AGENT_GOAL_KEY = "bytequant:workstation-agent-goal:v1";
 
 export type WorkspaceHandoff = {
   version: 1;
@@ -30,4 +31,10 @@ export function readActiveWorkspace(raw: string | null): WorkspaceDocument | nul
   if (!raw || raw.length > 3_500_000) return null;
   try { const value = JSON.parse(raw) as unknown; return validateWorkspaceDocument(value) ? value : null; }
   catch { return null; }
+}
+
+export function readWorkspaceAgentGoal(raw: string | null): string | null {
+  if (!raw || raw.length > 20_000) return null;
+  const value = raw.trim();
+  return value.length >= 3 ? value : null;
 }

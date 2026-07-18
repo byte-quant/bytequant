@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readWorkspaceHandoff } from "../app/lib/workspace-handoff.ts";
-import { decodeCollaborationSignal, encodeCollaborationSignal } from "../app/lib/workspace-p2p.ts";
+import { readWorkspaceAgentGoal, readWorkspaceHandoff } from "../app/lib/workspace-handoff.ts";
+import { COLLABORATION_SIGNAL_LIFETIME_MS, createCollaborationSafetyCode, decodeCollaborationSignal, encodeCollaborationSignal } from "../app/lib/workspace-p2p.ts";
 import { createWorkspaceRecipe, decodeWorkspaceRecipe, encodeWorkspaceRecipe } from "../app/lib/workspace-recipe.ts";
 import { assertWorkspaceQuota, decryptWorkspace, encryptWorkspace } from "../app/lib/workspace-storage.ts";
-import { WORKSPACE_MAX_NODES, createWorkspace, documentFromRecipe, propagateWorkspaceOutput, validateWorkspaceDocument } from "../app/lib/workspace-types.ts";
+import { WORKSPACE_MAX_NODES, createWorkspace, documentFromRecipe, layoutWorkspaceGraph, propagateWorkspaceOutput, validateWorkspaceDocument, workspaceGraphSummary } from "../app/lib/workspace-types.ts";
 
 function sampleWorkspace() {
   const document = createWorkspace("en", "Private workflow");
@@ -23,6 +23,9 @@ test("workspace schema preserves bounded nodes and deterministic output handoff"
   assert.equal(next.nodes[0].output, "formatted-json");
   assert.equal(next.nodes[1].input, "formatted-json");
   assert.equal(next.nodes[1].status, "ready");
+  const layout = layoutWorkspaceGraph(document);
+  assert.ok(layout.nodes[1].x > layout.nodes[0].x);
+  assert.deepEqual(workspaceGraphSummary(next), { nodes: 2, edges: 1, ready: 1, complete: 1, errors: 0 });
 
   const overflow = structuredClone(document);
   overflow.nodes = Array.from({ length: WORKSPACE_MAX_NODES + 1 }, (_, index) => ({ ...document.nodes[0], id: `node-${index}` }));
@@ -62,12 +65,19 @@ test("storage quota guard reserves headroom before encrypted IndexedDB writes", 
   assert.throws(() => assertWorkspaceQuota(undefined, 5_100_000), /workspace-size/);
 });
 
-test("manual WebRTC signaling is bounded, typed, and room-scoped", () => {
-  const offer = { v: 1, kind: "offer", roomId: "room-abcd", offerId: "offer-abcde", from: "peer-abcde", sdp: { type: "offer", sdp: "v=0\r\na=ice-options:trickle\r\n" } };
+test("manual WebRTC signaling is expiring, bounded, typed, and room-scoped", async () => {
+  const issuedAt = 1_800_000_000_000;
+  const offer = { v: 2, kind: "offer", roomId: "room-abcd", offerId: "offer-abcde", from: "peer-abcde", issuedAt, sdp: { type: "offer", sdp: "v=0\r\na=fingerprint:sha-256 AA:BB\r\n" } };
   const code = encodeCollaborationSignal(offer);
-  assert.match(code, /^p1\./);
-  assert.deepEqual(decodeCollaborationSignal(code), offer);
-  assert.throws(() => decodeCollaborationSignal("p1.not-valid***"));
+  assert.match(code, /^p2\./);
+  assert.deepEqual(decodeCollaborationSignal(code, issuedAt + 1_000), offer);
+  assert.throws(() => decodeCollaborationSignal(code, issuedAt + COLLABORATION_SIGNAL_LIFETIME_MS + 1));
+  assert.throws(() => decodeCollaborationSignal("p2.not-valid***", issuedAt));
+  const first = await createCollaborationSafetyCode("room-abcd", "peer-a", "peer-b", "a=fingerprint:sha-256 AA:BB", "a=fingerprint:sha-256 CC:DD");
+  const reverse = await createCollaborationSafetyCode("room-abcd", "peer-b", "peer-a", "a=fingerprint:sha-256 CC:DD", "a=fingerprint:sha-256 AA:BB");
+  assert.equal(first, reverse);
+  assert.match(first, /^[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/);
+  await assert.rejects(() => createCollaborationSafetyCode("room-abcd", "peer-a", "peer-b"), /safety-code-material/);
 });
 
 test("tool handoff rejects forged paths, password-sized data, and malformed ids", () => {
@@ -75,4 +85,6 @@ test("tool handoff rejects forged paths, password-sized data, and malformed ids"
   assert.deepEqual(readWorkspaceHandoff(JSON.stringify(valid)), valid);
   assert.equal(readWorkspaceHandoff(JSON.stringify({ ...valid, returnPath: "https://attacker.example" })), null);
   assert.equal(readWorkspaceHandoff(JSON.stringify({ ...valid, toolSlug: "../escape" })), null);
+  assert.equal(readWorkspaceAgentGoal("  compare two JSON documents  "), "compare two JSON documents");
+  assert.equal(readWorkspaceAgentGoal("x"), null);
 });

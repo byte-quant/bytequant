@@ -11,7 +11,8 @@ import {
   translateAgentError,
   type AgentPlan,
 } from "../lib/agent-core";
-import { toolPath, type Locale } from "../lib/site";
+import { WORKSPACE_AGENT_GOAL_KEY } from "../lib/workspace-handoff";
+import { pathFor, toolPath, type Locale } from "../lib/site";
 import { categories, tools } from "../lib/tools";
 
 type Mode = "plan" | "search" | "error";
@@ -47,7 +48,7 @@ function copy(locale: Locale) {
       start: "İlk adımı aç", continue: "Adımı aç", file: "Dosya seçimi gerekli", previous: "Önceki çıktıyı devralır", goalInput: "Hedef metnini kullanır",
       searchPlaceholder: "Ne yapmak istiyorsunuz? Örn. güvenlik başlıklarını denetle", results: "Semantik eşleşmeler", noResult: "Yeterli eşleşme bulunamadı.", open: "Aracı aç",
       errorPlaceholder: "Kişisel veri ve sırları çıkardıktan sonra hata mesajını yapıştırın…", explain: "Hatayı yerelde açıkla", actions: "Önerilen kontroller", suggested: "İlgili araçlar",
-      session: "Plan yalnızca bu sekmenin sessionStorage alanında tutulur; araç girdileri localStorage'a yazılmaz.",
+      session: "Plan yalnızca bu sekmenin sessionStorage alanında tutulur; araç girdileri localStorage'a yazılmaz.", workstation: "Görsel İş İstasyonunda düzenle", workstationHint: "Plan hedefini güvenli sekme içi aktarım ile görsel düğümlere dönüştürün.",
     },
     en: {
       plan: "Plan workflow", search: "Semantic tool search", error: "Explain an error", goal: "Describe your goal in natural language",
@@ -58,7 +59,7 @@ function copy(locale: Locale) {
       start: "Open first step", continue: "Open step", file: "File selection required", previous: "Uses previous output", goalInput: "Uses goal text",
       searchPlaceholder: "What do you need? Example: audit security headers", results: "Semantic matches", noResult: "No strong match was found.", open: "Open tool",
       errorPlaceholder: "Remove personal data and secrets, then paste the error message…", explain: "Explain locally", actions: "Suggested checks", suggested: "Related tools",
-      session: "The plan stays only in this tab's sessionStorage; tool input is never written to localStorage.",
+      session: "The plan stays only in this tab's sessionStorage; tool input is never written to localStorage.", workstation: "Edit in Visual Workstation", workstationHint: "Turn this goal into visual nodes through a safe tab-scoped handoff.",
     },
     de: {
       plan: "Ablauf planen", search: "Semantisch suchen", error: "Fehler erklären", goal: "Ziel in natürlicher Sprache beschreiben",
@@ -69,7 +70,7 @@ function copy(locale: Locale) {
       start: "Ersten Schritt öffnen", continue: "Schritt öffnen", file: "Dateiauswahl erforderlich", previous: "Übernimmt vorherige Ausgabe", goalInput: "Verwendet Zieltext",
       searchPlaceholder: "Was möchten Sie tun? Beispiel: Sicherheitsheader prüfen", results: "Semantische Treffer", noResult: "Kein starker Treffer gefunden.", open: "Werkzeug öffnen",
       errorPlaceholder: "Personendaten und Geheimnisse entfernen, dann Fehlermeldung einfügen…", explain: "Lokal erklären", actions: "Empfohlene Prüfungen", suggested: "Passende Werkzeuge",
-      session: "Der Plan bleibt nur im sessionStorage dieses Tabs; Werkzeugeingaben werden nie in localStorage geschrieben.",
+      session: "Der Plan bleibt nur im sessionStorage dieses Tabs; Werkzeugeingaben werden nie in localStorage geschrieben.", workstation: "In visueller Workstation bearbeiten", workstationHint: "Ziel per sicherer Tab-Übergabe in visuelle Knoten umwandeln.",
     },
     zh: {
       plan: "规划流程", search: "语义搜索工具", error: "解释错误", goal: "用自然语言描述目标",
@@ -80,7 +81,7 @@ function copy(locale: Locale) {
       start: "打开第一步", continue: "打开步骤", file: "需要手动选择文件", previous: "接收上一步输出", goalInput: "使用目标文本",
       searchPlaceholder: "您想做什么？例如：审计安全响应头", results: "语义匹配", noResult: "未找到足够强的匹配。", open: "打开工具",
       errorPlaceholder: "移除个人数据与秘密后粘贴错误消息…", explain: "在本地解释", actions: "建议检查", suggested: "相关工具",
-      session: "计划只保留在当前标签页的 sessionStorage 中；工具输入不会写入 localStorage。",
+      session: "计划只保留在当前标签页的 sessionStorage 中；工具输入不会写入 localStorage。", workstation: "在可视化工作站中编辑", workstationHint: "通过当前标签页内的安全交接把目标转换为可视化节点。",
     },
   }[locale];
 }
@@ -163,6 +164,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
       </section>
       {plan && <section className="agent-plan" aria-live="polite">
         <div className="agent-plan-summary"><span>{t.confidence}<strong>{Math.round(plan.confidence * 100)}%</strong></span><span>{plan.steps.length}<strong>{locale === "zh" ? "个步骤" : locale === "de" ? " Schritte" : locale === "tr" ? " adım" : " steps"}</strong></span><span>0<strong>{locale === "zh" ? " 次网络请求" : locale === "de" ? " Netzaufrufe" : locale === "tr" ? " ağ isteği" : " network calls"}</strong></span></div>
+        <Link className="agent-workstation-link" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); } catch { /* workstation can still be opened without handoff */ } }}><span><strong>{t.workstation}</strong><small>{t.workstationHint}</small></span><b>IDE →</b></Link>
         <ol className="agent-step-list">{plan.steps.map((step, index) => <li key={step.id}><span className="agent-step-number">{String(index + 1).padStart(2, "0")}</span><div><div className="agent-step-title"><strong>{step.title}</strong><small>{step.requiresFile ? t.file : step.inputMode === "previous" ? t.previous : t.goalInput}</small></div><p>{step.reason}</p>{step.parameterHints.length > 0 && <div className="agent-hints">{step.parameterHints.map((hint) => <span key={hint}>{hint}</span>)}</div>}</div><Link href={toolPath(locale, step.toolSlug)} onClick={() => { try { const existing = readAgentSession(sessionStorage.getItem(AGENT_SESSION_KEY)); sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify(existing?.plan.goal === plan.goal ? { ...existing, currentStep: index } : { plan, currentStep: index, stepOutputs: {}, completedStepIds: [] })); } catch { /* continue without bridge */ } }}>{index === 0 ? t.start : t.continue} →</Link></li>)}</ol>
         <details className="agent-reasoning" open><summary>{t.transparency}<span>+</span></summary><div><h3>{t.signals}</h3><ul>{plan.signals.map((item) => <li key={item}>{item}</li>)}</ul>{plan.extracted.length > 0 && <><h3>{t.extracted}</h3><dl>{plan.extracted.map((item, index) => <div key={`${item.kind}-${index}`}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl></>}<h3>{t.limits}</h3><ul>{plan.limitations.map((item) => <li key={item}>{item}</li>)}</ul></div></details>
       </section>}

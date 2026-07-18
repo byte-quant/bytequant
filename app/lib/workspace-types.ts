@@ -135,3 +135,41 @@ export function propagateWorkspaceOutput(document: WorkspaceDocument, nodeId: st
       : downstream.has(node.id) ? { ...node, input: bounded, status: "ready" } : node),
   });
 }
+
+export function layoutWorkspaceGraph(document: WorkspaceDocument): WorkspaceDocument {
+  const incoming = new Map(document.nodes.map((node) => [node.id, 0]));
+  const outgoing = new Map(document.nodes.map((node) => [node.id, [] as string[]]));
+  for (const edge of document.edges) {
+    incoming.set(edge.to, (incoming.get(edge.to) ?? 0) + 1);
+    outgoing.get(edge.from)?.push(edge.to);
+  }
+  const queue = document.nodes.filter((node) => incoming.get(node.id) === 0).map((node) => node.id);
+  const levels = new Map<string, number>(queue.map((id) => [id, 0]));
+  for (let index = 0; index < queue.length; index += 1) {
+    const id = queue[index];
+    for (const target of outgoing.get(id) ?? []) {
+      levels.set(target, Math.max(levels.get(target) ?? 0, (levels.get(id) ?? 0) + 1));
+      incoming.set(target, (incoming.get(target) ?? 1) - 1);
+      if (incoming.get(target) === 0) queue.push(target);
+    }
+  }
+  for (const node of document.nodes) if (!levels.has(node.id)) levels.set(node.id, 0);
+  const rows = new Map<number, number>();
+  const nodes = document.nodes.map((node) => {
+    const level = levels.get(node.id) ?? 0;
+    const row = rows.get(level) ?? 0;
+    rows.set(level, row + 1);
+    return { ...node, x: 52 + level * 300, y: 58 + row * 190 };
+  });
+  return updateWorkspace(document, { nodes });
+}
+
+export function workspaceGraphSummary(document: WorkspaceDocument) {
+  return {
+    nodes: document.nodes.length,
+    edges: document.edges.length,
+    ready: document.nodes.filter((node) => node.status === "ready").length,
+    complete: document.nodes.filter((node) => node.status === "complete").length,
+    errors: document.nodes.filter((node) => node.status === "error").length,
+  };
+}

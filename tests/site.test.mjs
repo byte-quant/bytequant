@@ -20,7 +20,7 @@ test("exports the complete four-language site", async () => {
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
   assert.match(home, /<title>ByteQuant ·/);
-  assert.match(home, /og-v4\.png/);
+  assert.match(home, /og-v5\.png/);
   assert.match(home, /hrefLang="tr-TR"/);
   assert.match(home, /hrefLang="en-US"/);
   assert.match(home, /hrefLang="tr"/);
@@ -83,7 +83,7 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v9/);
+  assert.match(worker, /bytequant-shell-v10/);
   assert.match(worker, /\/en\/agent\//);
   assert.match(worker, /\/en\/workstation\//);
   assert.doesNotMatch(worker, /localStorage/i);
@@ -493,7 +493,7 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(englishGuide, /Browser-Only Agentic AI/);
   assert.match(guide, /BlogPosting/);
   assert.match(englishGuide, /developer\.mozilla\.org/);
-  await access(new URL("og-v4.png", root));
+  await access(new URL("og-v5.png", root));
 });
 
 test("exports the four-language visual workstation and private recipe importer", async () => {

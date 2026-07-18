@@ -22,7 +22,7 @@ Languages:
 - Voice input is offered only when the browser confirms on-device speech recognition and supports forced local processing. There is no fallback to remote recognition.
 - Workstation projects are saved only after explicit use, as AES-GCM-256 ciphertext in the browser's `bytequant-workspaces` IndexedDB database. A non-extractable device key stays in the same database. This is not protection against a compromised device, malicious extension, or hostile same-origin code.
 - Workstation handoff records are tab-scoped sessionStorage values. Tool selection, file input, passwords, code execution, network requests, and downloads remain user-controlled.
-- Peer collaboration uses only WebRTC DataChannel with no ByteQuant signaling server, STUN, or TURN. Manual offer/answer codes may disclose network candidates, connected peers receive the shared document, and some NAT/firewall combinations will not connect.
+- Peer collaboration uses only WebRTC DataChannel with no ByteQuant signaling server, STUN, or TURN. Single-use offer/answer codes expire after ten minutes and may disclose network candidates. Live sharing is paused until users compare a DTLS-derived safety code through another channel and explicitly enable it; this is not identity verification. Some NAT/firewall combinations will not connect.
 - Recipe URLs always omit output and omit input by default. Opting in to input can expose it through the URL, browser history, clipboard, messaging service, and recipient device.
 - Users should still remove secrets before sharing generated output and independently verify results used in security, legal, or production decisions.
 - The installable PWA caches only same-origin application resources and previously visited GET pages. Tool inputs, passwords, selected files, and generated outputs are not written to the offline cache.
@@ -53,7 +53,7 @@ Languages:
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
 - Users can arrange any of the 89 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
-- Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, and optional manual WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
+- Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
 ## Prompt tools

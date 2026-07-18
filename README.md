@@ -16,7 +16,7 @@ ByteQuant is a privacy-first, installable web application containing 89 browser-
 - 37 long-form editorial guides in Turkish and English, including nine editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
 - Explainable Local Agent with multilingual semantic search, user-approved multi-step plans, parameter extraction, error translation, and verified on-device-only voice input
-- Lazy-loaded visual Workstation across all 89 tools, with native node wiring, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Lazy-loaded visual Workstation across all 89 tools, with full-catalog filters, starter flows, explainable Agent plan previews, undo/redo, auto-layout, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
@@ -35,7 +35,7 @@ Storage outside explicitly saved Workstation projects is limited to:
 
 Workstation projects are opt-in and stay in the browser's `bytequant-workspaces` IndexedDB database. Project documents are encrypted with AES-GCM-256 and a non-extractable device key stored in the same database. This reduces exposure at rest but does not protect a compromised device, malicious extension, or hostile same-origin script. Tab handoffs use bounded sessionStorage records. Recipe URLs omit output and omit input by default.
 
-Peer collaboration uses only WebRTC DataChannel with manual offer/answer exchange and an empty ICE-server list. ByteQuant operates no signaling, STUN, or TURN service. Connection codes can contain network candidates, every connected peer receives the shared document, and NAT or firewall policy can prevent a connection.
+Peer collaboration uses only WebRTC DataChannel with manual offer/answer exchange and an empty ICE-server list. ByteQuant operates no signaling, STUN, or TURN service. Single-use codes expire after ten minutes. Live sharing starts paused and stays locked until both people compare the same DTLS-derived safety code through another trusted channel. The code is not real-world identity verification; connection codes can expose network candidates, and NAT or firewall policy can still prevent a connection.
 
 File, code, and URL security tools are deliberately framed as **heuristic pre-scans**:
 

@@ -187,6 +187,10 @@ const recipes: Recipe[] = [
   { test: [/(json)/i, /(compare|diff|fark|karşılaştır|比较)/i], steps: ["json-bicimlendirici", "json-diff-karsilastirma"], signal: { tr: "JSON doğrulama ve yapısal karşılaştırma", en: "JSON validation and structural comparison", de: "JSON-Prüfung und Strukturvergleich", zh: "JSON 验证与结构比较" } },
   { test: [/(url|link|网址)/i, /(security|risk|güven|şüpheli|安全)/i], steps: ["url-sorgu-parametresi-analizoru", "url-guvenlik-on-kontrolu"], signal: { tr: "URL yapısı ve risk ön taraması", en: "URL structure and risk pre-scan", de: "URL-Struktur- und Risiko-Vorprüfung", zh: "URL 结构与风险预扫描" } },
   { test: [/(rag|context|bağlam|retrieval|检索)/i], steps: ["rag-parcalama-butcesi-planlayici", "prompt-enjeksiyon-on-taramasi"], signal: { tr: "RAG kapasite ve talimat güveni ayrımı", en: "RAG capacity and instruction-trust separation", de: "RAG-Kapazität und Instruktionsvertrauen", zh: "RAG 容量与指令信任分离" } },
+  { test: [/(image|görsel|resim|foto|bild|图片|照片)/i, /(privacy|gizlilik|exif|metadata|konum|gps|datenschutz|隐私|位置)/i], steps: ["exif-meta-veri-temizleyici", "gorsel-sikistirici", "gorsel-format-donusturucu"], signal: { tr: "Görsel meta veri temizleme ve teslim akışı", en: "Image metadata cleanup and delivery flow", de: "Bildmetadaten-Bereinigung und Ausgabe", zh: "图像元数据清理与交付流程" } },
+  { test: [/(jwt|token)/i, /(decode|çöz|inspect|incele|ablauf|解码|检查)/i], steps: ["jwt-decoder", "unix-zaman-damgasi-donusturucu", "json-bicimlendirici"], signal: { tr: "JWT yapısı ve zaman alanları incelemesi", en: "JWT structure and timestamp inspection", de: "JWT-Struktur- und Zeitstempelprüfung", zh: "JWT 结构与时间戳检查" } },
+  { test: [/(code|kod|source|kaynak|quellcode|代码)/i, /(secret|gizli|security|güven|scan|tara|sicherheit|安全|扫描)/i], steps: ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "sha256-dosya-butunluk-denetleyici"], signal: { tr: "Kod ve dosya güvenliği ön denetimi", en: "Code and file safety pre-audit", de: "Code- und Dateisicherheits-Vorprüfung", zh: "代码与文件安全预审" } },
+  { test: [/(citation|atıf|kaynakça|apa|mla|zitat|引用)/i], steps: ["kaynakca-atif-formatlayici", "unicode-normalizasyon-inceleyici"], signal: { tr: "Kaynakça biçimi ve Unicode tutarlılığı", en: "Citation formatting and Unicode consistency", de: "Zitierformat und Unicode-Konsistenz", zh: "引用格式与 Unicode 一致性" } },
 ];
 
 function stepReason(locale: Locale, tool: Tool, index: number) {
@@ -199,7 +203,7 @@ function stepReason(locale: Locale, tool: Tool, index: number) {
 }
 
 function splitGoal(goal: string) {
-  return goal.split(/\s*(?:→|=>|->|\bsonra\b|\bthen\b|\banschließend\b|然后|接着)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
+  return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])?)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
 export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale): AgentPlan {
@@ -235,6 +239,8 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale): 
     requiresFile: fileTools.has(tool.slug),
     parameterHints: extracted.map((item) => `${item.label}: ${item.value}`).slice(0, 5),
   }));
+  const manualSteps = steps.filter((step) => step.requiresFile).length;
+  if (manualSteps) signals.push(local(locale, { tr: `${manualSteps} adım dosya seçimi için açık kullanıcı eylemi istiyor`, en: `${manualSteps} steps require explicit user file selection`, de: `${manualSteps} Schritte erfordern eine ausdrückliche Dateiauswahl`, zh: `${manualSteps} 个步骤需要用户明确选择文件` }));
   const topScore = ranked[0]?.score ?? 0; const runnerUp = ranked[1]?.score ?? 0;
   const confidence = Math.max(.35, Math.min(.94, .52 + Math.min(.28, topScore / 80) + Math.min(.14, Math.max(0, topScore - runnerUp) / 50)));
   return {

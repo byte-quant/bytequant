@@ -44,6 +44,9 @@ test("local agent builds explicit workflows without executing tools", () => {
   assert.equal(plan.steps[0]?.toolSlug, "arac-zinciri-pipeline");
   assert.ok(plan.confidence >= 0.35 && plan.confidence <= 0.94);
   assert.ok(plan.limitations.some((value) => value.includes("büyük dil modeli")));
+  const numbered = createAgentPlan("1. validate and format JSON\n2. compare JSON structure", catalog, "en");
+  assert.equal(numbered.steps.length, 2);
+  assert.deepEqual(numbered.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "json-diff-karsilastirma"]);
 });
 
 test("agent session parser rejects untrusted or oversized bridge data", () => {
