@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { BrandLogo } from "./BrandLogo";
 import { CommandPalette } from "./CommandPalette";
 import { referencePath } from "../lib/references";
+import { tools } from "../lib/tools";
 import { SchemaScript } from "./SchemaScript";
 import { PwaInstall } from "./PwaInstall";
 
@@ -37,9 +38,11 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <span><strong>{t.brand}</strong><small>{t.descriptor}</small></span>
           </Link>
           <nav className="main-nav" aria-label={localized("Ana menü", "Main navigation", "Hauptnavigation", "主导航") }>
-            <Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
-            <Link className="agent-nav-link" href={pathFor(locale, "agent")}>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
-            <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
+            <Link className="nav-library-link" href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
+            <span className="nav-product-group" aria-label={localized("Akıllı çalışma alanları", "Intelligent workspaces", "Intelligente Arbeitsbereiche", "智能工作区")}>
+              <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
+              <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
+            </span>
             <Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link>
             <Link href={pathFor(locale, "about")}>{t.nav.about}</Link>
             <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>
@@ -47,14 +50,15 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
           <div className="header-actions">
             <CommandPalette locale={locale} />
             <PwaInstall locale={locale} compact />
-            <details className="language-menu"><summary aria-label={localized("Dili değiştir", "Change language", "Sprache ändern", "切换语言")}><span className="language-menu-icon" aria-hidden="true">◎</span><span className="language-menu-label">{localeNames[locale]}</span></summary><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}>{localeNames[item]}{item === locale ? " ✓" : ""}</Link>)}</div></details>
+            <details className="language-menu"><summary aria-label={localized("Dili değiştir", "Change language", "Sprache ändern", "切换语言")}><span className="language-menu-code" aria-hidden="true">{locale.toUpperCase()}</span><span className="language-menu-label">{localeNames[locale]}</span><span className="language-menu-chevron" aria-hidden="true">⌄</span></summary><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}><span>{localeNames[item]}</span><small>{item === "zh" ? "ZH-CN" : item.toUpperCase()}</small>{item === locale ? <b aria-hidden="true">✓</b> : null}</Link>)}</div></details>
             <ThemeToggle locale={locale} />
             <details className="mobile-menu">
               <summary aria-label={localized("Menüyü aç", "Open menu", "Menü öffnen", "打开菜单")}>☰</summary>
               <div className="mobile-menu-panel">
-                <Link href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
-                <Link className="agent-nav-link" href={pathFor(locale, "agent")}>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
-                <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
+                <div className="mobile-menu-heading"><strong>ByteQuant</strong><span>{localized("Hızlı gezinme", "Quick navigation", "Schnellnavigation", "快速导航")}</span></div>
+                <Link className="mobile-menu-primary" href={pathFor(locale, "tools")}><span>{t.nav.tools}</span><small>{tools.length}</small></Link>
+                <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
+                <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
                 <Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link>
                 <Link href={pathFor(locale, "about")}>{t.nav.about}</Link>
                 <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>

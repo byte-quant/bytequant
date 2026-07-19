@@ -19,6 +19,10 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /89 个可解释工具/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
+  assert.match(home, /Önce doğru akışı planlayın, sonra tek çalışma alanında yürütün/);
+  assert.match(english, /Plan the right workflow first, then run it in one workspace/);
+  assert.match(german, /Erst den richtigen Ablauf planen, dann in einem Arbeitsbereich ausführen/);
+  assert.match(chinese, /先规划正确流程，再在一个工作区中执行/);
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
   assert.match(home, /hrefLang="tr-TR"/);
@@ -509,6 +513,10 @@ test("exports the four-language visual workstation and private recipe importer",
   assert.match(english, /Connect 89 browser tools inside a visual development environment/);
   assert.match(german, /89 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung/);
   assert.match(chinese, /在可视化开发环境中连接 89 个浏览器工具/);
+  assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
+  assert.match(english, /Build your first workflow in five controlled steps/);
+  assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
+  assert.match(chinese, /通过五个可控步骤建立首个流程/);
   for (const page of [turkish, english, german, chinese]) {
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
