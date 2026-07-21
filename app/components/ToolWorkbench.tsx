@@ -10,6 +10,7 @@ import { AdvancedWorkbench, advancedWorkbenchSlugs } from "./AdvancedWorkbenches
 import { GrowthWorkbench, growthWorkbenchSlugs } from "./GrowthWorkbenches";
 import { demandToolSlugs } from "../lib/demand-tool-slugs";
 import { discoveryToolSlugs } from "../lib/discovery-tool-slugs";
+import { productivityToolSlugs } from "../lib/productivity-tool-slugs";
 
 const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
@@ -19,6 +20,9 @@ const DemandWorkbench = dynamic(() => import("./DemandWorkbenches").then((module
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
 });
 const DiscoveryWorkbench = dynamic(() => import("./DiscoveryWorkbenches").then((module) => module.DiscoveryWorkbench), {
+  loading: () => <div className="workbench converter-loading" aria-busy="true" />,
+});
+const ProductivityWorkbench = dynamic(() => import("./ProductivityWorkbenches").then((module) => module.ProductivityWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
 });
 
@@ -37,7 +41,7 @@ const samples: Record<string, Record<"tr" | "en", string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":104}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":104}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":131}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":131}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -344,6 +348,7 @@ function explainCron(expression: string, isTr: boolean) {
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
   if (discoveryToolSlugs.has(slug)) return <DiscoveryWorkbench slug={slug} locale={locale} />;
+  if ((productivityToolSlugs as readonly string[]).includes(slug)) return <ProductivityWorkbench slug={slug} locale={locale} />;
   if (demandToolSlugs.has(slug)) return <DemandWorkbench slug={slug} locale={locale} />;
   if (growthWorkbenchSlugs.has(slug)) return <GrowthWorkbench slug={slug} locale={locale} />;
   if (converterSlugs.has(slug)) return <ConverterWorkbench slug={slug} locale={locale} />;

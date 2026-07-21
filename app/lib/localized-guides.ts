@@ -434,6 +434,69 @@ localizedGuides.push(
   },
 );
 
+localizedGuides.push(
+  {
+    slug: "prompt-boundaries-structured-output-red-team", date: "2026-07-22", relatedTools: ["prompt-sinirlandirici-ayirici", "yapisal-cikti-semasi-olusturucu", "ai-red-team-kontrol-listesi"],
+    copy: {
+      de: { title: "Zuverlässige KI mit Prompt-Grenzen, strukturierten Ausgaben und Red-Teaming", excerpt: "Nicht vertrauenswürdige Daten trennen, JSON-Verträge definieren und das Modell vor der Freigabe evidenzbasiert prüfen.", description: "Leitfaden für Prompt-Trenner, JSON-Schema-Ausgaben und menschlich freigegebene Red-Team-Tests.", category: "KI-Sicherheit", readTime: "12 Min.", sections: [
+        { heading: "Anweisungen und Daten als getrennte Kanäle", paragraphs: ["RAG-Dokumente, Tickets und Benutzertext bleiben Daten, auch wenn sie wie Befehle klingen. Ein zufälliger Trenner markiert den Block; die Regel verbietet Ausführung, Geheimnisoffenlegung und unklare Aktionen.", "Trenner allein schützen nicht. Werkzeug-Allowlist, enge Parameter, read-only-Standard, Ausgabelimits und menschliche Freigabe gehören zum selben Bedrohungsmodell."], bullets: ["Untrusted Content nicht in Systemanweisungen mischen.", "Werkzeuge und Parameter erlauben statt offen wählen.", "Mit synthetischen Daten und Rollback testen."] },
+        { heading: "Ausgabe maschinenprüfbar binden", paragraphs: ["Die Bitte um JSON kontrolliert weder Felder noch Typen. Ein geschlossenes Schema zeigt Pflichtfelder, Typen und zusätzliche Eigenschaften. Antworten werden zuerst geparst, dann validiert; Fehler müssen verständlich sein.", "Ein Schema ersetzt keine Fachregeln zu Geld, Datum, Beziehungen oder Berechtigungen. Auch schema-valide Ergebnisse benötigen Wirkungsprüfung."] },
+        { heading: "Red-Team-Fälle mit Version und Nachweis", paragraphs: ["Tests decken Datenabfluss, übermäßige Autonomie, Scheinsicherheit, fehlerhafte Eingaben, Undo und Freigabeumgehung ab. Erwartung, Beobachtung, Modell-/Prompt-Version, Datum und Prüfer werden festgehalten.", "Ein sauberer Lauf genügt nicht. Normal-, Grenz-, Missbrauchs- und Regressionstests werden bei Versionswechsel wiederholt; die Freigabe bleibt menschlich."] },
+      ] },
+      zh: { title: "用提示边界、结构化输出和红队测试构建可靠 AI 流程", excerpt: "分隔不可信数据，定义 JSON 输出契约，并在发布前用证据驱动的用例测试模型。", description: "将提示分隔符、JSON Schema 输出与人工审批红队检查结合的深入指南。", category: "AI 安全", readTime: "约 12 分钟", sections: [
+        { heading: "把指令与数据设计为独立通道", paragraphs: ["RAG 文档、工单或用户文本即使看起来像指令，也应先视为数据。随机明确的分隔符标记数据块，治理规则禁止执行其中命令、泄露秘密或在不明确时继续。", "分隔符不是防火墙。工具白名单、窄参数模式、只读默认、输出限制和高影响操作前的人工审批必须共同工作。"], bullets: ["不要把不可信内容合并进系统指令。", "对白名单工具与参数进行限制。", "使用合成数据和回滚方案测试。"] },
+        { heading: "把输出绑定到机器可校验契约", paragraphs: ["仅要求 JSON 无法控制字段、类型或额外说明。封闭对象 Schema 明确必填字段、类型与附加属性策略；应先解析，再按 Schema 校验，并向用户解释错误。", "Schema 不能替代金额、日期、枚举、关系和权限等业务规则；通过 Schema 的结果仍需评估实际影响。"] },
+        { heading: "让红队用例带版本和证据", paragraphs: ["检查应涵盖数据泄露、越权、虚假确定性、异常输入、撤销、日志最小化和绕过审批。记录预期行为、实际观察、模型/提示版本、日期与评审者。", "一次通过并不等于保障。版本变化后应重复正常、边界、滥用和回归用例，发布决定由授权人员作出。"] },
+      ] },
+    },
+  },
+  {
+    slug: "unicode-subtitles-morse-text-integrity", date: "2026-07-22", relatedTools: ["unicode-kod-noktasi-inceleyici", "grapheme-guvenli-metin-ters-cevirici", "srt-altyazi-zaman-kaydirici", "mors-kodu-donusturucu"],
+    copy: {
+      de: { title: "Textintegrität bei Unicode, Untertiteln und Morsecode", excerpt: "Grapheme, Codepoints, UTF-8-Bytes und Zeitcodes verstehen, um Text ohne stille Beschädigung umzuwandeln.", description: "Leitfaden zu Unicode-Graphemen, Codepoint-Prüfung, SRT-Verschiebung und Morse-Konvertierung.", category: "Textintegrität", readTime: "10 Min.", sections: [
+        { heading: "Zeichen, Codepoint und Graphem unterscheiden", paragraphs: ["Emoji können aus mehreren Codepoints bestehen; Akzente aus Grundzeichen und Markierung. Umkehr nach Codeeinheiten zerstört sichtbare Zeichen, während Intl.Segmenter Graphemgrenzen erhält.", "Eine Tabelle macht unsichtbare Leerzeichen, Steuerzeichen und UTF-8-Bytes sichtbar. Ähnliche Zeichen sind dadurch noch nicht automatisch bösartig."], bullets: ["Sichtbaren Text nach Graphemen verarbeiten.", "Protokolle zusätzlich auf Byteebene prüfen.", "Normalisierung dokumentieren."] },
+        { heading: "SRT-Zeiten signiert und begrenzt verschieben", paragraphs: ["Start und Ende erhalten denselben positiven oder negativen Offset; Werte unter null werden begrenzt, Textzeilen bleiben unverändert. Ohne gültige Zeitzeile muss ein Fehler erscheinen.", "Konstanter Offset korrigiert keine Bildraten-Drift. Anfang, Mitte und Ende des Videos sind visuell zu prüfen."] },
+        { heading: "Verluste bei Alphabeten offenlegen", paragraphs: ["Internationaler Morsecode unterstützt ein begrenztes Alphabet. Nicht unterstützte Zeichen müssen markiert statt still entfernt werden; klare Wort- und Buchstabentrenner ermöglichen Round-Trip-Prüfung.", "Für Notfall- oder sicherheitskritische Kommunikation gelten die autoritativen Verfahren, nicht ein Lernwerkzeug."] },
+      ] },
+      zh: { title: "Unicode、字幕与摩尔斯转换中的文本完整性", excerpt: "理解字素、码点、UTF-8 字节和时间码边界，避免静默损坏文本。", description: "关于 Unicode 字素、码点检查、SRT 时间偏移和摩尔斯转换的完整性指南。", category: "文本完整性", readTime: "约 10 分钟", sections: [
+        { heading: "字符、码点和字素并不相同", paragraphs: ["一个表情可能由多个码点组成，重音字母也可能由基础字符和组合标记组成。按代码单元反转会拆散可见字符，Intl.Segmenter 的字素边界更接近用户感知。", "码点表可显示不可见空格、控制符和 UTF-8 字节，但相似字符并不因此被证明为恶意。"], bullets: ["可见文本转换使用字素边界。", "协议分析还要检查字节。", "应用规范化前记录目的。"] },
+        { heading: "按有符号且有界的偏移调整 SRT", paragraphs: ["开始和结束时间应用同一正负偏移，负值限制为零，文本行保持不变；找不到有效时间行时应显示错误。", "固定偏移不能修复帧率漂移，应在视频开头、中间和结尾分别目测同步。"] },
+        { heading: "明确报告字母转换损失", paragraphs: ["国际摩尔斯电码只覆盖有限字符集。不支持的字符应标记而不是静默丢弃，清晰的字母与单词分隔符便于往返检查。", "紧急或安全关键通信应遵循权威流程，浏览器转换器只用于学习和预检查。"] },
+      ] },
+    },
+  },
+  {
+    slug: "browser-data-delivery-json-csv-http-identifiers", date: "2026-07-22", relatedTools: ["json-kanoniklestirici", "csv-sql-insert-olusturucu", "http-istek-basligi-olusturucu", "uuid-inceleyici", "ulid-uretici-inceleyici", "changelog-bicimlendirici"],
+    copy: {
+      de: { title: "Browserbasierte Datenlieferung mit JSON, CSV, HTTP und Kennungen", excerpt: "Stabiles JSON, prüfbare SQL-Entwürfe, klare Header und erklärbare Kennungen reduzieren Übergabefehler.", description: "Praxisleitfaden für JSON-Stabilisierung, CSV-zu-SQL, HTTP-Header, MIME, UUID/ULID und Changelogs.", category: "Datenlieferung", readTime: "13 Min.", sections: [
+        { heading: "Stabile Darstellung von Kanonisierung trennen", paragraphs: ["Rekursive Schlüsselsortierung stabilisiert Snapshots und Diffs, ist aber nicht automatisch RFC-8785/JCS-kompatibel. Signaturen müssen den vorgeschriebenen Standard verwenden.", "JSON.stringify und JSON.parse escapen bzw. dekodieren Strings ohne Codeausführung. Quellcode-Escapes der Zielsprache bleiben eine zweite Ebene."], bullets: ["Zweck der Stabilisierung dokumentieren.", "Für Signaturen den Pflichtstandard nutzen.", "Nie mit eval dekodieren."] },
+        { heading: "Aus CSV einen Entwurf, keine Migration erzeugen", paragraphs: ["Tabellen- und Spaltennamen werden als einfache Bezeichner geprüft, quoted CSV-Zellen korrekt gelesen und SQL-Literale escaped. Typen, NULL, Foreign Keys und Transaktionen bleiben unbekannt.", "INSERT-Zeilen nur mit parametrisiertem Loader, Schema-Prüfung, Backup und Transaktion in einer Testumgebung verwenden."] },
+        { heading: "Header, IDs und Changelog ergänzen Kontext", paragraphs: ["HTTP-Header werden ohne Request erzeugt und CR/LF wird blockiert. MIME aus Endungen beweist keinen Inhalt; UUID-Version und ULID-Zeit beweisen weder Besitz noch Vertrauen.", "Changelog-Gruppen sind ein Anfang. Nutzerwirkung, Migration, Quellen und Breaking Changes werden menschlich ergänzt."] },
+      ] },
+      zh: { title: "使用 JSON、CSV、HTTP 与标识符构建浏览器内数据交付流程", excerpt: "通过稳定 JSON、可审查 SQL、正确请求头和可解释标识符减少交付错误。", description: "结合 JSON 稳定化、CSV 转 SQL、HTTP 请求头、MIME、UUID/ULID 与变更日志的实践指南。", category: "数据交付", readTime: "约 13 分钟", sections: [
+        { heading: "区分稳定表示与规范化标准", paragraphs: ["递归排序对象键可稳定快照与 diff，但不自动等于 RFC 8785/JCS。数字签名必须使用协议规定的标准。", "JSON.stringify 与 JSON.parse 在不执行代码的情况下转义或解码字符串；目标语言的源码转义属于另一层。"], bullets: ["记录稳定化目的。", "签名使用强制标准。", "绝不要用 eval 解码。"] },
+        { heading: "从 CSV 生成审查草案而非迁移", paragraphs: ["表名和列名按简单标识符校验，正确读取引号单元格并转义 SQL 字符串，但无法推断类型、NULL、外键或事务。", "INSERT 仅作草案；应在有备份的测试环境中用参数化加载器、Schema 校验和事务执行。"] },
+        { heading: "用请求头、标识符和变更日志补全上下文", paragraphs: ["请求头在不发送网络请求的情况下生成并阻止 CR/LF。扩展名 MIME 不证明内容；UUID 版本与 ULID 时间也不证明所有权或可信性。", "自动变更日志分组只是起点，用户影响、迁移、来源和破坏性变更需人工补充。"] },
+      ] },
+    },
+  },
+  {
+    slug: "local-design-security-finance-planning", date: "2026-07-22", relatedTools: ["css-gradient-olusturucu", "e-posta-basligi-analizoru", "csp-nonce-uretici", "bilesik-faiz-hesaplayici", "birikim-hedefi-planlayici"],
+    copy: {
+      de: { title: "Lokale Design-, Sicherheits- und Finanzwerkzeuge verantwortlich nutzen", excerpt: "Grenzen von CSS-Prototypen, E-Mail-/CSP-Prüfung und Finanzszenarien sichtbar halten.", description: "Leitfaden zu Designgeneratoren, Sicherheitsvorprüfungen und Zins-/Sparberechnungen mit Methoden und Grenzen.", category: "Sichere Alltagsplanung", readTime: "12 Min.", sections: [
+        { heading: "CSS-Ausgabe visuell und barrierefrei testen", paragraphs: ["Verlauf und Schatten erzeugen reproduzierbare Tokens, doch Kontrast verändert sich über Stopps und transparente Schatten wirken je nach Theme anders.", "Solider Fallback, reale Komponentenvorschau, Fokus-/Fehlerzustände und Mobiltest gehören zur Abnahme."], bullets: ["Soliden Verlauf-Fallback angeben.", "Schwächsten Stopp messen.", "Schatten nie als einzigen Fokus nutzen."] },
+        { heading: "Sicherheitsheader als Signale lesen", paragraphs: ["spf=pass oder dkim=pass im Header wird lokal nicht kryptografisch bestätigt. Received und Reply-To priorisieren nur die weitere Prüfung.", "Browser-Nonces sind Beispiele. Produktions-Nonces entstehen pro HTTP-Antwort auf dem Server. Auch Passwortrichtlinien brauchen echte Hashing-, Rate-Limit-, MFA- und Recovery-Tests."] },
+        { heading: "Finanzwerte als Annahmenszenarien", paragraphs: ["Zinseszins und Sparziel verwenden konstante Raten; Steuern, Gebühren, Inflation, variable Rendite und Risiko fehlen. Konservative, Basis- und Negativszenarien sollten verglichen werden.", "Kraftstoff und Tempo sind transparente Formeln, aber Verkehr, GPS, Pausen, Gelände und Gesundheit bleiben außerhalb. Ergebnisse sind keine Anlage- oder Gesundheitsberatung."] },
+      ] },
+      zh: { title: "负责任地使用本地设计、安全与财务规划工具", excerpt: "明确 CSS 原型、邮件/CSP 检查和财务情景的能力边界。", description: "介绍设计生成器、安全预检查以及复利/储蓄计算的方法、限制与验证。", category: "安全日常规划", readTime: "约 12 分钟", sections: [
+        { heading: "用视觉与无障碍测试补全 CSS 输出", paragraphs: ["渐变和阴影可生成可重复令牌，但不同色标的对比度不同，透明阴影在深浅主题中也有差异。", "纯色回退、真实组件预览、焦点/错误状态与移动端测试都应纳入验收。"], bullets: ["为渐变提供纯色回退。", "在最弱色标测量对比度。", "阴影不能作为唯一焦点提示。"] },
+        { heading: "把安全头视为信号而非保证", paragraphs: ["邮件头中的 spf=pass 或 dkim=pass 不会被本地解析器密码学验证，Received 和 Reply-To 只能帮助安排后续审查。", "浏览器生成的 CSP nonce 仅供示例；生产 nonce 必须由服务器为每个 HTTP 响应重新生成。密码策略也需要真实的哈希、限速、MFA 和恢复测试。"] },
+        { heading: "把财务数值当作假设情景", paragraphs: ["复利和储蓄目标使用恒定利率，未包含税费、通胀、波动收益与风险，应比较保守、基准和不利情景。", "燃油与配速公式透明，但交通、GPS、暂停、地形和健康背景不在结果内；输出不构成投资或健康建议。"] },
+      ] },
+    },
+  },
+);
+
 export const legacyLocalizedGuideSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",
   "json-schema-bild-hash-integritaet-workflow": "json-schema-image-hash-workflow",

@@ -1,6 +1,6 @@
 import type { AgentSession } from "./agent-core";
 
-export const AGENT_VERSION = "BQ-Agent 1.2";
+export const AGENT_VERSION = "BQ-Agent 1.3";
 export const AGENT_SESSION_KEY = "bytequant:local-agent:v1";
 export const AGENT_SESSION_LIMIT = 200_000;
 

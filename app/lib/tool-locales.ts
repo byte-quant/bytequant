@@ -2,7 +2,8 @@ import type { Locale } from "./site";
 import type { Tool, ToolCategory } from "./tools";
 
 type BaseLocale = "tr" | "en";
-type BaseLocalized<T> = Record<BaseLocale, T>;
+type ExtendedLocale = Exclude<Locale, BaseLocale>;
+type BaseLocalized<T> = Record<BaseLocale, T> & Partial<Record<ExtendedLocale, T>>;
 
 export type BaseTool = Omit<Tool, "title" | "short" | "description" | "useCases" | "steps"> & {
   title: BaseLocalized<string>;
@@ -414,7 +415,11 @@ const categorySteps: Record<ToolCategory, Record<"de" | "zh", string[]>> = {
 };
 
 export function localizeTool(base: BaseTool): Tool {
-  const pair = translations[base.slug];
+  const inlinePair = base.title.de && base.title.zh && base.short.de && base.short.zh && base.description.de && base.description.zh ? {
+    de: { title: base.title.de, short: base.short.de, description: base.description.de },
+    zh: { title: base.title.zh, short: base.short.zh, description: base.description.zh },
+  } : undefined;
+  const pair = translations[base.slug] ?? inlinePair;
   if (!pair) throw new Error(`Missing German/Chinese translation for tool: ${base.slug}`);
   const category = base.category;
   return {

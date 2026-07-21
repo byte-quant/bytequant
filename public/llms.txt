@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 104 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 131 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
 
 Canonical site: https://bytequant.org/
 
@@ -41,7 +41,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 104 tools.
+- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 131 tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -52,7 +52,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 104 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any of the 131 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
@@ -200,6 +200,36 @@ Languages:
 - [SemVer Comparator](https://bytequant.org/araclar/semver-karsilastirici): validates and compares Semantic Versioning values including prerelease precedence.
 
 Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/tools/{slug}`, and `/zh/tools/{slug}`.
+
+## New local productivity and review tools
+
+- [Prompt Boundary & Delimiter Builder](https://bytequant.org/en/tools/prompt-sinirlandirici-ayirici): separates untrusted data from model instructions with explicit boundaries.
+- [Structured Output Schema Builder](https://bytequant.org/en/tools/yapisal-cikti-semasi-olusturucu): creates a JSON Schema draft and output contract from field definitions.
+- [AI Red-Team Checklist Builder](https://bytequant.org/en/tools/ai-red-team-kontrol-listesi): prepares evidence-oriented AI safety test cases without running a model.
+- [Grapheme-Safe Text Reverser](https://bytequant.org/en/tools/grapheme-guvenli-metin-ters-cevirici): reverses user-perceived characters without splitting common emoji clusters.
+- [Sentence & Paragraph Splitter](https://bytequant.org/en/tools/cumle-paragraf-bolucu): segments text with locale-aware browser APIs.
+- [SRT Subtitle Time Shifter](https://bytequant.org/en/tools/srt-altyazi-zaman-kaydirici): shifts validated subtitle timecodes with millisecond precision.
+- [Unicode Code Point Inspector](https://bytequant.org/en/tools/unicode-kod-noktasi-inceleyici): exposes code points, UTF-8 bytes, controls, and combining marks.
+- [Morse Code Converter](https://bytequant.org/en/tools/mors-kodu-donusturucu): converts supported text and International Morse in both directions.
+- [JSON Canonicalizer](https://bytequant.org/en/tools/json-kanoniklestirici): recursively sorts object keys for stable JSON while disclosing non-JCS limits.
+- [JSON String Escape / Unescape](https://bytequant.org/en/tools/json-string-kacis-donusturucu): escapes or decodes JSON string literals without evaluating code.
+- [CSV to SQL INSERT Builder](https://bytequant.org/en/tools/csv-sql-insert-olusturucu): creates bounded, review-only INSERT drafts from CSV.
+- [HTTP Request Header Builder](https://bytequant.org/en/tools/http-istek-basligi-olusturucu): produces raw and fetch header drafts without sending a request.
+- [MIME Type Lookup](https://bytequant.org/en/tools/mime-turu-bulucu): maps common extensions while explaining that extension is not content proof.
+- [UUID Inspector](https://bytequant.org/en/tools/uuid-inceleyici): explains UUID version, variant, bytes, and special values.
+- [ULID Generator & Inspector](https://bytequant.org/en/tools/ulid-uretici-inceleyici): generates Web Crypto samples or decodes the timestamp portion.
+- [Changelog Formatter](https://bytequant.org/en/tools/changelog-bicimlendirici): groups release-note lines into Keep a Changelog-style sections.
+- [CSS Gradient Generator](https://bytequant.org/en/tools/css-gradient-olusturucu): validates color stops and returns CSS with a solid fallback.
+- [CSS Box Shadow Generator](https://bytequant.org/en/tools/css-box-shadow-olusturucu): creates bounded shadow CSS and a reusable custom property.
+- [Number Base Converter](https://bytequant.org/en/tools/sayi-tabani-donusturucu): converts signed integers exactly between bases 2 and 36 with BigInt.
+- [Byte & Hex Inspector](https://bytequant.org/en/tools/byte-hex-inceleyici): inspects UTF-8 bytes or decodes validated hexadecimal pairs.
+- [Email Header Analyzer](https://bytequant.org/en/tools/e-posta-basligi-analizoru): summarizes routing and claimed authentication without asserting identity.
+- [CSP Nonce Generator](https://bytequant.org/en/tools/csp-nonce-uretici): creates Web Crypto test samples and explains the per-response server requirement.
+- [Password Policy Builder](https://bytequant.org/en/tools/parola-politikasi-olusturucu): drafts password controls and implementation review points.
+- [Compound Interest Calculator](https://bytequant.org/en/tools/bilesik-faiz-hesaplayici): runs a transparent constant-rate monthly growth scenario.
+- [Savings Goal Planner](https://bytequant.org/en/tools/birikim-hedefi-planlayici): estimates target time with explicit assumptions and a 100-year bound.
+- [Fuel Cost Calculator](https://bytequant.org/en/tools/yakit-maliyeti-hesaplayici): calculates distance, liters, cost, and cost per kilometer.
+- [Pace & Speed Converter](https://bytequant.org/en/tools/tempo-hiz-donusturucu): derives kilometer and mile pace plus average speed.
 
 ## Editorial guides and site resources
 

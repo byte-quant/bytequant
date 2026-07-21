@@ -6,7 +6,7 @@ import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
-import { FavoriteTools, PopularTools } from "./ToolUsage";
+import { PersonalToolsHub } from "./ToolUsage";
 import { PwaInstall } from "./PwaInstall";
 import { GitHubActivity } from "./GitHubActivity";
 import { localizedGuides } from "../lib/localized-guides";
@@ -63,7 +63,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   const currentLanguage = languageTag(locale);
   const t = copy[locale];
   const guideCards = locale === "de" || locale === "zh"
-    ? localizedGuides.map((guide) => ({ slug: guide.slug, category: guide.copy[locale].category, readTime: guide.copy[locale].readTime, title: guide.copy[locale].title, excerpt: guide.copy[locale].excerpt, href: postPath(locale, guide.slug), hrefLang: locale }))
+    ? localizedGuides.slice(-3).reverse().map((guide) => ({ slug: guide.slug, category: guide.copy[locale].category, readTime: guide.copy[locale].readTime, title: guide.copy[locale].title, excerpt: guide.copy[locale].excerpt, href: postPath(locale, guide.slug), hrefLang: locale }))
     : posts.slice(-3).reverse().map((post) => ({ slug: post.slug, category: post.category[editorialLocale], readTime: post.readTime[editorialLocale], title: post.title[editorialLocale], excerpt: post.excerpt[editorialLocale], href: postPath(editorialLocale, post.slug), hrefLang: editorialLocale }));
   const alternateHref = locale === "tr" ? "/en" : "/";
   const schema = { "@context": "https://schema.org", "@type": "WebApplication", "@id": `${absoluteUrl(pathFor(locale, "home"))}#application`, name: "ByteQuant", url: absoluteUrl(pathFor(locale, "home")), applicationCategory: "ProductivityApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled", inLanguage: currentLanguage, isAccessibleForFree: true, isPartOf: { "@id": websiteId }, creator: { "@id": organizationId }, offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, featureList: [localized("Yerel Ajan ile açıklanabilir araç orkestrasyonu", "Explainable tool orchestration with Local Agent", "Nachvollziehbare Werkzeug-Orchestrierung mit lokalem Agenten", "使用本地助手进行可解释工具编排"), localized("Görsel İş İstasyonu, şifreli cihaz içi projeler ve sunucusuz P2P", "Visual Workstation, encrypted on-device projects, and serverless P2P", "Visuelle Workstation, verschlüsselte lokale Projekte und serverloses P2P", "可视化工作站、设备端加密项目与无服务器 P2P"), ...tools.map((tool) => tool.title[locale])] };
@@ -113,29 +113,27 @@ export function HomePage({ locale }: { locale: Locale }) {
               <footer><Link className="primary-button" href={pathFor(locale, "tools")}>{localized("Araçları keşfet", "Explore tools", "Werkzeuge entdecken", "浏览工具")} →</Link><span>{localized("Hızlı · Odaklı · Ücretsiz", "Fast · Focused · Free", "Schnell · Fokussiert · Kostenlos", "快速 · 专注 · 免费")}</span></footer>
             </article>
             <article className="home-platform-card home-agent-card">
-              <header><span className="home-platform-mark" aria-hidden="true">✦</span><div><small>BQ-AGENT 1.0</small><strong>{localized("Planlama katmanı", "Planning layer", "Planungsebene", "规划层")}</strong></div><b>{localized("ÖNCE", "FIRST", "ZUERST", "第一步")}</b></header>
+              <header><span className="home-platform-mark" aria-hidden="true">✦</span><div><small>BQ-AGENT 1.3</small><strong>{localized("Planlama katmanı", "Planning layer", "Planungsebene", "规划层")}</strong></div><b>{localized("ÖNCE", "FIRST", "ZUERST", "第一步")}</b></header>
               <h3>{localized("Hedefinizi yazın; uygun araç planını gerekçesiyle görün", "Describe the outcome and see a justified tool plan", "Ziel beschreiben und einen begründeten Werkzeugplan erhalten", "描述目标，查看带依据的工具计划")}</h3>
               <p>{localized("Çok dilli eşleştirme araçları sıralar, parametre ipuçlarını çıkarır ve belirsizlikleri gösterir. Planı siz inceler, her adımı siz başlatırsınız.", "Multilingual matching ranks tools, extracts parameter hints, and exposes uncertainty. You review the plan and start every step.", "Mehrsprachige Zuordnung priorisiert Werkzeuge, erkennt Parameterhinweise und zeigt Unsicherheit. Sie prüfen und starten jeden Schritt.", "多语言匹配会排列工具、提取参数提示并展示不确定性；计划由您审核，每一步由您启动。")}</p>
               <ol className="home-platform-steps" aria-label={localized("Yerel Ajan kullanım akışı", "Local Agent usage flow", "Nutzungsablauf des lokalen Agenten", "本地助手使用流程")}><li><span>01</span>{localized("Hedefi yaz", "Describe", "Beschreiben", "描述")}</li><li><span>02</span>{localized("Planı denetle", "Review", "Prüfen", "审核")}</li><li><span>03</span>{localized("Adımları çalıştır", "Run", "Ausführen", "执行")}</li></ol>
-              <footer><Link className="primary-button" href={pathFor(locale, "agent")}>{localized("Yerel Ajanı aç", "Open Local Agent", "Lokalen Agenten öffnen", "打开本地助手")} →</Link><span>0 {localized("ağ isteği", "network calls", "Netzaufrufe", "次网络请求")}</span></footer>
+              <footer><Link className="primary-button platform-agent-button" href={pathFor(locale, "agent")}><b aria-hidden="true">✦</b><span>{localized("Yerel Ajanı aç", "Open Local Agent", "Lokalen Agenten öffnen", "打开本地助手")}</span><i aria-hidden="true">→</i></Link><span>0 {localized("ağ isteği", "network calls", "Netzaufrufe", "次网络请求")}</span></footer>
             </article>
             <article className="home-platform-card home-workstation-card">
               <header><span className="home-platform-mark" aria-hidden="true">⌘</span><div><small>BYTEQUANT WORKSTATION</small><strong>{localized("Yürütme katmanı", "Execution layer", "Ausführungsebene", "执行层")}</strong></div><b>{localized("SONRA", "NEXT", "DANACH", "下一步")}</b></header>
               <h3>{localized("Araçları bağlayın; projeyi yerel ve düzenlenebilir tutun", "Connect tools and keep the project local and editable", "Werkzeuge verbinden und das Projekt lokal bearbeitbar halten", "连接工具，让项目保持本地且可编辑")}</h3>
               <p>{localized("Düğümleri görsel kablolarla bağlayın, çıktıyı sonraki girdiye kontrollü aktarın ve projeyi AES-GCM şifreli IndexedDB alanında saklayın.", "Connect nodes with visual wires, pass output to the next input under your control, and keep the project in AES-GCM-encrypted IndexedDB.", "Knoten visuell verbinden, Ausgaben kontrolliert weitergeben und das Projekt AES-GCM-verschlüsselt in IndexedDB speichern.", "用可视化连线连接节点，在您的控制下传递输出，并将项目保存在 AES-GCM 加密的 IndexedDB 中。")}</p>
               <div className="home-workstation-flow" aria-hidden="true"><span>JSON</span><i>→</i><span>MASK</span><i>→</i><span>CSV</span><b>LOCAL<br />AES-256</b></div>
-              <footer><Link className="primary-button" href={pathFor(locale, "workstation")}>{localized("İş İstasyonunu aç", "Open Workstation", "Workstation öffnen", "打开工作站")} →</Link><span>{localized("Şablon · Düğüm · Tarif", "Template · Node · Recipe", "Vorlage · Knoten · Rezept", "模板 · 节点 · 配方")}</span></footer>
+              <footer><Link className="primary-button platform-workstation-button" href={pathFor(locale, "workstation")}><b aria-hidden="true">⌘</b><span>{localized("İş İstasyonunu aç", "Open Workstation", "Workstation öffnen", "打开工作站")}</span><i aria-hidden="true">→</i></Link><span>{localized("Şablon · Düğüm · Tarif", "Template · Node · Recipe", "Vorlage · Knoten · Rezept", "模板 · 节点 · 配方")}</span></footer>
             </article>
           </div>
           <p className="home-platform-boundary"><span aria-hidden="true">ⓘ</span>{localized("Yerel Ajan üretken bir LLM değildir; İş İstasyonu da araçları sizden habersiz çalıştırmaz. Dosya seçimi, yürütme, indirme ve paylaşma açık kullanıcı eylemi gerektirir.", "Local Agent is not a generative LLM, and Workstation never runs tools without you. File selection, execution, download, and sharing require explicit user action.", "Der lokale Agent ist kein generatives LLM; die Workstation führt Werkzeuge nicht selbstständig aus. Dateiauswahl, Ausführung, Download und Freigabe erfordern Ihre Handlung.", "本地助手不是生成式大模型，工作站也不会擅自运行工具。文件选择、执行、下载与分享均需用户明确操作。")}</p>
         </div>
       </section>
 
+      <PersonalToolsHub locale={locale} />
       <InteractiveDemo locale={locale} />
-
       <PwaInstall locale={locale} />
-      <FavoriteTools locale={locale} />
-      <PopularTools locale={locale} />
 
       <section className="section open-source-section" aria-labelledby="open-source-title">
         <div className="container open-source-grid">
