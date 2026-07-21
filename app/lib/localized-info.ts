@@ -14,19 +14,20 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
         { heading: "Warum ByteQuant existiert", paragraphs: ["Viele kleine Aufgaben wie JSON-Prüfung, Einheitenumrechnung oder Datenmaskierung benötigen technisch keinen Upload. ByteQuant hält solche Arbeit im aktiven Browser-Tab und erklärt Methode und Grenzen sichtbar.", "Das Produkt versteht clientseitige Verarbeitung als technische Grenze, nicht als Werbeversprechen. Neue externe Datenflüsse müssten vor der Aktivierung offengelegt werden."] },
         { heading: "Produktprinzipien", paragraphs: ["Wir entwickeln kleine, zugängliche und nachvollziehbare Werkzeuge ohne Pflichtkonto."], bullets: ["Serverfreie Aufgaben auf dem Gerät halten", "Fehler verständlich anzeigen", "Näherungen und rechtliche Grenzen offenlegen", "Mobil, tastaturbedienbar und schnell bleiben", "Korrekturen und Sicherheitsmeldungen erreichbar machen"] },
         { heading: "Sicherheit und redaktioneller Ansatz", paragraphs: ["Datei-, Code- und URL-Prüfungen sind begrenzte heuristische Vorprüfungen. Sie sind kein Antivirus, keine vollständige SAST-Analyse und keine Reputationsprüfung.", "Rechtliche, finanzielle und sicherheitskritische Inhalte sind allgemeine Informationen. Für konkrete Entscheidungen ist qualifizierte Fachberatung erforderlich."] },
+        { heading: "Open Source und Nachvollziehbarkeit", paragraphs: ["Der ByteQuant-Quellcode wird unter der MIT-Lizenz auf GitHub veröffentlicht. Verhalten, Abhängigkeiten, Sicherheitsrichtlinie und Änderungshistorie sind überprüfbar.", "Korrekturen sollen beobachtbares Verhalten und reproduzierbare Schritte enthalten. Sicherheitslücken werden vertraulich über SECURITY.md gemeldet; Methoden und Abläufe können in der Community diskutiert werden."] },
       ],
     },
     privacy: {
       eyebrow: "DATENSCHUTZERKLÄRUNG",
       title: "Klare und möglichst kurze Datenwege",
       intro: "Diese Erklärung beschreibt die Datenverarbeitung bei bytequant.org. Werkzeugeingaben werden in der aktuellen Version nicht an ByteQuant-Server gesendet.",
-      updated: "Zuletzt aktualisiert: 19. Juli 2026",
+      updated: "Zuletzt aktualisiert: 21. Juli 2026",
       sections: [
         { heading: "1. Verantwortlicher und Kontakt", paragraphs: ["ByteQuant ist für diesen Dienst verantwortlich. Datenschutzanfragen können an bytequant@yahoo.com gesendet werden.", "Werkzeugeingaben werden nicht zentral gespeichert. Bei einer Kontaktaufnahme per E-Mail werden Nachricht und Kontaktdaten nur zur Bearbeitung und erforderlichen Dokumentation verarbeitet."] },
         { heading: "2. Werkzeugverarbeitung und lokaler Agent", paragraphs: ["Text, Prompt, JSON, CSV, Code, Passwörter, Bilder und PDFs werden im aktiven Browser-Tab verarbeitet. Datei- und Code-Vorprüfungen führen Inhalte nicht aus und senden sie nicht an einen Scan-Dienst.", "Der lokale Agent nutzt semantische Regeln statt Remote-LLM oder AI-API. Plan und begrenzte Zwischenausgabe bleiben im sessionStorage des offenen Tabs. Spracheingabe startet nur bei bestätigter lokaler Verarbeitung und hat keinen Remote-Fallback.", "Kopieren und Herunterladen erzeugt eine von Ihnen kontrollierte Kopie. Zwischenablage, Downloads und gemeinsam genutzte Geräte liegen danach in Ihrer Verantwortung."] },
         { heading: "2A. Workstation, verschlüsselte Projekte, P2P und Rezeptlinks", paragraphs: ["Explizit gespeicherte Projekte bleiben AES-GCM-256-verschlüsselt in der lokalen IndexedDB-Datenbank bytequant-workspaces. Ein nicht exportierbarer Geräteschlüssel liegt in derselben Datenbank; ByteQuant kann weder Schlüssel noch Projekt remote abrufen. Dies schützt nicht vor einem kompromittierten Gerät, einer schädlichen Erweiterung oder bösartigem Code desselben Ursprungs.", "Die sessionStorage-Werte bytequant:workstation-active:v1, bytequant:workstation-handoff:v1 und das ausdrücklich gewählte Agentenziel bytequant:workstation-agent-goal:v1 ermöglichen nur eine vorübergehende, begrenzte Übergabe im selben Tab. Dateiauswahl, Passwortfelder, Codeausführung und Downloads bleiben manuell.", "Die Zusammenarbeit verwendet ausschließlich WebRTC DataChannel mit Browser-DTLS, ohne ByteQuant-Signalisierungsserver, STUN oder TURN. Einmalige Einladungs- und Antwortcodes verfallen nach zehn Minuten und können Netzwerkkandidaten enthalten. Die Live-Freigabe ist zunächst aus und wird erst nach Vergleich desselben Sicherheitscodes über einen zweiten Kanal verfügbar. Dieser Code hilft gegen aktive Zwischenstellen, ist aber keine Identitätsprüfung. NAT oder Firewalls können die Verbindung verhindern.", "Rezeptlinks schließen Ausgaben immer und Eingaben standardmäßig aus. Wenn Sie Eingaben einschließen, können diese in URL, Verlauf, Zwischenablage, Nachrichtendienst und auf dem Empfängergerät sichtbar werden."] },
         { heading: "3. PWA, Service Worker und Offline-Cache", paragraphs: ["Die installierbare Web-App speichert nur gleichursprüngliche Anwendungsteile und bereits besuchte GET-Seiten. Werkzeugeingaben, generierte Ergebnisse, Passwörter und ausgewählte Dateien werden nicht in den Offline-Cache geschrieben.", "ByteQuant verteilt keine APK. Auf Android erzeugt der Browser die WebAPK/App-Hülle; die Website kann deren Android-Zielversion nicht festlegen. Bei einer Warnung zu einer alten Android-Version: abbrechen, Browser aktualisieren, alte ByteQuant-Verknüpfung entfernen und über das aktuelle Browsermenü neu installieren.", "Der Service Worker kann in den Browser- oder App-Einstellungen entfernt werden. Ein installierbares Symbol ändert nicht das lokale Datenschutzmodell."] },
-        { heading: "4. Lokaler Speicher und Einwilligung", paragraphs: ["bq-consent-v1 speichert die Auswahl für 180 Tage und bq-theme das gewünschte Farbschema. bq-tool-usage-v1 wird nur nach Einwilligung aktiviert und enthält ausschließlich Werkzeugkennung, Anzahl und letzte Nutzung – nie Inhalte.", "Analytik-, Werbe- oder Tracking-SDKs sind nicht aktiv. Vor einer späteren Aktivierung würden Erklärung und gültiger Einwilligungsprozess aktualisiert."] },
+        { heading: "4. Lokaler Speicher, GitHub und Einwilligung", paragraphs: ["bq-consent-v1 speichert die Auswahl für 180 Tage und bq-theme das Farbschema. bq-tool-usage-v1 sowie bq-tool-favorites-v1 werden nur nach Einwilligung aktiviert und enthalten Werkzeugkennungen, Zähler, Zeitpunkte oder Favoriten – nie Eingaben oder Ergebnisse.", "Werkzeugübergaben und Agentengespräche bleiben zeitlich begrenzt im sessionStorage desselben Tabs. Der GitHub-Aktivitätsabruf startet nur per Klick; dann gelten GitHubs Datenschutzregeln für IP- und Browserdaten. Community-Entwürfe werden lokal vorgeprüft, die Veröffentlichung erfolgt öffentlich bei GitHub.", "Analytik-, Werbe- oder Tracking-SDKs sind nicht aktiv. Vor einer späteren Aktivierung würden Erklärung und gültiger Einwilligungsprozess aktualisiert."] },
         { heading: "5. Hosting, Rechte und Sicherheit", paragraphs: ["Die statische Website ist für GitHub Pages vorgesehen. Hosting- und Netzbetreiber können übliche Verbindungsdaten wie IP-Adresse, Zeit, Pfad und User-Agent nach eigenen Richtlinien verarbeiten; Werkzeugeingaben sind nicht Teil dieser Requests.", "Soweit anwendbar bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Beschwerde. Datenminimierung reduziert Risiken, garantiert aber keine absolute Sicherheit."] },
       ],
     },
@@ -34,7 +35,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "COOKIES & LOKALER SPEICHER",
       title: "Keine Tracking-Cookies; optionale lokale Abkürzungen nur mit Einwilligung",
       intro: "ByteQuant verwendet derzeit keine HTTP-Cookies, Analytik-IDs oder aktive Werbetags.",
-      updated: "Zuletzt aktualisiert: 19. Juli 2026",
+      updated: "Zuletzt aktualisiert: 21. Juli 2026",
       sections: [
         { heading: "Erforderlicher Speicher", paragraphs: ["bq-consent-v1 merkt Ihre Auswahl 180 Tage; bq-theme speichert das ausdrücklich gewählte Farbschema. Diese Werte enthalten keine Werkzeugeingaben."] },
         { heading: "Optionale Personalisierung", paragraphs: ["bq-tool-usage-v1 zählt nach Ihrer Einwilligung lokal geöffnete Werkzeuge. Es speichert Slug, Zähler und letzten Zeitpunkt, aber keine Texte, Dateien, Passwörter oder Ergebnisse.", "Sie können die Einwilligung über „Datenschutzauswahl“ im Fußbereich zurückziehen; der optionale Datensatz wird dann gelöscht."] },
@@ -47,7 +48,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "NUTZUNGSBEDINGUNGEN",
       title: "Kostenlose Werkzeuge mit klaren Verantwortungsgrenzen",
       intro: "Mit der Nutzung von ByteQuant akzeptieren Sie diese Bedingungen und verwenden die Werkzeuge nur für rechtmäßige, autorisierte Zwecke.",
-      updated: "Zuletzt aktualisiert: 19. Juli 2026",
+      updated: "Zuletzt aktualisiert: 21. Juli 2026",
       sections: [
         { heading: "Zulässige Nutzung", paragraphs: ["Verarbeiten Sie nur Daten, Dateien, URLs und Quellcode, die Sie rechtmäßig prüfen dürfen. Umgehen Sie keine Zugriffskontrollen, Verschlüsselung, Lizenz oder Rechte Dritter."] },
         { heading: "Keine Fach- oder Sicherheitsgarantie", paragraphs: ["Berechnungen, Vertrags- und Rechnungsentwürfe, Zitationen, Malware-Indikatoren und Prompt-Bewertungen sind Hilfsmittel. Sie ersetzen keine Rechts-, Finanz-, Studien-, Steuer- oder Sicherheitsberatung.", "Ein unauffälliger Datei-, Code- oder URL-Bericht beweist keine Sicherheit. Kritische Ergebnisse müssen unabhängig geprüft werden."] },
@@ -98,7 +99,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "隐私政策",
       title: "让数据路径清晰并尽可能短",
       intro: "本政策说明访问 bytequant.org 时的数据处理方式。当前版本不会把工具输入发送到 ByteQuant 服务器。",
-      updated: "最后更新：2026 年 7 月 19 日",
+      updated: "最后更新：2026 年 7 月 21 日",
       sections: [
         { heading: "1. 负责人和联系", paragraphs: ["ByteQuant 是本服务的数据负责人。隐私请求可发送至 bytequant@yahoo.com。", "工具输入不会被集中保存。通过电子邮件联系时，消息和联系方式仅用于回复及必要记录。"] },
         { heading: "2. 浏览器内工具与本地助手", paragraphs: ["文本、提示词、JSON、CSV、代码、密码、图片和 PDF 在当前浏览器标签页中处理。文件与代码预扫描不会执行内容，也不会把内容发送到扫描服务。", "本地助手使用语义规则，不调用远程 LLM 或 AI API。计划与有限中间输出保留在当前标签页的 sessionStorage；仅在浏览器确认设备端处理时启用语音，且不回退到远程识别。", "复制或下载会在您的设备上创建由您控制的新副本。之后的剪贴板、下载文件和共享设备风险由您管理。"] },
@@ -112,7 +113,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "COOKIE 与本地存储",
       title: "无跟踪 Cookie；可选本地快捷方式需先同意",
       intro: "ByteQuant 当前不设置 HTTP Cookie、分析标识或活动广告标签。",
-      updated: "最后更新：2026 年 7 月 19 日",
+      updated: "最后更新：2026 年 7 月 21 日",
       sections: [
         { heading: "必要存储", paragraphs: ["bq-consent-v1 记住 180 天的选择，bq-theme 保存明确选择的主题。它们不包含工具输入。"] },
         { heading: "可选个性化", paragraphs: ["经您同意后，bq-tool-usage-v1 在本地记录打开的工具，只保存 slug、计数和最后时间，不保存文本、文件、密码或结果。", "您可通过页脚的“隐私选择”撤回同意，相关可选记录会被删除。"] },
@@ -125,7 +126,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "使用条款",
       title: "免费工具与清晰的责任边界",
       intro: "使用 ByteQuant 即表示您接受本条款，并仅将工具用于合法且获授权的目的。",
-      updated: "最后更新：2026 年 7 月 19 日",
+      updated: "最后更新：2026 年 7 月 21 日",
       sections: [
         { heading: "允许的使用", paragraphs: ["只处理您依法有权检查的数据、文件、URL 和源代码。不得绕过访问控制、加密、许可证或第三方权利。"] },
         { heading: "不构成专业或安全保证", paragraphs: ["计算、合同与发票草稿、引用、恶意指标和提示词评分只是辅助工具，不能替代法律、财务、教育、税务或安全建议。", "文件、代码或 URL 报告无异常，并不能证明安全。关键结果必须独立核验。"] },

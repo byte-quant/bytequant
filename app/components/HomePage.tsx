@@ -6,8 +6,9 @@ import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
-import { PopularTools } from "./ToolUsage";
+import { FavoriteTools, PopularTools } from "./ToolUsage";
 import { PwaInstall } from "./PwaInstall";
+import { GitHubActivity } from "./GitHubActivity";
 import { localizedGuides } from "../lib/localized-guides";
 
 const faqs = {
@@ -94,16 +95,20 @@ export function HomePage({ locale }: { locale: Locale }) {
 
       <section className="proof-strip"><div className="container proof-grid"><div><strong>{tools.length}</strong><span>{localized("işlevsel araç", "working tools", "funktionierende Werkzeuge", "个可用工具")}</span></div><div><strong>{Object.keys(categories).length}</strong><span>{localized("odaklı kategori", "focused categories", "fokussierte Kategorien", "个专注类别")}</span></div><div><strong>0</strong><span>{localized("zorunlu hesap", "required accounts", "Pflichtkonten", "个必需账户")}</span></div><div><strong>100%</strong><span>{localized("tarayıcı içi çekirdek işlem", "in-browser core processing", "Kernverarbeitung im Browser", "核心处理在浏览器内")}</span></div></div></section>
 
-      <PopularTools locale={locale} />
-      <PwaInstall locale={locale} />
-
       <section className="section home-platform-section" aria-labelledby="home-platform-title">
         <div className="container">
           <div className="section-heading split-heading home-platform-heading">
-            <div><span className="kicker">BYTEQUANT · LOCAL INTELLIGENCE</span><h2 id="home-platform-title">{localized("Önce doğru akışı planlayın, sonra tek çalışma alanında yürütün", "Plan the right workflow first, then run it in one workspace", "Erst den richtigen Ablauf planen, dann in einem Arbeitsbereich ausführen", "先规划正确流程，再在一个工作区中执行")}</h2></div>
-            <p>{localized("Yerel Ajan ne yapacağınızı açıklanabilir adımlara ayırır. İş İstasyonu bu adımları düzenlenebilir düğümlere, cihaz içi projelere ve kontrollü paylaşıma dönüştürür. İkisi de uzak model veya veri yükleme kullanmaz.", "Local Agent turns your outcome into explainable steps. Workstation turns those steps into editable nodes, on-device projects, and controlled sharing. Neither uses a remote model or data upload.", "Der lokale Agent zerlegt Ihr Ziel in nachvollziehbare Schritte. Die Workstation macht daraus bearbeitbare Knoten, lokale Projekte und kontrollierte Freigaben – ohne Remote-Modell oder Upload.", "本地助手把目标拆分为可解释步骤；工作站再将步骤变成可编辑节点、设备端项目与受控分享。二者均不使用远程模型或上传数据。")}</p>
+            <div><span className="kicker">BYTEQUANT · CHOOSE YOUR START</span><h2 id="home-platform-title">{localized("Bugün ne yapmak istediğinizi seçin", "Choose how you want to work today", "Wählen Sie Ihren Einstieg", "选择今天的工作方式")}</h2></div>
+            <p>{localized("Tek bir iş için doğrudan aracı açın, hedefinizden emin değilseniz Yerel Ajanla planlayın veya çok adımlı süreci İş İstasyonunda görselleştirin. Üç yol da aynı yerel ve kullanıcı denetimli araç altyapısına bağlanır.", "Open a tool for one focused task, ask Local Agent to plan when the path is unclear, or map a multi-step process in Workstation. All three routes use the same local, user-controlled tool layer.", "Öffnen Sie für eine einzelne Aufgabe direkt ein Werkzeug, planen Sie unklare Ziele mit dem lokalen Agenten oder bilden Sie mehrstufige Abläufe in der Workstation ab. Alle Wege nutzen dieselbe lokale, nutzergesteuerte Basis.", "单项任务可直接打开工具；路径不明确时使用本地助手规划；多步骤流程则在工作站中可视化。三种方式都连接同一本地、用户可控的工具层。")}</p>
           </div>
           <div className="home-platform-grid">
+            <article className="home-platform-card home-tools-card">
+              <header><span className="home-platform-mark" aria-hidden="true">□</span><div><small>{tools.length} LOCAL UTILITIES</small><strong>{localized("Doğrudan araç", "Direct tool", "Direktes Werkzeug", "直接工具")}</strong></div><b>{localized("TEK İŞ", "ONE TASK", "EINE AUFGABE", "单项任务")}</b></header>
+              <h3>{localized("Ne yapacağınızı biliyorsanız en kısa yoldan başlayın", "Start with the shortest path when you know the task", "Wenn die Aufgabe klar ist, nehmen Sie den kürzesten Weg", "任务明确时，直接走最短路径")}</h3>
+              <p>{localized("Arama, kategoriler ve Cmd+K ile doğru aracı bulun. Örnek veriyi yükleyin, sonucu cihazınızda üretin ve gerekirse tek tıkla sonraki araca aktarın.", "Use search, categories, or Cmd+K to find the right tool. Load a demo, produce the result on-device, and hand it to the next tool when needed.", "Finden Sie das passende Werkzeug über Suche, Kategorien oder Cmd+K. Beispiel laden, lokal ausführen und das Ergebnis bei Bedarf weitergeben.", "通过搜索、分类或 Cmd+K 找到工具，加载示例，在设备上生成结果，并在需要时传给下一个工具。")}</p>
+              <ol className="home-platform-steps"><li><span>01</span>{localized("Aracı bul", "Find", "Finden", "查找")}</li><li><span>02</span>{localized("Yerelde çalıştır", "Run", "Ausführen", "运行")}</li><li><span>03</span>{localized("Sonucu aktar", "Continue", "Weiter", "继续")}</li></ol>
+              <footer><Link className="primary-button" href={pathFor(locale, "tools")}>{localized("Araçları keşfet", "Explore tools", "Werkzeuge entdecken", "浏览工具")} →</Link><span>{localized("Hızlı · Odaklı · Ücretsiz", "Fast · Focused · Free", "Schnell · Fokussiert · Kostenlos", "快速 · 专注 · 免费")}</span></footer>
+            </article>
             <article className="home-platform-card home-agent-card">
               <header><span className="home-platform-mark" aria-hidden="true">✦</span><div><small>BQ-AGENT 1.0</small><strong>{localized("Planlama katmanı", "Planning layer", "Planungsebene", "规划层")}</strong></div><b>{localized("ÖNCE", "FIRST", "ZUERST", "第一步")}</b></header>
               <h3>{localized("Hedefinizi yazın; uygun araç planını gerekçesiyle görün", "Describe the outcome and see a justified tool plan", "Ziel beschreiben und einen begründeten Werkzeugplan erhalten", "描述目标，查看带依据的工具计划")}</h3>
@@ -120,6 +125,22 @@ export function HomePage({ locale }: { locale: Locale }) {
             </article>
           </div>
           <p className="home-platform-boundary"><span aria-hidden="true">ⓘ</span>{localized("Yerel Ajan üretken bir LLM değildir; İş İstasyonu da araçları sizden habersiz çalıştırmaz. Dosya seçimi, yürütme, indirme ve paylaşma açık kullanıcı eylemi gerektirir.", "Local Agent is not a generative LLM, and Workstation never runs tools without you. File selection, execution, download, and sharing require explicit user action.", "Der lokale Agent ist kein generatives LLM; die Workstation führt Werkzeuge nicht selbstständig aus. Dateiauswahl, Ausführung, Download und Freigabe erfordern Ihre Handlung.", "本地助手不是生成式大模型，工作站也不会擅自运行工具。文件选择、执行、下载与分享均需用户明确操作。")}</p>
+        </div>
+      </section>
+
+      <PwaInstall locale={locale} />
+      <FavoriteTools locale={locale} />
+      <PopularTools locale={locale} />
+
+      <section className="section open-source-section" aria-labelledby="open-source-title">
+        <div className="container open-source-grid">
+          <div className="open-source-copy">
+            <span className="open-source-badge">MIT · OPEN SOURCE · AUDITABLE</span>
+            <h2 id="open-source-title">{localized("Güven, kaynak kodunu görebilmekle başlar", "Trust starts with being able to inspect the source", "Vertrauen beginnt mit einsehbarem Quellcode", "信任始于可检查的源代码")}</h2>
+            <p>{localized("ByteQuant'ın çalışma mantığını, bağımlılıklarını ve değişiklik geçmişini GitHub'da inceleyebilirsiniz. Açık kaynak yaklaşımı; gizlilik iddialarının doğrulanmasını, hataların izlenmesini ve yöntemlerin tartışılmasını kolaylaştırır.", "Inspect ByteQuant's behavior, dependencies, and change history on GitHub. Open source makes privacy claims verifiable, defects traceable, and methods open to review.", "Prüfen Sie Verhalten, Abhängigkeiten und Änderungen von ByteQuant auf GitHub. Open Source macht Datenschutzangaben überprüfbar, Fehler nachvollziehbar und Methoden diskutierbar.", "您可以在 GitHub 检查 ByteQuant 的运行方式、依赖与变更记录。开源让隐私声明可验证、问题可追踪、方法可审阅。")}</p>
+            <div className="open-source-actions"><Link className="primary-button" href="https://github.com/byte-quant/bytequant" target="_blank" rel="noreferrer noopener">GitHub {localized("deposunu incele", "repository", "Repository", "代码仓库")} ↗</Link><Link className="secondary-button" href={pathFor(locale, "community")}>{localized("Topluluğa katıl", "Join the community", "Community öffnen", "加入社区")} →</Link></div>
+          </div>
+          <GitHubActivity locale={locale} />
         </div>
       </section>
 

@@ -3,6 +3,7 @@ import { WORKSPACE_MAX_TEXT, validateWorkspaceDocument, type WorkspaceDocument }
 export const WORKSPACE_HANDOFF_KEY = "bytequant:workstation-handoff:v1";
 export const WORKSPACE_ACTIVE_KEY = "bytequant:workstation-active:v1";
 export const WORKSPACE_AGENT_GOAL_KEY = "bytequant:workstation-agent-goal:v1";
+export const WORKSPACE_AGENT_PLAN_KEY = "bytequant:workstation-agent-plan:v1";
 
 export type WorkspaceHandoff = {
   version: 1;

@@ -14,10 +14,10 @@ Languages:
 
 - Core tool input is processed locally in the user's browser; ByteQuant tools do not require an account.
 - Tool input is not intentionally uploaded to ByteQuant application servers.
-- Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts used to personalize the popular-tools list.
+- Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts plus pinned tool IDs used for local personalization.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
-- Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans and user-approved intermediate output are bounded to the current tab's sessionStorage.
+- Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans, up to four conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
 - Local Agent never selects files, runs tools, downloads output, or performs a network request without user action. Its decision summary exposes matched signals, extracted parameters, reasons, and limitations—not hidden chain-of-thought.
 - Voice input is offered only when the browser confirms on-device speech recognition and supports forced local processing. There is no fallback to remote recognition.
 - Workstation projects are saved only after explicit use, as AES-GCM-256 ciphertext in the browser's `bytequant-workspaces` IndexedDB database. A non-extractable device key stays in the same database. This is not protection against a compromised device, malicious extension, or hostile same-origin code.
@@ -55,6 +55,15 @@ Languages:
 - Users can arrange any of the 89 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
+
+## Open-source community
+
+- Turkish: https://bytequant.org/topluluk
+- English: https://bytequant.org/en/community
+- German: https://bytequant.org/de/community
+- Simplified Chinese: https://bytequant.org/zh/community
+- Drafts are pre-screened in the active tab for obvious secrets, personal-data patterns, abuse, and unsuitable links. ByteQuant stores no community account or post database; publishing moves to GitHub Discussions and is subject to GitHub moderation.
+- The home-page activity card contacts GitHub's public API only after an explicit click and never includes tool input.
 
 ## Prompt tools
 
@@ -198,6 +207,10 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 6. Code pre-scan, SAST, and manual review guide: https://bytequant.org/en/blog/kod-guvenligi-on-tarama-sast-kod-inceleme
 7. Token and context budget guide: https://bytequant.org/en/blog/token-baglam-butcesi-sistem-promptu-kontrol-listesi
 8. Turkish guide collection: https://bytequant.org/blog
+9. Agent-to-Workstation local pipeline: https://bytequant.org/en/blog/private-agent-workstation-pipeline
+10. Batch masking quality control: https://bytequant.org/en/blog/batch-masking-before-after-quality-control
+11. Open-source browser-tool audit: https://bytequant.org/en/blog/open-source-browser-tool-security-audit
+12. Client-side Core Web Vitals: https://bytequant.org/en/blog/core-web-vitals-client-side-tools
 
 This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources.
 

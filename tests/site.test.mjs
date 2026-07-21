@@ -4,6 +4,7 @@ import test from "node:test";
 
 const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
+const readSource = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
 
 test("exports the complete four-language site", async () => {
@@ -19,10 +20,15 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /89 个可解释工具/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
-  assert.match(home, /Önce doğru akışı planlayın, sonra tek çalışma alanında yürütün/);
-  assert.match(english, /Plan the right workflow first, then run it in one workspace/);
-  assert.match(german, /Erst den richtigen Ablauf planen, dann in einem Arbeitsbereich ausführen/);
-  assert.match(chinese, /先规划正确流程，再在一个工作区中执行/);
+  assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
+  assert.match(english, /Choose how you want to work today/);
+  assert.match(german, /Wählen Sie Ihren Einstieg/);
+  assert.match(chinese, /选择今天的工作方式/);
+  for (const page of [home, english, german, chinese]) {
+    assert.match(page, /GitHub/);
+    assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
+    assert.match(page, /og:locale:alternate/);
+  }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
   assert.match(home, /hrefLang="tr-TR"/);
@@ -69,6 +75,10 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /https:\/\/bytequant\.org\/en\/workstation\//);
   assert.match(sitemap, /de\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
   assert.match(sitemap, /zh\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
+  assert.match(sitemap, /https:\/\/bytequant\.org\/topluluk\//);
+  assert.match(sitemap, /https:\/\/bytequant\.org\/en\/community\//);
+  assert.match(sitemap, /de\/blog\/private-agent-workstation-pipeline/);
+  assert.match(sitemap, /zh\/blog\/core-web-vitals-client-side-tools/);
   assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/workspace\//);
   assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
   assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
@@ -131,8 +141,10 @@ test("exports all tool and guide routes", async () => {
   assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 89);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
-  assert.ok(germanPosts.length >= 9);
-  assert.ok(chinesePosts.length >= 9);
+  assert.ok(turkishPosts.length >= 42);
+  assert.ok(englishPosts.length >= 42);
+  assert.ok(germanPosts.length >= 14);
+  assert.ok(chinesePosts.length >= 14);
   await access(new URL("gizlilik-politikasi/index.html", root));
   await access(new URL("en/privacy/index.html", root));
   await access(new URL("cerez-politikasi/index.html", root));
@@ -164,6 +176,13 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
   await access(new URL("de/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
   await access(new URL("zh/blog/visual-workflow-indexeddb-webrtc-workstation/index.html", root));
+  await access(new URL("blog/private-agent-workstation-pipeline/index.html", root));
+  await access(new URL("en/blog/batch-masking-before-after-quality-control/index.html", root));
+  await access(new URL("de/blog/browser-tool-handoff-json-csv-base64/index.html", root));
+  await access(new URL("zh/blog/open-source-browser-tool-security-audit/index.html", root));
+  await access(new URL("zh/blog/core-web-vitals-client-side-tools/index.html", root));
+  await access(new URL("topluluk/index.html", root));
+  await access(new URL("en/community/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
   await access(new URL("en/references/cron-cheat-sheet/index.html", root));
   await access(new URL("de/references/regex-cheat-sheet/index.html", root));
@@ -179,7 +198,9 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /BreadcrumbList/);
   assert.match(page, /WebApplication/);
   assert.match(page, /tool-transparency/);
-  assert.match(page, /İLGİLİ ARAÇLAR/);
+  assert.match(page, /Bu araçla sık kullanılanlar/);
+  assert.match(page, /Tamamen tarayıcıda çalışır/);
+  assert.match(page, /Son güncelleme: 21 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
 });
@@ -240,7 +261,7 @@ test("exports bilingual local image and PDF converters", async () => {
     assert.match(page, /HowTo/);
     assert.match(page, /Örnek veri yükle|Load example/);
     assert.match(page, /active browser tab|etkin tarayıcı sekmesi/i);
-    assert.match(page, /İLGİLİ ARAÇLAR|RELATED TOOLS/);
+    assert.match(page, /Bu araçla sık kullanılanlar|Frequently used with this tool/);
     assert.doesNotMatch(page, /axios|upload\s+to\s+(?:our|the)\s+server/i);
   }
   assert.match(pages[0], /gerçek vektörleştirme|vectorize PNG/i);
@@ -435,8 +456,8 @@ test("exports the bilingual editorial discovery and structured-data package", as
     read("feed.xml"),
     read("en/feed.xml"),
   ]);
-  assert.match(blog, /<strong>37<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>37<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>42<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>42<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -477,7 +498,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 1\.0/);
+    assert.match(page, /BQ-Agent 1\.1/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -491,6 +512,8 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(headers, /frame-ancestors 'none'/);
   assert.match(headers, /Strict-Transport-Security:/);
   assert.match(headers, /on-device-speech-recognition=\(self\)/);
+  assert.match(headers, /connect-src 'self' https:\/\/api\.github\.com/);
+  assert.match(await readSource("worker/index.ts"), /connect-src 'self' https:\/\/api\.github\.com/);
   assert.match(turkish, /bytequant:canonical-origin/);
   assert.match(turkish, /bq-org-agent-v1-20260718/);
   assert.match(guide, /Tarayıcı İçi Agentic AI/);

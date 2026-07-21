@@ -294,6 +294,81 @@ export const localizedGuides: LocalizedGuide[] = [
       },
     },
   },
+  {
+    slug: "private-agent-workstation-pipeline", date: "2026-07-21", relatedTools: ["arac-zinciri-pipeline", "kvkk-veri-maskeleyici", "json-bicimlendirici"],
+    copy: {
+      de: { title: "Lokalen Agentenplan sicher in einen Workstation-Ablauf übertragen", excerpt: "Ziel beschreiben, begründeten Plan prüfen und mit einem Klick als nutzergesteuerten Knotenfluss öffnen.", description: "Praxisleitfaden zu Planübergabe, Datengrenzen, Fehlerprüfung und Rückgängig-Funktion zwischen lokalem Agenten und Workstation.", category: "Lokale Automatisierung", readTime: "12 Min.", sections: [
+        { heading: "Zuerst das Ziel, dann das Werkzeug", paragraphs: ["Ein guter lokaler Plan beginnt beim gewünschten Ergebnis. Das Ziel „Kundenliste als teilbares JSON vorbereiten“ lässt sich in Datenschutzprüfung, Maskierung, Strukturprüfung und Export zerlegen. Der Agent ordnet Zielsignale dem Katalog zu und erfindet keine Fakten wie ein generatives LLM.", "Vor der Übernahme sind Gründe, Alternativen und Grenzen zu prüfen. Konfidenz beschreibt die Eindeutigkeit der Zuordnung, nicht die garantierte Richtigkeit."], bullets: ["Eingabetyp und Ergebnis nennen.", "Folgenreiche Schritte trennen.", "Alternativen nach Datenkompatibilität prüfen."] },
+        { heading: "Ein-Klick-Übergabe ist keine automatische Ausführung", paragraphs: ["Die Übergabe schreibt nur Werkzeugkennungen und Kanten begrenzt in sessionStorage desselben Tabs. Die Workstation baut Knoten, wählt aber keine Datei, gibt kein Passwort ein, führt keinen Code aus und startet keinen Download.", "Daten gelangen erst nach einer bewussten Nutzeraktion in den nächsten Schritt. So verbreitet sich ein ungeeigneter Plan nicht still durch die Kette."] },
+        { heading: "Sicher mit Versionsverlauf experimentieren", paragraphs: ["Knoten-, Kanten- und Layoutänderungen lassen sich rückgängig machen. Vor großen Änderungen sollte das Projekt lokal gespeichert und danach in kleinen prüfbaren Schritten bearbeitet werden.", "AES-GCM in IndexedDB schützt nicht vor kompromittierten Geräten oder schädlichen Erweiterungen. Keine vertraulichen Eingaben in Rezeptlinks aufnehmen und P2P-Sicherheitscodes über einen zweiten Kanal vergleichen."] },
+      ] },
+      zh: { title: "将本地助手计划安全转为工作站流程", excerpt: "描述目标、审阅有理由的计划，并一键转为仍由用户控制的节点流程。", description: "介绍 ByteQuant 本地助手与工作站之间的计划交接、数据边界、错误审查与撤销方法。", category: "本地自动化", readTime: "约 12 分钟", sections: [
+        { heading: "先确定目标，再选择工具", paragraphs: ["实用的本地计划从期望结果开始，而不是从工具名称开始。“把客户列表变为可分享 JSON”可以拆为敏感数据检查、遮蔽、结构验证与导出。本地助手把目标信号匹配到目录，不会像生成式 LLM 那样创造事实。", "接受前应阅读每一步的理由、替代方案与边界。置信度只表示匹配是否明确，不是正确性保证。"], bullets: ["说明输入类型与最终输出。", "把高影响操作拆开。", "按理由与数据兼容性比较替代工具。"] },
+        { heading: "一键交接不等于自动执行", paragraphs: ["交接只把工具标识与连线以受限文档写入同一标签页的 sessionStorage。工作站会建立节点，但不会选择文件、填写密码、运行代码或启动下载。", "数据只有在用户主动选择后才进入下一步，因此不合适的计划不会悄悄传播。"] },
+        { heading: "用版本历史安全试验", paragraphs: ["节点、连线与布局变更可撤销。重大变更前应在设备上保存项目，再以小而可验证的步骤推进。", "IndexedDB 中的 AES-GCM 不能防护已入侵设备或恶意扩展。不要把敏感输入放入配方 URL，并通过另一渠道核对 P2P 安全码。"] },
+      ] },
+    },
+  },
+  {
+    slug: "batch-masking-before-after-quality-control", date: "2026-07-21", relatedTools: ["kvkk-veri-maskeleyici", "metin-temizleyici", "metin-farki"],
+    copy: {
+      de: { title: "Vorher-/Nachher-Qualitätskontrolle bei Stapelmaskierung", excerpt: "Trennzeichen, Fehlalarme, Kontextverlust und Stichproben bei lokaler Stapelverarbeitung systematisch kontrollieren.", description: "Methode zur Prüfung von Stapelmaskierung mit Vergleichsansicht und menschlicher Kontrolle für DSGVO/KVKK-Vorbereitung.", category: "Datenschutz", readTime: "11 Min.", sections: [
+        { heading: "Stapelgrenzen ausdrücklich definieren", paragraphs: ["Datensätze werden mit einer eigenen `---`-Zeile statt mit mehrdeutigen Leerzeilen getrennt. Jeder Teil wird unabhängig und mit einer Höchstzahl pro Lauf verarbeitet, damit der Hauptthread nicht lange blockiert.", "Kommt das Trennzeichen im Datensatz vor, ist ein sichereres Exportformat oder eine kleinere Gruppe nötig. Mehrzeilige Felder dürfen nicht versehentlich als neue Datensätze gelten."], bullets: ["Trennregel dokumentieren.", "Kleine repräsentative Gruppe testen.", "Datensatz- und Zeichengrenzen beachten."] },
+        { heading: "Vergleich ist eine Prüffläche, kein Beweis", paragraphs: ["Die Ansicht stellt Rohtext und letzte sichtbare Ausgabe nebeneinander. Sie hilft, vergessene Kennungen und Übermaskierung zu erkennen; kein Treffer beweist jedoch nicht die Abwesenheit personenbezogener Daten.", "E-Mail- und Telefonmuster sind leichter als kontextabhängige Namen, Gesundheitsangaben oder indirekte Identifikatoren. Musterabgleich braucht menschliche Prüfung und Dateninventar."] },
+        { heading: "Ausgabe kontrolliert weitergeben", paragraphs: ["Die Ausgabe kann über eine Übergabe im selben Tab höchstens zwanzig Minuten für ein JSON- oder CSV-Werkzeug bereitstehen. Das ist kein Cloudspeicher.", "Im Folgeschritt müssen Schema und Zeilenzahl erneut geprüft werden. Ein Download erzeugt eine neue Datei unter Ihrer Speicher- und Zugriffskontrolle."] },
+      ] },
+      zh: { title: "批量数据遮蔽的前后质量检查", excerpt: "在设备端批量处理时系统管理分隔符、误报、上下文损失与抽样检查。", description: "在 GDPR/KVKK 准备中，通过前后对比与人工复核验证批量遮蔽输出的方法。", category: "数据隐私", readTime: "约 11 分钟", sections: [
+        { heading: "明确批处理边界", paragraphs: ["使用单独的 `---` 行分隔记录，而不是含糊的空白。每段独立处理并限制单次数量，避免主线程长时间阻塞。", "如果记录本身可能包含该分隔符，应换用更安全的导出格式或缩小批次；不能把多行字段误切成新记录。"], bullets: ["记录分隔规则。", "先测试小型代表样本。", "遵守记录与字符上限。"] },
+        { heading: "前后对比是审阅面，不是证明", paragraphs: ["面板并排显示原始输入与最新输出，有助于发现遗漏标识与过度遮蔽；没有发现并不能证明不存在个人数据。", "电子邮件与电话模式较容易，依赖语境的姓名、健康信息和间接标识仍需人工复核与数据清单。"] },
+        { heading: "受控传递输出", paragraphs: ["结果可通过同一标签页、最多二十分钟的交接记录送到 JSON 或 CSV 工具；它不是云存储。", "下一步应重新检查结构与行数。下载会在设备上产生新的文件，其保留与访问由用户负责。"] },
+      ] },
+    },
+  },
+  {
+    slug: "browser-tool-handoff-json-csv-base64", date: "2026-07-21", relatedTools: ["json-bicimlendirici", "json-csv-donusturucu", "base64-kodlayici"],
+    copy: {
+      de: { title: "Sichere Browser-Übergabe zwischen JSON, CSV und Base64", excerpt: "Wiederverwendbare Abläufe mit weniger Kopieren und klaren Typ-, Kodierungs- und Fehlergrenzen.", description: "JSON-Prüfung, CSV-Konvertierung und Base64-Kodierung mit einer Übergabe im selben Tab sicher verbinden.", category: "Datenkonvertierung", readTime: "10 Min.", sections: [
+        { heading: "Syntax und Struktur zuerst prüfen", paragraphs: ["Schön formatiertes JSON erfüllt nicht automatisch Geschäftsregeln. Nach Parserfehlern müssen Pflichtschlüssel, Typen, Nullwerte und Arraystruktur geprüft werden. Vor CSV ist festzulegen, wie verschachtelte Objekte dargestellt werden.", "Zahlen, Boolesche Werte und Datumswerte können in CSV zu Text werden; beim Rückweg entstehen die Ursprungstypen nicht automatisch."], bullets: ["Feldtypen dokumentieren.", "Fehlende und zusätzliche Schlüssel prüfen.", "Regel für Verschachtelung festlegen."] },
+        { heading: "Lebenszyklus der Übergabe verstehen", paragraphs: ["Die Aktion speichert nur sichtbare Ausgabe, Ziel-Slug und Zeit in sessionStorage. Das Ziel liest die Eingabe im selben Tab und entfernt den Datensatz nach Nutzung oder zwanzig Minuten.", "Bequemlichkeit anonymisiert keine Daten. Bei Bedarf vor der Konvertierung maskieren und unerwartete Inhalte am Ziel prüfen."] },
+        { heading: "Base64 ist keine Verschlüsselung", paragraphs: ["Base64 ist umkehrbare Kodierung ohne Vertraulichkeit, Zugriffskontrolle oder Integrität. Sie ist für transportierbaren Text geeignet, nicht zum Verbergen von Geheimnissen.", "Unicode muss durch einen Rundlauf geprüft werden. Große Dateien verursachen mehr Speicherbedarf; jenseits der Werkzeuggrenzen ist ein dateiorientierter Ablauf nötig."] },
+      ] },
+      zh: { title: "JSON、CSV 与 Base64 之间的安全浏览器内交接", excerpt: "减少复制粘贴，同时保持类型、编码与错误边界的可复用流程。", description: "通过同一标签页的结果交接安全串联 JSON 验证、CSV 转换与 Base64 编码。", category: "数据转换", readTime: "约 10 分钟", sections: [
+        { heading: "先验证语法与结构", paragraphs: ["格式美观的 JSON 不代表符合业务规则。修复解析错误后，还要检查必需键、类型、空值和数组结构；转 CSV 前先决定如何表示嵌套对象。", "数字、布尔值与日期在 CSV 中可能成为文本，反向转换不会自动恢复原类型。"], bullets: ["记录字段类型。", "检查缺失与额外键。", "确定嵌套扁平化规则。"] },
+        { heading: "理解交接生命周期", paragraphs: ["交接只把可见输出、目标 slug 与时间写入 sessionStorage。目标在同一标签页载入后删除记录，或在二十分钟后失效。", "便利不会自动净化敏感数据。需要时先遮蔽，并在运行目标工具前审查异常内容。"] },
+        { heading: "Base64 不是加密", paragraphs: ["Base64 是可逆编码，不提供秘密性、访问控制或完整性。它适合文本传输，不适合隐藏秘密。", "应验证 Unicode 往返结果。大文件会放大内存开销，超过工具上限时应采用面向文件的流程。"] },
+      ] },
+    },
+  },
+  {
+    slug: "open-source-browser-tool-security-audit", date: "2026-07-21", relatedTools: ["sha256-ozet-uretici", "kod-guvenlik-on-taramasi", "http-guvenlik-basliklari-denetleyici"],
+    copy: {
+      de: { title: "Open-Source-Browserwerkzeuge sicherheitstechnisch prüfen", excerpt: "Datenschutzangaben anhand von Quelle, Abhängigkeiten, Netzwerk, CSP und Änderungshistorie prüfen.", description: "Leitfaden zur Überprüfung von Lizenz, lokalem Verhalten, Netzgrenzen und Testnachweisen eines Browserwerkzeugs.", category: "Open-Source-Vertrauen", readTime: "12 Min.", sections: [
+        { heading: "Lizenz und Verhalten getrennt prüfen", paragraphs: ["Eine Open-Source-Lizenz regelt Nutzung und Prüfung, beweist aber weder Sicherheit noch Datenschutz. Repository-Lizenz, Produktionsabhängigkeiten, Versionen und Lockdatei müssen zusammen betrachtet werden.", "Nachgeladene CDN-Skripte, geschlossene APIs oder nicht erklärte Telemetrie begrenzen jede Aussage zur lokalen Verarbeitung."], bullets: ["LICENSE und Manifest lesen.", "Produktionspakete mit Lockdatei abgleichen.", "Dynamische Skripte und Endpunkte suchen."] },
+        { heading: "Browsergrenze beobachten", paragraphs: ["Mit repräsentativen Daten im Network-Panel lässt sich normales Laden von Requests beim Werkzeuglauf trennen. Eingaben dürfen nicht in URL, Request-Body, Fehlerbericht oder Analytik gelangen.", "CSP reduziert Verbindungen, repariert aber keine schlechte Logik. Auch Service-Worker-Cache, localStorage und IndexedDB prüfen: nicht gesendet bedeutet nicht nie lokal gespeichert."] },
+        { heading: "Nachweiskette vervollständigen", paragraphs: ["Typprüfung, Lint und Unit-Tests ergänzen Browserprüfungen für Mobilansicht, Tastatur, Interaktion und Metadaten. Ein sauberer heuristischer Scan oder Hash ist keine Sicherheitsfreigabe.", "Befunde mit Version, Pfad, reproduzierbaren Schritten und Erwartung melden—ohne echte Geheimnisse oder Personendaten."] },
+      ] },
+      zh: { title: "如何安全审计开源浏览器工具", excerpt: "通过源代码、依赖、网络请求、CSP 与变更历史验证隐私声明。", description: "从许可证、设备端行为、网络边界与测试证据审查浏览器工具的实践指南。", category: "开源信任", readTime: "约 12 分钟", sections: [
+        { heading: "分别验证许可证与行为", paragraphs: ["开源许可证规定查看与使用代码的条件，但不证明安全或隐私。应一起检查仓库许可证、生产依赖、版本与锁文件。", "运行时 CDN 脚本、封闭 API 或未披露遥测都会限制设备端声明。"], bullets: ["阅读 LICENSE 与包清单。", "把生产依赖与锁文件对应。", "搜索动态脚本与网络端点。"] },
+        { heading: "观察浏览器边界", paragraphs: ["用代表性输入打开 Network 面板，把正常页面资源与工具操作产生的请求区分开，确认输入不进入 URL、请求体、错误报告或分析事件。", "CSP 能减少意外连接但不能修复错误逻辑。还应检查 Service Worker 缓存、localStorage 与 IndexedDB：未上传不等于从未本地保存。"] },
+        { heading: "完成证据链", paragraphs: ["类型检查、Lint 与单元测试还需配合浏览器测试，验证移动端、键盘、交互与元数据。干净的启发式扫描或哈希并不是安全批准。", "报告应包含版本、路径、可复现步骤与预期行为，绝不包含真实秘密或个人数据。"] },
+      ] },
+    },
+  },
+  {
+    slug: "core-web-vitals-client-side-tools", date: "2026-07-21", relatedTools: ["metin-sikistirma-orani-hesaplayici", "gorsel-sikistirici", "meta-etiket-favicon-uretici"],
+    copy: {
+      de: { title: "Core Web Vitals für clientseitige Werkzeuge", excerpt: "Schwere Editoren verzögert laden, Hauptthread-Arbeit begrenzen und visuelle Stabilität in echten Abläufen erhalten.", description: "Leitfaden zu LCP, INP und CLS für Browserwerkzeuge und Workstations mit Komponenten-, Worker-, Datei- und Mobilstrategien.", category: "Webleistung", readTime: "11 Min.", sections: [
+        { heading: "Beim Start nur das Notwendige ausliefern", paragraphs: ["Knoteneditor, PDF-Engine oder aufwendiger Parser gehören nicht in das erste Homepage-Bundle. Dynamisches Laden auf der jeweiligen Route verschiebt Download und Parsing bis zur Nutzerabsicht.", "Serverseitig erzeugte Überschriften und Navigation bleiben sofort sichtbar. Ein Platzhalter mit fester Größe verhindert Layoutsprünge und unnötiges CLS."], bullets: ["Schwere Funktionen routenbezogen laden.", "Platzhaltergröße reservieren.", "Ersten CTA nicht von JavaScript abhängig machen."] },
+        { heading: "Lange Arbeit teilen und begrenzen", paragraphs: ["Große Text- oder Dateischleifen können Klicks verzögern. Datensatz- und Zeichenlimits sowie Web Worker für Kompression oder intensive Analyse schützen den Hauptthread.", "Sofortige Zustände für Verarbeitung, Abschluss und Fehler verhindern Doppelklicks und erklären, was geschieht. Objekt-URLs und Worker müssen anschließend freigegeben werden."] },
+        { heading: "Mobilität und Messung verbinden", paragraphs: ["Spalten werden mobil gestapelt; lange URLs, Code und Tabellen umbrechen oder scrollen. Drag-and-drop braucht Schaltflächen- und Tastaturalternativen.", "Wichtige Routen sind auf langsamen Geräten mit echten Aufgaben zu testen: Demo laden, ausführen, Ergebnis übergeben und rückgängig machen. Leistung darf nicht durch Entfernen von Barrierefreiheit oder Fehlermeldungen entstehen."] },
+      ] },
+      zh: { title: "客户端工具的 Core Web Vitals 与性能设计", excerpt: "延迟加载重型编辑器、拆分主线程工作，并在真实流程中保持视觉稳定。", description: "面向浏览器工具与工作站的 LCP、INP、CLS 组件、Worker、文件和移动设计指南。", category: "Web 性能", readTime: "约 11 分钟", sections: [
+        { heading: "首屏只发送必要体验", paragraphs: ["节点编辑器、PDF 引擎或高级解析器不应进入首页初始包。按路由动态加载可把下载与解析延后到用户明确需要时。", "服务端输出的标题、说明与导航应立即可见。给重型组件预留稳定尺寸，可避免加载时布局跳动与 CLS。"], bullets: ["仅在相关路由加载重型功能。", "预留固定占位尺寸。", "首个 CTA 不应完全依赖 JavaScript。"] },
+        { heading: "拆分并限制长任务", paragraphs: ["大文本或文件循环会延迟点击。限制记录数与字符数，并把压缩或高强度解析移入 Web Worker，可保护主线程。", "立即显示处理中、完成和错误状态，能防止重复操作并解释进度。结束后应释放对象 URL 与 Worker。"] },
+        { heading: "结合移动端现实与测量", paragraphs: ["桌面多列在手机上应堆叠；长 URL、代码与表格要换行或滚动。拖放必须提供按钮和键盘替代。", "应在低端设备与慢网络模拟中测试真实任务：载入示例、运行、传递结果与撤销。不能通过删除无障碍或错误说明来换取分数。"] },
+      ] },
+    },
+  },
 ];
 
 export const legacyLocalizedGuideSlugs = {

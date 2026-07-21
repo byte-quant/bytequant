@@ -1,5 +1,6 @@
 export const consentStorageKey = "bq-consent-v1";
 export const usageStorageKey = "bq-tool-usage-v1";
+export const favoritesStorageKey = "bq-tool-favorites-v1";
 export const consentChangeEvent = "bq-consent-change";
 export const openPrivacySettingsEvent = "bq-open-privacy-settings";
 
@@ -31,6 +32,7 @@ export function readConsent(): ConsentRecord | null {
     if (!isConsentRecord(parsed) || parsed.expiresAt <= Date.now()) {
       window.localStorage.removeItem(consentStorageKey);
       window.localStorage.removeItem(usageStorageKey);
+      window.localStorage.removeItem(favoritesStorageKey);
       return null;
     }
     return parsed;
@@ -53,7 +55,10 @@ export function saveConsent(preferences: boolean) {
   };
   try {
     window.localStorage.setItem(consentStorageKey, JSON.stringify(record));
-    if (!preferences) window.localStorage.removeItem(usageStorageKey);
+    if (!preferences) {
+      window.localStorage.removeItem(usageStorageKey);
+      window.localStorage.removeItem(favoritesStorageKey);
+    }
   } catch {
     // Privacy choices still apply for the current page when storage is unavailable.
   } finally {

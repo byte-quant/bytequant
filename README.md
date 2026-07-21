@@ -13,12 +13,13 @@ ByteQuant is a privacy-first, installable web application containing 89 browser-
 
 - 89 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 37 long-form editorial guides in Turkish and English, including nine editorially localized German and Simplified Chinese workflow editions
+- 42 long-form editorial guides in Turkish and English, including 14 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent with multilingual semantic search, user-approved multi-step plans, parameter extraction, error translation, and verified on-device-only voice input
-- Lazy-loaded visual Workstation across all 89 tools, with full-catalog filters, starter flows, explainable Agent plan previews, undo/redo, auto-layout, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Explainable Local Agent with multilingual semantic search, short same-tab conversation memory, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, and one-click Workstation handoff
+- Lazy-loaded visual Workstation across all 89 tools, with full-catalog filters, five starter flows, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
-- Related tools, consent-gated local shortcuts, command palette, responsive layouts, and accessible error UI
+- Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
+- API-less community draft pre-check and GitHub Discussions publishing flow; optional GitHub activity is fetched only after the user clicks
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -32,6 +33,7 @@ Storage outside explicitly saved Workstation projects is limited to:
 - bq-consent-v1: consent choice with a 180-day lifetime
 - bq-theme: the user-selected theme
 - bq-tool-usage-v1: optional, consent-gated tool slug/count/last-use data—never tool content
+- bq-tool-favorites-v1: optional, consent-gated pinned tool IDs—never tool content
 
 Workstation projects are opt-in and stay in the browser's `bytequant-workspaces` IndexedDB database. Project documents are encrypted with AES-GCM-256 and a non-extractable device key stored in the same database. This reduces exposure at rest but does not protect a compromised device, malicious extension, or hostile same-origin script. Tab handoffs use bounded sessionStorage records. Recipe URLs omit output and omit input by default.
 
@@ -132,7 +134,7 @@ SEO, AEO, GEO, and AdSense readiness are quality practices—not ranking, citati
 
 ## Contributing and contact
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Security findings should follow [SECURITY.md](SECURITY.md), not a public issue.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [COMMUNITY_GUIDELINES.md](COMMUNITY_GUIDELINES.md) before proposing changes. Security findings should follow [SECURITY.md](SECURITY.md), not a public issue.
 
 - Email: bytequant@yahoo.com
 - X: [@byte_quant](https://x.com/byte_quant)

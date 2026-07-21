@@ -25,6 +25,8 @@ export type AgentPlan = {
   extracted: AgentParameter[];
   steps: AgentPlanStep[];
   limitations: string[];
+  response: string;
+  alternativeSlugs: string[];
 };
 
 export type AgentSession = {
@@ -136,11 +138,12 @@ function trigramSimilarity(left: string, right: string) {
 
 export function semanticToolSearch(query: string, catalog: Tool[], locale: Locale, limit = 8): AgentSearchResult[] {
   const normalizedQuery = normalize(query, locale);
+  const directTokens = new Set(tokens(query, locale));
   const queryTokens = expandQuery(query, locale);
   if (!normalizedQuery) return [];
   return catalog.map((tool) => {
     const fields = [
-      { value: tool.title[locale], weight: 8 }, { value: tool.slug, weight: 6 }, { value: tool.short[locale], weight: 4 },
+      { value: tool.title[locale], weight: 8, direct: true }, { value: tool.slug, weight: 6, direct: true }, { value: tool.short[locale], weight: 4 },
       { value: tool.description[locale], weight: 2 }, { value: tool.useCases[locale].join(" "), weight: 3 },
       { value: categoryTerms[tool.category].join(" "), weight: 2 }, { value: `${tool.title.tr} ${tool.title.en}`, weight: 1.5 },
     ];
@@ -148,6 +151,12 @@ export function semanticToolSearch(query: string, catalog: Tool[], locale: Local
     fields.forEach((field) => {
       const normalizedField = normalize(field.value, locale);
       if (normalizedField.includes(normalizedQuery)) score += field.weight * 3;
+      if (field.direct) {
+        const fieldTokens = new Set(tokens(field.value, locale));
+        directTokens.forEach((token) => {
+          if (fieldTokens.has(token)) { score += field.weight * 2.5; matched.add(token); }
+        });
+      }
       queryTokens.forEach((token) => {
         if (normalizedField.includes(token)) { score += field.weight; matched.add(token); }
         else if (token.length >= 4 && trigramSimilarity(token, normalizedField.slice(0, 120)) >= .42) score += field.weight * .35;
@@ -195,11 +204,12 @@ const recipes: Recipe[] = [
 ];
 
 function stepReason(locale: Locale, tool: Tool, index: number) {
+  const purpose = tool.short[locale].replace(/[.!?。！？]+$/u, "");
   return local(locale, {
-    tr: `${index + 1}. aşamada ${tool.title.tr}, hedefin bu bölümünü açıklanabilir yerel kurallarla işler.`,
-    en: `At stage ${index + 1}, ${tool.title.en} handles this part of the goal with explainable local rules.`,
-    de: `In Stufe ${index + 1} verarbeitet ${tool.title.de} diesen Teil mit nachvollziehbaren lokalen Regeln.`,
-    zh: `第 ${index + 1} 步由${tool.title.zh}使用可解释的本地规则处理该部分目标。`,
+    tr: `${index === 0 ? "Önce" : "Ardından"} ${tool.title.tr} seçildi; çünkü hedefinizde bu aşamanın ihtiyacı “${purpose}” yeteneğiyle doğrudan örtüşüyor.`,
+    en: `${index === 0 ? "Start with" : "Then use"} ${tool.title.en}, because this part of your outcome directly matches its ability to ${purpose.charAt(0).toLocaleLowerCase("en-US") + purpose.slice(1)}.`,
+    de: `${index === 0 ? "Beginnen Sie mit" : "Danach folgt"} ${tool.title.de}, weil dieser Teil des Ziels direkt zu seiner Aufgabe passt: ${purpose}.`,
+    zh: `${index === 0 ? "先使用" : "然后使用"}${tool.title.zh}，因为当前目标与其能力直接匹配：${purpose}。`,
   });
 }
 
@@ -207,7 +217,7 @@ function splitGoal(goal: string) {
   return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])?)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
-export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale): AgentPlan {
+export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, previousPlan?: AgentPlan | null): AgentPlan {
   const cleanGoal = goal.trim().slice(0, 20_000);
   const normalizedGoal = normalize(cleanGoal, locale);
   const signals: string[] = [];
@@ -244,8 +254,25 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale): 
   if (manualSteps) signals.push(local(locale, { tr: `${manualSteps} adım dosya seçimi için açık kullanıcı eylemi istiyor`, en: `${manualSteps} steps require explicit user file selection`, de: `${manualSteps} Schritte erfordern eine ausdrückliche Dateiauswahl`, zh: `${manualSteps} 个步骤需要用户明确选择文件` }));
   const topScore = ranked[0]?.score ?? 0; const runnerUp = ranked[1]?.score ?? 0;
   const confidence = Math.max(.35, Math.min(.94, .52 + Math.min(.28, topScore / 80) + Math.min(.14, Math.max(0, topScore - runnerUp) / 50)));
+  const alternativeSlugs = ranked.map((item) => item.tool.slug).filter((slug) => !selected.some((tool) => tool.slug === slug)).slice(0, 3);
+  const first = selected[0]?.title[locale] ?? local(locale, { tr: "araç araması", en: "tool search", de: "Werkzeugsuche", zh: "工具搜索" });
+  const last = selected.at(-1)?.title[locale] ?? first;
+  const previousLast = previousPlan?.steps.at(-1)?.title;
+  const response = previousLast
+    ? local(locale, {
+      tr: `Az önceki akış ${previousLast} ile bitiyordu. Şimdiki hedef için ${first} ile başlayıp ${selected.length > 1 ? `${last} adımına kadar ilerleyen` : "tek adımlı"} daha uygun bir yol kurdum. Her adımı çalıştırmadan önce siz onaylayacaksınız.`,
+      en: `The previous flow ended with ${previousLast}. For this goal, I built a better-fitting path that starts with ${first}${selected.length > 1 ? ` and progresses to ${last}` : ""}. You remain in control before every step runs.`,
+      de: `Der vorherige Ablauf endete mit ${previousLast}. Für dieses Ziel habe ich einen passenderen Weg ab ${first}${selected.length > 1 ? ` bis ${last}` : ""} erstellt. Vor jedem Schritt behalten Sie die Kontrolle.`,
+      zh: `刚才的流程以${previousLast}结束。针对当前目标，我设计了从${first}${selected.length > 1 ? `到${last}` : ""}的更合适路径；每一步运行前仍由您确认。`,
+    })
+    : local(locale, {
+      tr: `Hedefiniz için ${first} ile başlamayı öneriyorum${selected.length > 1 ? `; sonra ${last} adımına kadar kontrollü ilerleyebiliriz` : ""}. Seçim, hedefteki biçim ve gizlilik sinyalleriyle en güçlü eşleşmeye dayanıyor.`,
+      en: `I suggest starting with ${first}${selected.length > 1 ? ` and moving deliberately toward ${last}` : ""}. The choice follows the strongest match to the goal's format and privacy signals.`,
+      de: `Ich empfehle, mit ${first} zu beginnen${selected.length > 1 ? ` und kontrolliert bis ${last} weiterzugehen` : ""}. Die Auswahl folgt dem stärksten Treffer für Format- und Datenschutzsignale.`,
+      zh: `建议先使用${first}${selected.length > 1 ? `，再按顺序推进到${last}` : ""}。该选择基于目标中的格式与隐私信号的最强匹配。`,
+    });
   return {
-    version: AGENT_VERSION, locale, goal: cleanGoal, confidence, signals, extracted, steps,
+    version: AGENT_VERSION, locale, goal: cleanGoal, confidence, signals, extracted, steps, response, alternativeSlugs,
     limitations: [
       local(locale, { tr: "Bu plan büyük dil modeli çıktısı değil; sürümlenmiş semantik puanlar ve açıklanabilir kurallarla üretilir.", en: "This plan is not large-language-model output; it is generated from versioned semantic scores and explainable rules.", de: "Dieser Plan ist keine LLM-Ausgabe, sondern entsteht aus versionierten semantischen Bewertungen und nachvollziehbaren Regeln.", zh: "该计划不是大语言模型输出，而是由版本化语义评分与可解释规则生成。" }),
       local(locale, { tr: "Ajan gizli düşünce zinciri göstermez; yalnızca karar sinyallerini ve seçilen adımları açıklar.", en: "The agent does not expose hidden chain-of-thought; it shows decision signals and selected steps only.", de: "Der Agent zeigt keine verborgene Gedankenkette, sondern nur Entscheidungssignale und gewählte Schritte.", zh: "助手不展示隐藏思维链，只显示决策信号与所选步骤。" }),

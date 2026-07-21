@@ -85,12 +85,12 @@ export const copy = {
   },
 } as const;
 
-export function pathFor(locale: Locale, key: "home" | "tools" | "agent" | "workstation" | "blog" | "about" | "privacy" | "cookies" | "terms" | "contact" | "faq") {
+export function pathFor(locale: Locale, key: "home" | "tools" | "agent" | "workstation" | "community" | "blog" | "about" | "privacy" | "cookies" | "terms" | "contact" | "faq") {
   const routes = {
-    tr: { home: "/", tools: "/#araclar", agent: "/ajan", workstation: "/is-istasyonu", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
-    en: { home: "/en", tools: "/en#tools", agent: "/en/agent", workstation: "/en/workstation", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
-    de: { home: "/de", tools: "/de#tools", agent: "/de/agent", workstation: "/de/workstation", blog: "/de/blog", about: "/de/about", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
-    zh: { home: "/zh", tools: "/zh#tools", agent: "/zh/agent", workstation: "/zh/workstation", blog: "/zh/blog", about: "/zh/about", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
+    tr: { home: "/", tools: "/#araclar", agent: "/ajan", workstation: "/is-istasyonu", community: "/topluluk", blog: "/blog", about: "/hakkimizda", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
+    en: { home: "/en", tools: "/en#tools", agent: "/en/agent", workstation: "/en/workstation", community: "/en/community", blog: "/en/blog", about: "/en/about", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
+    de: { home: "/de", tools: "/de#tools", agent: "/de/agent", workstation: "/de/workstation", community: "/de/community", blog: "/de/blog", about: "/de/about", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
+    zh: { home: "/zh", tools: "/zh#tools", agent: "/zh/agent", workstation: "/zh/workstation", community: "/zh/community", blog: "/zh/blog", about: "/zh/about", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
   } as const;
   return routes[locale][key];
 }

@@ -81,7 +81,7 @@ export function PwaInstall({ locale, compact = false }: { locale: Locale; compac
     }
   }
 
-  if (compact) return <button type="button" className="install-trigger" onClick={() => void install()} disabled={installed}>{installed ? labels.installed : labels.install}</button>;
+  if (compact) return <button type="button" className="install-trigger" aria-label={installed ? labels.installed : labels.install} title={installed ? labels.installed : labels.install} onClick={() => void install()} disabled={installed}><span aria-hidden="true">⇩</span><b>{installed ? labels.installed : labels.install}</b></button>;
   return (
     <section className="section install-section" aria-labelledby={"install-" + locale}>
       <div className="container install-card">

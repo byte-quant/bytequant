@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createAgentPlan, type AgentPlan } from "../lib/agent-core";
-import { WORKSPACE_ACTIVE_KEY, WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_HANDOFF_KEY, readActiveWorkspace, readWorkspaceAgentGoal, readWorkspaceHandoff } from "../lib/workspace-handoff";
+import { readAgentPlan } from "../lib/agent-session";
+import { WORKSPACE_ACTIVE_KEY, WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_AGENT_PLAN_KEY, WORKSPACE_HANDOFF_KEY, readActiveWorkspace, readWorkspaceAgentGoal, readWorkspaceHandoff } from "../lib/workspace-handoff";
 import { createWorkspaceRecipe } from "../lib/workspace-recipe";
 import { deleteWorkspace, listWorkspaces, loadWorkspace, requestPersistentWorkspaceStorage, saveWorkspace, type WorkspaceSummary } from "../lib/workspace-storage";
 import { decodeRecipeInWorker, encodeRecipeInWorker } from "../lib/workspace-worker-client";
@@ -26,10 +27,19 @@ const workspaceGuide = {
   zh: { eyebrow: "4 步开始", title: "清晰理解画布使用路径", intro: "选择模板或向本地助手描述目标，然后按顺序运行每个节点。", steps: ["选择项目或模板", "审核计划并连接节点", "在工具中运行并返回", "保存结果或安全分享"] },
 } as const;
 
+const workspaceExtraCopy = {
+  tr: { onboarding: "Nereden başlamalıyım?", onboardingBody: "Hedefiniz var ama araçları bilmiyorsanız Yerel Ajanla planlayın. Araçları biliyorsanız şablonla doğrudan tuvale başlayın.", withAgent: "Yerel Ajanla planla", withTemplate: "KVKK akışını kur", dismiss: "Tuvali kendim keşfedeceğim", zoomIn: "Yakınlaştır", zoomOut: "Uzaklaştır", fit: "Akışı ekrana sığdır", center: "Seçili düğümü ortala", pan: "Tuvali kaydır", version: "Geçmiş sürümü", connectionBlocked: "Bu bağlantı döngü oluşturacağı için eklenmedi.", emptyTitle: "İlk akışınızı iki yoldan biriyle kurun", emptyAgent: "Hedefi Ajana anlat", emptyTemplate: "Örnek akışı ekle", navigation: "Tuval navigasyonu", importedPlan: "Yerel Ajan planı araç sırası ve gerekçeleriyle aktarıldı." },
+  en: { onboarding: "Where should I start?", onboardingBody: "If you know the outcome but not the tools, plan with Local Agent. If you know the tools, begin directly with a starter flow.", withAgent: "Plan with Local Agent", withTemplate: "Build the privacy flow", dismiss: "I’ll explore the canvas", zoomIn: "Zoom in", zoomOut: "Zoom out", fit: "Fit workflow", center: "Center selected node", pan: "Pan canvas", version: "history revision", connectionBlocked: "The connection was blocked because it would create a cycle.", emptyTitle: "Build your first workflow in one of two ways", emptyAgent: "Describe the goal to Agent", emptyTemplate: "Add a starter flow", navigation: "Canvas navigation", importedPlan: "The Local Agent plan was transferred with its tool order and rationale." },
+  de: { onboarding: "Wo soll ich beginnen?", onboardingBody: "Wenn das Ziel, aber nicht die Werkzeuge klar sind, planen Sie mit dem lokalen Agenten. Sind die Werkzeuge bekannt, starten Sie mit einer Vorlage.", withAgent: "Mit lokalem Agenten planen", withTemplate: "Datenschutzablauf erstellen", dismiss: "Arbeitsfläche selbst erkunden", zoomIn: "Vergrößern", zoomOut: "Verkleinern", fit: "Ablauf einpassen", center: "Gewählten Knoten zentrieren", pan: "Arbeitsfläche verschieben", version: "Verlaufsversion", connectionBlocked: "Die Verbindung würde einen Zyklus erzeugen und wurde blockiert.", emptyTitle: "Ersten Ablauf auf einem von zwei Wegen erstellen", emptyAgent: "Ziel dem Agenten beschreiben", emptyTemplate: "Startablauf hinzufügen", navigation: "Navigation der Arbeitsfläche", importedPlan: "Der Plan des lokalen Agenten wurde mit Reihenfolge und Begründungen übertragen." },
+  zh: { onboarding: "我应该从哪里开始？", onboardingBody: "如果明确目标但不熟悉工具，请先用本地助手规划；如果已知所需工具，可直接从起始流程开始。", withAgent: "使用本地助手规划", withTemplate: "建立隐私流程", dismiss: "自行探索画布", zoomIn: "放大", zoomOut: "缩小", fit: "适应全部流程", center: "居中所选节点", pan: "平移画布", version: "历史版本", connectionBlocked: "该连接会形成循环，因此已阻止。", emptyTitle: "用两种方式之一建立第一个流程", emptyAgent: "向助手描述目标", emptyTemplate: "添加起始流程", navigation: "画布导航", importedPlan: "本地助手计划已连同工具顺序和依据一起传入。" },
+} as const;
+
 const templateDefinitions = [
   { id: "privacy", names: { tr: "CSV gizlilik akışı", en: "CSV privacy flow", de: "CSV-Datenschutzablauf", zh: "CSV 隐私流程" }, slugs: ["csv-inceleyici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"] },
   { id: "json", names: { tr: "JSON kalite kapısı", en: "JSON quality gate", de: "JSON-Qualitätsprüfung", zh: "JSON 质量检查" }, slugs: ["json-bicimlendirici", "json-schema-olusturucu", "json-diff-karsilastirma"] },
   { id: "seo", names: { tr: "Teknik SEO paketi", en: "Technical SEO pack", de: "Technisches SEO-Paket", zh: "技术 SEO 套件" }, slugs: ["seo-slug-olusturucu", "hreflang-etiket-olusturucu", "faq-json-ld-olusturucu"] },
+  { id: "prompt", names: { tr: "Prompt güçlendirme", en: "Prompt strengthening", de: "Prompt-Verbesserung", zh: "提示词增强" }, slugs: ["prompt-kalite-denetimi", "sistem-promptu-netlik-kontrolu", "prompt-test-vaka-matrisi"] },
+  { id: "publish", names: { tr: "Güvenli içerik yayını", en: "Safe content publishing", de: "Sichere Inhaltsfreigabe", zh: "安全内容发布" }, slugs: ["unicode-normalizasyon-inceleyici", "metin-temizleyici", "seo-slug-olusturucu"] },
 ] as const;
 
 const nodeWidth = 244;
@@ -38,6 +48,7 @@ const nodePortY = 66;
 export default function WorkstationClient({ locale }: { locale: Locale }) {
   const t = uiCopy[locale];
   const guide = workspaceGuide[locale];
+  const extra = workspaceExtraCopy[locale];
   const [document, setDocument] = useState(() => createWorkspace(locale));
   const [projects, setProjects] = useState<WorkspaceSummary[]>([]);
   const [hydrated, setHydrated] = useState(false);
@@ -54,6 +65,10 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
   const [shareUrl, setShareUrl] = useState("");
   const [past, setPast] = useState<WorkspaceDocument[]>([]);
   const [future, setFuture] = useState<WorkspaceDocument[]>([]);
+  const [zoom, setZoom] = useState(1);
+  const [panMode, setPanMode] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const canvasScrollRef = useRef<HTMLDivElement>(null);
   const returnPath = pathFor(locale, "workstation");
   const selected = document.nodes.find((node) => node.id === selectedId) ?? null;
   const summary = useMemo(() => workspaceGraphSummary(document), [document]);
@@ -86,21 +101,28 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
         const active = readActiveWorkspace(sessionStorage.getItem(WORKSPACE_ACTIVE_KEY));
         const handoff = readWorkspaceHandoff(sessionStorage.getItem(WORKSPACE_HANDOFF_KEY));
         const goalHandoff = readWorkspaceAgentGoal(sessionStorage.getItem(WORKSPACE_AGENT_GOAL_KEY));
+        const planHandoff = readAgentPlan(sessionStorage.getItem(WORKSPACE_AGENT_PLAN_KEY));
         const recipeCode = new URLSearchParams(location.search).get("recipe");
         let initial = active;
         if (recipeCode) { initial = documentFromRecipe(await decodeRecipeInWorker(recipeCode)); setNotice(t.imported); history.replaceState(null, "", location.pathname); }
         if (!initial) { const summaries = await listWorkspaces(); if (summaries[0]) initial = await loadWorkspace(summaries[0].id); }
         initial ??= createWorkspace(locale);
-        if (handoff?.completed && handoff.workspaceId === initial.id) { initial = propagateWorkspaceOutput(initial, handoff.nodeId, handoff.output); setNotice(t.restored); }
-        sessionStorage.removeItem(WORKSPACE_ACTIVE_KEY); sessionStorage.removeItem(WORKSPACE_HANDOFF_KEY); sessionStorage.removeItem(WORKSPACE_AGENT_GOAL_KEY);
+        if (planHandoff?.locale === locale && planHandoff.steps.length) {
+          initial = createWorkspace(locale, planHandoff.goal.slice(0, 80));
+          const nodes = planHandoff.steps.map((step, index): WorkspaceNode => ({ id: workspaceId("node"), toolSlug: step.toolSlug, title: step.title, x: 48 + index * 300, y: 90 + (index % 2) * 34, input: index === 0 ? planHandoff.goal : "", output: "", status: index === 0 ? "ready" : "idle" }));
+          initial = updateWorkspace(initial, { nodes, edges: nodes.slice(1).map((node, index) => ({ id: workspaceId("edge"), from: nodes[index].id, to: node.id })) });
+        } else if (handoff?.completed && handoff.workspaceId === initial.id) { initial = propagateWorkspaceOutput(initial, handoff.nodeId, handoff.output); setNotice(t.restored); }
+        sessionStorage.removeItem(WORKSPACE_ACTIVE_KEY); sessionStorage.removeItem(WORKSPACE_HANDOFF_KEY); sessionStorage.removeItem(WORKSPACE_AGENT_GOAL_KEY); sessionStorage.removeItem(WORKSPACE_AGENT_PLAN_KEY);
         if (!cancelled) {
           setDocument(initial); setSelectedId(initial.nodes[0]?.id ?? null); setHydrated(true);
-          if (goalHandoff) { setAgentGoal(goalHandoff); setAgentPlan(createAgentPlan(goalHandoff, tools, locale)); }
+          if (planHandoff?.locale === locale) { setAgentGoal(planHandoff.goal); setAgentPlan(planHandoff); setNotice(extra.importedPlan); }
+          else if (goalHandoff) { setAgentGoal(goalHandoff); setAgentPlan(createAgentPlan(goalHandoff, tools, locale)); }
+          try { setOnboardingOpen(sessionStorage.getItem("bytequant:workstation-onboarding:v1") !== "seen"); } catch { setOnboardingOpen(true); }
         }
       } catch { if (!cancelled) { setNotice(t.importError); setHydrated(true); } }
     })();
     return () => { cancelled = true; };
-  }, [locale, t.importError, t.imported, t.restored]);
+  }, [extra.importedPlan, locale, t.importError, t.imported, t.restored]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -117,12 +139,33 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
       if (target?.matches("input,textarea,select,[contenteditable=true]")) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") { event.preventDefault(); if (event.shiftKey) redo(); else undo(); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") { event.preventDefault(); redo(); }
+      if ((event.ctrlKey || event.metaKey) && (event.key === "+" || event.key === "=")) { event.preventDefault(); setZoom((value) => Math.min(1.5, Number((value + .1).toFixed(2)))); }
+      if ((event.ctrlKey || event.metaKey) && event.key === "-") { event.preventDefault(); setZoom((value) => Math.max(.55, Number((value - .1).toFixed(2)))); }
+      if ((event.key === "Delete" || event.key === "Backspace") && selectedId) { event.preventDefault(); removeNode(selectedId); }
     };
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
   });
 
   function undo() { const previous = past.at(-1); if (!previous) return; setFuture((items) => [document, ...items].slice(0, 40)); setPast((items) => items.slice(0, -1)); setDocument(previous); }
   function redo() { const next = future[0]; if (!next) return; setPast((items) => [...items.slice(-39), document]); setFuture((items) => items.slice(1)); setDocument(next); }
+  function dismissOnboarding() { try { sessionStorage.setItem("bytequant:workstation-onboarding:v1", "seen"); } catch { /* session preference is optional */ } setOnboardingOpen(false); }
+  function fitView() {
+    const viewport = canvasScrollRef.current; if (!viewport) return;
+    const next = Math.max(.55, Math.min(1.2, (viewport.clientWidth - 32) / canvasSize.width, (viewport.clientHeight - 32) / canvasSize.height));
+    setZoom(Number(next.toFixed(2))); viewport.scrollTo({ left: 0, top: 0, behavior: "smooth" });
+  }
+  function centerSelected() {
+    const viewport = canvasScrollRef.current; if (!viewport || !selected) return;
+    viewport.scrollTo({ left: Math.max(0, (selected.x + nodeWidth / 2) * zoom - viewport.clientWidth / 2), top: Math.max(0, (selected.y + 70) * zoom - viewport.clientHeight / 2), behavior: "smooth" });
+  }
+  function beginPan(event: React.PointerEvent<HTMLDivElement>) {
+    if (!panMode || event.button !== 0) return;
+    const viewport = canvasScrollRef.current; if (!viewport) return;
+    event.preventDefault(); const start = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
+    const move = (next: PointerEvent) => viewport.scrollTo({ left: start.left - (next.clientX - start.x), top: start.top - (next.clientY - start.y) });
+    const end = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", end); window.removeEventListener("pointercancel", end); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", end, { once: true }); window.addEventListener("pointercancel", end, { once: true });
+  }
 
   function nodeFor(slug: string, index: number, baseX = 48, baseY = 58): WorkspaceNode | null {
     const tool = tools.find((item) => item.slug === slug); if (!tool) return null;
@@ -147,19 +190,22 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
 
   function dropTool(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault(); const slug = event.dataTransfer.getData("application/x-bytequant-tool"); const rectangle = event.currentTarget.getBoundingClientRect();
-    addTool(slug, { x: Math.max(10, event.clientX - rectangle.left - 100), y: Math.max(10, event.clientY - rectangle.top - 40) });
+    addTool(slug, { x: Math.max(10, (event.clientX - rectangle.left) / zoom - 100), y: Math.max(10, (event.clientY - rectangle.top) / zoom - 40) });
   }
 
   function beginMove(event: React.PointerEvent<HTMLButtonElement>, node: WorkspaceNode) {
     if (event.button !== 0) return; event.preventDefault(); setSelectedId(node.id); setPast((items) => [...items.slice(-39), document]); setFuture([]);
     const start = { clientX: event.clientX, clientY: event.clientY, x: node.x, y: node.y };
-    const move = (next: PointerEvent) => mutateDocument((current) => updateWorkspace(current, { nodes: current.nodes.map((item) => item.id === node.id ? { ...item, x: Math.max(0, start.x + next.clientX - start.clientX), y: Math.max(0, start.y + next.clientY - start.clientY) } : item) }), false);
+    const move = (next: PointerEvent) => mutateDocument((current) => updateWorkspace(current, { nodes: current.nodes.map((item) => item.id === node.id ? { ...item, x: Math.max(0, Math.round((start.x + (next.clientX - start.clientX) / zoom) / 8) * 8), y: Math.max(0, Math.round((start.y + (next.clientY - start.clientY) / zoom) / 8) * 8) } : item) }), false);
     const end = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", end); window.removeEventListener("pointercancel", end); };
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", end, { once: true }); window.addEventListener("pointercancel", end, { once: true });
   }
 
   function connectTo(nodeId: string) {
     if (!connectFrom || connectFrom === nodeId) { setConnectFrom(null); return; }
+    const outgoing = new Map(document.nodes.map((node) => [node.id, [] as string[]])); document.edges.forEach((edge) => outgoing.get(edge.from)?.push(edge.to));
+    const stack = [nodeId]; const visited = new Set<string>();
+    while (stack.length) { const current = stack.pop()!; if (current === connectFrom) { setNotice(extra.connectionBlocked); setConnectFrom(null); return; } if (visited.has(current)) continue; visited.add(current); stack.push(...(outgoing.get(current) ?? [])); }
     mutateDocument((current) => current.edges.some((edge) => edge.from === connectFrom && edge.to === nodeId) ? current : updateWorkspace(current, { edges: [...current.edges, { id: workspaceId("edge"), from: connectFrom, to: nodeId }] })); setConnectFrom(null);
   }
   function updateNode(id: string, patch: Partial<WorkspaceNode>) { mutateDocument((current) => updateWorkspace(current, { nodes: current.nodes.map((node) => node.id === id ? { ...node, ...patch } : node) }), false); }
@@ -186,8 +232,9 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
   async function persist() { setNotice(await requestPersistentWorkspaceStorage() ? t.persisted : t.local); }
 
   return <div className="workstation-app" aria-label={t.title}>
+    {onboardingOpen && <div className="workspace-onboarding-overlay" role="presentation"><section role="dialog" aria-modal="true" aria-labelledby="workspace-start-title"><button className="workspace-onboarding-close" type="button" aria-label={extra.dismiss} onClick={dismissOnboarding}>×</button><span className="kicker">BYTEQUANT · START</span><h2 id="workspace-start-title">{extra.onboarding}</h2><p>{extra.onboardingBody}</p><div><Link className="primary-button" href={pathFor(locale, "agent")} onClick={dismissOnboarding}>✦ {extra.withAgent}</Link><button type="button" className="secondary-button" onClick={() => { addTemplate(templateDefinitions[0].slugs, templateDefinitions[0].names[locale]); dismissOnboarding(); }}>⌘ {extra.withTemplate}</button></div><button type="button" className="text-link" onClick={dismissOnboarding}>{extra.dismiss}</button></section></div>}
     <header className="workstation-toolbar"><div><span className="workspace-live-dot" /><strong>{document.name}</strong><small>{saveState === "saving" ? t.saving : saveState === "saved" ? t.saved : saveState === "error" ? t.saveError : t.unsaved}</small></div><label><span className="sr-only">{t.title}</span><input value={document.name} maxLength={100} onChange={(event) => mutateDocument((current) => updateWorkspace(current, { name: event.target.value || t.title }), false)} /></label><div><span className="workspace-encryption-badge">AES-256 · IndexedDB</span><button type="button" onClick={persist}>{t.persist}</button></div></header>
-    <div className="workspace-commandbar" aria-label={t.canvas}><div><button type="button" onClick={undo} disabled={!past.length} title="Ctrl/⌘ Z">↶ {t.undo}</button><button type="button" onClick={redo} disabled={!future.length} title="Ctrl/⌘ Y">↷ {t.redo}</button><button type="button" onClick={() => mutateDocument(layoutWorkspaceGraph)}>{t.layout}</button><button type="button" onClick={() => { if (window.confirm(t.confirmClear)) { mutateDocument((current) => updateWorkspace(current, { nodes: [], edges: [] })); setSelectedId(null); } }}>{t.clear}</button></div><div className="workspace-health"><span><strong>{summary.nodes}</strong>{t.nodes}</span><span><strong>{summary.edges}</strong>{t.flow}</span><span><strong>{summary.ready}</strong>{t.ready}</span><span><strong>{summary.complete}</strong>{t.complete}</span>{summary.errors > 0 && <span className="error"><strong>{summary.errors}</strong>{t.errors}</span>}</div></div>
+    <div className="workspace-commandbar" aria-label={t.canvas}><div><button type="button" onClick={undo} disabled={!past.length} title="Ctrl/⌘ Z">↶ {t.undo}</button><button type="button" onClick={redo} disabled={!future.length} title="Ctrl/⌘ Y">↷ {t.redo}</button><span className="workspace-history-count">v{past.length + 1} · {extra.version}</span><button type="button" onClick={() => mutateDocument(layoutWorkspaceGraph)}>{t.layout}</button><button type="button" onClick={() => { if (window.confirm(t.confirmClear)) { mutateDocument((current) => updateWorkspace(current, { nodes: [], edges: [] })); setSelectedId(null); } }}>{t.clear}</button></div><div className="workspace-health"><span><strong>{summary.nodes}</strong>{t.nodes}</span><span><strong>{summary.edges}</strong>{t.flow}</span><span><strong>{summary.ready}</strong>{t.ready}</span><span><strong>{summary.complete}</strong>{t.complete}</span>{summary.errors > 0 && <span className="error"><strong>{summary.errors}</strong>{t.errors}</span>}</div></div>
     {notice && <div className="workspace-notice" role="status">{notice}</div>}
     <section className="workspace-onboarding" aria-labelledby="workspace-onboarding-title"><div><span>{guide.eyebrow}</span><h3 id="workspace-onboarding-title">{guide.title}</h3><p>{guide.intro}</p></div><ol>{guide.steps.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}</ol></section>
     <nav className="workspace-mobile-nav" aria-label={t.title}><a href="#workspace-projects">{t.navProjects}</a><a href="#workspace-tools">{t.navTools}</a><a href="#workspace-canvas">{t.navCanvas}</a><a href="#workspace-inspector">{t.navInspector}</a></nav>
@@ -197,11 +244,11 @@ export default function WorkstationClient({ locale }: { locale: Locale }) {
       <section className="workspace-panel" id="workspace-tools"><div className="workspace-panel-heading"><h3>{t.palette}</h3><span aria-live="polite">{filteredTools.length}/{tools.length}</span></div><div className="workspace-filter-grid"><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.search} /><select aria-label={t.category} value={category} onChange={(event) => setCategory(event.target.value as "all" | ToolCategory)}><option value="all">{t.category}</option>{Object.entries(categories).map(([id, item]) => <option key={id} value={id}>{item.label[locale]}</option>)}</select></div><p>{t.drag}</p><div className="workspace-tool-palette">{visibleTools.map((tool) => <div key={tool.slug} draggable onDragStart={(event) => event.dataTransfer.setData("application/x-bytequant-tool", tool.slug)}><span className={`tool-mark category-${tool.category}`}>{tool.mark}</span><div><strong>{tool.title[locale]}</strong><small>{categories[tool.category].label[locale]}</small></div><button type="button" onClick={() => addTool(tool.slug)}>{t.add}</button></div>)}</div>{paletteCanCollapse && <button className="workspace-palette-more" type="button" aria-expanded={paletteExpanded} onClick={() => setPaletteExpanded((value) => !value)}>{paletteExpanded ? t.showLess : `${t.showAll} · +${filteredTools.length - visibleTools.length}`}</button>}</section>
     </aside><div className="workspace-main">
       <section className="workspace-ai-builder"><div><span className="kicker">BQ LOCAL AGENT</span><h3>{t.ai}</h3><p>{t.aiBoundary}</p></div><div className="workspace-ai-input"><textarea value={agentGoal} maxLength={20_000} onChange={(event) => { setAgentGoal(event.target.value); setAgentPlan(null); }} placeholder={t.aiPlaceholder} /><button type="button" className="primary-button" disabled={!agentGoal.trim()} onClick={analyzeAgentGoal}>{t.analyze}</button></div>{agentPlan && <div className="workspace-ai-preview" aria-live="polite"><header><strong>{t.decision}</strong><span>{Math.round(agentPlan.confidence * 100)}% {t.confidence}</span></header><ol>{agentPlan.steps.map((step, index) => <li key={step.id}><span>{index + 1}</span><div><strong>{step.title}</strong><small>{step.reason}</small></div></li>)}</ol><div className="workspace-ai-signals">{agentPlan.signals.map((signal) => <span key={signal}>{signal}</span>)}</div><footer><button type="button" className="primary-button" onClick={() => applyAgentPlan("append")}>{t.addPlan}</button><button type="button" onClick={() => applyAgentPlan("replace")}>{t.replacePlan}</button></footer></div>}</section>
-      <section className="workspace-canvas-shell" id="workspace-canvas" aria-labelledby="canvas-title"><header><div><h3 id="canvas-title">{t.canvas}</h3><small>{connectFrom ? t.connect : `${summary.nodes}/${WORKSPACE_MAX_NODES} ${t.nodes} · ${summary.edges} ${t.flow}`}</small></div></header><div className="workspace-canvas-scroll"><div className="workspace-canvas" style={{ width: canvasSize.width, height: canvasSize.height }} onDragOver={(event) => event.preventDefault()} onDrop={dropTool} onClick={() => setConnectFrom(null)}>
+      <section className="workspace-canvas-shell" id="workspace-canvas" aria-labelledby="canvas-title"><header><div><h3 id="canvas-title">{t.canvas}</h3><small>{connectFrom ? t.connect : `${summary.nodes}/${WORKSPACE_MAX_NODES} ${t.nodes} · ${summary.edges} ${t.flow}`}</small></div><div className="workspace-canvas-controls" aria-label={extra.navigation}><button type="button" onClick={() => setZoom((value) => Math.max(.55, Number((value - .1).toFixed(2))))} aria-label={extra.zoomOut}>−</button><output>{Math.round(zoom * 100)}%</output><button type="button" onClick={() => setZoom((value) => Math.min(1.5, Number((value + .1).toFixed(2))))} aria-label={extra.zoomIn}>+</button><button type="button" onClick={fitView}>{extra.fit}</button><button type="button" onClick={centerSelected} disabled={!selected}>{extra.center}</button><button type="button" className={panMode ? "active" : ""} aria-pressed={panMode} onClick={() => setPanMode((value) => !value)}>✥ {extra.pan}</button></div></header><div ref={canvasScrollRef} className={`workspace-canvas-scroll ${panMode ? "pan-active" : ""}`} onPointerDown={beginPan}><div className="workspace-canvas-viewport" style={{ width: canvasSize.width * zoom, height: canvasSize.height * zoom }}><div className="workspace-canvas" style={{ width: canvasSize.width, height: canvasSize.height, transform: `scale(${zoom})` }} onDragOver={(event) => event.preventDefault()} onDrop={dropTool} onClick={() => setConnectFrom(null)}>
         <svg className="workspace-wires" aria-hidden="true">{document.edges.map((edge) => { const from = document.nodes.find((node) => node.id === edge.from); const to = document.nodes.find((node) => node.id === edge.to); if (!from || !to) return null; const x1 = from.x + nodeWidth; const y1 = from.y + nodePortY; const x2 = to.x; const y2 = to.y + nodePortY; return <path key={edge.id} d={`M ${x1} ${y1} C ${x1 + 90} ${y1}, ${x2 - 90} ${y2}, ${x2} ${y2}`} />; })}</svg>
-        {!document.nodes.length && <div className="workspace-empty"><span>⌘</span><p>{t.empty}</p></div>}
-        {document.nodes.map((node) => <article key={node.id} className={`workspace-node ${selectedId === node.id ? "selected" : ""} status-${node.status}`} style={{ transform: `translate(${node.x}px, ${node.y}px)` }} onClick={(event) => { event.stopPropagation(); setSelectedId(node.id); }}><button className="workspace-node-handle" type="button" aria-label={`${node.title}: ${t.layout}`} onPointerDown={(event) => beginMove(event, node)}><span className="workspace-grip">⠿</span><strong>{node.title}</strong><small>{node.toolSlug}</small></button><div className="workspace-node-body"><span>{node.input ? `${node.input.length} ${t.characters}` : t.input}</span><i>→</i><span>{node.output ? `${node.output.length} ${t.characters}` : t.output}</span></div><button className="workspace-port input" type="button" aria-label={`${t.input}: ${node.title}`} onClick={(event) => { event.stopPropagation(); connectTo(node.id); }} /><button className={`workspace-port output ${connectFrom === node.id ? "active" : ""}`} type="button" aria-label={`${t.output}: ${node.title}`} onClick={(event) => { event.stopPropagation(); setConnectFrom(node.id); }} /><footer><span className="workspace-node-status">{t.status[node.status]}</span><Link href={toolPath(locale, node.toolSlug)} onClick={() => openTool(node)}>{t.open} →</Link></footer></article>)}
-      </div></div></section>
+        {!document.nodes.length && <div className="workspace-empty"><span>⌘</span><h4>{extra.emptyTitle}</h4><p>{t.empty}</p><div><Link href={pathFor(locale, "agent")}>✦ {extra.emptyAgent}</Link><button type="button" onClick={(event) => { event.stopPropagation(); addTemplate(templateDefinitions[0].slugs, templateDefinitions[0].names[locale]); }}>+ {extra.emptyTemplate}</button></div></div>}
+        {document.nodes.map((node) => <article key={node.id} className={`workspace-node ${selectedId === node.id ? "selected" : ""} ${connectFrom && connectFrom !== node.id ? "connection-target" : ""} status-${node.status}`} style={{ transform: `translate(${node.x}px, ${node.y}px)` }} onClick={(event) => { event.stopPropagation(); setSelectedId(node.id); }}><button className="workspace-node-handle" type="button" aria-label={`${node.title}: ${t.layout}`} onPointerDown={(event) => beginMove(event, node)}><span className="workspace-grip">⠿</span><strong>{node.title}</strong><small>{node.toolSlug}</small></button><div className="workspace-node-body"><span>{node.input ? `${node.input.length} ${t.characters}` : t.input}</span><i>→</i><span>{node.output ? `${node.output.length} ${t.characters}` : t.output}</span></div><button className="workspace-port input" type="button" aria-label={`${t.input}: ${node.title}`} onClick={(event) => { event.stopPropagation(); connectTo(node.id); }} /><button className={`workspace-port output ${connectFrom === node.id ? "active" : ""}`} type="button" aria-label={`${t.output}: ${node.title}`} onClick={(event) => { event.stopPropagation(); setConnectFrom(node.id); }} /><footer><span className="workspace-node-status">{t.status[node.status]}</span><Link href={toolPath(locale, node.toolSlug)} onClick={() => openTool(node)}>{t.open} →</Link></footer></article>)}
+      </div></div></div>{document.nodes.length > 0 && <button type="button" className="workspace-minimap" aria-label={extra.fit} onClick={fitView}><span>{document.nodes.map((node) => <i key={node.id} className={selectedId === node.id ? "active" : ""} style={{ left: `${Math.min(94, node.x / canvasSize.width * 100)}%`, top: `${Math.min(88, node.y / canvasSize.height * 100)}%` }} />)}</span><b>{Math.round(zoom * 100)}%</b></button>}</section>
       <div className="workspace-lower-grid"><section className="workspace-panel workspace-inspector" id="workspace-inspector"><h3>{t.inspector}</h3>{selected ? <><label>{t.input}<textarea value={selected.input} onChange={(event) => updateNode(selected.id, { input: event.target.value.slice(0, 200_000), status: event.target.value ? "ready" : "idle" })} /></label><label>{t.output}<textarea readOnly value={selected.output} /></label><h4>{t.connections}</h4><div className="workspace-edge-list">{selectedEdges.map((edge) => { const otherId = edge.from === selected.id ? edge.to : edge.from; const other = document.nodes.find((node) => node.id === otherId); return <div key={edge.id}><span>{edge.from === selected.id ? "→" : "←"} {other?.title ?? otherId}</span><button type="button" aria-label={t.disconnect} onClick={() => removeEdge(edge.id)}>×</button></div>; })}{!selectedEdges.length && <small>{t.noConnections}</small>}</div><div><Link className="primary-button" href={toolPath(locale, selected.toolSlug)} onClick={() => openTool(selected)}>{t.open}</Link><button type="button" onClick={() => duplicateNode(selected)}>{t.duplicate}</button><button type="button" onClick={() => removeNode(selected.id)}>{t.remove}</button></div></> : <p>{t.select}</p>}</section>
         <section className="workspace-panel workspace-recipe-panel"><h3>{t.share}</h3><p>{t.shareSafe}</p><label className="workspace-checkbox"><input type="checkbox" checked={includeInputs} onChange={(event) => setIncludeInputs(event.target.checked)} />{t.include}</label><button type="button" className="secondary-button" onClick={createShareLink}>{t.createLink}</button>{shareUrl && <label><span className="sr-only">URL</span><textarea readOnly value={shareUrl} /><button type="button" onClick={() => navigator.clipboard.writeText(shareUrl)}>{t.copy}</button></label>}</section></div>
       <WorkspaceP2PPanel locale={locale} document={document} onRemoteDocument={(remote) => replaceDocument(remote)} />

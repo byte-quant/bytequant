@@ -22,6 +22,7 @@ type Metric = { label: string; value: string | number };
 
 const noInputTools = new Set(["guclu-parola-uretici", "uuid-uretici"]);
 const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"]);
+const batchSlugs = new Set(["metin-temizleyici", "buyuk-kucuk-harf-donusturucu", "json-bicimlendirici", "base64-kodlayici", "url-kodlayici", "kvkk-veri-maskeleyici"]);
 
 const samples: Record<string, Record<"tr" | "en", string>> = {
   "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points." },
@@ -355,20 +356,21 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const [mode, setMode] = useState("default");
   const [length, setLength] = useState(24);
   const [quantity, setQuantity] = useState(5);
+  const [batch, setBatch] = useState(false);
   const [output, setOutput] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [notice, setNotice] = useState<ToolNoticeData | null>(null);
   const [busy, setBusy] = useState(false);
 
   const labels = useMemo(() => {
-    if (locale === "de") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron-Ausdruck" : "Eingabe", second: slug === "regex-test-araci" ? "Regex-Muster" : "Vergleich / Zusatzangaben", run: "Auf meinem Gerät ausführen", running: "Verarbeitung…", copy: "Ausgabe kopieren", download: "Als Text herunterladen", clear: "Leeren", demo: "Beispiel laden", output: "Ergebnis", empty: "Das Ergebnis erscheint hier.", copied: "Ausgabe wurde kopiert.", downloaded: "Ausgabe wurde heruntergeladen.", demoLoaded: "Beispiel geladen; das Werkzeug kann jetzt ausgeführt werden.", local: "Eingabe verlässt diese Seite nicht.", flags: "Flags", length: "Passwortlänge", quantity: "UUID-Anzahl", shortcut: "Strg/⌘ + Enter" };
-    if (locale === "zh") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron 表达式" : "输入", second: slug === "regex-test-araci" ? "正则表达式" : "比较 / 补充信息", run: "在设备上运行", running: "处理中…", copy: "复制输出", download: "下载文本", clear: "清除", demo: "加载示例", output: "结果", empty: "结果将显示在这里。", copied: "输出已复制。", downloaded: "输出已下载。", demoLoaded: "示例已加载，现在可以运行工具。", local: "输入不会离开此页面。", flags: "标志", length: "密码长度", quantity: "UUID 数量", shortcut: "Ctrl/⌘ + Enter" };
+    if (locale === "de") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron-Ausdruck" : "Eingabe", second: slug === "regex-test-araci" ? "Regex-Muster" : "Vergleich / Zusatzangaben", run: "Auf meinem Gerät ausführen", running: "Verarbeitung…", copy: "Ausgabe kopieren", download: "Als Text herunterladen", clear: "Leeren", demo: "Beispiel laden", output: "Ergebnis", empty: "Das Ergebnis erscheint hier.", copied: "Ausgabe wurde kopiert.", downloaded: "Ausgabe wurde heruntergeladen.", demoLoaded: "Beispiel geladen; das Werkzeug kann jetzt ausgeführt werden.", local: "Eingabe verlässt diese Seite nicht.", flags: "Flags", length: "Passwortlänge", quantity: "UUID-Anzahl", shortcut: "Strg/⌘ + Enter", batch: "Stapelmodus", batchHelp: "Bis zu 50 Einträge; jeweils mit einer Zeile --- trennen." };
+    if (locale === "zh") return { input: slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron 表达式" : "输入", second: slug === "regex-test-araci" ? "正则表达式" : "比较 / 补充信息", run: "在设备上运行", running: "处理中…", copy: "复制输出", download: "下载文本", clear: "清除", demo: "加载示例", output: "结果", empty: "结果将显示在这里。", copied: "输出已复制。", downloaded: "输出已下载。", demoLoaded: "示例已加载，现在可以运行工具。", local: "输入不会离开此页面。", flags: "标志", length: "密码长度", quantity: "UUID 数量", shortcut: "Ctrl/⌘ + Enter", batch: "批量模式", batchHelp: "最多 50 项；每项使用单独一行 --- 分隔。" };
     return isTr ? {
     input: slug === "few-shot-ornek-olusturucu" ? "Görev tanımı" : slug === "sistem-promptu-persona-sablonu" ? "Rol ve temel sorumluluk" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron ifadesi" : "Girdi", second: slug === "regex-test-araci" ? "Regex kalıbı" : slug === "meta-prompt-olusturucu" ? "Bağlam ve kısıtlar (isteğe bağlı)" : slug === "few-shot-ornek-olusturucu" ? "Örnekler — her satır `girdi => çıktı`" : slug === "sistem-promptu-persona-sablonu" ? "Ton, hedef kitle ve sınırlar" : "Karşılaştırma metni",
-    run: "Cihazımda çalıştır", running: "İşleniyor…", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu", quantity: "Üretilecek UUID", shortcut: "Ctrl/⌘ + Enter",
+    run: "Cihazımda çalıştır", running: "İşleniyor…", copy: "Çıktıyı kopyala", download: "Metin olarak indir", clear: "Temizle", demo: "Örnek veri yükle", output: "Sonuç", empty: "Sonuç burada görünecek.", copied: "Çıktı panoya kopyalandı.", downloaded: "Çıktı metin dosyası olarak indirildi.", demoLoaded: "Hazır örnek yüklendi; aracı şimdi çalıştırabilirsiniz.", local: "Girdi bu sayfadan ayrılmaz.", flags: "Bayraklar", length: "Parola uzunluğu", quantity: "Üretilecek UUID", shortcut: "Ctrl/⌘ + Enter", batch: "Toplu işlem", batchHelp: "En fazla 50 öğe; her öğeyi tek satırdaki --- ile ayırın.",
   } : {
     input: slug === "few-shot-ornek-olusturucu" ? "Task description" : slug === "sistem-promptu-persona-sablonu" ? "Role and primary responsibility" : slug === "jwt-decoder" ? "JWT" : slug === "cron-ifadesi-aciklayici" ? "Cron expression" : "Input", second: slug === "regex-test-araci" ? "Regex pattern" : slug === "meta-prompt-olusturucu" ? "Context and constraints (optional)" : slug === "few-shot-ornek-olusturucu" ? "Examples — one `input => output` pair per line" : slug === "sistem-promptu-persona-sablonu" ? "Tone, audience, and boundaries" : "Comparison text",
-    run: "Run on my device", running: "Processing…", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length", quantity: "UUID quantity", shortcut: "Ctrl/⌘ + Enter",
+    run: "Run on my device", running: "Processing…", copy: "Copy output", download: "Download as text", clear: "Clear", demo: "Load example", output: "Result", empty: "Your result will appear here.", copied: "Output copied to the clipboard.", downloaded: "Output downloaded as a text file.", demoLoaded: "The ready-made example is loaded; you can now run the tool.", local: "Input never leaves this page.", flags: "Flags", length: "Password length", quantity: "UUID quantity", shortcut: "Ctrl/⌘ + Enter", batch: "Batch mode", batchHelp: "Up to 50 items; separate each with --- on its own line.",
   }; }, [isTr, locale, slug]);
 
   function setResult(value: string, nextMetrics: Metric[] = []) {
@@ -380,7 +382,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   }
 
   function clearWorkbench() {
-    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); resetResult();
+    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setBatch(false); resetResult();
   }
 
   function loadDemo() {
@@ -396,6 +398,36 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
     try {
       if (!noInputTools.has(slug) && !input.trim()) throw new Error(ui(locale, { tr: "Önce bir girdi yazın.", en: "Enter some input first.", de: "Geben Sie zuerst einen Wert ein.", zh: "请先输入内容。" }));
       const list = words(input, locale);
+      if (batch && batchSlugs.has(slug)) {
+        const items = input.split(/\r?\n---\r?\n/u).map((item) => item.trim()).filter(Boolean);
+        if (items.length < 2) throw new Error(ui(locale, { tr: "Toplu işlem için öğeleri tek satırdaki --- ayırıcıyla bölün.", en: "For batch mode, separate items with --- on its own line.", de: "Trennen Sie Stapelobjekte mit --- in einer eigenen Zeile.", zh: "批量模式请用单独一行 --- 分隔项目。" }));
+        if (items.length > 50) throw new Error(ui(locale, { tr: "Tek toplu işlem en fazla 50 öğe içerebilir.", en: "One batch can contain at most 50 items.", de: "Ein Stapel darf höchstens 50 Einträge enthalten.", zh: "一次批量处理最多包含 50 项。" }));
+        const processItem = (value: string) => {
+          if (slug === "metin-temizleyici") return value.replace(/[\t ]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+          if (slug === "buyuk-kucuk-harf-donusturucu") return convertCase(value, mode, locale);
+          if (slug === "json-bicimlendirici") return JSON.stringify(JSON.parse(value), null, mode === "minify" ? 0 : 2);
+          if (slug === "url-kodlayici") return mode === "decode" ? decodeURIComponent(value.trim()) : encodeURIComponent(value);
+          if (slug === "base64-kodlayici") {
+            if (mode === "decode") { const compact = value.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/"); if (!/^[A-Za-z0-9+/]*={0,2}$/.test(compact) || compact.length % 4 === 1) throw new Error("Base64"); const bytes = Uint8Array.from(atob(compact.padEnd(Math.ceil(compact.length / 4) * 4, "=")), (char) => char.charCodeAt(0)); return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+            const bytes = new TextEncoder().encode(value); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); }); return btoa(binary);
+          }
+          if (slug === "kvkk-veri-maskeleyici") {
+            const patterns = [
+              { label: "EMAIL", re: /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, validate: undefined },
+              { label: "IBAN", re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/gi, validate: undefined },
+              { label: "TCKN_CANDIDATE", re: /\b[1-9]\d{10}\b/g, validate: passesTcknChecksum },
+              { label: "CARD_CANDIDATE", re: /\b(?:\d[ -]*?){13,19}\b/g, validate: passesLuhn },
+              { label: "IP", re: /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g, validate: undefined },
+              { label: "PHONE", re: /(?<!\d)(?:\+?\d{1,3}[ .-]?)?(?:\(?\d{3}\)?[ .-]?)\d{3}[ .-]?\d{2}[ .-]?\d{2}(?!\d)/g, validate: undefined },
+            ];
+            let masked = value; patterns.forEach(({ label, re, validate }) => { let count = 0; masked = masked.replace(re, (candidate) => { if (validate && !validate(candidate)) return candidate; count += 1; return `[${label}_${count}]`; }); }); return masked;
+          }
+          return value;
+        };
+        const outputItems = items.map((item, index) => `${ui(locale, { tr: "ÖĞE", en: "ITEM", de: "EINTRAG", zh: "项目" })} ${index + 1}\n${processItem(item)}`);
+        setResult(outputItems.join("\n\n---\n\n"), [{ label: ui(locale, { tr: "İşlenen öğe", en: "Items processed", de: "Verarbeitete Einträge", zh: "已处理项目" }), value: items.length }, { label: ui(locale, { tr: "Toplam karakter", en: "Total characters", de: "Zeichen gesamt", zh: "总字符数" }), value: input.length }]);
+        return;
+      }
       switch (slug) {
         case "prompt-kalite-denetimi": {
           const checks = [
@@ -636,6 +668,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
             {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
             {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{isTr ? "Kodla" : "Encode"}</option><option value="decode">{isTr ? "Çöz" : "Decode"}</option></>}
           </select></label>}
+          {batchSlugs.has(slug) && <label className="batch-toggle"><input type="checkbox" checked={batch} onChange={(event) => { setBatch(event.target.checked); resetResult(); }} /><span><strong>{labels.batch}</strong><small>{labels.batchHelp}</small></span></label>}
           <button type="button" className="primary-button run-button" onClick={run} disabled={busy}>{busy ? labels.running : labels.run}<span aria-hidden="true"> →</span></button>
         </div>
         <div className="result-panel" aria-live="polite">
