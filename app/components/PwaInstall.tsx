@@ -16,6 +16,13 @@ const content = {
   zh: { kicker: "BYTEQUANT 应用", title: "从桌面或主屏幕直接打开工具", body: "把 ByteQuant 安装为 Web 应用，无需应用商店账户。它会在独立窗口中打开，已访问页面可在离线时使用，工具输入绝不会写入缓存。", install: "安装应用", installed: "应用已安装", manual: "请在浏览器菜单中选择“安装应用”或“添加到主屏幕”。", ios: "iPhone/iPad：在 Safari 中点击“分享”，然后选择“添加到主屏幕”。", android: "Android：请使用最新版 Chrome 或 Edge。先移除以前安装的 ByteQuant 快捷方式/应用，刷新页面，再从浏览器菜单重新安装。", legacy: "此旧版或内嵌 Android 浏览器未打开安全安装提示。请勿确认有关旧版 Android 的警告；更新浏览器后，从最新版 Chrome/Edge 菜单开始安装。", noApk: "ByteQuant 不分发 APK。Android 应用封装由浏览器生成；网站清单无法设置其目标 Android 版本。", failed: "安装提示未能完成。请改用浏览器菜单中的安装选项。", ready: "安装提示已就绪。只有在您明确确认后才会开始安装。" },
 } as const;
 
+const simpleInstallNote = {
+  tr: "Bu bir APK indirmesi değildir. ByteQuant tarayıcınızın güvenli ‘uygulama olarak yükle’ özelliğini kullanır; şüpheli veya eski Android uyarısı görürseniz işlemi iptal edip tarayıcınızı güncelleyin.",
+  en: "This is not an APK download. ByteQuant uses your browser's safe ‘install as an app’ feature; cancel and update the browser if you see a suspicious or old-Android warning.",
+  de: "Dies ist kein APK-Download. ByteQuant nutzt die sichere Browserfunktion „Als App installieren“; bei einer verdächtigen oder alten Android-Warnung abbrechen und den Browser aktualisieren.",
+  zh: "这不是 APK 下载。ByteQuant 使用浏览器安全的“安装为应用”功能；若看到可疑或旧版 Android 警告，请取消并更新浏览器。",
+} as const;
+
 type AndroidInstallMode = "ready" | "manual" | "legacy";
 
 function androidInstallMode(userAgent: string): AndroidInstallMode {
@@ -86,7 +93,7 @@ export function PwaInstall({ locale, compact = false }: { locale: Locale; compac
     <section className="section install-section" aria-labelledby={"install-" + locale}>
       <div className="container install-card">
         <div className="install-icon" aria-hidden="true"><span>BQ</span><i>＋</i></div>
-        <div><span className="kicker">{labels.kicker}</span><h2 id={"install-" + locale}>{labels.title}</h2><p>{labels.body}</p><ul><li>✓ PWA · standalone</li><li>✓ Same-origin offline shell</li><li>✓ No input caching</li></ul><p className="install-security-note">{labels.noApk}</p></div>
+        <div><span className="kicker">{labels.kicker}</span><h2 id={"install-" + locale}>{labels.title}</h2><p>{labels.body}</p><ul><li>✓ {locale === "tr" ? "Ana ekrandan tek dokunuş" : locale === "de" ? "Mit einem Tipp vom Startbildschirm" : locale === "zh" ? "从主屏幕一键打开" : "One tap from your home screen"}</li><li>✓ {locale === "tr" ? "Daha önce açılan sayfalara çevrimdışı erişim" : locale === "de" ? "Bereits besuchte Seiten offline öffnen" : locale === "zh" ? "离线打开已访问页面" : "Previously visited pages available offline"}</li><li>✓ {locale === "tr" ? "Araç girdileri önbelleğe alınmaz" : locale === "de" ? "Werkzeugeingaben werden nicht gecacht" : locale === "zh" ? "工具输入不会缓存" : "Tool inputs are never cached"}</li></ul><p className="install-security-note">{simpleInstallNote[locale]}</p></div>
         <div className="install-actions" aria-live="polite"><button type="button" className="primary-button" onClick={() => void install()} disabled={installed}>{installed ? labels.installed : labels.install}</button><small className={installMode === "legacy" ? "install-warning" : undefined}>{failed ? labels.failed : installMode === "legacy" ? labels.legacy : prompt ? labels.ready : labels.manual}</small>{(isIos || (manual && isAndroid)) && <small>{isAndroid ? labels.android : labels.ios}</small>}</div>
       </div>
     </section>

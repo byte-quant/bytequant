@@ -371,6 +371,69 @@ export const localizedGuides: LocalizedGuide[] = [
   },
 ];
 
+localizedGuides.push(
+  {
+    slug: "ndjson-openapi-semver-api-delivery", date: "2026-07-22", relatedTools: ["json-lines-donusturucu", "openapi-endpoint-envanteri", "semver-karsilastirici", "json-pointer-gezgini"],
+    copy: {
+      de: { title: "API-Auslieferung mit NDJSON, OpenAPI und SemVer prüfen", excerpt: "Streaming-Daten validieren, Endpunkte inventarisieren und Versionspriorität vor der Auslieferung kontrollieren.", description: "Browserbasierter Qualitätsablauf für JSON Lines, JSON Pointer, OpenAPI-Inventar und SemVer-Vergleich.", category: "API- & Datenqualität", readTime: "12 Min.", sections: [
+        { heading: "Datensatzgrenzen zuerst validieren", paragraphs: ["JSON Lines enthält pro Zeile einen unabhängigen JSON-Wert. Jede Zeile muss einzeln geparst und ein Fehler mit genauer Nummer gemeldet werden; stilles Überspringen verfälscht nachfolgende Zähler.", "JSON Pointer findet verschachtelte Werte mit RFC-6901-Escapes. Ein Treffer beweist noch nicht, dass Typ und Bedeutung zum Vertrag passen."], bullets: ["Datensatzanzahl vor und nach der Umwandlung vergleichen.", "Fehlerzeilen sichtbar machen.", "Pointer-Ergebnis gegen das Schema prüfen."] },
+        { heading: "OpenAPI als prüfbares Inventar", paragraphs: ["Methode, Pfad, operationId, Tags, Deprecation und Security ergeben zusammen eine übersichtliche Lieferliste. Fehlende Bezeichner oder unerwartet anonyme Operationen werden so sichtbar.", "Eine security-Angabe beweist keine echte Autorisierung. Das Inventar priorisiert Quellcodeprüfung und autorisierte Tests, ohne einen Live-Server aufzurufen."] },
+        { heading: "SemVer-Priorität von Kompatibilität trennen", paragraphs: ["SemVer ordnet beta.11 nach beta.2 und vor der stabilen 2.0.0; Build-Metadaten ändern die Priorität nicht. Die Sortierung beweist keine Verhaltenskompatibilität.", "Änderungsprotokoll, Vertragstests und Nutzererwartungen gehören in die endgültige Entscheidung."] },
+      ] },
+      zh: { title: "使用 NDJSON、OpenAPI 与 SemVer 检查 API 交付", excerpt: "在交付前验证流式数据、整理端点并检查版本优先级。", description: "结合 JSON Lines、JSON Pointer、OpenAPI 清单与 SemVer 比较的浏览器内质量流程。", category: "API 与数据质量", readTime: "约 12 分钟", sections: [
+        { heading: "先验证记录边界", paragraphs: ["JSON Lines 每行都是独立 JSON 值。应逐行解析并精确报告错误行，静默跳过会破坏后续计数。", "JSON Pointer 按 RFC 6901 转义定位嵌套值；找到值并不等于其类型和业务含义正确。"], bullets: ["比较转换前后的记录数。", "显示错误行而不是跳过。", "用预期 Schema 验证结果。"] },
+        { heading: "把 OpenAPI 变成可审查清单", paragraphs: ["把方法、路径、operationId、标签、弃用与安全声明放在同一张表中，可快速发现缺失命名和意外匿名端点。", "规范中的 security 字段不能证明运行时授权。清单只用于安排源码检查和授权测试，不请求线上服务器。"] },
+        { heading: "区分 SemVer 顺序与兼容性", paragraphs: ["SemVer 会把 beta.11 排在 beta.2 之后、稳定版 2.0.0 之前，构建元数据不影响优先级；这种排序不能证明行为兼容。", "最终决策还应结合变更日志、契约测试和使用者预期。"] },
+      ] },
+    },
+  },
+  {
+    slug: "accessible-responsive-ui-contrast-clamp-ratio", date: "2026-07-22", relatedTools: ["renk-kontrast-denetleyici", "css-clamp-olusturucu", "en-boy-orani-hesaplayici"],
+    copy: {
+      de: { title: "Barrierefreie responsive UI: Kontrast, clamp() und Seitenverhältnis", excerpt: "Dark Mode, fließende Typografie und Medienflächen mit messbaren Grenzen gestalten.", description: "Praxisleitfaden zu WCAG-Kontrast, CSS-clamp(), Seitenverhältnis und mobilen Tests.", category: "Barrierefreies Design", readTime: "11 Min.", sections: [
+        { heading: "Kontrast mit allen Zuständen prüfen", paragraphs: ["Das mathematische Verhältnis von Vorder- und Hintergrund ist nur der Anfang. Normaler Text, große Schrift, Fokus, Fehler und deaktivierte Zustände müssen in realer Größe und Stärke bewertet werden.", "Transparente Flächen und Bildhintergründe können vom Ergebnis eines flachen HEX-Paars abweichen."], bullets: ["Mindestens AA für Normaltext prüfen.", "Fokus und Fehler separat messen.", "Auf realen Geräten kontrollieren."] },
+        { heading: "clamp() an klare Endpunkte binden", paragraphs: ["Explizite Minimal-/Maximalwerte und Viewport-Grenzen machen Steigung und Endpunkte einer clamp()-Formel überprüfbar.", "Lange deutsche Überschriften, chinesische Zeilenumbrüche und 200-Prozent-Zoom erfordern trotzdem echte Layouttests."] },
+        { heading: "Medienplatz vor dem Laden reservieren", paragraphs: ["Ein bekanntes Seitenverhältnis reserviert Platz und reduziert CLS. 1920×1080 lässt sich zu 16:9 kürzen und auf Zielbreiten skalieren.", "CSS aspect-ratio, width/height, responsive Quellen und Alternativtext ergänzen die Rechnung."] },
+      ] },
+      zh: { title: "无障碍响应式界面：对比度、clamp() 与宽高比", excerpt: "用可测量边界设计深色模式、流式字体与媒体占位。", description: "结合 WCAG 对比度、CSS clamp()、宽高比和移动端实测的前端指南。", category: "无障碍设计", readTime: "约 11 分钟", sections: [
+        { heading: "对比度要覆盖全部状态", paragraphs: ["前景和背景的数学比率只是起点。普通文本、大号文本、焦点、错误与禁用状态都要按真实字号和字重检查。", "透明表面与图片背景可能不同于平面 HEX 颜色对。"], bullets: ["普通文本至少检查 AA。", "分别测量焦点与错误颜色。", "在真实设备上确认。"] },
+        { heading: "把 clamp() 绑定到明确端点", paragraphs: ["明确最小/最大值与视口边界，才能验证 clamp() 的斜率和端点。", "长德语标题、中文换行和 200% 缩放仍需要真实布局测试。"] },
+        { heading: "加载前预留媒体空间", paragraphs: ["已知宽高比可预留空间并降低 CLS。1920×1080 可化简为 16:9，再按目标宽度计算高度。", "还应结合 CSS aspect-ratio、width/height、响应式资源与替代文本。"] },
+      ] },
+    },
+  },
+  {
+    slug: "local-config-security-env-sql-unix-permissions", date: "2026-07-22", relatedTools: ["env-dosyasi-denetleyici", "sql-bicimlendirici-analizoru", "unix-izin-hesaplayici", "http-guvenlik-basliklari-denetleyici"],
+    copy: {
+      de: { title: "Lokale Sicherheitsvorprüfung für .env, SQL und Unix-Rechte", excerpt: "Konfigurations-, Abfrage- und Berechtigungsrisiken vor der Freigabe sichtbar machen, ohne Geheimnisse zu wiederholen.", description: "Praxisleitfaden zu maskierten Umgebungswerten, SQL-Risikomustern und chmod-Rechten.", category: "Code-Sicherheit", readTime: "12 Min.", sections: [
+        { heading: ".env-Risiko ohne Wertewiederholung", paragraphs: ["Doppelte Schlüssel, ungültige Zuweisungen, leere kritische Werte und öffentliche Präfixe sind strukturell prüfbar. Werte sollten maskiert werden, damit der Bericht keine zweite Kopie eines Geheimnisses erzeugt.", "Bei vermuteter Offenlegung sind Rotation, Zugriffsprüfung und ein autorisierter Prozess für die Historie erforderlich."], bullets: ["Synthetische Werte bevorzugen.", "Öffentliche Präfixe prüfen.", "Verdächtige Schlüssel sofort rotieren."] },
+        { heading: "SQL-Formatierung ist kein Sicherheitstest", paragraphs: ["Lesbares SQL macht SELECT *, mehrere Anweisungen und UPDATE/DELETE ohne WHERE sichtbar, validiert aber weder Schema noch Plan oder Autorisierung.", "Parameterbindung muss im Anwendungscode geprüft werden; der Browser darf die Abfrage nicht ausführen."] },
+        { heading: "chmod im Dateikontext bewerten", paragraphs: ["755 kann für Verzeichnisse passen und für Geheimnisdateien zu weit sein. World-writable und Spezialbits sind kontextabhängige Risiken.", "ACL, Eigentümer, Mounts und umask liegen außerhalb eines reinen Rechners und müssen separat geprüft werden."] },
+      ] },
+      zh: { title: ".env、SQL 与 Unix 权限的本地安全预检查", excerpt: "在不重复密钥的前提下，于发布前显示配置、查询与权限风险。", description: "介绍环境值遮蔽、SQL 风险模式和 chmod 权限解释的实践指南。", category: "代码安全", readTime: "约 12 分钟", sections: [
+        { heading: "报告 .env 风险而不重复值", paragraphs: ["重复键、错误赋值、空关键值与公开前缀可进行结构检查。输出应遮蔽值，避免报告成为第二份泄漏副本。", "如怀疑暴露，应轮换凭据、检查访问记录，并通过授权流程处理历史。"], bullets: ["优先使用合成值。", "检查公开前缀下的敏感名称。", "怀疑泄漏时立即轮换。"] },
+        { heading: "SQL 格式化不是安全测试", paragraphs: ["可读 SQL 容易发现 SELECT *、多语句及缺少 WHERE 的 UPDATE/DELETE，但无法验证 Schema、执行计划或授权。", "参数绑定必须在应用代码中检查，浏览器工具不应执行查询。"] },
+        { heading: "结合文件角色理解 chmod", paragraphs: ["755 可能适合目录，却不适合密钥文件；全局可写和特殊位的风险取决于上下文。", "ACL、所有者、挂载与 umask 超出计算器范围，必须另行检查。"] },
+      ] },
+    },
+  },
+  {
+    slug: "global-team-planning-time-zones-business-days", date: "2026-07-22", relatedTools: ["zaman-dilimi-toplanti-planlayici", "is-gunu-hesaplayici", "bahsis-hesap-bolusturucu", "markdown-tablo-olusturucu"],
+    copy: {
+      de: { title: "Zeitzonen- und Arbeitstageplanung für globale Teams", excerpt: "Termine und Lieferdaten mit sichtbaren Sommerzeit-, Feiertags- und Einschlussregeln planen.", description: "Leitfaden für verteilte Teams mit IANA-Zonen, UTC-sicherer Arbeitstagezählung und Markdown-Tabellen.", category: "Alltagsproduktivität", readTime: "10 Min.", sections: [
+        { heading: "IANA-Zonen statt Abkürzungen", paragraphs: ["EST oder CST ist mehrdeutig und verdeckt Sommerzeit. IANA-Namen wie Europe/Berlin erlauben dem Browser den korrekten Offset für das gewählte Datum.", "Die Quelle sollte ISO mit Z oder Offset enthalten; auch das lokale Datum ist anzuzeigen, weil die Umrechnung Mitternacht überschreiten kann."], bullets: ["UTC oder expliziten Offset nutzen.", "Lokales Datum zeigen.", "Termin menschlich bestätigen."] },
+        { heading: "Wochentage sind keine Rechtsfrist", paragraphs: ["Montag-bis-Freitag-Zählung kennt nationale Feiertage, halbe Tage und Firmenkalender nicht automatisch. Feiertage und Endpunktregel müssen explizit sein.", "UTC-Arithmetik verhindert Sommerzeitfehler; rechtliche Fristen benötigen dennoch eine autoritative Quelle."] },
+        { heading: "Entscheidung als Tabelle teilen", paragraphs: ["Eine Markdown-Tabelle kann ISO-Quelle, IANA-Zone, lokalen Termin und Bestätigung getrennt dokumentieren.", "Sie sendet keine Einladung. Bestätigung und Kalenderänderungen müssen vor der Freigabe ergänzt werden."] },
+      ] },
+      zh: { title: "全球团队的时区与工作日规划", excerpt: "把夏令时、节假日和起止日规则明确显示，减少会议与交付日期错误。", description: "使用 IANA 时区、UTC 安全工作日计算与 Markdown 表格的分布式团队指南。", category: "日常效率", readTime: "约 10 分钟", sections: [
+        { heading: "使用 IANA 时区而非缩写", paragraphs: ["EST、CST 等缩写可能有多种含义并隐藏夏令时。Europe/Berlin 等 IANA 名称可让浏览器按所选日期应用正确偏移。", "源时间应为带 Z 或明确偏移的 ISO，并显示本地日期，因为转换可能跨越午夜。"], bullets: ["使用 UTC 或明确偏移。", "显示本地日期。", "发送邀请前人工确认。"] },
+        { heading: "工作日不等于法律期限", paragraphs: ["周一至周五计算不会自动知道国家节假日、半天或公司日历；节假日与端点包含规则必须明确。", "UTC 日期运算可避免夏令时偏差，但法律期限仍需权威来源。"] },
+        { heading: "把决定整理为表格", paragraphs: ["Markdown 表格可分别记录源 ISO、IANA 时区、本地时间与确认状态。", "它不会发送邀请；发布前仍需加入人工确认和日历变更。"] },
+      ] },
+    },
+  },
+);
+
 export const legacyLocalizedGuideSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",
   "json-schema-bild-hash-integritaet-workflow": "json-schema-image-hash-workflow",

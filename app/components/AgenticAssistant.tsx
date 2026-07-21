@@ -17,7 +17,7 @@ import { categories, tools } from "../lib/tools";
 
 type Mode = "plan" | "search" | "error";
 type VoiceState = "idle" | "listening" | "unsupported" | "unavailable" | "denied";
-type AgentTurn = { response: string; tools: string[] };
+type AgentTurn = { goal: string; response: string; tools: string[]; createdAt: number };
 
 type LocalSpeechResult = { results: ArrayLike<{ 0: { transcript: string } }> };
 type LocalSpeechRecognition = {
@@ -38,6 +38,13 @@ type LocalSpeechRecognitionConstructor = {
 
 const languageTags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
 const historyKey = "bytequant:local-agent-conversation:v1";
+
+const memoryCopy = {
+  tr: { title: "Bu sekmedeki konuşma belleği", body: "Son 8 hedef ve seçilen araçlar tutulur; böylece “az önceki sonucu…” gibi devam cümlelerini bağlama oturtabilirim.", clear: "Belleği temizle", empty: "İlk planınızdan sonra konuşma izi burada görünecek.", recent: "Son hedef", follow: "Şimdi ne yapmak istersiniz?", options: ["Az önceki akışı güvenlik açısından kontrol et", "Sonucu paylaşmaya hazır hale getir", "Bu planı daha az adımla sadeleştir"] },
+  en: { title: "Conversation memory in this tab", body: "The last eight goals and selected tools are retained so follow-ups such as “use the result we just made” have context.", clear: "Clear memory", empty: "Your conversation trail appears here after the first plan.", recent: "Latest goal", follow: "What would you like to do next?", options: ["Check the previous flow for privacy risks", "Prepare the result for safe sharing", "Simplify this plan into fewer steps"] },
+  de: { title: "Gesprächsgedächtnis in diesem Tab", body: "Die letzten acht Ziele und gewählten Werkzeuge bleiben erhalten, damit Folgefragen wie „das vorige Ergebnis“ Kontext haben.", clear: "Gedächtnis leeren", empty: "Nach dem ersten Plan erscheint hier der Gesprächsverlauf.", recent: "Letztes Ziel", follow: "Wie möchten Sie fortfahren?", options: ["Vorigen Ablauf auf Datenschutzrisiken prüfen", "Ergebnis zum sicheren Teilen vorbereiten", "Diesen Plan auf weniger Schritte kürzen"] },
+  zh: { title: "当前标签页的对话记忆", body: "保留最近 8 个目标与所选工具，使“继续处理刚才的结果”等后续指令有上下文。", clear: "清除记忆", empty: "生成第一个计划后，这里会显示对话轨迹。", recent: "最近目标", follow: "接下来想做什么？", options: ["检查刚才流程的隐私风险", "把结果整理为可安全分享", "把计划简化为更少步骤"] },
+} as const;
 
 function copy(locale: Locale) {
   return {
@@ -126,7 +133,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
       }
       try {
         const parsed: unknown = JSON.parse(sessionStorage.getItem(historyKey) ?? "[]");
-        if (Array.isArray(parsed)) setTurns(parsed.filter((item): item is AgentTurn => Boolean(item) && typeof item === "object" && typeof (item as AgentTurn).response === "string" && Array.isArray((item as AgentTurn).tools)).slice(-4));
+        if (Array.isArray(parsed)) setTurns(parsed.filter((item): item is AgentTurn => Boolean(item) && typeof item === "object" && typeof (item as AgentTurn).goal === "string" && typeof (item as AgentTurn).response === "string" && Array.isArray((item as AgentTurn).tools) && Number.isFinite((item as AgentTurn).createdAt)).slice(-8));
       } catch { /* conversation memory is optional */ }
     });
     return () => cancelAnimationFrame(frame);
@@ -137,7 +144,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
     setPlanning(true);
     window.setTimeout(() => {
       const nextPlan = createAgentPlan(goal, tools, locale, plan);
-      const nextTurns = [...turns, { response: nextPlan.response, tools: nextPlan.steps.map((step) => step.title) }].slice(-4);
+      const nextTurns = [...turns, { goal: nextPlan.goal, response: nextPlan.response, tools: nextPlan.steps.map((step) => step.title), createdAt: Date.now() }].slice(-8);
       setPlan(nextPlan); setTurns(nextTurns); setPlanning(false);
       try {
         sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify({ plan: nextPlan, currentStep: 0, stepOutputs: {}, completedStepIds: [] }));
@@ -189,6 +196,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
         {(["unsupported", "unavailable", "denied"] as VoiceState[]).includes(voiceState) && <p className="agent-voice-note" role="status">{t.voiceUnavailable}</p>}
         <small>{t.session}</small>
       </section>
+      <section className="agent-memory" aria-labelledby="agent-memory-title"><header><div><span>{turns.length}/8</span><strong id="agent-memory-title">{memoryCopy[locale].title}</strong></div><button type="button" onClick={() => { setTurns([]); try { sessionStorage.removeItem(historyKey); } catch { /* memory is optional */ } }}>{memoryCopy[locale].clear}</button></header><p>{memoryCopy[locale].body}</p>{turns.length ? <details><summary>{memoryCopy[locale].recent}: {turns.at(-1)?.goal}</summary><ol>{turns.map((turn) => <li key={`${turn.createdAt}-${turn.goal}`}><span>{new Date(turn.createdAt).toLocaleTimeString(languageTags[locale], { hour: "2-digit", minute: "2-digit" })}</span><strong>{turn.goal}</strong><small>{turn.tools.join(" → ")}</small></li>)}</ol></details> : <small>{memoryCopy[locale].empty}</small>}</section>
       {plan && <section className="agent-plan" aria-live="polite">
         <div className="agent-conversation"><span className="agent-avatar" aria-hidden="true">BQ</span><div><small>{t.answer}</small><p>{plan.response}</p><button type="button" onClick={speakPlan}>{speaking ? t.stop : t.speak}</button></div></div>
         <div className="agent-plan-summary"><span>{t.confidence}<strong>{Math.round(plan.confidence * 100)}%</strong></span><span>{plan.steps.length}<strong>{locale === "zh" ? "个步骤" : locale === "de" ? " Schritte" : locale === "tr" ? " adım" : " steps"}</strong></span><span>0<strong>{locale === "zh" ? " 次网络请求" : locale === "de" ? " Netzaufrufe" : locale === "tr" ? " ağ isteği" : " network calls"}</strong></span></div>
@@ -197,6 +205,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
         <ol className="agent-step-list">{plan.steps.map((step, index) => <li key={step.id}><span className="agent-step-number">{String(index + 1).padStart(2, "0")}</span><div><div className="agent-step-title"><strong>{step.title}</strong><small>{step.requiresFile ? t.file : step.inputMode === "previous" ? t.previous : t.goalInput}</small></div><p>{step.reason}</p>{step.parameterHints.length > 0 && <div className="agent-hints">{step.parameterHints.map((hint) => <span key={hint}>{hint}</span>)}</div>}</div><Link href={toolPath(locale, step.toolSlug)} onClick={() => { try { const existing = readAgentSession(sessionStorage.getItem(AGENT_SESSION_KEY)); sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify(existing?.plan.goal === plan.goal ? { ...existing, currentStep: index } : { plan, currentStep: index, stepOutputs: {}, completedStepIds: [] })); } catch { /* continue without bridge */ } }}>{index === 0 ? t.start : t.continue} →</Link></li>)}</ol>
         <details className="agent-reasoning" open><summary>{t.transparency}<span>+</span></summary><div><h3>{t.signals}</h3><ul>{plan.signals.map((item) => <li key={item}>{item}</li>)}</ul>{plan.extracted.length > 0 && <><h3>{t.extracted}</h3><dl>{plan.extracted.map((item, index) => <div key={`${item.kind}-${index}`}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl></>}<h3>{t.limits}</h3><ul>{plan.limitations.map((item) => <li key={item}>{item}</li>)}</ul></div></details>
         {plan.alternativeSlugs.length > 0 && <div className="agent-alternatives"><strong>{t.alternatives}</strong>{plan.alternativeSlugs.map((slug) => { const tool = tools.find((item) => item.slug === slug); return tool ? <Link key={slug} href={toolPath(locale, slug)}>{tool.title[locale]} →</Link> : null; })}</div>}
+        <div className="agent-followups"><strong>{memoryCopy[locale].follow}</strong><div>{memoryCopy[locale].options.map((option) => <button type="button" key={option} onClick={() => { setGoal(option); document.querySelector<HTMLTextAreaElement>(".agent-input-card textarea")?.focus(); }}>{option}</button>)}</div></div>
       </section>}
     </div>}
 

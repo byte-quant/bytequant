@@ -27,7 +27,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://api.github.com",
+  "connect-src 'self'",
   "media-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

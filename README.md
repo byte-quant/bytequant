@@ -3,23 +3,24 @@
 [![Website](https://img.shields.io/badge/website-bytequant.org-08747c)](https://bytequant.org)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
+[![Build and deploy](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/license-MIT-3657ff)](LICENSE)
 
-ByteQuant is a privacy-first, installable web application containing 89 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
+ByteQuant is a privacy-first, installable web application containing 104 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
 
 **Live site:** [bytequant.org](https://bytequant.org)
 
 ## Product at a glance
 
-- 89 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
+- 104 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 42 long-form editorial guides in Turkish and English, including 14 editorially localized German and Simplified Chinese workflow editions
+- 46 long-form editorial guides in Turkish and English, including 21 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
 - Explainable Local Agent with multilingual semantic search, short same-tab conversation memory, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, and one-click Workstation handoff
-- Lazy-loaded visual Workstation across all 89 tools, with full-catalog filters, five starter flows, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Lazy-loaded visual Workstation across all 104 tools, with full-catalog filters, nine starter flows, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- API-less community draft pre-check and GitHub Discussions publishing flow; optional GitHub activity is fetched only after the user clicks
+- Account-free community draft links with local safety pre-checks, Markdown export, native sharing, and an optional GitHub Discussions publishing route
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -55,7 +56,7 @@ Next.js App Router (static export)
 ├─ Shared typed tool catalogue and localized metadata
 ├─ Local Agent orchestration
 │  ├─ multilingual semantic scorer + versioned plan recipes
-│  ├─ tab-scoped session bridge across all 89 tools
+│  ├─ tab-scoped session bridge across all 104 tools
 │  └─ no remote model, remote speech fallback, or hidden chain-of-thought
 ├─ Visual Workstation (route-level lazy bundle)
 │  ├─ native HTML/SVG nodes + explicit tool bridge

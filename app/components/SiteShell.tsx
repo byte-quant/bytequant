@@ -41,7 +41,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <Link className="nav-library-link" href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
             <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
             <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
-            <details className="nav-more-menu"><summary>{localized("Keşfet", "Explore", "Entdecken", "探索")}<span aria-hidden="true">⌄</span></summary><div><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={pathFor(locale, "community")}>{localized("Topluluk", "Community", "Community", "社区")}</Link><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div></details>
+            <details className="nav-more-menu"><summary>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={pathFor(locale, "community")}>{localized("Topluluk", "Community", "Community", "社区")}</Link><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div></details>
           </nav>
           <div className="header-actions">
             <CommandPalette locale={locale} />

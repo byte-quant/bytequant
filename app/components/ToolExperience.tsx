@@ -130,7 +130,7 @@ export function ToolExperience({ slug, locale, related, compare }: { slug: strin
   return <>
     <section className="tool-experience-bar" aria-label={t.status}>
       <div className={`tool-operation-state state-${state}`} role="status" aria-live="polite"><i /><span>{t.status}</span><strong>{stateLabel}</strong></div>
-      <div className="tool-version-badges"><span>✓ {t.local}</span><time dateTime="2026-07-21">{t.updated}</time></div>
+      <div className="tool-version-badges"><span>✓ {t.local}</span><time dateTime="2026-07-22">{{ tr: "Son güncelleme: 22 Temmuz 2026", en: "Last updated: July 22, 2026", de: "Zuletzt aktualisiert: 22. Juli 2026", zh: "最后更新：2026 年 7 月 22 日" }[locale]}</time></div>
       <button type="button" className={favorite ? "favorite-button active" : "favorite-button"} aria-pressed={favorite} onClick={toggleFavorite}><span aria-hidden="true">{favorite ? "★" : "☆"}</span>{favorite ? t.unfavorite : t.favorite}</button>
     </section>
     {notice && <p className="tool-experience-notice" role="status">{notice}</p>}

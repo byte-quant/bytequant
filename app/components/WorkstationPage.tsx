@@ -3,6 +3,7 @@ import { absoluteUrl, languageTag, organizationId, pathFor, siteUrl, websiteId, 
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { WorkstationLoader } from "./WorkstationLoader";
+import { tools } from "../lib/tools";
 
 const content = {
   tr: {
@@ -48,7 +49,8 @@ const content = {
 } as const;
 
 export function WorkstationPage({ locale, importer = false }: { locale: Locale; importer?: boolean }) {
-  const c = content[locale];
+  const raw = content[locale];
+  const c = { ...raw, title: raw.title.replace("89", String(tools.length)), cards: raw.cards.map((card) => [card[0], card[1], card[2].replace("89", String(tools.length))] as const) };
   const pagePath = importer ? "/workspace" : pathFor(locale, "workstation");
   const pageUrl = absoluteUrl(pagePath);
   const schema = importer ? [] : [

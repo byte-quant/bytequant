@@ -11,13 +11,13 @@ test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /89 açıklanabilir araç/);
+  assert.match(home, /104 açıklanabilir araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(german, /<html lang="de"/);
   assert.match(chinese, /<html lang="zh-CN"/);
-  assert.match(german, /89 nachvollziehbare Werkzeuge/);
-  assert.match(chinese, /89 个可解释工具/);
+  assert.match(german, /104 nachvollziehbare Werkzeuge/);
+  assert.match(chinese, /104 个可解释工具/);
   assert.match(home, /En Çok Kullanılan Araçlar/);
   assert.match(english, /Most Used Tools/);
   assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
@@ -54,6 +54,10 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /araclar\/prompt-test-vaka-matrisi/);
   assert.match(sitemap, /en\/tools\/data-uri-donusturucu/);
   assert.match(sitemap, /de\/tools\/http-guvenlik-basliklari-denetleyici/);
+  assert.match(sitemap, /araclar\/json-lines-donusturucu/);
+  assert.match(sitemap, /en\/tools\/openapi-endpoint-envanteri/);
+  assert.match(sitemap, /de\/tools\/renk-kontrast-denetleyici/);
+  assert.match(sitemap, /zh\/tools\/semver-karsilastirici/);
   assert.match(sitemap, /referanslar\/regex-cheat-sheet/);
   assert.match(sitemap, /en\/references\/cron-cheat-sheet/);
   assert.match(sitemap, /blog\/nextjs-hreflang-canonical-global-seo-rehberi/);
@@ -79,6 +83,9 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /https:\/\/bytequant\.org\/en\/community\//);
   assert.match(sitemap, /de\/blog\/private-agent-workstation-pipeline/);
   assert.match(sitemap, /zh\/blog\/core-web-vitals-client-side-tools/);
+  assert.match(sitemap, /en\/blog\/ndjson-openapi-semver-api-delivery/);
+  assert.match(sitemap, /de\/blog\/accessible-responsive-ui-contrast-clamp-ratio/);
+  assert.match(sitemap, /zh\/blog\/global-team-planning-time-zones-business-days/);
   assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/workspace\//);
   assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
   assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
@@ -91,7 +98,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 89);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 104);
   assert.match(home, /aria-label="Araç ve referans ara"/);
   assert.match(german, /aria-label="Werkzeuge und Referenzen durchsuchen"/);
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
@@ -135,10 +142,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 89);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 89);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 89);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 89);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 104);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 104);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 104);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 104);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -200,7 +207,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-transparency/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /Son güncelleme: 21 Temmuz 2026/);
+  assert.match(page, /Son güncelleme: 22 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
 });
@@ -381,6 +388,54 @@ test("exports 27 high-demand tools in every category and four localized deep gui
   }
 });
 
+test("exports the 15 discovery tools and four new guides in every locale", async () => {
+  const slugs = [
+    "json-lines-donusturucu", "json-pointer-gezgini", "sql-bicimlendirici-analizoru",
+    "openapi-endpoint-envanteri", "env-dosyasi-denetleyici", "unix-izin-hesaplayici",
+    "renk-kontrast-denetleyici", "en-boy-orani-hesaplayici", "css-clamp-olusturucu",
+    "is-gunu-hesaplayici", "zaman-dilimi-toplanti-planlayici", "bahsis-hesap-bolusturucu",
+    "regex-degistirme-laboratuvari", "markdown-tablo-olusturucu", "semver-karsilastirici",
+  ];
+  const localeRoots = ["araclar", "en/tools", "de/tools", "zh/tools"];
+  const pages = await Promise.all(localeRoots.flatMap((localeRoot) => slugs.map((slug) => read(`${localeRoot}/${slug}/index.html`))));
+  for (const page of pages) {
+    assert.match(page, /WebApplication/);
+    assert.match(page, /HowTo/);
+    assert.match(page, /FAQPage/);
+    assert.match(page, /dateModified[^<]*2026-07-22/);
+  }
+
+  const guideSlugs = [
+    "ndjson-openapi-semver-api-delivery",
+    "accessible-responsive-ui-contrast-clamp-ratio",
+    "local-config-security-env-sql-unix-permissions",
+    "global-team-planning-time-zones-business-days",
+  ];
+  const guideRoots = ["blog", "en/blog", "de/blog", "zh/blog"];
+  const guides = await Promise.all(guideRoots.flatMap((localeRoot) => guideSlugs.map((slug) => read(`${localeRoot}/${slug}/index.html`))));
+  for (const guide of guides) {
+    assert.match(guide, /BlogPosting/);
+    assert.match(guide, /hrefLang="tr-TR"/);
+    assert.match(guide, /hrefLang="en-US"/);
+    assert.match(guide, /hrefLang="de-DE"/);
+    assert.match(guide, /hrefLang="zh-CN"/);
+  }
+});
+
+test("exports instant search, live demo, and no-account community sharing", async () => {
+  const [home, englishHome, community, englishCommunity] = await Promise.all([
+    read("index.html"), read("en/index.html"), read("topluluk/index.html"), read("en/community/index.html"),
+  ]);
+  assert.match(home, /JSON, PDF, KVKK, regex/);
+  assert.match(englishHome, /JSON, PDF, privacy, regex/);
+  assert.match(home, /30 SAN/);
+  assert.match(englishHome, /30-SECOND LIVE DEMO/);
+  assert.match(community, /HESAPSIZ/);
+  assert.match(englishCommunity, /NO-ACCOUNT/);
+  assert.match(community, /FAQPage|HowTo/);
+  assert.doesNotMatch(community, /api\.github\.com/);
+});
+
 test("keeps legacy mixed-language guide slugs as noindex canonical aliases", async () => {
   const aliases = await Promise.all([
     read("de/blog/lokale-produktivitaet-prompt-text-datum-workflow/index.html"),
@@ -456,8 +511,8 @@ test("exports the bilingual editorial discovery and structured-data package", as
     read("feed.xml"),
     read("en/feed.xml"),
   ]);
-  assert.match(blog, /<strong>42<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>42<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>46<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>46<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -498,7 +553,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 1\.1/);
+    assert.match(page, /BQ-Agent 1\.2/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -512,8 +567,9 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(headers, /frame-ancestors 'none'/);
   assert.match(headers, /Strict-Transport-Security:/);
   assert.match(headers, /on-device-speech-recognition=\(self\)/);
-  assert.match(headers, /connect-src 'self' https:\/\/api\.github\.com/);
-  assert.match(await readSource("worker/index.ts"), /connect-src 'self' https:\/\/api\.github\.com/);
+  assert.match(headers, /connect-src 'self'/);
+  assert.doesNotMatch(headers, /api\.github\.com/);
+  assert.doesNotMatch(await readSource("worker/index.ts"), /api\.github\.com/);
   assert.match(turkish, /bytequant:canonical-origin/);
   assert.match(turkish, /bq-org-agent-v1-20260718/);
   assert.match(guide, /Tarayıcı İçi Agentic AI/);
@@ -532,10 +588,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /89 tarayıcı aracını görsel bir geliştirme ortamında/);
-  assert.match(english, /Connect 89 browser tools inside a visual development environment/);
-  assert.match(german, /89 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung/);
-  assert.match(chinese, /在可视化开发环境中连接 89 个浏览器工具/);
+  assert.match(turkish, /104 tarayıcı aracını görsel bir geliştirme ortamında/);
+  assert.match(english, /Connect 104 browser tools inside a visual development environment/);
+  assert.match(german, /104 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung/);
+  assert.match(chinese, /在可视化开发环境中连接 104 个浏览器工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);

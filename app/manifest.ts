@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "ByteQuant · Privacy-First Browser Tools",
     short_name: "ByteQuant",
-    description: "89 privacy-first tools, an explainable local agent, and a visual workstation with encrypted on-device projects and serverless P2P.",
+    description: "104 privacy-first tools, an explainable local agent, and a visual workstation with encrypted on-device projects and serverless P2P.",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",

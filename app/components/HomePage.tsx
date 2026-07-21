@@ -10,6 +10,8 @@ import { FavoriteTools, PopularTools } from "./ToolUsage";
 import { PwaInstall } from "./PwaInstall";
 import { GitHubActivity } from "./GitHubActivity";
 import { localizedGuides } from "../lib/localized-guides";
+import { HeroToolSearch } from "./HeroToolSearch";
+import { InteractiveDemo } from "./InteractiveDemo";
 
 const faqs = {
   tr: [
@@ -75,6 +77,7 @@ export function HomePage({ locale }: { locale: Locale }) {
             <span className="eyebrow"><i />{localized("Gizlilik, bir ayar değil; mimari karar", "Privacy is an architecture decision, not a setting", "Datenschutz ist eine Architekturentscheidung, keine Einstellung", "隐私是一项架构决策，而不是一个设置")}</span>
             <h1>{localized("Hassas verileriniz tarayıcıdan çıkmadan işlerinizi tamamlayın.", "Get work done without sensitive data leaving your browser.", "Erledigen Sie Aufgaben, ohne sensible Daten aus dem Browser zu senden.", "无需让敏感数据离开浏览器，即可完成工作。")}</h1>
             <p>{localized(`Promptları iyileştirin, metinleri analiz edin, veriyi dönüştürün ve kişisel bilgileri koruyun. ${tools.length} açıklanabilir araç; üyelik, sunucuya yükleme ve uzak API olmadan çalışır.`, `Improve prompts, analyze text, transform data, and protect personal information. ${tools.length} explainable tools work without accounts, server uploads, or remote APIs.`, `Verbessern Sie Prompts, analysieren Sie Texte, konvertieren Sie Daten und schützen Sie persönliche Informationen. ${tools.length} nachvollziehbare Werkzeuge funktionieren ohne Konto, Upload oder Remote-API.`, `优化提示词、分析文本、转换数据并保护个人信息。${tools.length} 个可解释工具无需账户、服务器上传或远程 API。`)}</p>
+            <HeroToolSearch locale={locale} />
             <div className="hero-actions"><Link className="primary-button" href={pathFor(locale, "agent")}>{localized("Yerel Ajanla planla", "Plan with Local Agent", "Mit lokalem Agenten planen", "使用本地助手规划")}<span aria-hidden="true"> →</span></Link><Link className="secondary-button" href={pathFor(locale, "tools")}>{t.allTools}</Link></div>
             <div className="hero-trust"><span>✓ {localized("Üyelik yok", "No account", "Kein Konto", "无需账户")}</span><span>✓ {localized("Sunucuya yükleme yok", "No server upload", "Kein Server-Upload", "无需上传服务器")}</span><span>✓ {localized("Açıklanabilir sonuç", "Explainable output", "Nachvollziehbare Ausgabe", "可解释输出")}</span></div>
           </div>
@@ -127,6 +130,8 @@ export function HomePage({ locale }: { locale: Locale }) {
           <p className="home-platform-boundary"><span aria-hidden="true">ⓘ</span>{localized("Yerel Ajan üretken bir LLM değildir; İş İstasyonu da araçları sizden habersiz çalıştırmaz. Dosya seçimi, yürütme, indirme ve paylaşma açık kullanıcı eylemi gerektirir.", "Local Agent is not a generative LLM, and Workstation never runs tools without you. File selection, execution, download, and sharing require explicit user action.", "Der lokale Agent ist kein generatives LLM; die Workstation führt Werkzeuge nicht selbstständig aus. Dateiauswahl, Ausführung, Download und Freigabe erfordern Ihre Handlung.", "本地助手不是生成式大模型，工作站也不会擅自运行工具。文件选择、执行、下载与分享均需用户明确操作。")}</p>
         </div>
       </section>
+
+      <InteractiveDemo locale={locale} />
 
       <PwaInstall locale={locale} />
       <FavoriteTools locale={locale} />

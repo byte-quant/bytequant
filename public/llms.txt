@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 89 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 104 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
 
 Canonical site: https://bytequant.org/
 
@@ -17,7 +17,7 @@ Languages:
 - Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts plus pinned tool IDs used for local personalization.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
-- Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans, up to four conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
+- Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans, up to eight conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
 - Local Agent never selects files, runs tools, downloads output, or performs a network request without user action. Its decision summary exposes matched signals, extracted parameters, reasons, and limitations—not hidden chain-of-thought.
 - Voice input is offered only when the browser confirms on-device speech recognition and supports forced local processing. There is no fallback to remote recognition.
 - Workstation projects are saved only after explicit use, as AES-GCM-256 ciphertext in the browser's `bytequant-workspaces` IndexedDB database. A non-extractable device key stays in the same database. This is not protection against a compromised device, malicious extension, or hostile same-origin code.
@@ -41,7 +41,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 89 tools.
+- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 104 tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -52,7 +52,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 89 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any of the 104 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
@@ -62,8 +62,8 @@ Languages:
 - English: https://bytequant.org/en/community
 - German: https://bytequant.org/de/community
 - Simplified Chinese: https://bytequant.org/zh/community
-- Drafts are pre-screened in the active tab for obvious secrets, personal-data patterns, abuse, and unsuitable links. ByteQuant stores no community account or post database; publishing moves to GitHub Discussions and is subject to GitHub moderation.
-- The home-page activity card contacts GitHub's public API only after an explicit click and never includes tool input.
+- Drafts are pre-screened in the active tab for obvious secrets, personal-data patterns, abuse, and unsuitable links. Account-free sharing uses a bounded URL payload or downloaded Markdown; ByteQuant stores no community account or post database. GitHub Discussions remains an optional persistent publishing route.
+- The home-page project-health card is static, always visible, and links to the public workflow and commit history without making an API request or sending tool input.
 
 ## Prompt tools
 
@@ -180,6 +180,24 @@ Languages:
 - [URL Güvenlik Ön Kontrolü](https://bytequant.org/araclar/url-guvenlik-on-kontrolu): parses a URL without visiting it and flags embedded credentials, IP hosts, Punycode, redirect parameters, and obfuscation signals.
 - [CSP Oluşturucu ve Denetleyici](https://bytequant.org/araclar/csp-olusturucu-denetleyici): generates a secure starter and audits bounded Content-Security-Policy risks locally.
 - [HTTP Güvenlik Başlıkları Denetleyici](https://bytequant.org/araclar/http-guvenlik-basliklari-denetleyici): audits pasted response headers without contacting the target server.
+
+## Specialized data, web, and everyday utilities
+
+- [JSON Lines / NDJSON Converter](https://bytequant.org/araclar/json-lines-donusturucu): validates each record independently and converts bounded JSON arrays to or from NDJSON.
+- [JSON Pointer Navigator](https://bytequant.org/araclar/json-pointer-gezgini): resolves RFC 6901 pointer paths against pasted JSON and distinguishes missing paths from null values.
+- [SQL Formatter and Risk Analyzer](https://bytequant.org/araclar/sql-bicimlendirici-analizoru): formats common SQL clauses and flags review-worthy destructive or unbounded statements without executing them.
+- [OpenAPI Endpoint Inventory](https://bytequant.org/araclar/openapi-endpoint-envanteri): extracts methods, paths, operation IDs, tags, and response coverage from a local OpenAPI JSON document.
+- [.env File Security Auditor](https://bytequant.org/araclar/env-dosyasi-denetleyici): inventories variable names while masking values and flagging duplicate or sensitive assignments.
+- [Unix Permission Calculator](https://bytequant.org/araclar/unix-izin-hesaplayici): converts numeric chmod values and symbolic rwx permissions with special-bit visibility.
+- [Color Contrast Checker](https://bytequant.org/araclar/renk-kontrast-denetleyici): calculates WCAG contrast ratios and reports AA/AAA text thresholds locally.
+- [Aspect Ratio Calculator](https://bytequant.org/araclar/en-boy-orani-hesaplayici): simplifies aspect ratios and calculates proportional target dimensions without uploading an image.
+- [CSS clamp() Generator](https://bytequant.org/araclar/css-clamp-olusturucu): creates a reviewable fluid CSS value from bounded viewport and size inputs.
+- [Business Day Calculator](https://bytequant.org/araclar/is-gunu-hesaplayici): counts weekdays between UTC calendar dates with user-supplied holiday dates.
+- [Time Zone Meeting Planner](https://bytequant.org/araclar/zaman-dilimi-toplanti-planlayici): compares IANA time zones using browser data and avoids hard-coded UTC offsets.
+- [Tip and Bill Splitter](https://bytequant.org/araclar/bahsis-hesap-bolusturucu): calculates bill, tip, per-person total, and transparent rounding differences.
+- [Regex Replacement Lab](https://bytequant.org/araclar/regex-degistirme-laboratuvari): previews bounded regular-expression replacements with unsafe-pattern guards and never executes code.
+- [Markdown Table Generator](https://bytequant.org/araclar/markdown-tablo-olusturucu): converts delimited text to an escaped, alignment-aware Markdown table.
+- [SemVer Comparator](https://bytequant.org/araclar/semver-karsilastirici): validates and compares Semantic Versioning values including prerelease precedence.
 
 Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/tools/{slug}`, and `/zh/tools/{slug}`.
 
