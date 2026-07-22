@@ -16,11 +16,11 @@ ByteQuant is a privacy-first, installable web application containing 131 browser
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
 - 50 long-form editorial guides in Turkish and English, including 22 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent with multilingual semantic search, short same-tab conversation memory, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, and one-click Workstation handoff
-- Lazy-loaded visual Workstation across all 131 tools, with full-catalog filters, nine starter flows, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Explainable Local Agent 1.4 with outcome-first starters, multilingual semantic search, 12-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, and one-click Workstation handoff
+- Lazy-loaded visual Workstation across all 131 tools, with described starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- Account-free community draft links with local safety pre-checks, Markdown export, native sharing, and an optional GitHub Discussions publishing route
+- Account-free, tab-local community feed with honest local likes/comments, discovery filters, safety pre-checks, share links, Markdown export, native sharing, and an optional GitHub Discussions publishing route
 - Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -91,6 +91,7 @@ Run the complete quality gate:
 pnpm lint
 pnpm build
 pnpm test
+pnpm audit:adsense
 ~~~
 
 The deployable static site is written to out/.
@@ -130,6 +131,8 @@ The site contains reserved advertising layout areas but no active AdSense publis
 2. update privacy and storage disclosures before loading the vendor;
 3. keep all tool input isolated from advertising code;
 4. rerun mobile, accessibility, performance, policy, and consent checks.
+
+The audited placement inventory and external activation gates are documented in [docs/ADSENSE_APPROVAL_CHECKLIST.md](docs/ADSENSE_APPROVAL_CHECKLIST.md).
 
 SEO, AEO, GEO, and AdSense readiness are quality practices—not ranking, citation, indexing, or approval guarantees.
 

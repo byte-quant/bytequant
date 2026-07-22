@@ -49,6 +49,9 @@ test("local agent builds explicit workflows without executing tools", () => {
   assert.equal(plan.version, AGENT_VERSION);
   assert.deepEqual(plan.steps.map((step) => step.toolSlug), ["csv-inceleyici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"]);
   assert.ok(plan.confidence >= 0.35 && plan.confidence <= 0.94);
+  assert.equal(plan.matchQuality, "strong");
+  assert.equal(plan.clarifyingQuestions.length, 0);
+  assert.equal(plan.nextActions.length, 3);
   assert.ok(plan.limitations.some((value) => value.includes("büyük dil modeli")));
   const privacyDelivery = createAgentPlan("JSON verisini doğrula, hassas alanları maskele ve CSV olarak hazırla", catalog, "tr");
   assert.deepEqual(privacyDelivery.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "kvkk-veri-maskeleyici", "json-csv-donusturucu"]);
@@ -57,6 +60,11 @@ test("local agent builds explicit workflows without executing tools", () => {
   const numbered = createAgentPlan("1. validate and format JSON\n2. compare JSON structure", catalog, "en");
   assert.equal(numbered.steps.length, 2);
   assert.deepEqual(numbered.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "json-diff-karsilastirma"]);
+
+  const uncertain = createAgentPlan("help me with this unusual thing", catalog, "en");
+  assert.equal(uncertain.matchQuality, "review");
+  assert.equal(uncertain.clarifyingQuestions.length, 3);
+  assert.match(uncertain.response, /not clear enough/i);
 });
 
 test("agent session parser rejects untrusted or oversized bridge data", () => {

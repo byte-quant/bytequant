@@ -102,7 +102,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
                 <h2>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 {section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
-                {index === 1 && <AdSlot locale={locale} format="rectangle" />}
+                {index === 1 && <AdSlot locale={locale} placement="guide-in-article" format="rectangle" />}
               </section>
             ))}
 

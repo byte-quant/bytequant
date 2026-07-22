@@ -27,6 +27,9 @@ export type AgentPlan = {
   limitations: string[];
   response: string;
   alternativeSlugs: string[];
+  matchQuality: "strong" | "review";
+  clarifyingQuestions: string[];
+  nextActions: string[];
 };
 
 export type AgentSession = {
@@ -227,10 +230,12 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     selected = segments.map((segment) => semanticToolSearch(segment, catalog, locale, 1)[0]?.tool).filter((tool): tool is Tool => Boolean(tool));
     signals.push(local(locale, { tr: "Açık çok adımlı sıra algılandı", en: "Explicit multi-step sequence detected", de: "Explizite Schrittfolge erkannt", zh: "检测到明确的多步骤顺序" }));
   }
+  let matchedWorkflow = selected.length > 1;
   if (!selected.length) {
     const recipe = recipes.find((item) => item.test.every((pattern) => pattern.test(normalizedGoal)));
     if (recipe) {
       selected = recipe.steps.map((slug) => catalog.find((tool) => tool.slug === slug)).filter((tool): tool is Tool => Boolean(tool));
+      matchedWorkflow = selected.length > 0;
       signals.push(recipe.signal[locale]);
     }
   }
@@ -253,12 +258,20 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
   const manualSteps = steps.filter((step) => step.requiresFile).length;
   if (manualSteps) signals.push(local(locale, { tr: `${manualSteps} adım dosya seçimi için açık kullanıcı eylemi istiyor`, en: `${manualSteps} steps require explicit user file selection`, de: `${manualSteps} Schritte erfordern eine ausdrückliche Dateiauswahl`, zh: `${manualSteps} 个步骤需要用户明确选择文件` }));
   const topScore = ranked[0]?.score ?? 0; const runnerUp = ranked[1]?.score ?? 0;
-  const confidence = Math.max(.35, Math.min(.94, .52 + Math.min(.28, topScore / 80) + Math.min(.14, Math.max(0, topScore - runnerUp) / 50)));
+  const needsClarification = !matchedWorkflow && topScore < 18;
+  const confidence = Math.max(.35, Math.min(.94, .52 + Math.min(.28, topScore / 80) + Math.min(.14, Math.max(0, topScore - runnerUp) / 50) - (needsClarification ? .12 : 0)));
   const alternativeSlugs = ranked.map((item) => item.tool.slug).filter((slug) => !selected.some((tool) => tool.slug === slug)).slice(0, 3);
   const first = selected[0]?.title[locale] ?? local(locale, { tr: "araç araması", en: "tool search", de: "Werkzeugsuche", zh: "工具搜索" });
   const last = selected.at(-1)?.title[locale] ?? first;
   const previousLast = previousPlan?.steps.at(-1)?.title;
-  const response = previousLast
+  const response = needsClarification
+    ? local(locale, {
+      tr: `Size yardımcı olabilirim; ancak hedefte giriş veya beklenen çıktı biçimi henüz net değil. En yakın başlangıç olarak ${first} aracını buldum. Aşağıdaki kısa sorulardan birini yanıtladığınızda daha güvenilir bir akış kuracağım.`,
+      en: `I can help, but the input or desired output is not clear enough yet. ${first} is the closest starting point I found. Answer one of the short questions below and I will build a more reliable workflow.`,
+      de: `Ich kann helfen, aber Eingabe oder gewünschte Ausgabe sind noch nicht eindeutig. ${first} ist der passendste Einstieg. Beantworten Sie eine der kurzen Fragen unten, dann erstelle ich einen verlässlicheren Ablauf.`,
+      zh: `我可以帮忙，但输入或期望输出还不够明确。目前最接近的起点是${first}。回答下面任一简短问题后，我会生成更可靠的流程。`,
+    })
+    : previousLast
     ? local(locale, {
       tr: `Az önceki akış ${previousLast} ile bitiyordu. Şimdiki hedef için ${first} ile başlayıp ${selected.length > 1 ? `${last} adımına kadar ilerleyen` : "tek adımlı"} daha uygun bir yol kurdum. Her adımı çalıştırmadan önce siz onaylayacaksınız.`,
       en: `The previous flow ended with ${previousLast}. For this goal, I built a better-fitting path that starts with ${first}${selected.length > 1 ? ` and progresses to ${last}` : ""}. You remain in control before every step runs.`,
@@ -271,8 +284,19 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       de: `Ich empfehle, mit ${first} zu beginnen${selected.length > 1 ? ` und kontrolliert bis ${last} weiterzugehen` : ""}. Die Auswahl folgt dem stärksten Treffer für Format- und Datenschutzsignale.`,
       zh: `建议先使用${first}${selected.length > 1 ? `，再按顺序推进到${last}` : ""}。该选择基于目标中的格式与隐私信号的最强匹配。`,
     });
+  const clarifyingQuestions = needsClarification ? [
+    local(locale, { tr: "Hangi biçimde veriyle başlayacağız?", en: "What input format are we starting with?", de: "Mit welchem Eingabeformat beginnen wir?", zh: "输入数据是什么格式？" }),
+    local(locale, { tr: "Sonuç hangi biçimde ve ne amaçla kullanılacak?", en: "What output format and use do you need?", de: "Welches Ausgabeformat und welchen Zweck benötigen Sie?", zh: "需要什么输出格式，用于什么目的？" }),
+    local(locale, { tr: "Veri kişisel, gizli veya güvenlik açısından hassas mı?", en: "Is the data personal, confidential, or security-sensitive?", de: "Sind die Daten personenbezogen, vertraulich oder sicherheitskritisch?", zh: "数据是否包含个人、机密或安全敏感内容？" }),
+  ] : [];
+  const nextActions = [
+    local(locale, { tr: "Yapay örnekle ilk adımı doğrulayın", en: "Validate the first step with synthetic data", de: "Ersten Schritt mit synthetischen Daten prüfen", zh: "先用合成数据验证第一步" }),
+    local(locale, { tr: "Planı gözden geçirip İş İstasyonuna aktarın", en: "Review the plan and send it to Workstation", de: "Plan prüfen und an die Workstation senden", zh: "审核计划并发送到工作站" }),
+    local(locale, { tr: "Yüksek etkili sonucu bağımsız olarak kontrol edin", en: "Independently verify high-impact output", de: "Folgenreiche Ausgaben unabhängig prüfen", zh: "独立核验高影响结果" }),
+  ];
   return {
     version: AGENT_VERSION, locale, goal: cleanGoal, confidence, signals, extracted, steps, response, alternativeSlugs,
+    matchQuality: needsClarification ? "review" : "strong", clarifyingQuestions, nextActions,
     limitations: [
       local(locale, { tr: "Bu plan büyük dil modeli çıktısı değil; sürümlenmiş semantik puanlar ve açıklanabilir kurallarla üretilir.", en: "This plan is not large-language-model output; it is generated from versioned semantic scores and explainable rules.", de: "Dieser Plan ist keine LLM-Ausgabe, sondern entsteht aus versionierten semantischen Bewertungen und nachvollziehbaren Regeln.", zh: "该计划不是大语言模型输出，而是由版本化语义评分与可解释规则生成。" }),
       local(locale, { tr: "Ajan gizli düşünce zinciri göstermez; yalnızca karar sinyallerini ve seçilen adımları açıklar.", en: "The agent does not expose hidden chain-of-thought; it shows decision signals and selected steps only.", de: "Der Agent zeigt keine verborgene Gedankenkette, sondern nur Entscheidungssignale und gewählte Schritte.", zh: "助手不展示隐藏思维链，只显示决策信号与所选步骤。" }),

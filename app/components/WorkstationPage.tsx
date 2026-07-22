@@ -7,8 +7,8 @@ import { tools } from "../lib/tools";
 
 const content = {
   tr: {
-    eyebrow: "GÖRSEL AKIŞ · ŞİFRELİ PROJELER · SUNUCUSUZ P2P", title: "89 tarayıcı aracını görsel bir geliştirme ortamında birbirine bağlayın",
-    intro: "ByteQuant İş İstasyonu; araçları düğüm olarak düzenler, çıktıyı bağlı girdiye taşır, projeleri cihazınızda AES-GCM ile şifreler ve tarifleri veritabanı olmadan paylaşır.",
+    eyebrow: "GÖRSEL AKIŞ · CİHAZINIZDA PROJELER · İSTEĞE BAĞLI P2P", title: "131 aracı, takip etmesi kolay bir görsel akışta birbirine bağlayın",
+    intro: "Hazır bir akış seçin veya hedefinizi yazın. İş İstasyonu adımları görsel olarak düzenler, kaldığınız yeri bu cihazda saklar ve her aracı ne zaman çalıştıracağınıza karar vermenizi sağlar.",
     cta: "İş istasyonunu aç", badges: ["İlk yükte ağır canvas kodu yok", "IndexedDB + Web Crypto", "WebRTC DataChannel"],
     sectionTitle: "İlk akışınızı beş kontrollü adımda kurun", sectionIntro: "Araçların çekirdek davranışları aynen korunur. İş İstasyonu keşif, düzenleme, veri aktarımı ve yerel kalıcılığı koordine eder; her araç çalıştırma adımı yine kullanıcı eylemi ister.",
     guideNote: "Hızlı başlangıç: Hazır bir akış seçebilir veya Yerel Ajana hedefinizi yazabilirsiniz. Plan tuvale eklenmeden önce adımları ve seçim gerekçelerini görürsünüz.", guideAction: "Doğrudan çalışma alanına geç",
@@ -17,8 +17,8 @@ const content = {
     faq: [["React Flow veya başka bir kütüphane kullanılıyor mu?", "Hayır. Canvas, hafif HTML/SVG ve Pointer Events ile çalışır; yeni üçüncü taraf bağımlılık eklenmez."], ["P2P güvenlik kodu kimlik doğrulaması mı?", "Hayır. Kod iki DTLS parmak izinin aynı oturuma ait olduğunu karşılaştırmaya yardım eder; kişinin gerçek kimliğini kanıtlamaz. Kod ayrı kanalda eşleştirilmeden canlı paylaşım açılamaz."], ["Projeler buluta yazılıyor mu?", "Hayır. Şifreli proje kayıtları yalnızca tarayıcınızın IndexedDB alanındadır ve bu cihazdan otomatik çıkmaz."], ["Yerel Ajan araçları kendi başına çalıştırır mı?", "Hayır. Ajan plan güvenini ve gerekçesini gösterir; dosya seçme, araç çalıştırma, indirme ve sonuç kabulü kullanıcı eylemi gerektirir."]],
   },
   en: {
-    eyebrow: "VISUAL FLOWS · ENCRYPTED PROJECTS · SERVERLESS P2P", title: "Connect 89 browser tools inside a visual development environment",
-    intro: "ByteQuant Workstation arranges tools as nodes, passes output to connected input, encrypts projects on-device with AES-GCM, and shares recipes without a database.",
+    eyebrow: "VISUAL FLOWS · ON-DEVICE PROJECTS · OPTIONAL P2P", title: "Connect 131 tools in a visual workflow that stays easy to follow",
+    intro: "Choose a ready-made flow or describe the outcome. Workstation arranges the steps visually, keeps your place on this device, and lets you decide when every tool runs.",
     cta: "Open the workstation", badges: ["No heavy canvas code on first load", "IndexedDB + Web Crypto", "WebRTC DataChannel"],
     sectionTitle: "Build your first workflow in five controlled steps", sectionIntro: "Core tool behavior remains unchanged. Workstation coordinates discovery, layout, handoff, and local persistence; every tool run still requires user action.",
     guideNote: "Quick start: choose a starter flow or describe the outcome to Local Agent. You see every step and selection reason before a plan reaches the canvas.", guideAction: "Jump to the workspace",
@@ -27,8 +27,8 @@ const content = {
     faq: [["Does this use React Flow or another library?", "No. The canvas uses lightweight HTML/SVG and Pointer Events, adding no third-party dependency."], ["Is the P2P safety code identity verification?", "No. It helps compare that both DTLS fingerprints belong to the same session; it does not prove a person's identity. Live sharing stays locked until the code is compared through another channel."], ["Do projects go to the cloud?", "No. Encrypted records stay only in this browser's IndexedDB and never leave automatically."], ["Can Local Agent run tools autonomously?", "No. It shows plan confidence and selection reasons; file selection, execution, downloads, and result acceptance require user action."]],
   },
   de: {
-    eyebrow: "VISUELLE ABLÄUFE · VERSCHLÜSSELTE PROJEKTE · SERVERLOSES P2P", title: "89 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung verbinden",
-    intro: "ByteQuant Workstation ordnet Werkzeuge als Knoten an, übergibt Ausgaben an verbundene Eingaben, verschlüsselt Projekte lokal mit AES-GCM und teilt Rezepte ohne Datenbank.",
+    eyebrow: "VISUELLE ABLÄUFE · LOKALE PROJEKTE · OPTIONALES P2P", title: "131 Werkzeuge in einem übersichtlichen visuellen Ablauf verbinden",
+    intro: "Wählen Sie einen fertigen Ablauf oder beschreiben Sie das Ziel. Die Workstation ordnet Schritte visuell, merkt den Stand auf diesem Gerät und lässt jeden Werkzeugstart unter Ihrer Kontrolle.",
     cta: "Workstation öffnen", badges: ["Kein schwerer Canvas-Code beim Erstaufruf", "IndexedDB + Web Crypto", "WebRTC DataChannel"],
     sectionTitle: "Den ersten Ablauf in fünf kontrollierten Schritten erstellen", sectionIntro: "Die Kernfunktionen bleiben unverändert. Die Workstation koordiniert Suche, Anordnung, Übergabe und lokale Speicherung; jeder Werkzeugstart erfordert weiterhin eine Nutzeraktion.",
     guideNote: "Schnellstart: Startablauf wählen oder dem lokalen Agenten das Ziel beschreiben. Schritte und Auswahlgründe sind sichtbar, bevor ein Plan auf die Fläche gelangt.", guideAction: "Direkt zum Arbeitsbereich",
@@ -37,8 +37,8 @@ const content = {
     faq: [["Wird React Flow verwendet?", "Nein. Die Oberfläche nutzt leichtes HTML/SVG und Pointer Events ohne neue Drittanbieterabhängigkeit."], ["Ist der P2P-Sicherheitscode eine Identitätsprüfung?", "Nein. Er hilft beim Vergleich beider DTLS-Fingerprints derselben Sitzung, beweist aber keine reale Person. Ohne Vergleich über einen zweiten Kanal bleibt die Freigabe gesperrt."], ["Werden Projekte in die Cloud geschrieben?", "Nein. Verschlüsselte Einträge bleiben ausschließlich im IndexedDB dieses Browsers."], ["Startet der lokale Agent Werkzeuge selbstständig?", "Nein. Er zeigt Konfidenz und Auswahlgründe; Auswahl, Ausführung und Übernahme bleiben Nutzeraktionen."]],
   },
   zh: {
-    eyebrow: "可视化流程 · 加密项目 · 无服务器 P2P", title: "在可视化开发环境中连接 89 个浏览器工具",
-    intro: "ByteQuant 工作站把工具排列为节点，将输出传给相连输入，使用 AES-GCM 在设备上加密项目，并在无数据库的情况下分享配方。",
+    eyebrow: "可视化流程 · 设备端项目 · 可选 P2P", title: "在清晰易懂的可视化流程中连接 131 个工具",
+    intro: "选择现成流程或描述目标。工作站会可视化排列步骤、在本设备保存进度，并由您决定每个工具何时运行。",
     cta: "打开工作站", badges: ["首屏不加载重型画布代码", "IndexedDB + Web Crypto", "WebRTC DataChannel"],
     sectionTitle: "通过五个可控步骤建立首个流程", sectionIntro: "工具核心行为保持不变。工作站只协调发现、布局、交接和本地持久化；每次运行仍需用户操作。",
     guideNote: "快速开始：选择起始流程，或向本地助手描述目标。计划进入画布之前，您会看到每一步与选择依据。", guideAction: "直接进入工作区",

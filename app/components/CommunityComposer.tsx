@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import type { Locale } from "../lib/site";
+import { reviewCommunityText } from "../lib/community-safety";
 
 type CommunityKind = "workflow" | "tip" | "idea" | "question";
 type ShareDraft = { version: 1; kind: CommunityKind; title: string; body: string; recipe: string };
+export const communityPublishEvent = "bytequant:community-publish";
 
 const copy = {
   tr: { kind: "Paylaşım türü", kinds: { workflow: "İş akışı tarifi", tip: "Araç ipucu", idea: "Yeni özellik fikri", question: "Yöntem sorusu" }, title: "Kısa ve açıklayıcı başlık", body: "Bağlamı, denediğiniz adımları ve beklenen sonucu yazın. Gerçek kişisel veri, parola veya anahtar eklemeyin.", recipe: "İsteğe bağlı ByteQuant tarif bağlantısı", check: "Paylaşımı cihazda kontrol et", safe: "Taslak güvenli paylaşım için hazır", blocked: "Paylaşmadan önce taslağı düzeltin", copy: "Markdown'ı kopyala", copied: "Kopyalandı", link: "Hesapsız paylaşım bağlantısı", linked: "Bağlantı kopyalandı", share: "Cihazla paylaş", download: ".md indir", import: "Bağlantıdaki taslağı aç", imported: "Paylaşılan taslak açıldı", noDraft: "Bu bağlantıda geçerli bir taslak bulunamadı.", discuss: "İsteğe bağlı: GitHub'da yayımla", intro: "Metin yalnızca bu sekmede incelenir. Hesap açmadan bağlantı oluşturabilir, dosya indirebilir veya cihazınızın paylaş menüsünü kullanabilirsiniz.", boundary: "Ön kontrol; açık kötüye kullanım dilini, kişisel veri biçimlerini, sırları ve dış bağlantıları yakalamaya çalışır. Kusursuz moderasyon garantisi değildir. Kalıcı herkese açık yayın için GitHub isteğe bağlıdır.", issues: "Kontrol edilmesi gerekenler", empty: "Başlık en az 8, açıklama en az 40 karakter olmalı.", safeRecipe: "Tarif yalnızca bytequant.org/workspace adresinden olabilir.", templates: "Hazır taslakla başla", templateNames: ["KVKK temizleme akışı", "JSON kalite ipucu", "Yeni araç fikri"] },
@@ -36,23 +38,18 @@ const templates = {
   ],
 } as const;
 
-const prohibited = ["fuck", "nigger", "terrorist threat", "öldür", "sikeyim", "piç", "hurensohn", "töten", "去死", "操你"];
 const issueCopy = {
   tr: { abusive: "Hakaret veya tehdit dili", privateKey: "Özel anahtar", credential: "API anahtarı veya erişim belirteci", email: "E-posta adresi", identity: "Telefon veya kimlik numarası", external: "ByteQuant dışı bağlantı" },
   en: { abusive: "Abusive or threatening language", privateKey: "Private key", credential: "API key or access token", email: "Email address", identity: "Phone or identity number", external: "Non-ByteQuant link" },
   de: { abusive: "Beleidigende oder drohende Sprache", privateKey: "Privater Schlüssel", credential: "API-Schlüssel oder Zugriffstoken", email: "E-Mail-Adresse", identity: "Telefon- oder Identitätsnummer", external: "Externer Link außerhalb ByteQuant" },
   zh: { abusive: "侮辱或威胁性语言", privateKey: "私钥", credential: "API 密钥或访问令牌", email: "电子邮件地址", identity: "电话号码或身份号码", external: "非 ByteQuant 链接" },
 } as const;
-const secretPatterns = [
-  { key: "privateKey", pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i },
-  { key: "credential", pattern: /\b(?:api[_ -]?key|secret|token|password)\s*[:=]\s*["']?[A-Za-z0-9_./+=-]{12,}/i },
-  { key: "credential", pattern: /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{20,}\b/i },
-  { key: "credential", pattern: /\b(?:gh[opusr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[A-Z0-9]{16})\b/ },
-  { key: "credential", pattern: /\bBearer\s+[A-Za-z0-9._~+/-]{20,}={0,2}\b/i },
-  { key: "email", pattern: /\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/i },
-  { key: "identity", pattern: /(?<!\d)(?:\+?\d[ .-]?){10,16}(?!\d)/ },
-] as const;
-
+const boardCopy = {
+  tr: { action: "Yerel akışıma ekle", done: "Paylaşım bu sekmedeki topluluk akışına eklendi." },
+  en: { action: "Add to my local feed", done: "Post added to the community feed in this tab." },
+  de: { action: "Zu meinem lokalen Feed", done: "Beitrag wurde dem Community-Feed dieses Tabs hinzugefügt." },
+  zh: { action: "加入我的本地动态", done: "内容已加入当前标签页的社区动态。" },
+} as const;
 function clean(value: string, max: number) { return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").replace(/<[^>]*>/g, "").slice(0, max).trim(); }
 function encodeDraft(draft: ShareDraft) { return btoa(unescape(encodeURIComponent(JSON.stringify(draft)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, ""); }
 function decodeDraft(value: string): ShareDraft | null {
@@ -72,9 +69,7 @@ export function CommunityComposer({ locale }: { locale: Locale }) {
   const issues = useMemo(() => {
     const combined = `${title}\n${body}`.toLocaleLowerCase(); const result: string[] = [];
     if (title.trim().length < 8 || body.trim().length < 40) result.push(t.empty);
-    if (prohibited.some((word) => combined.includes(word))) result.push(issue.abusive);
-    secretPatterns.forEach((item) => { if (item.pattern.test(combined)) result.push(issue[item.key]); });
-    const urls = combined.match(/https?:\/\/[^\s)]+/g) ?? []; if (urls.some((url) => !/^https:\/\/(?:www\.)?bytequant\.org\//i.test(url))) result.push(issue.external);
+    reviewCommunityText(combined).forEach((key) => result.push(issue[key]));
     if (recipe.trim() && !/^https:\/\/(?:www\.)?bytequant\.org\/workspace\/?\?recipe=[A-Za-z0-9_%.-]+$/i.test(recipe.trim())) result.push(t.safeRecipe);
     return [...new Set(result)];
   }, [body, issue, recipe, t.empty, t.safeRecipe, title]);
@@ -90,8 +85,9 @@ export function CommunityComposer({ locale }: { locale: Locale }) {
   }
   async function shareLink() { if (!canShare) return; const url = new URL(window.location.href); url.searchParams.set("share", encodeDraft(draft())); await write(url.toString(), t.linked); }
   async function nativeShare() { if (!canShare) return; const url = new URL(window.location.href); url.searchParams.set("share", encodeDraft(draft())); if (navigator.share) { try { await navigator.share({ title, text: body.slice(0, 180), url: url.toString() }); return; } catch { return; } } await write(url.toString(), t.linked); }
+  function addToBoard() { if (!canShare) return; window.dispatchEvent(new CustomEvent(communityPublishEvent, { detail: draft() })); setStatus(boardCopy[locale].done); }
   function download() { if (!canShare) return; const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" }); const href = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = href; anchor.download = `${title.toLocaleLowerCase().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "bytequant-share"}.md`; anchor.click(); URL.revokeObjectURL(href); }
   function importFromLink() { const value = new URL(window.location.href).searchParams.get("share"); const imported = value ? decodeDraft(value) : null; if (!imported) { setStatus(t.noDraft); return; } setKind(imported.kind); setTitle(imported.title); setBody(imported.body); setRecipe(imported.recipe); setChecked(false); setStatus(t.imported); }
   function applyTemplate(index: number) { const value = templates[locale][index]; setKind(value.kind); setTitle(value.title); setBody(value.body); setRecipe(""); setChecked(false); setStatus(""); }
-  return <div className="community-composer"><div className="community-form"><p>{t.intro}</p><fieldset className="community-templates"><legend>{t.templates}</legend>{t.templateNames.map((name, index) => <button type="button" key={name} onClick={() => applyTemplate(index)}>{name}</button>)}</fieldset><label><span>{t.kind}</span><select value={kind} onChange={(event) => { setKind(event.target.value as CommunityKind); setChecked(false); }}>{(Object.keys(t.kinds) as CommunityKind[]).map((key) => <option value={key} key={key}>{t.kinds[key]}</option>)}</select></label><label><span>{t.title}</span><input value={title} maxLength={120} onChange={(event) => { setTitle(event.target.value); setChecked(false); }} /></label><label><span>{t.body}</span><textarea value={body} maxLength={5000} rows={9} onChange={(event) => { setBody(event.target.value); setChecked(false); }} /></label><label><span>{t.recipe}</span><input type="url" value={recipe} maxLength={4000} onChange={(event) => { setRecipe(event.target.value); setChecked(false); }} placeholder="https://bytequant.org/workspace?recipe=…" /></label><div className="community-form-actions"><button type="button" className="primary-button" onClick={() => { setChecked(true); setStatus(""); }}>{t.check}</button><button type="button" className="secondary-button" onClick={importFromLink}>{t.import}</button></div><small>{t.boundary}</small>{status && <p className="community-status" role="status">{status}</p>}</div><aside className={checked && issues.length ? "community-preview blocked" : "community-preview"}><header><span>{checked ? issues.length ? "!" : "✓" : "○"}</span><strong>{checked ? issues.length ? t.blocked : t.safe : t.check}</strong></header>{checked && issues.length > 0 ? <><h3>{t.issues}</h3><ul>{issues.map((item) => <li key={item}>{item}</li>)}</ul></> : <pre>{markdown}</pre>}<div><button type="button" onClick={() => write(markdown, t.copied)} disabled={!canShare}>{t.copy}</button><button type="button" onClick={shareLink} disabled={!canShare}>{t.link}</button><button type="button" onClick={nativeShare} disabled={!canShare}>{t.share}</button><button type="button" onClick={download} disabled={!canShare}>{t.download}</button><a className="secondary-button" href="https://github.com/byte-quant/bytequant/discussions" target="_blank" rel="noreferrer noopener" aria-disabled={!canShare} onClick={(event) => { if (!canShare) event.preventDefault(); }}>{t.discuss} ↗</a></div></aside></div>;
+  return <div className="community-composer"><div className="community-form"><p>{t.intro}</p><fieldset className="community-templates"><legend>{t.templates}</legend>{t.templateNames.map((name, index) => <button type="button" key={name} onClick={() => applyTemplate(index)}>{name}</button>)}</fieldset><label><span>{t.kind}</span><select value={kind} onChange={(event) => { setKind(event.target.value as CommunityKind); setChecked(false); }}>{(Object.keys(t.kinds) as CommunityKind[]).map((key) => <option value={key} key={key}>{t.kinds[key]}</option>)}</select></label><label><span>{t.title}</span><input value={title} maxLength={120} onChange={(event) => { setTitle(event.target.value); setChecked(false); }} /></label><label><span>{t.body}</span><textarea value={body} maxLength={5000} rows={9} onChange={(event) => { setBody(event.target.value); setChecked(false); }} /></label><label><span>{t.recipe}</span><input type="url" value={recipe} maxLength={4000} onChange={(event) => { setRecipe(event.target.value); setChecked(false); }} placeholder="https://bytequant.org/workspace?recipe=…" /></label><div className="community-form-actions"><button type="button" className="primary-button" onClick={() => { setChecked(true); setStatus(""); }}>{t.check}</button><button type="button" className="secondary-button" onClick={importFromLink}>{t.import}</button></div><small>{t.boundary}</small>{status && <p className="community-status" role="status">{status}</p>}</div><aside className={checked && issues.length ? "community-preview blocked" : "community-preview"}><header><span>{checked ? issues.length ? "!" : "✓" : "○"}</span><strong>{checked ? issues.length ? t.blocked : t.safe : t.check}</strong></header>{checked && issues.length > 0 ? <><h3>{t.issues}</h3><ul>{issues.map((item) => <li key={item}>{item}</li>)}</ul></> : <pre>{markdown}</pre>}<div><button type="button" className="community-board-action" onClick={addToBoard} disabled={!canShare}>{boardCopy[locale].action}</button><button type="button" onClick={() => write(markdown, t.copied)} disabled={!canShare}>{t.copy}</button><button type="button" onClick={shareLink} disabled={!canShare}>{t.link}</button><button type="button" onClick={nativeShare} disabled={!canShare}>{t.share}</button><button type="button" onClick={download} disabled={!canShare}>{t.download}</button><a className="secondary-button" href="https://github.com/byte-quant/bytequant/discussions" target="_blank" rel="noreferrer noopener" aria-disabled={!canShare} onClick={(event) => { if (!canShare) event.preventDefault(); }}>{t.discuss} ↗</a></div></aside></div>;
 }

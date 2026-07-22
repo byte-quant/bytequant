@@ -498,8 +498,23 @@ test("exports instant search, live demo, and no-account community sharing", asyn
   assert.match(englishHome, /4 LIVE DEMOS IN ONE VIEW/);
   assert.match(community, /HESAPSIZ/);
   assert.match(englishCommunity, /NO-ACCOUNT/);
+  assert.match(community, /YEREL TOPLULUK AKIŞI/);
+  assert.match(englishCommunity, /LOCAL COMMUNITY FEED/);
+  assert.match(englishCommunity, /Explore, react, and contribute without an account/);
   assert.match(community, /FAQPage|HowTo/);
   assert.doesNotMatch(community, /api\.github\.com/);
+});
+
+test("keeps AdSense inventory reserved and away from private interactive surfaces", async () => {
+  const [home, tool, guide, agent, workstation, community] = await Promise.all([
+    read("en/index.html"), read("en/tools/json-bicimlendirici/index.html"), read("en/blog/index.html"),
+    read("en/agent/index.html"), read("en/workstation/index.html"), read("en/community/index.html"),
+  ]);
+  assert.equal((home.match(/data-ad-status="reserved"/g) ?? []).length, 2);
+  assert.equal((tool.match(/data-ad-status="reserved"/g) ?? []).length, 1);
+  assert.equal((guide.match(/data-ad-status="reserved"/g) ?? []).length, 1);
+  for (const page of [agent, workstation, community]) assert.doesNotMatch(page, /data-ad-status="reserved"/);
+  for (const page of [home, tool, guide]) assert.doesNotMatch(page, /adsbygoogle|ca-pub-|pagead2\.googlesyndication\.com/i);
 });
 
 test("keeps legacy mixed-language guide slugs as noindex canonical aliases", async () => {
@@ -611,15 +626,15 @@ test("exports the four-language local agent, domain integrity, and security head
     read("blog/browser-only-agentic-ai-tool-orchestration/index.html"),
     read("en/blog/browser-only-agentic-ai-tool-orchestration/index.html"),
   ]);
-  assert.match(turkish, /Hedefinizi yazın; ByteQuant araçlarıyla/);
-  assert.match(english, /build an auditable workflow across ByteQuant tools/);
-  assert.match(german, /prüfbaren Ablauf mit ByteQuant-Werkzeugen/);
-  assert.match(chinese, /建立可审计的工作流/);
+  assert.match(turkish, /Ne yapmak istediğinizi anlatın/);
+  assert.match(english, /Tell us what you want to finish/);
+  assert.match(german, /Sagen Sie, was erledigt werden soll/);
+  assert.match(chinese, /告诉我们想完成什么/);
   for (const page of [turkish, english, german, chinese]) {
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 1\.3/);
+    assert.match(page, /BQ-Agent 1\.4/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -654,10 +669,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /131 tarayıcı aracını görsel bir geliştirme ortamında/);
-  assert.match(english, /Connect 131 browser tools inside a visual development environment/);
-  assert.match(german, /131 Browser-Werkzeuge in einer visuellen Entwicklungsumgebung/);
-  assert.match(chinese, /在可视化开发环境中连接 131 个浏览器工具/);
+  assert.match(turkish, /131 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 131 tools in a visual workflow/);
+  assert.match(german, /131 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 131 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);

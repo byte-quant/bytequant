@@ -1,6 +1,6 @@
 import type { AgentSession } from "./agent-core";
 
-export const AGENT_VERSION = "BQ-Agent 1.3";
+export const AGENT_VERSION = "BQ-Agent 1.4";
 export const AGENT_SESSION_KEY = "bytequant:local-agent:v1";
 export const AGENT_SESSION_LIMIT = 200_000;
 
@@ -11,6 +11,7 @@ export function readAgentPlan(raw: string | null): AgentSession["plan"] | null {
     if (plan?.version !== AGENT_VERSION || !(["tr", "en", "de", "zh"] as string[]).includes(plan.locale) || typeof plan.goal !== "string" || plan.goal.length > 20_000 || !Array.isArray(plan.steps) || plan.steps.length < 1 || plan.steps.length > 6) return null;
     const validSteps = plan.steps.every((step) => typeof step?.id === "string" && /^step-[1-6]-[a-z0-9-]+$/.test(step.id) && typeof step.toolSlug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(step.toolSlug) && typeof step.title === "string" && step.title.length <= 180 && typeof step.reason === "string" && step.reason.length <= 600 && ["goal", "previous", "manual"].includes(step.inputMode) && typeof step.requiresFile === "boolean" && Array.isArray(step.parameterHints) && step.parameterHints.length <= 5 && step.parameterHints.every((hint) => typeof hint === "string" && hint.length <= 500));
     if (!validSteps || typeof plan.response !== "string" || plan.response.length > 2_000 || !Array.isArray(plan.alternativeSlugs) || plan.alternativeSlugs.length > 3 || plan.alternativeSlugs.some((slug) => typeof slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))) return null;
+    if (!["strong", "review"].includes(plan.matchQuality) || !Array.isArray(plan.clarifyingQuestions) || plan.clarifyingQuestions.length > 3 || plan.clarifyingQuestions.some((item) => typeof item !== "string" || item.length > 300) || !Array.isArray(plan.nextActions) || plan.nextActions.length > 4 || plan.nextActions.some((item) => typeof item !== "string" || item.length > 300)) return null;
     return plan;
   } catch { return null; }
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { absoluteUrl, languageTag, organizationId, pathFor, toolPath, type Locale } from "../lib/site";
 import { CommunityComposer } from "./CommunityComposer";
+import { CommunityFeed } from "./CommunityFeed";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 
@@ -51,6 +52,7 @@ export function CommunityPage({ locale }: { locale: Locale }) {
       <SchemaScript data={schema} />
       <section className="community-hero"><div className="container"><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="community-how">{c.cards.map(([number, title, text]) => <article key={number}><span>{number}</span><h2>{title}</h2><p>{text}</p></article>)}</div></div></section>
       <section className="section community-gallery-section"><div className="container"><div className="section-heading"><span className="kicker">STARTER LIBRARY</span><h2>{c.gallery}</h2></div><div className="community-gallery">{c.galleryItems.map(([title, text, destination]) => <article key={title}><span aria-hidden="true">↗</span><h3>{title}</h3><p>{text}</p><Link className="text-link" href={starterHref(locale, destination)}>{c.open} →</Link></article>)}</div></div></section>
+      <section className="section community-feed-section"><div className="container"><CommunityFeed locale={locale} /></div></section>
       <section className="section"><div className="container"><CommunityComposer locale={locale} /></div></section>
       <section className="section community-rules"><div className="container"><div><span className="kicker">TRUST & SAFETY</span><h2>{c.rules}</h2><ul>{c.ruleItems.map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ul></div><Link className="primary-button" href="https://github.com/byte-quant/bytequant" target="_blank" rel="noreferrer noopener">{c.repo} ↗</Link></div></section>
     </SiteShell>
