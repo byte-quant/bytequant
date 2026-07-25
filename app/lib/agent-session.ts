@@ -1,6 +1,6 @@
 import type { AgentSession } from "./agent-core";
 
-export const AGENT_VERSION = "BQ-Agent 2.0";
+export const AGENT_VERSION = "BQ-Agent 2.1";
 export const AGENT_SESSION_KEY = "bytequant:local-agent:v1";
 export const AGENT_SESSION_LIMIT = 200_000;
 
@@ -13,6 +13,7 @@ export function readAgentPlan(raw: string | null): AgentSession["plan"] | null {
     if (!validSteps || typeof plan.response !== "string" || plan.response.length > 2_000 || !Array.isArray(plan.alternativeSlugs) || plan.alternativeSlugs.length > 3 || plan.alternativeSlugs.some((slug) => typeof slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))) return null;
     if (!["strong", "review"].includes(plan.matchQuality) || !Array.isArray(plan.clarifyingQuestions) || plan.clarifyingQuestions.length > 3 || plan.clarifyingQuestions.some((item) => typeof item !== "string" || item.length > 300) || !Array.isArray(plan.nextActions) || plan.nextActions.length > 4 || plan.nextActions.some((item) => typeof item !== "string" || item.length > 300)) return null;
     if (!plan.goalFrame || Object.values(plan.goalFrame).some((item) => typeof item !== "string" || item.length > 500) || !Array.isArray(plan.planReview) || plan.planReview.length > 4 || plan.planReview.some((item) => typeof item !== "string" || item.length > 500)) return null;
+    if (!plan.conversation || typeof plan.conversation.isFollowUp !== "boolean" || typeof plan.conversation.intentSummary !== "string" || plan.conversation.intentSummary.length > 300 || typeof plan.conversation.contextNote !== "string" || plan.conversation.contextNote.length > 500 || !Array.isArray(plan.conversation.suggestedReplies) || plan.conversation.suggestedReplies.length > 3 || plan.conversation.suggestedReplies.some((item) => typeof item !== "string" || item.length > 300)) return null;
     return plan;
   } catch { return null; }
 }

@@ -9,15 +9,15 @@ const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json"
 
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
-  assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
-  assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /186 açıklanabilir araç/);
+  assert.match(home, /İşinizi kolaylaştırın; hassas veriniz sizde kalsın/);
+  assert.match(english, /Make the task easier while sensitive data stays with you/);
+  assert.match(home, /işlevsel araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(german, /<html lang="de"/);
   assert.match(chinese, /<html lang="zh-CN"/);
-  assert.match(german, /186 nachvollziehbare Werkzeuge/);
-  assert.match(chinese, /186 个可解释工具/);
+  assert.match(german, /funktionierende Werkzeuge/);
+  assert.match(chinese, /个可用工具/);
   assert.match(home, /Sabitlenenler ve sık kullanılanlar/);
   assert.match(english, /Pinned and frequently used tools/);
   assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
@@ -28,7 +28,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 2\.0/);
+    assert.match(page, /BQ-Agent 2\.1/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -499,11 +499,13 @@ test("exports instant search, live demo, and no-account community sharing", asyn
   assert.match(englishHome, /4 LIVE DEMOS IN ONE VIEW/);
   assert.match(community, /HESAPSIZ/);
   assert.match(englishCommunity, /NO-ACCOUNT/);
-  assert.match(community, /YEREL TOPLULUK AKIŞI/);
-  assert.match(englishCommunity, /LOCAL COMMUNITY FEED/);
-  assert.match(englishCommunity, /Explore, react, and contribute without an account/);
+  assert.match(community, /HESAPSIZ TOPLULUK ALANI/);
+  assert.match(englishCommunity, /NO-ACCOUNT COMMUNITY SPACE/);
+  assert.match(englishCommunity, /Discover ideas, build your own board/);
   assert.match(community, /FAQPage|HowTo/);
   assert.doesNotMatch(community, /api\.github\.com/);
+  const styles = await readSource("app/globals.css");
+  assert.match(styles, /\.sr-only\{[^}]*width:1px!important[^}]*clip:rect\(0,0,0,0\)!important/);
 });
 
 test("keeps AdSense inventory reserved and away from private interactive surfaces", async () => {
@@ -641,7 +643,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 2\.0/);
+    assert.match(page, /BQ-Agent 2\.1/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -744,12 +746,13 @@ test("exports finite official-source updates and verified session-only P2P chat"
     assert.match(page, /hrefLang="x-default"/);
   }
   assert.match(tr, /NASA|NIST/);
-  assert.match(en, /official NASA and NIST RSS/);
+  assert.match(en, /NASA, NIST, and the openly licensed GOV\.UK feed/);
   assert.match(trCommunity, /P2P/);
   assert.match(enCommunity, /DIRECT P2P CHAT/);
   assert.match(enCommunity, /safety code/i);
   assert.doesNotMatch(enCommunity, /socket\.io|firebase|supabase|gundb/i);
   assert.match(syncSource, /hosts:/);
   assert.match(syncSource, /4_000_000/);
+  assert.match(syncSource, /GOV\.UK/);
   assert.match(syncSource, /AbortSignal\.timeout\(15_000\)/);
 });

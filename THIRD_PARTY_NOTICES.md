@@ -21,4 +21,6 @@ ByteQuant articles and UI copy are original project content. External standards 
 
 ## Official update-feed records
 
-The build-time update synchronizer reads allowlisted official RSS endpoints from NASA and NIST. It retains only a headline, publication date, source name, category, and original HTTPS URL. It does not copy article bodies or images, and each card visibly identifies and links to the original source. NASA and NIST names identify the source and do not imply endorsement. NASA insignia, logotypes, third-party material on NASA pages, and NIST marks are not bundled or presented as ByteQuant assets.
+The build-time update synchronizer reads allowlisted official feeds from NASA, NIST, and GOV.UK. It retains only a headline, publication date, source name, category, original language, and original HTTPS URL. It does not copy article bodies or images, and each card visibly identifies and links to the original source. NASA, NIST, and GOV.UK names identify the source and do not imply endorsement. NASA insignia, logotypes, third-party material on NASA pages, NIST marks, and GOV.UK branding are not bundled or presented as ByteQuant assets.
+
+GOV.UK information is reused under the Open Government Licence v3.0 with visible source attribution and a link to the original record. The OGL does not cover personal data, third-party rights, departmental logos, crests, insignia, or other excluded material; ByteQuant republishes none of those assets. See https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/ for the controlling terms.

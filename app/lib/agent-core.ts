@@ -32,6 +32,12 @@ export type AgentPlan = {
   nextActions: string[];
   goalFrame: { outcome: string; input: string; delivery: string; safety: string };
   planReview: string[];
+  conversation: {
+    isFollowUp: boolean;
+    intentSummary: string;
+    contextNote: string;
+    suggestedReplies: string[];
+  };
 };
 
 export type AgentSession = {
@@ -223,6 +229,18 @@ function splitGoal(goal: string) {
   return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])?)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
+const followUpPattern = /(?:az önce|önceki|devam et|bunu|şunu|aynı akış|sonucu|previous|just now|continue|this flow|that plan|make it|vorher|gerade|weiter|diesen plan|dieses ergebnis|刚才|继续|这个流程|该计划|结果)/iu;
+const simplifyPattern = /(?:sadeleştir|daha az adım|kısalt|simplif|fewer steps|shorter flow|vereinfach|weniger schritte|简化|更少步骤)/iu;
+const safetyPattern = /(?:güvenli|güvenlik|gizlilik|kvkk|gdpr|maskele|security|privacy|safe|redact|sicher|datenschutz|安全|隐私|遮蔽)/iu;
+const deliveryPattern = /(?:paylaş|teslim|indir|dışa aktar|share|deliver|download|export|teilen|liefern|herunterladen|分享|交付|下载|导出)/iu;
+
+function conversationIntent(goal: string, locale: Locale) {
+  if (simplifyPattern.test(goal)) return local(locale, { tr: "Akışı sadeleştirme", en: "Simplify the workflow", de: "Ablauf vereinfachen", zh: "简化流程" });
+  if (safetyPattern.test(goal)) return local(locale, { tr: "Güvenli ve yerel işleme", en: "Safe, local processing", de: "Sichere lokale Verarbeitung", zh: "安全的本地处理" });
+  if (deliveryPattern.test(goal)) return local(locale, { tr: "Kontrollü teslim ve paylaşım", en: "Controlled delivery and sharing", de: "Kontrollierte Übergabe und Freigabe", zh: "受控交付与分享" });
+  return local(locale, { tr: "Hedefe uygun araç akışı", en: "Outcome-aligned tool workflow", de: "Zielgerechter Werkzeugablauf", zh: "与目标匹配的工具流程" });
+}
+
 function frameGoal(goal: string, locale: Locale, extracted: AgentParameter[], steps: AgentPlanStep[]) {
   const formats = extracted.find((item) => item.kind === "format")?.value;
   const file = extracted.some((item) => item.kind === "file") || steps.some((step) => step.requiresFile);
@@ -241,8 +259,18 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
   const normalizedGoal = normalize(cleanGoal, locale);
   const signals: string[] = [];
   let selected: Tool[] = [];
+  const isFollowUp = Boolean(previousPlan && (followUpPattern.test(cleanGoal) || cleanGoal.length < 72));
+  const contextualGoal = isFollowUp && previousPlan ? `${previousPlan.goal}. ${cleanGoal}`.slice(0, 20_000) : cleanGoal;
+  if (isFollowUp && previousPlan) {
+    signals.push(local(locale, { tr: "Önceki plan bu sekmenin bağlamından devralındı", en: "The previous plan was carried forward from this tab's context", de: "Der vorige Plan wurde aus dem Kontext dieses Tabs übernommen", zh: "已从当前标签页语境继承上一份计划" }));
+    if (simplifyPattern.test(cleanGoal)) {
+      const retained = previousPlan.steps.length > 2 ? [previousPlan.steps[0], previousPlan.steps.at(-1)!] : previousPlan.steps;
+      selected = retained.map((step) => catalog.find((tool) => tool.slug === step.toolSlug)).filter((tool): tool is Tool => Boolean(tool));
+      signals.push(local(locale, { tr: "Sadeleştirme isteği: yalnızca başlangıç ve teslim için gerekli adımlar korundu", en: "Simplification request: only essential start and delivery steps were retained", de: "Vereinfachung: nur wesentliche Start- und Übergabeschritte bleiben", zh: "简化请求：仅保留必要的开始与交付步骤" }));
+    }
+  }
   const segments = splitGoal(cleanGoal);
-  if (segments.length > 1) {
+  if (!selected.length && segments.length > 1) {
     selected = segments.map((segment) => semanticToolSearch(segment, catalog, locale, 1)[0]?.tool).filter((tool): tool is Tool => Boolean(tool));
     signals.push(local(locale, { tr: "Açık çok adımlı sıra algılandı", en: "Explicit multi-step sequence detected", de: "Explizite Schrittfolge erkannt", zh: "检测到明确的多步骤顺序" }));
   }
@@ -255,12 +283,12 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       signals.push(recipe.signal[locale]);
     }
   }
-  const ranked = semanticToolSearch(cleanGoal, catalog, locale, 5);
+  const ranked = semanticToolSearch(contextualGoal, catalog, locale, 5);
   if (!selected.length && ranked.length) selected = [ranked[0].tool];
   if (!selected.length) selected = catalog.filter((tool) => ["prompt-kalite-denetimi", "metin-temizleyici", "json-bicimlendirici"].includes(tool.slug)).slice(0, 3);
   selected = selected.filter((tool, index, list) => list.findIndex((item) => item.slug === tool.slug) === index).slice(0, 6);
   if (ranked[0]) signals.push(local(locale, { tr: `En güçlü semantik eşleşme: ${ranked[0].tool.title.tr}`, en: `Strongest semantic match: ${ranked[0].tool.title.en}`, de: `Stärkster semantischer Treffer: ${ranked[0].tool.title.de}`, zh: `最强语义匹配：${ranked[0].tool.title.zh}` }));
-  const extracted = extractAgentParameters(cleanGoal, locale);
+  const extracted = extractAgentParameters(contextualGoal, locale);
   if (extracted.length) signals.push(local(locale, { tr: `${extracted.length} parametre grubu çıkarıldı`, en: `${extracted.length} parameter groups extracted`, de: `${extracted.length} Parametergruppen extrahiert`, zh: `提取了 ${extracted.length} 组参数` }));
   const steps = selected.map((tool, index): AgentPlanStep => ({
     id: `step-${index + 1}-${tool.slug}`,
@@ -279,7 +307,7 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
   const alternativeSlugs = ranked.map((item) => item.tool.slug).filter((slug) => !selected.some((tool) => tool.slug === slug)).slice(0, 3);
   const first = selected[0]?.title[locale] ?? local(locale, { tr: "araç araması", en: "tool search", de: "Werkzeugsuche", zh: "工具搜索" });
   const last = selected.at(-1)?.title[locale] ?? first;
-  const previousLast = previousPlan?.steps.at(-1)?.title;
+  const previousLast = isFollowUp ? previousPlan?.steps.at(-1)?.title : undefined;
   const response = needsClarification
     ? local(locale, {
       tr: `Size yardımcı olabilirim; ancak hedefte giriş veya beklenen çıktı biçimi henüz net değil. En yakın başlangıç olarak ${first} aracını buldum. Aşağıdaki kısa sorulardan birini yanıtladığınızda daha güvenilir bir akış kuracağım.`,
@@ -310,7 +338,14 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     local(locale, { tr: "Planı gözden geçirip İş İstasyonuna aktarın", en: "Review the plan and send it to Workstation", de: "Plan prüfen und an die Workstation senden", zh: "审核计划并发送到工作站" }),
     local(locale, { tr: "Yüksek etkili sonucu bağımsız olarak kontrol edin", en: "Independently verify high-impact output", de: "Folgenreiche Ausgaben unabhängig prüfen", zh: "独立核验高影响结果" }),
   ];
-  const goalFrame = frameGoal(cleanGoal, locale, extracted, steps);
+  const suggestedReplies = needsClarification
+    ? clarifyingQuestions
+    : [
+      local(locale, { tr: "Bu akışı daha az adımla sadeleştir", en: "Simplify this workflow into fewer steps", de: "Diesen Ablauf auf weniger Schritte kürzen", zh: "把这个流程简化为更少步骤" }),
+      local(locale, { tr: "Gizlilik risklerini kontrol edip güvenli hale getir", en: "Review privacy risks and make it safer", de: "Datenschutzrisiken prüfen und sicherer machen", zh: "检查隐私风险并提高安全性" }),
+      local(locale, { tr: "Sonucu paylaşmaya hazır bir biçime getir", en: "Prepare the result for safe sharing", de: "Ergebnis für sicheres Teilen vorbereiten", zh: "把结果整理为可安全分享的格式" }),
+    ];
+  const goalFrame = frameGoal(contextualGoal, locale, extracted, steps);
   const planReview = [
     steps.length > 1
       ? local(locale, { tr: `Akış ${steps.length} bağımlı adıma ayrıldı; her çıktı bir sonraki girdiden önce doğrulanmalı.`, en: `The workflow has ${steps.length} dependent steps; validate every output before it becomes the next input.`, de: `Der Ablauf hat ${steps.length} abhängige Schritte; jede Ausgabe vor der Weitergabe prüfen.`, zh: `流程包含 ${steps.length} 个依赖步骤；每次输出进入下一步前都应验证。` })
@@ -323,8 +358,16 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       : local(locale, { tr: "Plan hedef sinyalleriyle tutarlı; sentetik bir örnekle küçük ölçekte başlayın.", en: "The plan is consistent with the goal signals; start small with synthetic data.", de: "Plan passt zu den Zielsignalen; klein mit synthetischen Daten beginnen.", zh: "计划与目标信号一致；请先用少量合成数据测试。" }),
   ];
   return {
-    version: AGENT_VERSION, locale, goal: cleanGoal, confidence, signals, extracted, steps, response, alternativeSlugs,
+    version: AGENT_VERSION, locale, goal: contextualGoal, confidence, signals, extracted, steps, response, alternativeSlugs,
     matchQuality: needsClarification ? "review" : "strong", clarifyingQuestions, nextActions, goalFrame, planReview,
+    conversation: {
+      isFollowUp,
+      intentSummary: conversationIntent(cleanGoal, locale),
+      contextNote: isFollowUp && previousPlan
+        ? local(locale, { tr: `Önceki hedef bağlama alındı: ${previousPlan.goal.slice(0, 160)}`, en: `Previous outcome retained as context: ${previousPlan.goal.slice(0, 160)}`, de: `Vorheriges Ziel bleibt im Kontext: ${previousPlan.goal.slice(0, 160)}`, zh: `已保留上一目标作为语境：${previousPlan.goal.slice(0, 160)}` })
+        : local(locale, { tr: "Bu, yeni bir hedef olarak ele alındı.", en: "This was treated as a new outcome.", de: "Dies wurde als neues Ziel behandelt.", zh: "该请求被视为新目标。" }),
+      suggestedReplies,
+    },
     limitations: [
       local(locale, { tr: "Bu plan büyük dil modeli çıktısı değil; sürümlenmiş semantik puanlar ve açıklanabilir kurallarla üretilir.", en: "This plan is not large-language-model output; it is generated from versioned semantic scores and explainable rules.", de: "Dieser Plan ist keine LLM-Ausgabe, sondern entsteht aus versionierten semantischen Bewertungen und nachvollziehbaren Regeln.", zh: "该计划不是大语言模型输出，而是由版本化语义评分与可解释规则生成。" }),
       local(locale, { tr: "Ajan gizli düşünce zinciri göstermez; yalnızca karar sinyallerini ve seçilen adımları açıklar.", en: "The agent does not expose hidden chain-of-thought; it shows decision signals and selected steps only.", de: "Der Agent zeigt keine verborgene Gedankenkette, sondern nur Entscheidungssignale und gewählte Schritte.", zh: "助手不展示隐藏思维链，只显示决策信号与所选步骤。" }),

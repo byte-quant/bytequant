@@ -16,12 +16,12 @@ ByteQuant is a privacy-first, installable web application containing 186 browser
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
 - 69 long-form editorial guides in Turkish and English, including 41 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent 2.0 with outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
+- Explainable Local Agent 2.1 with follow-up intent detection, contextual replies, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
 - Lazy-loaded visual Workstation across all 186 tools, with fifteen starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- Account-free, tab-local community feed with honest local likes/comments, discovery filters, safety pre-checks, share links, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
-- A finite updates feed generated at build time from allowlisted official NASA and NIST RSS endpoints; only titles, dates, source names, and original links are retained
+- Account-free, local-first community feed with local profiles, likes/comments/saves, discovery filters, safety pre-checks, content-carrying share links, portable JSON packs, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
+- A finite updates feed generated at build time from allowlisted official NASA, NIST, and openly licensed GOV.UK feeds; only titles, dates, source names, and original links are retained
 - Static sitemap, robots directives, llms.txt, four-language metadata, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -66,7 +66,7 @@ Next.js App Router (static export)
 │  ├─ gzip/Base64url recipes in a Web Worker
 │  └─ manual WebRTC DataChannel rooms; no signaling/STUN/TURN
 ├─ Source-transparent updates
-│  ├─ build-time allowlisted NASA/NIST RSS sync
+│  ├─ build-time allowlisted NASA/NIST/GOV.UK feed sync
 │  └─ finite cards + on-device favorite IDs; no article-body republication
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas

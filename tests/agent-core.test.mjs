@@ -67,6 +67,15 @@ test("local agent builds explicit workflows without executing tools", () => {
   assert.match(uncertain.response, /not clear enough/i);
 });
 
+test("local agent carries a bounded previous goal into natural follow-up requests", () => {
+  const previous = createAgentPlan("Mask personal data in my CSV and prepare JSON", catalog, "en");
+  const followUp = createAgentPlan("Now make the result easier to share", catalog, "en", previous);
+  assert.equal(followUp.conversation.isFollowUp, true);
+  assert.match(followUp.conversation.contextNote, /previous/i);
+  assert.ok(followUp.conversation.suggestedReplies.length >= 2);
+  assert.ok(followUp.goal.includes(previous.goal));
+});
+
 test("agent session parser rejects untrusted or oversized bridge data", () => {
   const plan = createAgentPlan("compare JSON", catalog, "en");
   const valid = { plan, currentStep: 99, stepOutputs: {}, completedStepIds: [] };

@@ -521,8 +521,12 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "metin-temizleyici": {
-          const cleaned = input.replace(/[\t ]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-          setResult(cleaned, [{ label: isTr ? "Kaldırılan karakter" : "Characters removed", value: input.length - cleaned.length }, { label: isTr ? "Satır" : "Lines", value: cleaned.split(/\r?\n/).length }]);
+          const invisiblePattern = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u00AD\u034F\u061C\u180E\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/gu;
+          const invisibleCount = (input.match(invisiblePattern) ?? []).length;
+          const cleaned = input.normalize("NFC").replace(/\r\n?/g, "\n").replace(/\u00A0/g, " ").replace(invisiblePattern, "").replace(/[\t ]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+          const changed = Math.max(0, [...input].length - [...cleaned].length);
+          setResult(cleaned, [{ label: ui(locale, { tr: "Kaldırılan/değişen", en: "Removed/changed", de: "Entfernt/geändert", zh: "移除或变更" }), value: changed }, { label: ui(locale, { tr: "Görünmez kontrol", en: "Invisible controls", de: "Unsichtbare Steuerzeichen", zh: "不可见控制字符" }), value: invisibleCount }, { label: ui(locale, { tr: "Satır", en: "Lines", de: "Zeilen", zh: "行" }), value: cleaned ? cleaned.split("\n").length : 0 }, { label: "Unicode", value: "NFC" }]);
+          if (invisibleCount) setNotice({ kind: "warning", text: ui(locale, { tr: "Görünmez ve yön denetimi karakterleri kaldırıldı. İki yönlü metin veya dilbilimsel veri kullanıyorsanız çıktıyı özellikle kontrol edin.", en: "Invisible and directional controls were removed. Review carefully if the text intentionally uses bidirectional or linguistic controls.", de: "Unsichtbare und Richtungssteuerzeichen wurden entfernt. Bei bidirektionalem oder linguistischem Text bitte gezielt prüfen.", zh: "已移除不可见字符和方向控制符；若文本有意使用双向或语言控制，请仔细核对。" }) });
           break;
         }
         case "buyuk-kucuk-harf-donusturucu": {
@@ -539,8 +543,10 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "json-bicimlendirici": {
-          const parsed = JSON.parse(input); const pretty = mode !== "minify";
-          setResult(JSON.stringify(parsed, null, pretty ? 2 : 0), [{ label: isTr ? "Durum" : "Status", value: isTr ? "Geçerli JSON" : "Valid JSON" }, { label: isTr ? "Üst düzey tür" : "Root type", value: Array.isArray(parsed) ? "Array" : typeof parsed }, { label: isTr ? "Bayt (yaklaşık)" : "Bytes (approx.)", value: new Blob([input]).size }]);
+          const parsed = JSON.parse(input); const pretty = mode !== "minify"; const stack: Array<{ value: unknown; depth: number }> = [{ value: parsed, depth: 0 }]; let keys = 0; let nodes = 0; let maxDepth = 0;
+          while (stack.length) { const current = stack.pop()!; nodes += 1; maxDepth = Math.max(maxDepth, current.depth); if (current.value && typeof current.value === "object") { if (Array.isArray(current.value)) current.value.forEach((value) => stack.push({ value, depth: current.depth + 1 })); else Object.entries(current.value as Record<string, unknown>).forEach(([, value]) => { keys += 1; stack.push({ value, depth: current.depth + 1 }); }); } if (nodes > 250_000) throw new Error(isTr ? "JSON güvenli inceleme düğümü sınırını aşıyor." : "The JSON exceeds the safe inspection node limit."); }
+          const output = JSON.stringify(parsed, null, pretty ? 2 : 0);
+          setResult(output, [{ label: ui(locale, { tr: "Durum", en: "Status", de: "Status", zh: "状态" }), value: ui(locale, { tr: "Geçerli JSON", en: "Valid JSON", de: "Gültiges JSON", zh: "有效 JSON" }) }, { label: ui(locale, { tr: "Kök tür", en: "Root type", de: "Wurzeltyp", zh: "根类型" }), value: Array.isArray(parsed) ? "Array" : parsed === null ? "null" : typeof parsed }, { label: ui(locale, { tr: "Alan", en: "Keys", de: "Schlüssel", zh: "字段" }), value: keys }, { label: ui(locale, { tr: "En derin seviye", en: "Maximum depth", de: "Maximale Tiefe", zh: "最大深度" }), value: maxDepth }, { label: ui(locale, { tr: "Çıktı baytı", en: "Output bytes", de: "Ausgabe-Bytes", zh: "输出字节" }), value: new Blob([output]).size }]);
           break;
         }
         case "json-csv-donusturucu": {
@@ -568,7 +574,12 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "csv-inceleyici": {
           const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
-          setResult(`${isTr ? "Başlıklar" : "Headers"}: ${headers.join(" · ")}\n${isTr ? "Düzensiz satırlar" : "Irregular rows"}: ${irregular.length ? irregular.map((item) => item.line).join(", ") : (isTr ? "yok" : "none")}`, [{ label: isTr ? "Veri satırı" : "Data rows", value: Math.max(0, rows.length - 1) }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Düzensiz satır" : "Irregular rows", value: irregular.length }, { label: isTr ? "Ayraç" : "Delimiter", value: delimiter === "\t" ? "TAB" : delimiter }]);
+          const duplicateHeaders = headers.filter((header, index) => headers.indexOf(header) !== index); const blankHeaders = headers.filter((header) => !header.trim()).length;
+          const typeFor = (values: string[]) => values.every((value) => value === "" || /^-?\d+(?:[.,]\d+)?$/u.test(value)) ? "number" : values.every((value) => value === "" || /^(?:true|false|yes|no|0|1)$/iu.test(value)) ? "boolean" : values.every((value) => value === "" || !Number.isNaN(Date.parse(value))) ? "date-like" : "text";
+          const profile = headers.map((header, index) => ({ header: header || `(column ${index + 1})`, type: typeFor(rows.slice(1, 101).map((row) => row[index] ?? "")), empty: rows.slice(1).filter((row) => !(row[index] ?? "").trim()).length, sample: rows.slice(1).map((row) => row[index] ?? "").find(Boolean)?.slice(0, 70) ?? "—" }));
+          const report = [`${ui(locale, { tr: "ALGILANAN ŞEMA", en: "INFERRED PROFILE", de: "ERKANNTES PROFIL", zh: "推断概况" })}`, ...profile.map((column, index) => `${index + 1}. ${column.header} · ${column.type} · ${ui(locale, { tr: "boş", en: "empty", de: "leer", zh: "空值" })}: ${column.empty} · ${ui(locale, { tr: "örnek", en: "sample", de: "Beispiel", zh: "示例" })}: ${column.sample}`), "", `${ui(locale, { tr: "Düzensiz satırlar", en: "Irregular rows", de: "Unregelmäßige Zeilen", zh: "不规则行" })}: ${irregular.length ? irregular.slice(0, 50).map((item) => item.line).join(", ") : ui(locale, { tr: "yok", en: "none", de: "keine", zh: "无" })}`].join("\n");
+          setResult(report, [{ label: ui(locale, { tr: "Veri satırı", en: "Data rows", de: "Datenzeilen", zh: "数据行" }), value: Math.max(0, rows.length - 1) }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: headers.length }, { label: ui(locale, { tr: "Düzensiz satır", en: "Irregular rows", de: "Unregelmäßige Zeilen", zh: "不规则行" }), value: irregular.length }, { label: ui(locale, { tr: "Başlık sorunu", en: "Header issues", de: "Header-Probleme", zh: "表头问题" }), value: duplicateHeaders.length + blankHeaders }, { label: ui(locale, { tr: "Ayraç", en: "Delimiter", de: "Trennzeichen", zh: "分隔符" }), value: delimiter === "\t" ? "TAB" : delimiter }]);
+          if (duplicateHeaders.length || blankHeaders) setNotice({ kind: "warning", text: ui(locale, { tr: `Başlıklarda ${duplicateHeaders.length} yinelenen ve ${blankHeaders} boş alan var; JSON/SQL dönüşümünden önce benzersiz adlar verin.`, en: `Headers contain ${duplicateHeaders.length} duplicate and ${blankHeaders} blank names; assign unique names before JSON or SQL conversion.`, de: `Header enthalten ${duplicateHeaders.length} doppelte und ${blankHeaders} leere Namen; vor JSON/SQL eindeutig benennen.`, zh: `表头包含 ${duplicateHeaders.length} 个重复项和 ${blankHeaders} 个空名称；转换为 JSON/SQL 前请使用唯一名称。` }) });
           break;
         }
         case "base64-kodlayici": {

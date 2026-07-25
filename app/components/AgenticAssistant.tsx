@@ -53,6 +53,13 @@ const experienceCopy = {
   zh: { start: "选择目标，或用自己的话描述", startBody: "无需技术术语。描述想要的结果，助手会推荐合适工具与安全顺序。", examples: [["清理个人数据", "遮蔽 CSV 中的个人数据并生成可分享的 JSON"], ["检查 JSON 交付", "格式化 JSON、按 Schema 验证并比较版本"], ["完成 PDF 任务", "合并 PDF、检查页面并下载结果"], ["让提示词更安全", "检查系统提示词的清晰度、角色一致性与注入风险"]], strong: "匹配度高", review: "还需一个细节", clarify: "补充一个简短信息以优化计划", next: "安全的后续步骤", history: "最近对话" },
 } as const;
 
+const conversationUi = {
+  tr: { welcome: "Merhaba, ben ByteQuant’ın cihazınızda çalışan akış yardımcısıyım.", welcomeBody: "Bana sonucu anlatın; teknik araç adlarını bilmeniz gerekmez. Önce ihtiyacı netleştirir, sonra çalıştırabileceğiniz güvenli bir yol öneririm.", you: "Siz", agent: "Yerel Ajan", follow: "Aynı konuşmada devam edin", fresh: "Yeni konuşma", context: "Bağlam kullanıldı", private: "Bu sohbet yalnızca bu sekmede", placeholder: "Örn. Az önceki akışı iki adıma indir ve sonucu paylaşmaya hazırla" },
+  en: { welcome: "Hi, I’m ByteQuant’s on-device workflow assistant.", welcomeBody: "Tell me the outcome; you do not need to know tool names. I will clarify the need first, then suggest a safe path you can run.", you: "You", agent: "Local Agent", follow: "Continue the same conversation", fresh: "New conversation", context: "Context used", private: "This conversation stays in this tab", placeholder: "Example: Reduce the previous flow to two steps and prepare it for sharing" },
+  de: { welcome: "Hallo, ich bin der lokale Ablauf-Assistent von ByteQuant.", welcomeBody: "Beschreiben Sie das Ergebnis; Werkzeugnamen sind nicht nötig. Ich kläre zuerst den Bedarf und schlage dann einen sicheren, ausführbaren Weg vor.", you: "Sie", agent: "Lokaler Agent", follow: "Im selben Gespräch fortfahren", fresh: "Neues Gespräch", context: "Kontext verwendet", private: "Dieses Gespräch bleibt in diesem Tab", placeholder: "Beispiel: Vorigen Ablauf auf zwei Schritte kürzen und zum Teilen vorbereiten" },
+  zh: { welcome: "您好，我是 ByteQuant 的设备端流程助手。", welcomeBody: "只需说明想要的结果，无需知道工具名称。我会先澄清需求，再给出由您执行的安全路径。", you: "您", agent: "本地助手", follow: "继续当前对话", fresh: "新对话", context: "已使用语境", private: "此对话仅保留在当前标签页", placeholder: "例如：把刚才的流程缩减为两步，并整理为可分享结果" },
+} as const;
+
 function copy(locale: Locale) {
   return {
     tr: {
@@ -104,6 +111,7 @@ function copy(locale: Locale) {
 
 export function AgenticAssistant({ locale }: { locale: Locale }) {
   const t = copy(locale);
+  const conversation = conversationUi[locale];
   const [mode, setMode] = useState<Mode>("plan");
   const [goal, setGoal] = useState("");
   const [plan, setPlan] = useState<AgentPlan | null>(null);
@@ -115,6 +123,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
   const [speaking, setSpeaking] = useState(false);
   const [turns, setTurns] = useState<AgentTurn[]>([]);
   const recognitionRef = useRef<LocalSpeechRecognition | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const searchResults = useMemo(() => semanticToolSearch(searchQuery, tools, locale, 8), [searchQuery, locale]);
   const errorResult = useMemo(() => errorText.trim() ? translateAgentError(errorText, locale) : null, [errorText, locale]);
 
@@ -197,16 +206,20 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
     </nav>
 
     {mode === "plan" && <div className="agent-panel">
+      <section className="agent-chat-timeline" aria-label={memoryCopy[locale].title}>
+        <header><div><span className="agent-status-dot" /><strong>{conversation.agent}</strong><small>{conversation.private}</small></div>{turns.length > 0 && <button type="button" onClick={() => { setTurns([]); setPlan(null); setGoal(""); try { sessionStorage.removeItem(historyKey); sessionStorage.removeItem(AGENT_SESSION_KEY); } catch { /* optional session memory */ } inputRef.current?.focus(); }}>{conversation.fresh}</button>}</header>
+        {turns.length === 0 ? <div className="agent-welcome-message"><span className="agent-avatar" aria-hidden="true">BQ</span><div><strong>{conversation.welcome}</strong><p>{conversation.welcomeBody}</p></div></div> : <ol>{turns.slice(-4).map((turn) => <li key={`${turn.createdAt}-${turn.goal}`}><div className="agent-chat-user"><small>{conversation.you}</small><p>{turn.goal}</p></div><div className="agent-chat-assistant"><span className="agent-avatar" aria-hidden="true">BQ</span><div><small>{conversation.agent}</small><p>{turn.response}</p><span>{turn.tools.join(" → ")}</span></div></div></li>)}</ol>}
+      </section>
       <section className="agent-starters" aria-labelledby="agent-starters-title"><div><span className="kicker">START HERE</span><h2 id="agent-starters-title">{experienceCopy[locale].start}</h2><p>{experienceCopy[locale].startBody}</p></div><div>{experienceCopy[locale].examples.map(([title, prompt]) => <button type="button" key={title} onClick={() => { setGoal(prompt); setPlan(null); document.querySelector<HTMLTextAreaElement>(".agent-input-card textarea")?.focus(); }}><span>→</span><strong>{title}</strong><small>{prompt}</small></button>)}</div></section>
       <section className="agent-input-card">
-        <label><span>{t.goal}</span><textarea value={goal} onChange={(event) => setGoal(event.target.value)} placeholder={t.goalHint} maxLength={20_000} rows={7} /></label>
+        <label><span>{turns.length ? conversation.follow : t.goal}</span><textarea ref={inputRef} value={goal} onChange={(event) => setGoal(event.target.value)} placeholder={turns.length ? conversation.placeholder : t.goalHint} maxLength={20_000} rows={6} /></label>
         <div className="agent-input-actions"><button type="button" className="secondary-button" onClick={beginVoice} disabled={voiceState === "listening"}>{voiceState === "listening" ? t.voiceListening : t.voice}</button><button type="button" className="primary-button" onClick={makePlan} disabled={!goal.trim() || planning}>{planning ? t.planning : t.build}<span>→</span></button></div>
         {(["unsupported", "unavailable", "denied"] as VoiceState[]).includes(voiceState) && <p className="agent-voice-note" role="status">{t.voiceUnavailable}</p>}
         <small>{t.session}</small>
       </section>
       <section className="agent-memory" aria-labelledby="agent-memory-title"><header><div><span>{turns.length}/20</span><strong id="agent-memory-title">{memoryCopy[locale].title}</strong></div><button type="button" onClick={() => { setTurns([]); try { sessionStorage.removeItem(historyKey); } catch { /* memory is optional */ } }}>{memoryCopy[locale].clear}</button></header><p>{memoryCopy[locale].body}</p>{turns.length ? <><strong className="agent-history-label">{experienceCopy[locale].history}</strong><ol className="agent-history-preview">{turns.slice(-3).map((turn) => <li key={`${turn.createdAt}-${turn.goal}`}><span>{new Date(turn.createdAt).toLocaleTimeString(languageTags[locale], { hour: "2-digit", minute: "2-digit" })}</span><strong>{turn.goal}</strong><small>{turn.tools.join(" → ")}</small></li>)}</ol><details><summary>{memoryCopy[locale].recent}: {turns.at(-1)?.goal}</summary><ol>{turns.map((turn) => <li key={`${turn.createdAt}-${turn.goal}`}><span>{new Date(turn.createdAt).toLocaleTimeString(languageTags[locale], { hour: "2-digit", minute: "2-digit" })}</span><strong>{turn.goal}</strong><small>{turn.tools.join(" → ")}</small></li>)}</ol></details></> : <small>{memoryCopy[locale].empty}</small>}</section>
       {plan && <section className="agent-plan" aria-live="polite">
-        <div className="agent-conversation"><span className="agent-avatar" aria-hidden="true">BQ</span><div><small>{t.answer}</small><p>{plan.response}</p><button type="button" onClick={speakPlan}>{speaking ? t.stop : t.speak}</button></div></div>
+        <div className="agent-conversation"><span className="agent-avatar" aria-hidden="true">BQ</span><div><small>{t.answer}</small><p>{plan.response}</p><div className="agent-conversation-meta"><span>{plan.conversation.intentSummary}</span>{plan.conversation.isFollowUp && <span>↻ {conversation.context}</span>}</div><small>{plan.conversation.contextNote}</small><button type="button" onClick={speakPlan}>{speaking ? t.stop : t.speak}</button></div></div>
         <div className={`agent-match-quality quality-${plan.matchQuality}`}><span>{plan.matchQuality === "strong" ? "✓" : "?"}</span><strong>{plan.matchQuality === "strong" ? experienceCopy[locale].strong : experienceCopy[locale].review}</strong><small>{Math.round(plan.confidence * 100)}% {t.confidence.toLocaleLowerCase(languageTags[locale])}</small></div>
         <div className="agent-goal-frame"><header><span>◎</span><strong>{t.frame}</strong></header><dl><div><dt>{t.outcome}</dt><dd>{plan.goalFrame.outcome}</dd></div><div><dt>{t.inputFrame}</dt><dd>{plan.goalFrame.input}</dd></div><div><dt>{t.delivery}</dt><dd>{plan.goalFrame.delivery}</dd></div><div><dt>{t.safety}</dt><dd>{plan.goalFrame.safety}</dd></div></dl></div>
         {plan.clarifyingQuestions.length > 0 && <div className="agent-clarifying"><strong>{experienceCopy[locale].clarify}</strong><div>{plan.clarifyingQuestions.map((question) => <button type="button" key={question} onClick={() => { setGoal(`${goal.trim()}\n${question}: `); document.querySelector<HTMLTextAreaElement>(".agent-input-card textarea")?.focus(); }}>{question}</button>)}</div></div>}
@@ -218,7 +231,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
         <div className="agent-plan-review"><strong>{t.reviewTitle}</strong><ul>{plan.planReview.map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ul></div>
         <details className="agent-reasoning"><summary>{t.transparency}<span>+</span></summary><div><h3>{t.signals}</h3><ul>{plan.signals.map((item) => <li key={item}>{item}</li>)}</ul>{plan.extracted.length > 0 && <><h3>{t.extracted}</h3><dl>{plan.extracted.map((item, index) => <div key={`${item.kind}-${index}`}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}</dl></>}<h3>{t.limits}</h3><ul>{plan.limitations.map((item) => <li key={item}>{item}</li>)}</ul></div></details>
         {plan.alternativeSlugs.length > 0 && <div className="agent-alternatives"><strong>{t.alternatives}</strong>{plan.alternativeSlugs.map((slug) => { const tool = tools.find((item) => item.slug === slug); return tool ? <Link key={slug} href={toolPath(locale, slug)}>{tool.title[locale]} →</Link> : null; })}</div>}
-        <div className="agent-followups"><strong>{memoryCopy[locale].follow}</strong><div>{memoryCopy[locale].options.map((option) => <button type="button" key={option} onClick={() => { setGoal(option); document.querySelector<HTMLTextAreaElement>(".agent-input-card textarea")?.focus(); }}>{option}</button>)}</div></div>
+        <div className="agent-followups"><strong>{memoryCopy[locale].follow}</strong><div>{plan.conversation.suggestedReplies.map((option) => <button type="button" key={option} onClick={() => { setGoal(option); inputRef.current?.focus(); }}>{option}</button>)}</div></div>
       </section>}
     </div>}
 

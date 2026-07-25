@@ -38,11 +38,11 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <span><strong>{t.brand}</strong><small>{t.descriptor}</small></span>
           </Link>
           <nav className="main-nav" aria-label={localized("Ana menü", "Main navigation", "Hauptnavigation", "主导航") }>
-            <Link className="nav-library-link" href={pathFor(locale, "tools")}>{t.nav.tools}</Link>
-            <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
-            <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
-            <Link className="community-nav-link" href={pathFor(locale, "community")}>{localized("Topluluk", "Community", "Community", "社区")}</Link>
-            <details className="nav-more-menu"><summary>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><Link href={pathFor(locale, "news")}>{localized("Gündem", "Updates", "Aktuell", "动态")}</Link><Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link><Link href={pathFor(locale, "about")}>{t.nav.about}</Link><Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link></div></details>
+            <Link className="nav-product-link nav-library-link" href={pathFor(locale, "tools")}><span aria-hidden="true">⌕</span><b>{t.nav.tools}</b></Link>
+            <Link className="nav-product-link agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span><b>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</b></Link>
+            <Link className="nav-product-link workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span><b>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</b></Link>
+            <Link className="nav-product-link community-nav-link" href={pathFor(locale, "community")}><span aria-hidden="true">◎</span><b>{localized("Topluluk", "Community", "Community", "社区")}</b></Link>
+            <details className="nav-more-menu"><summary><span aria-hidden="true">＋</span>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><Link href={pathFor(locale, "news")}><span>◉</span><b>{localized("Gündem", "Updates", "Aktuell", "动态")}</b></Link><Link href={pathFor(locale, "blog")}><span>□</span><b>{t.nav.blog}</b></Link><Link href={pathFor(locale, "about")}><span>↗</span><b>{t.nav.about}</b></Link><Link href={pathFor(locale, "faq")}><span>?</span><b>{t.nav.faq}</b></Link></div></details>
           </nav>
           <div className="header-actions">
             <CommandPalette locale={locale} />
@@ -52,7 +52,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <details className="mobile-menu">
               <summary aria-label={localized("Menüyü aç", "Open menu", "Menü öffnen", "打开菜单")}>☰</summary>
               <div className="mobile-menu-panel">
-                <div className="mobile-menu-heading"><strong>ByteQuant</strong><span>{localized("Hızlı gezinme", "Quick navigation", "Schnellnavigation", "快速导航")}</span></div>
+                <div className="mobile-menu-heading"><strong>{localized("Nereye gitmek istersiniz?", "Where would you like to go?", "Wohin möchten Sie?", "您想去哪里？")}</strong><span>{localized("Tek iş için Araçlar, yol haritası için Ajan, çok adım için İş İstasyonu", "Tools for one task, Agent for a plan, Workstation for multi-step flows", "Werkzeuge für eine Aufgabe, Agent für den Plan, Workstation für Abläufe", "单项任务用工具，规划用助手，多步骤用工作站")}</span></div>
                 <Link className="mobile-menu-primary" href={pathFor(locale, "tools")}><span>{t.nav.tools}</span><small>{tools.length}</small></Link>
                 <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
                 <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
