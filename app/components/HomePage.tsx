@@ -12,6 +12,7 @@ import { GitHubActivity } from "./GitHubActivity";
 import { localizedGuides } from "../lib/localized-guides";
 import { HeroToolSearch } from "./HeroToolSearch";
 import { InteractiveDemo } from "./InteractiveDemo";
+import { AGENT_VERSION } from "../lib/agent-session";
 
 const faqs = {
   tr: [
@@ -113,7 +114,7 @@ export function HomePage({ locale }: { locale: Locale }) {
               <footer><Link className="primary-button" href={pathFor(locale, "tools")}>{localized("Araçları keşfet", "Explore tools", "Werkzeuge entdecken", "浏览工具")} →</Link><span>{localized("Hızlı · Odaklı · Ücretsiz", "Fast · Focused · Free", "Schnell · Fokussiert · Kostenlos", "快速 · 专注 · 免费")}</span></footer>
             </article>
             <article className="home-platform-card home-agent-card">
-              <header><span className="home-platform-mark" aria-hidden="true">✦</span><div><small>BQ-AGENT 1.4</small><strong>{localized("Hedefinizi netleştiren yardımcı", "Outcome planning assistant", "Assistent für klare Ziele", "目标规划助手")}</strong></div><b>{localized("BURADAN BAŞLA", "START HERE", "HIER STARTEN", "从这里开始")}</b></header>
+              <header><span className="home-platform-mark" aria-hidden="true">✦</span><div><small>{AGENT_VERSION}</small><strong>{localized("Hedefinizi netleştiren yardımcı", "Outcome planning assistant", "Assistent für klare Ziele", "目标规划助手")}</strong></div><b>{localized("BURADAN BAŞLA", "START HERE", "HIER STARTEN", "从这里开始")}</b></header>
               <h3>{localized("Hedefinizi yazın; uygun araç planını gerekçesiyle görün", "Describe the outcome and see a justified tool plan", "Ziel beschreiben und einen begründeten Werkzeugplan erhalten", "描述目标，查看带依据的工具计划")}</h3>
               <p>{localized("Nereden başlayacağınızı bilmiyorsanız hedefinizi kendi cümlenizle yazın. Ajan uygun araçları önerir, eksik ayrıntıyı sorar ve her adımı anlaşılır biçimde açıklar.", "If you are unsure where to start, describe the outcome in your own words. Agent suggests suitable tools, asks for missing details, and explains every step plainly.", "Wenn der Einstieg unklar ist, beschreiben Sie das Ziel in eigenen Worten. Der Agent schlägt Werkzeuge vor, fragt fehlende Angaben ab und erklärt jeden Schritt verständlich.", "如果不确定从哪里开始，请用自己的话描述目标。助手会推荐工具、询问缺失信息，并清晰解释每一步。")}</p>
               <ol className="home-platform-steps" aria-label={localized("Yerel Ajan kullanım akışı", "Local Agent usage flow", "Nutzungsablauf des lokalen Agenten", "本地助手使用流程")}><li><span>01</span>{localized("Hedefi yaz", "Describe", "Beschreiben", "描述")}</li><li><span>02</span>{localized("Planı denetle", "Review", "Prüfen", "审核")}</li><li><span>03</span>{localized("Adımları çalıştır", "Run", "Ausführen", "执行")}</li></ol>

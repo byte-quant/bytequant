@@ -11,13 +11,13 @@ test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
   assert.match(home, /Hassas verileriniz tarayıcıdan çıkmadan/);
   assert.match(english, /without sensitive data leaving your browser/);
-  assert.match(home, /131 açıklanabilir araç/);
+  assert.match(home, /186 açıklanabilir araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(german, /<html lang="de"/);
   assert.match(chinese, /<html lang="zh-CN"/);
-  assert.match(german, /131 nachvollziehbare Werkzeuge/);
-  assert.match(chinese, /131 个可解释工具/);
+  assert.match(german, /186 nachvollziehbare Werkzeuge/);
+  assert.match(chinese, /186 个可解释工具/);
   assert.match(home, /Sabitlenenler ve sık kullanılanlar/);
   assert.match(english, /Pinned and frequently used tools/);
   assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
@@ -28,6 +28,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
+    assert.match(page, /BQ-Agent 2\.0/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -106,13 +107,13 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 131);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 186);
   assert.match(home, /aria-label="Araç ve referans ara"/);
   assert.match(german, /aria-label="Werkzeuge und Referenzen durchsuchen"/);
   assert.match(chinese, /aria-label="搜索工具和参考资料"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v11/);
+  assert.match(worker, /bytequant-shell-v12/);
   assert.match(worker, /\/en\/agent\//);
   assert.match(worker, /\/en\/workstation\//);
   assert.doesNotMatch(worker, /localStorage/i);
@@ -150,10 +151,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 131);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 131);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 131);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 131);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 186);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 186);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 186);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 186);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -215,7 +216,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-transparency/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /Son güncelleme: 22 Temmuz 2026/);
+  assert.match(page, /Son güncelleme: 25 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
 });
@@ -468,7 +469,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-07-22/);
+    assert.match(page, /dateModified[^<]*2026-07-25/);
   }
 
   const guideSlugs = [
@@ -583,17 +584,19 @@ test("every localized tool exposes demo UX and HowTo schema", async () => {
   assert.match(chineseFaq, /FAQPage/);
 });
 
-test("exports the bilingual editorial discovery and structured-data package", async () => {
-  const [blog, englishBlog, article, englishArticle, feed, englishFeed] = await Promise.all([
+test("exports the four-language editorial discovery and structured-data package", async () => {
+  const [blog, englishBlog, article, englishArticle, feed, englishFeed, germanFeed, chineseFeed] = await Promise.all([
     read("blog/index.html"),
     read("en/blog/index.html"),
     read("blog/json-ld-schema-nextjs-denetim-rehberi/index.html"),
     read("en/blog/nextjs-hreflang-canonical-global-seo-rehberi/index.html"),
     read("feed.xml"),
     read("en/feed.xml"),
+    read("de/feed.xml"),
+    read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>50<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>50<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>69<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>69<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -614,6 +617,10 @@ test("exports the bilingual editorial discovery and structured-data package", as
   assert.match(feed, /json-ld-schema-nextjs-denetim-rehberi/);
   assert.match(englishFeed, /<language>en-US<\/language>/);
   assert.match(englishFeed, /nextjs-hreflang-canonical-global-seo-rehberi/);
+  assert.match(germanFeed, /<language>de-DE<\/language>/);
+  assert.match(germanFeed, /local-agent-workstation-verifiable-planning/);
+  assert.match(chineseFeed, /<language>zh-CN<\/language>/);
+  assert.match(chineseFeed, /source-reliability-evidence-synthesis/);
 });
 
 test("exports the four-language local agent, domain integrity, and security headers", async () => {
@@ -634,7 +641,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 1\.4/);
+    assert.match(page, /BQ-Agent 2\.0/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -652,7 +659,7 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.doesNotMatch(headers, /api\.github\.com/);
   assert.doesNotMatch(await readSource("worker/index.ts"), /api\.github\.com/);
   assert.match(turkish, /bytequant:canonical-origin/);
-  assert.match(turkish, /bq-org-agent-v1-20260718/);
+  assert.match(turkish, /bq-org-agent-v2-20260725/);
   assert.match(guide, /Tarayıcı İçi Agentic AI/);
   assert.match(englishGuide, /Browser-Only Agentic AI/);
   assert.match(guide, /BlogPosting/);
@@ -669,10 +676,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /131 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 131 tools in a visual workflow/);
-  assert.match(german, /131 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 131 个工具/);
+  assert.match(turkish, /186 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 186 tools in a visual workflow/);
+  assert.match(german, /186 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 186 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
@@ -696,4 +703,53 @@ test("exports the four-language visual workstation and private recipe importer",
   assert.match(guide, /RTCDataChannel/);
   assert.match(guide, /developer\.mozilla\.org/);
   assert.match(guide, /rfc-editor\.org/);
+});
+
+test("exports the 55-tool expansion and localized evidence guides", async () => {
+  const sampleSlugs = [
+    "prompt-varsayim-haritasi", "cumle-sadelestirici", "json-schema-ornek-uretici",
+    "csv-markdown-donusturucu", "gizli-deger-redaksiyon-planlayici",
+    "kredi-amortisman-tahminleyici", "karar-matrisi", "ajan-gorev-ayristirici",
+    "paket-manifestosu-denetleyici", "kaynak-guvenilirlik-matrisi",
+  ];
+  const localeRoots = ["araclar", "en/tools", "de/tools", "zh/tools"];
+  const pages = await Promise.all(localeRoots.flatMap((localeRoot) => sampleSlugs.map((slug) => read(`${localeRoot}/${slug}/index.html`))));
+  for (const page of pages) {
+    assert.match(page, /WebApplication/);
+    assert.match(page, /HowTo/);
+    assert.match(page, /FAQPage/);
+    assert.match(page, /dateModified[^<]*2026-07-25/);
+  }
+  for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
+    for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {
+      const guide = await read(`${localeRoot}/${slug}/index.html`);
+      assert.match(guide, /BlogPosting/);
+      assert.match(guide, /hrefLang="x-default"/);
+    }
+  }
+});
+
+test("exports finite official-source updates and verified session-only P2P chat", async () => {
+  const [tr, en, de, zh, trCommunity, enCommunity, syncSource] = await Promise.all([
+    read("guncel/index.html"), read("en/updates/index.html"), read("de/updates/index.html"), read("zh/updates/index.html"),
+    read("topluluk/index.html"), read("en/community/index.html"), readSource("scripts/sync-news.mjs"),
+  ]);
+  for (const page of [tr, en, de, zh]) {
+    assert.doesNotThrow(() => jsonLd(page));
+    assert.match(page, /CollectionPage/);
+    assert.match(page, /hrefLang="tr-TR"/);
+    assert.match(page, /hrefLang="en-US"/);
+    assert.match(page, /hrefLang="de-DE"/);
+    assert.match(page, /hrefLang="zh-CN"/);
+    assert.match(page, /hrefLang="x-default"/);
+  }
+  assert.match(tr, /NASA|NIST/);
+  assert.match(en, /official NASA and NIST RSS/);
+  assert.match(trCommunity, /P2P/);
+  assert.match(enCommunity, /DIRECT P2P CHAT/);
+  assert.match(enCommunity, /safety code/i);
+  assert.doesNotMatch(enCommunity, /socket\.io|firebase|supabase|gundb/i);
+  assert.match(syncSource, /hosts:/);
+  assert.match(syncSource, /4_000_000/);
+  assert.match(syncSource, /AbortSignal\.timeout\(15_000\)/);
 });

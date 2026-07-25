@@ -1,3 +1,5 @@
+import { expansionPosts } from "./expansion-guides";
+
 export type EditorialLocale = "tr" | "en";
 
 export type ArticleSection = {
@@ -203,7 +205,7 @@ export const posts: Post[] = [
     date: "2026-07-14",
     readTime: { tr: "11 dk", en: "10 min" },
     title: { tr: "ByteQuant Araçlarını Etkili Kullanma Rehberi", en: "A Practical Guide to Using ByteQuant Tools" },
-    excerpt: { tr: "131 yerel aracı araştırma, içerik, hesaplama, veri, belge ve güvenlik iş akışlarında doğru sırayla birleştirin.", en: "Combine 131 local tools in practical research, calculation, content, data, document, and security workflows." },
+    excerpt: { tr: "186 yerel aracı araştırma, içerik, hesaplama, veri, belge ve güvenlik iş akışlarında doğru sırayla birleştirin.", en: "Combine 186 local tools in practical research, calculation, content, data, document, and security workflows." },
     description: { tr: "ByteQuant'ın prompt, metin, veri ve güvenlik araçlarını verimli ve güvenli iş akışlarında kullanmak için kapsamlı başlangıç rehberi.", en: "A complete starting guide to ByteQuant's prompt, text, data, and security tools." },
     category: { tr: "Ürün rehberi", en: "Product guide" },
     visualSuggestion: { tr: "Dört araç kategorisinden üç örnek iş akışına bağlanan yol haritası.", en: "A roadmap connecting four tool categories to three sample workflows." },
@@ -1259,6 +1261,8 @@ posts.push(
     },
   },
 );
+
+posts.push(...expansionPosts);
 
 export const legacyPostSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",

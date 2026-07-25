@@ -400,6 +400,7 @@ const categoryUseCases: Record<ToolCategory, Record<"de" | "zh", string[]>> = {
   general: { de: ["Alltagsdokumente vorbereiten", "Strukturierte Entwürfe erstellen", "Ausgaben lokal kontrollieren"], zh: ["准备日常文档", "创建结构化草稿", "在本地控制输出"] },
   ai: { de: ["Modellkontext planen", "KI-Anweisungen vorab prüfen", "Gesprächsdaten lokal vorbereiten"], zh: ["规划模型上下文", "预检查 AI 指令", "本地整理对话数据"] },
   codeSecurity: { de: ["Verdächtige Merkmale vorsortieren", "Code-Review vorbereiten", "Lokale Triage ohne Upload"], zh: ["初步筛选可疑特征", "准备代码审查", "无需上传的本地分诊"] },
+  research: { de: ["Quellen vergleichbar bewerten", "Evidenzlücken sichtbar machen", "Nachvollziehbare Synthesen vorbereiten"], zh: ["可比地评估来源", "明确证据缺口", "准备可追溯的综合分析"] },
 };
 
 const categorySteps: Record<ToolCategory, Record<"de" | "zh", string[]>> = {
@@ -412,6 +413,7 @@ const categorySteps: Record<ToolCategory, Record<"de" | "zh", string[]>> = {
   general: { de: ["Füllen Sie die erforderlichen Felder aus.", "Erzeugen Sie den lokalen Entwurf.", "Prüfen, bearbeiten und exportieren Sie das Ergebnis."], zh: ["填写所需字段。", "生成本地草稿。", "检查、修改并导出结果。"] },
   ai: { de: ["Fügen Sie Prompt, Budget oder Gesprächsdaten ein.", "Starten Sie die regelbasierte lokale Prüfung.", "Prüfen Sie Vorschläge im Kontext, bevor Sie sie verwenden."], zh: ["输入提示词、预算或对话数据。", "运行基于规则的本地检查。", "结合语境审查建议后再使用。"] },
   codeSecurity: { de: ["Wählen Sie eine Datei oder fügen Sie autorisierten Inhalt ein.", "Starten Sie die zeitlich und größenmäßig begrenzte lokale Vorprüfung.", "Prüfen Sie Befunde manuell oder mit einem qualifizierten Sicherheitssystem."], zh: ["选择文件或粘贴获授权内容。", "运行有时间和大小限制的本地预扫描。", "手动或借助专业安全系统复核发现。"] },
+  research: { de: ["Fügen Sie Frage, Quellen oder Behauptungen ein.", "Erstellen Sie die lokale Bewertungs- oder Synthesestruktur.", "Prüfen Sie Primärquellen, Unsicherheit und fehlende Gegenbelege."], zh: ["输入问题、来源或主张。", "在本地生成评估或综合结构。", "核查一手来源、不确定性与缺失的反证。"] },
 };
 
 export function localizeTool(base: BaseTool): Tool {

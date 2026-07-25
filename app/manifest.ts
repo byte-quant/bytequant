@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "ByteQuant · Privacy-First Browser Tools",
     short_name: "ByteQuant",
-    description: "131 privacy-first tools, an explainable local agent, and a visual workstation with encrypted on-device projects and serverless P2P.",
+    description: "186 privacy-first tools, an explainable local agent, a visual workstation, direct P2P collaboration, and source-transparent updates.",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
@@ -25,6 +25,8 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "ByteQuant Workstation", short_name: "Workstation", description: "Build visual workflows with encrypted local projects", url: "/en/workstation/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "ByteQuant Local Agent", short_name: "Local Agent", description: "Plan a private multi-step tool workflow", url: "/en/agent/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
+      { name: "ByteQuant Community", short_name: "Community", description: "Share safe workflows and open a direct P2P chat", url: "/en/community/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
+      { name: "ByteQuant Updates", short_name: "Updates", description: "Read source-transparent science, technology, and security updates", url: "/en/updates/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
       { name: "JSON Formatter", short_name: "JSON", description: "Validate and format JSON locally", url: "/en/tools/json-bicimlendirici/?source=pwa-shortcut", icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }] },
     ],
   };

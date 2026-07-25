@@ -10,6 +10,7 @@ const categoryGlyphs: Record<ToolCategory, string> = {
   general: "✓",
   ai: "AI",
   codeSecurity: "</>",
+  research: "R×",
 };
 
 const glyphRules: Array<[RegExp, string]> = [

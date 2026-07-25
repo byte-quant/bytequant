@@ -9,7 +9,7 @@ const content = {
   tr: {
     eyebrow: "HEDEFİNİZİ YAZIN · ADIMLARI GÖRÜN · KONTROL SİZDE", title: "Ne yapmak istediğinizi anlatın; nereden başlayacağınızı birlikte bulalım",
     intro: "Teknik terim bilmeniz gerekmez. ByteQuant Yerel Ajanı hedefinizi uygun araçlara dönüştürür, eksik bir ayrıntı varsa sorar ve takip edebileceğiniz kısa bir plan hazırlar. Her adımı siz başlatırsınız; içerik bu sekmede kalır.",
-    badges: ["131 araçla senkronize", "0 uzak model çağrısı", "Görünür karar özeti"],
+    badges: ["186 araçla senkronize", "0 uzak model çağrısı", "Görünür karar özeti"],
     howTitle: "Tek bir zeki katman, mevcut araçların tamamı", howIntro: "Araçların çekirdek işlevleri değişmedi. Ajan yalnızca keşif, planlama ve açıkça onayladığınız veri aktarımını koordine eder.",
     cards: [["01", "Anla", "Çok dilli semantik puanlama hedefi, formatları ve gizlilik sinyallerini çıkarır."], ["02", "Planla", "Sürüm kontrollü kurallar uygun araçları sıralar ve her seçimin gerekçesini gösterir."], ["03", "Çalıştır", "Adımları tek tek açar; giriş ve çıktıyı yalnızca sizin eyleminizle bu sekmede devreder."], ["04", "Doğrula", "Hata tercümanı olası nedeni, güvenli kontrolleri ve yöntemin sınırını açıklar."]],
     privacyTitle: "Gerçek tarayıcı içi mimari", privacy: ["Ne prompt ne araç girdisi ByteQuant sunucusuna veya üçüncü taraf modele gönderilir.", "Plan sessionStorage içinde yalnızca açık sekme boyunca tutulur; localStorage'a içerik yazılmaz.", "Sesli giriş, yalnızca tarayıcı cihaz içi işlemeyi doğruladığında etkinleşir; uzak tanımaya geri dönüş yapılmaz.", "Bu sistem üretken bir temel model değildir. Açıklanabilir hibrit arama ve planlama motorudur; hukuki, güvenlik veya kimlik doğrulama kararı vermez."],
@@ -19,7 +19,7 @@ const content = {
   en: {
     eyebrow: "DESCRIBE THE OUTCOME · SEE THE STEPS · STAY IN CONTROL", title: "Tell us what you want to finish; we’ll help you find the first step",
     intro: "No technical vocabulary is required. ByteQuant Local Agent turns the outcome into suitable tools, asks when a detail is missing, and prepares a short plan you can follow. You start every step and the content stays in this tab.",
-    badges: ["Synced with 131 tools", "0 remote model calls", "Visible decision summary"],
+    badges: ["Synced with 186 tools", "0 remote model calls", "Visible decision summary"],
     howTitle: "One intelligent layer across every existing tool", howIntro: "Core tool behavior is unchanged. The agent coordinates discovery, planning, and only the data handoff you explicitly approve.",
     cards: [["01", "Understand", "Multilingual semantic scoring extracts the goal, formats, and privacy signals."], ["02", "Plan", "Versioned rules rank suitable tools and disclose the reason for each choice."], ["03", "Run", "Open each step and pass input or output inside this tab only when you act."], ["04", "Verify", "The error translator explains a likely cause, safe checks, and the method boundary."]],
     privacyTitle: "A genuinely in-browser architecture", privacy: ["Neither prompts nor tool inputs go to a ByteQuant server or third-party model.", "The plan uses sessionStorage for the open tab only; content is never written to localStorage.", "Voice input activates only after the browser verifies on-device processing; there is no remote fallback.", "This is not a generative foundation model. It is an explainable hybrid search and planning engine, not legal, security, or identity verification."],
@@ -29,7 +29,7 @@ const content = {
   de: {
     eyebrow: "ZIEL BESCHREIBEN · SCHRITTE SEHEN · KONTROLLE BEHALTEN", title: "Sagen Sie, was erledigt werden soll; wir finden gemeinsam den Einstieg",
     intro: "Technische Begriffe sind nicht nötig. Der lokale Agent ordnet passende Werkzeuge zu, fragt bei fehlenden Angaben nach und erstellt einen kurzen, nachvollziehbaren Plan. Sie starten jeden Schritt; Inhalte bleiben in diesem Tab.",
-    badges: ["Mit 131 Werkzeugen synchronisiert", "0 Remote-Modellaufrufe", "Sichtbare Entscheidungsübersicht"],
+    badges: ["Mit 186 Werkzeugen synchronisiert", "0 Remote-Modellaufrufe", "Sichtbare Entscheidungsübersicht"],
     howTitle: "Eine intelligente Ebene über allen bestehenden Werkzeugen", howIntro: "Die Kernfunktionen bleiben unverändert. Der Agent koordiniert Suche, Planung und nur die von Ihnen bestätigte Datenübergabe.",
     cards: [["01", "Verstehen", "Mehrsprachige semantische Bewertung erkennt Ziel, Formate und Datenschutzsignale."], ["02", "Planen", "Versionierte Regeln ordnen Werkzeuge und legen die Auswahlgründe offen."], ["03", "Ausführen", "Jeder Schritt wird einzeln geöffnet; Übergaben erfolgen nur durch Ihre Aktion in diesem Tab."], ["04", "Prüfen", "Der Fehlerübersetzer nennt mögliche Ursache, sichere Prüfungen und Methodengrenzen."]],
     privacyTitle: "Echte Browser-Architektur", privacy: ["Prompts und Eingaben gehen weder an ByteQuant-Server noch an Drittmodelle.", "Der Plan bleibt nur im sessionStorage des offenen Tabs; Inhalte landen nicht in localStorage.", "Spracheingabe wird nur bei bestätigter lokaler Verarbeitung aktiviert; kein Remote-Fallback.", "Kein generatives Basismodell, sondern nachvollziehbare hybride Suche und Planung; keine Rechts-, Sicherheits- oder Identitätsprüfung."],
@@ -39,7 +39,7 @@ const content = {
   zh: {
     eyebrow: "描述目标 · 查看步骤 · 保持控制", title: "告诉我们想完成什么，一起找到第一步",
     intro: "无需技术术语。本地助手会把目标匹配到合适工具，在信息不足时提出问题，并生成易于跟随的短计划。每一步都由您启动，内容留在当前标签页。",
-    badges: ["同步 131 个工具", "0 次远程模型调用", "决策摘要可见"],
+    badges: ["同步 186 个工具", "0 次远程模型调用", "决策摘要可见"],
     howTitle: "一个智能层，连接全部现有工具", howIntro: "工具核心功能保持不变。助手只协调发现、规划以及您明确批准的数据传递。",
     cards: [["01", "理解", "多语言语义评分提取目标、格式和隐私信号。"], ["02", "规划", "版本化规则排列合适工具，并公开每项选择的理由。"], ["03", "运行", "逐步打开工具；只有在您操作时才在当前标签页传递输入和输出。"], ["04", "核验", "错误解释器给出可能原因、安全检查和方法边界。"]],
     privacyTitle: "真正的浏览器内架构", privacy: ["提示词和工具输入都不会发往 ByteQuant 服务器或第三方模型。", "计划只在当前标签页的 sessionStorage 中保留，内容不会写入 localStorage。", "仅当浏览器确认设备端处理时才启用语音；没有远程回退。", "它不是生成式基础模型，而是可解释的混合搜索和规划引擎，不提供法律、安全或身份验证结论。"],

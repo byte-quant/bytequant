@@ -12,6 +12,7 @@
     "build:sites": "vinext build",
     "start": "vinext start",
     "test": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs --test tests/*.test.mjs",
+    "sync:news": "node scripts/sync-news.mjs",
     "audit:static": "node scripts/audit-static.mjs",
     "audit:adsense": "node scripts/audit-adsense.mjs",
     "audit:licenses": "node scripts/audit-licenses.mjs",

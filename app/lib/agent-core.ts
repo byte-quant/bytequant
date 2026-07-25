@@ -30,6 +30,8 @@ export type AgentPlan = {
   matchQuality: "strong" | "review";
   clarifyingQuestions: string[];
   nextActions: string[];
+  goalFrame: { outcome: string; input: string; delivery: string; safety: string };
+  planReview: string[];
 };
 
 export type AgentSession = {
@@ -99,6 +101,7 @@ const categoryTerms: Record<ToolCategory, string[]> = {
   general: ["document", "belge", "everyday", "alltag", "日常"],
   ai: ["ai", "agent", "model", "rag", "人工智能"],
   codeSecurity: ["code security", "kod güvenliği", "dateisicherheit", "代码安全"],
+  research: ["research", "evidence", "source", "araştırma", "kanıt", "kaynak", "recherche", "quelle", "研究", "证据", "来源"],
 };
 
 function normalize(value: string, locale: Locale) {
@@ -220,6 +223,19 @@ function splitGoal(goal: string) {
   return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])?)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
+function frameGoal(goal: string, locale: Locale, extracted: AgentParameter[], steps: AgentPlanStep[]) {
+  const formats = extracted.find((item) => item.kind === "format")?.value;
+  const file = extracted.some((item) => item.kind === "file") || steps.some((step) => step.requiresFile);
+  const privateData = extracted.some((item) => item.kind === "privacy");
+  const deliverySignals = goal.match(/\b(download|indir|export|dışa aktar|copy|kopyala|share|paylaş|herunterladen|exportieren|下载|导出|分享)\b/iu);
+  return {
+    outcome: goal.split(/[.;\n]/)[0]?.trim().slice(0, 220) || local(locale, { tr: "Hedef belirtilmedi", en: "Outcome not stated", de: "Ziel nicht angegeben", zh: "未说明目标" }),
+    input: formats ? formats : file ? local(locale, { tr: "Kullanıcının seçeceği yerel dosya", en: "A local file selected by the user", de: "Eine lokal ausgewählte Datei", zh: "用户选择的本地文件" }) : local(locale, { tr: "Doğal dil veya yapıştırılan veri", en: "Natural language or pasted data", de: "Natürliche Sprache oder eingefügte Daten", zh: "自然语言或粘贴数据" }),
+    delivery: deliverySignals ? deliverySignals[0] : local(locale, { tr: "Önizleme; çıktı biçimi doğrulanmalı", en: "Preview; confirm the delivery format", de: "Vorschau; Ausgabeformat bestätigen", zh: "预览；需确认交付格式" }),
+    safety: privateData ? local(locale, { tr: "Hassas veri sinyali var: sentetik örnek ve maskeleme önerildi", en: "Sensitive-data signal: use synthetic data and masking", de: "Signal für sensible Daten: synthetische Daten und Maskierung nutzen", zh: "检测到敏感数据信号：请使用合成数据与遮蔽" }) : local(locale, { tr: "Yerel işleme; yüksek etkili sonuçları bağımsız doğrulayın", en: "Local processing; independently verify high-impact results", de: "Lokale Verarbeitung; folgenreiche Ergebnisse unabhängig prüfen", zh: "本地处理；高影响结果需独立核验" }),
+  };
+}
+
 export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, previousPlan?: AgentPlan | null): AgentPlan {
   const cleanGoal = goal.trim().slice(0, 20_000);
   const normalizedGoal = normalize(cleanGoal, locale);
@@ -294,9 +310,21 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     local(locale, { tr: "Planı gözden geçirip İş İstasyonuna aktarın", en: "Review the plan and send it to Workstation", de: "Plan prüfen und an die Workstation senden", zh: "审核计划并发送到工作站" }),
     local(locale, { tr: "Yüksek etkili sonucu bağımsız olarak kontrol edin", en: "Independently verify high-impact output", de: "Folgenreiche Ausgaben unabhängig prüfen", zh: "独立核验高影响结果" }),
   ];
+  const goalFrame = frameGoal(cleanGoal, locale, extracted, steps);
+  const planReview = [
+    steps.length > 1
+      ? local(locale, { tr: `Akış ${steps.length} bağımlı adıma ayrıldı; her çıktı bir sonraki girdiden önce doğrulanmalı.`, en: `The workflow has ${steps.length} dependent steps; validate every output before it becomes the next input.`, de: `Der Ablauf hat ${steps.length} abhängige Schritte; jede Ausgabe vor der Weitergabe prüfen.`, zh: `流程包含 ${steps.length} 个依赖步骤；每次输出进入下一步前都应验证。` })
+      : local(locale, { tr: "Tek adım yeterli görünüyor; gerekmedikçe zinciri büyütmeyin.", en: "One step appears sufficient; avoid expanding the chain without a concrete need.", de: "Ein Schritt scheint ausreichend; Ablauf nur bei konkretem Bedarf erweitern.", zh: "单步看起来已足够；没有明确需要时不要扩展流程。" }),
+    manualSteps
+      ? local(locale, { tr: "Dosya adımları otomatik çalıştırılmaz; seçim ve indirme kullanıcı kontrolünde kalır.", en: "File steps never run automatically; selection and download remain under user control.", de: "Dateischritte laufen nie automatisch; Auswahl und Download bleiben unter Nutzerkontrolle.", zh: "文件步骤不会自动运行；选择和下载始终由用户控制。" })
+      : local(locale, { tr: "Girdi aktarımı metin tabanlı ve geri alınabilir; yine de paylaşmadan önce çıktıyı inceleyin.", en: "Input handoff is text-based and reversible; still review output before sharing.", de: "Die Eingabeübergabe ist textbasiert und umkehrbar; Ausgabe vor dem Teilen prüfen.", zh: "输入传递基于文本且可撤销；分享前仍需检查输出。" }),
+    confidence < .7
+      ? local(locale, { tr: "Eşleşme orta düzeyde: giriş, hedef çıktı veya hassasiyet bilgisini eklemek planı iyileştirir.", en: "Match confidence is moderate: adding input, desired output, or sensitivity details will improve the plan.", de: "Mittlere Sicherheit: Eingabe, gewünschte Ausgabe oder Sensibilität ergänzen.", zh: "匹配置信度中等：补充输入、期望输出或敏感性信息可改进计划。" })
+      : local(locale, { tr: "Plan hedef sinyalleriyle tutarlı; sentetik bir örnekle küçük ölçekte başlayın.", en: "The plan is consistent with the goal signals; start small with synthetic data.", de: "Plan passt zu den Zielsignalen; klein mit synthetischen Daten beginnen.", zh: "计划与目标信号一致；请先用少量合成数据测试。" }),
+  ];
   return {
     version: AGENT_VERSION, locale, goal: cleanGoal, confidence, signals, extracted, steps, response, alternativeSlugs,
-    matchQuality: needsClarification ? "review" : "strong", clarifyingQuestions, nextActions,
+    matchQuality: needsClarification ? "review" : "strong", clarifyingQuestions, nextActions, goalFrame, planReview,
     limitations: [
       local(locale, { tr: "Bu plan büyük dil modeli çıktısı değil; sürümlenmiş semantik puanlar ve açıklanabilir kurallarla üretilir.", en: "This plan is not large-language-model output; it is generated from versioned semantic scores and explainable rules.", de: "Dieser Plan ist keine LLM-Ausgabe, sondern entsteht aus versionierten semantischen Bewertungen und nachvollziehbaren Regeln.", zh: "该计划不是大语言模型输出，而是由版本化语义评分与可解释规则生成。" }),
       local(locale, { tr: "Ajan gizli düşünce zinciri göstermez; yalnızca karar sinyallerini ve seçilen adımları açıklar.", en: "The agent does not expose hidden chain-of-thought; it shows decision signals and selected steps only.", de: "Der Agent zeigt keine verborgene Gedankenkette, sondern nur Entscheidungssignale und gewählte Schritte.", zh: "助手不展示隐藏思维链，只显示决策信号与所选步骤。" }),

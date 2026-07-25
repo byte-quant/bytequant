@@ -3,6 +3,8 @@ name: Deploy ByteQuant to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -27,6 +29,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm sync:news
       - run: pnpm build
       - run: pnpm test
       - uses: actions/upload-pages-artifact@v3
@@ -42,4 +45,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

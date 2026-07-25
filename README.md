@@ -6,22 +6,23 @@
 [![Build and deploy](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/license-MIT-3657ff)](LICENSE)
 
-ByteQuant is a privacy-first, installable web application containing 131 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
+ByteQuant is a privacy-first, installable web application containing 186 browser-native tools. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
 
 **Live site:** [bytequant.org](https://bytequant.org)
 
 ## Product at a glance
 
-- 131 working tools across Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, and Code & File Security
+- 186 working tools across ten typed categories: Prompt, Text & NLP, Data & Developer, Converters, Privacy & Security, Calculations, Everyday Tools, AI Tools, Code & File Security, and Research & Evidence
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
-- 50 long-form editorial guides in Turkish and English, including 22 editorially localized German and Simplified Chinese workflow editions
+- 69 long-form editorial guides in Turkish and English, including 41 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent 1.4 with outcome-first starters, multilingual semantic search, 12-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, and one-click Workstation handoff
-- Lazy-loaded visual Workstation across all 131 tools, with described starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Explainable Local Agent 2.0 with outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
+- Lazy-loaded visual Workstation across all 186 tools, with fifteen starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- Account-free, tab-local community feed with honest local likes/comments, discovery filters, safety pre-checks, share links, Markdown export, native sharing, and an optional GitHub Discussions publishing route
-- Static sitemap, robots directives, llms.txt, RSS feeds, security policy, and GitHub Pages deployment
+- Account-free, tab-local community feed with honest local likes/comments, discovery filters, safety pre-checks, share links, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
+- A finite updates feed generated at build time from allowlisted official NASA and NIST RSS endpoints; only titles, dates, source names, and original links are retained
+- Static sitemap, robots directives, llms.txt, four-language metadata, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
 
@@ -35,10 +36,11 @@ Storage outside explicitly saved Workstation projects is limited to:
 - bq-theme: the user-selected theme
 - bq-tool-usage-v1: optional, consent-gated tool slug/count/last-use data—never tool content
 - bq-tool-favorites-v1: optional, consent-gated pinned tool IDs—never tool content
+- bytequant:news-favorites:v1: update-card IDs explicitly saved on the current device—never article content
 
 Workstation projects are opt-in and stay in the browser's `bytequant-workspaces` IndexedDB database. Project documents are encrypted with AES-GCM-256 and a non-extractable device key stored in the same database. This reduces exposure at rest but does not protect a compromised device, malicious extension, or hostile same-origin script. Tab handoffs use bounded sessionStorage records. Recipe URLs omit output and omit input by default.
 
-Peer collaboration uses only WebRTC DataChannel with manual offer/answer exchange and an empty ICE-server list. ByteQuant operates no signaling, STUN, or TURN service. Single-use codes expire after ten minutes. Live sharing starts paused and stays locked until both people compare the same DTLS-derived safety code through another trusted channel. The code is not real-world identity verification; connection codes can expose network candidates, and NAT or firewall policy can still prevent a connection.
+Peer collaboration and session chat use only WebRTC DataChannel with manual offer/answer exchange and an empty ICE-server list. ByteQuant operates no signaling, STUN, TURN, account, presence, or message-storage service. Single-use codes expire after ten minutes. Live sharing and chat start paused and stay locked until both people compare the same DTLS-derived safety code through another trusted channel. The code is not real-world identity verification; connection codes can expose network candidates, NAT or firewall policy can prevent a connection, and chat history disappears when the session closes.
 
 File, code, and URL security tools are deliberately framed as **heuristic pre-scans**:
 
@@ -56,13 +58,16 @@ Next.js App Router (static export)
 ├─ Shared typed tool catalogue and localized metadata
 ├─ Local Agent orchestration
 │  ├─ multilingual semantic scorer + versioned plan recipes
-│  ├─ tab-scoped session bridge across all 131 tools
+│  ├─ tab-scoped session bridge across all 186 tools
 │  └─ no remote model, remote speech fallback, or hidden chain-of-thought
 ├─ Visual Workstation (route-level lazy bundle)
 │  ├─ native HTML/SVG nodes + explicit tool bridge
 │  ├─ AES-GCM encrypted IndexedDB projects
 │  ├─ gzip/Base64url recipes in a Web Worker
 │  └─ manual WebRTC DataChannel rooms; no signaling/STUN/TURN
+├─ Source-transparent updates
+│  ├─ build-time allowlisted NASA/NIST RSS sync
+│  └─ finite cards + on-device favorite IDs; no article-body republication
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas
 │  ├─ bounded Web Workers
@@ -103,6 +108,7 @@ The deployable static site is written to out/.
 | Tool catalogue and localized SEO copy | app/lib/tools.ts, app/lib/tool-locales.ts |
 | Calculation, AI, document, and security workbenches | app/components/AdvancedWorkbenches.tsx |
 | High-demand data, SEO, text, calculation, crypto, and RAG workbenches | app/components/DemandWorkbenches.tsx |
+| Research, planning, privacy, finance, and supply-chain expansion | app/lib/expansion-tools.ts, app/components/ExpansionWorkbenches.tsx |
 | Existing client-side tool engine | app/components/ToolWorkbench.tsx |
 | Local semantic planner and error translator | app/lib/agent-core.ts |
 | Agent interface and tool bridge | app/components/AgenticAssistant.tsx, app/components/AgentToolBridge.tsx |
@@ -110,6 +116,7 @@ The deployable static site is written to out/.
 | Locale and hreflang routing | app/lib/site.ts |
 | Legal and trust content | app/lib/info.ts, app/lib/localized-info.ts |
 | Editorial guides | app/lib/posts.ts |
+| Official-source update feed | scripts/sync-news.mjs, app/lib/generated-news.ts, app/components/NewsPage.tsx |
 | Design system | app/globals.css |
 | PWA | app/manifest.ts, app/components/PwaInstall.tsx, public/sw.js |
 | Output verification | tests/site.test.mjs |

@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 131 free browser-based tools for prompt engineering, text and NLP work, calculations, everyday documents, AI workflows, developer workflows, file conversion, and explainable security pre-checks.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 186 free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence.
 
 Canonical site: https://bytequant.org/
 
@@ -17,7 +17,7 @@ Languages:
 - Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts plus pinned tool IDs used for local personalization.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
 - ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
-- Local Agent is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Plans, up to eight conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
+- Local Agent 2.0 is an explainable, browser-only semantic search and workflow planner. It is not a generative LLM and makes no remote model request. Goal framing, plan self-review, plans, up to twenty conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
 - Local Agent never selects files, runs tools, downloads output, or performs a network request without user action. Its decision summary exposes matched signals, extracted parameters, reasons, and limitations—not hidden chain-of-thought.
 - Voice input is offered only when the browser confirms on-device speech recognition and supports forced local processing. There is no fallback to remote recognition.
 - Workstation projects are saved only after explicit use, as AES-GCM-256 ciphertext in the browser's `bytequant-workspaces` IndexedDB database. A non-extractable device key stays in the same database. This is not protection against a compromised device, malicious extension, or hostile same-origin code.
@@ -41,7 +41,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, and local error-pattern translation across the existing 131 tools.
+- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 186 tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -52,7 +52,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 131 existing tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any of the 186 tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
@@ -63,7 +63,17 @@ Languages:
 - German: https://bytequant.org/de/community
 - Simplified Chinese: https://bytequant.org/zh/community
 - Drafts are pre-screened in the active tab for obvious secrets, personal-data patterns, abuse, and unsuitable links. Account-free sharing uses a bounded URL payload or downloaded Markdown; ByteQuant stores no community account or post database. GitHub Discussions remains an optional persistent publishing route.
+- Optional P2P chat connects browsers only after manual offer/answer exchange and safety-code comparison. It uses no ByteQuant signaling, STUN, TURN, account, presence, or message archive, and messages disappear when the session closes.
 - The home-page project-health card is static, always visible, and links to the public workflow and commit history without making an API request or sending tool input.
+
+## Source-transparent updates
+
+- Turkish: https://bytequant.org/guncel
+- English: https://bytequant.org/en/updates
+- German: https://bytequant.org/de/updates
+- Simplified Chinese: https://bytequant.org/zh/updates
+- At build time, an allowlisted script reads official NASA and NIST RSS endpoints. ByteQuant retains only title, date, source name, category, and original URL; it does not republish article bodies or images.
+- The page is finite rather than endless, makes no client-side feed request, stores only explicitly saved card IDs on-device, and clearly sends the reader to the original third-party source.
 
 ## Prompt tools
 
@@ -231,12 +241,74 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [Fuel Cost Calculator](https://bytequant.org/en/tools/yakit-maliyeti-hesaplayici): calculates distance, liters, cost, and cost per kilometer.
 - [Pace & Speed Converter](https://bytequant.org/en/tools/tempo-hiz-donusturucu): derives kilometer and mile pace plus average speed.
 
+## Research, planning, quality, and safety expansion
+
+- [Prompt Assumption Mapper](https://bytequant.org/en/tools/prompt-varsayim-haritasi): turns ambiguous assumptions into reviewable questions and parameters.
+- [Prompt Risk Register](https://bytequant.org/en/tools/prompt-risk-kaydi): records likelihood, impact, detection, mitigation, and owner for prompt risks.
+- [Prompt Output Contract Tester](https://bytequant.org/en/tools/prompt-cikti-sozlesmesi-testi): reviews required fields, formats, and missing-information behavior.
+- [Prompt Variation Lab](https://bytequant.org/en/tools/prompt-varyasyon-laboratuvari): creates controlled prompt variants for human comparison without calling a model.
+- [Prompt Compression Helper](https://bytequant.org/en/tools/prompt-sikistirma-yardimcisi): removes repetition while preserving explicit constraints and output rules.
+- [Sentence Simplifier](https://bytequant.org/en/tools/cumle-sadelestirici): highlights long or dense sentences and proposes structure-first edits.
+- [Inclusive Language Reviewer](https://bytequant.org/en/tools/kapsayici-dil-inceleyici): identifies review-worthy exclusionary phrasing with transparent rules.
+- [Tone Consistency Reviewer](https://bytequant.org/en/tools/ton-tutarliligi-inceleyici): compares tone signals across paragraphs and flags abrupt shifts.
+- [Meeting Note Structurer](https://bytequant.org/en/tools/toplanti-notu-yapilandirici): separates decisions, questions, owners, and follow-ups.
+- [Action Item Extractor](https://bytequant.org/en/tools/aksiyon-maddesi-cikarici): converts explicit action statements into owned, dated tasks.
+- [Headline Variation Lab](https://bytequant.org/en/tools/baslik-varyasyon-laboratuvari): produces bounded headline patterns for manual editorial selection.
+- [Citation Placeholder Auditor](https://bytequant.org/en/tools/atif-yer-tutucu-denetleyici): finds unresolved citation markers and missing source fields.
+- [JSON Schema Example Generator](https://bytequant.org/en/tools/json-schema-ornek-uretici): creates bounded sample data from common JSON Schema keywords.
+- [CSV Column Profiler](https://bytequant.org/en/tools/csv-sutun-profilleyici): reports nulls, uniqueness, inferred types, and sample values locally.
+- [CSV Join Simulator](https://bytequant.org/en/tools/csv-birlestirme-simulatoru): previews key-based joins and unmatched rows without a database.
+- [JSON Patch Generator](https://bytequant.org/en/tools/json-patch-olusturucu): creates a reviewable structural patch between two JSON documents.
+- [JSON Merge Patch Lab](https://bytequant.org/en/tools/json-merge-patch-laboratuvari): previews merge-patch behavior and deletion semantics.
+- [API Pagination Planner](https://bytequant.org/en/tools/api-sayfalama-planlayici): drafts cursor, page, or offset pagination contracts and edge cases.
+- [HTTP Status Code Explorer](https://bytequant.org/en/tools/http-durum-kodu-gezgini): maps status codes to meaning, retry guidance, and client behavior.
+- [MIME Signal Inspector](https://bytequant.org/en/tools/mime-tipi-inceleyici): compares extension and declared type without claiming content verification.
+- [CSV to Markdown Converter](https://bytequant.org/en/tools/csv-markdown-donusturucu): converts validated delimited rows to an escaped Markdown table.
+- [TSV and CSV Converter](https://bytequant.org/en/tools/tsv-csv-donusturucu): converts tabular delimiters with quoted-field handling.
+- [Query String and JSON Converter](https://bytequant.org/en/tools/sorgu-dizesi-json-donusturucu): converts URL parameters to or from structured JSON locally.
+- [Text to ASCII Table Converter](https://bytequant.org/en/tools/metin-ascii-tablo-donusturucu): produces a bounded plain-text table from delimited data.
+- [Color Palette Converter](https://bytequant.org/en/tools/renk-paleti-donusturucu): normalizes palette values and generates CSS custom properties.
+- [Secret Redaction Planner](https://bytequant.org/en/tools/gizli-deger-redaksiyon-planlayici): inventories sensitive patterns and proposes reviewable redaction rules.
+- [Pseudonymization Map](https://bytequant.org/en/tools/takma-adlandirma-haritasi): builds deterministic local aliases while explaining re-identification risk.
+- [Security Checklist Builder](https://bytequant.org/en/tools/guvenlik-kontrol-listesi-olusturucu): turns a system description into an evidence-oriented review list.
+- [JWT Expiry Timeline](https://bytequant.org/en/tools/jwt-sure-zaman-cizelgesi): explains issued, not-before, and expiry claims without verifying signatures.
+- [Password Breach Hygiene Check](https://bytequant.org/en/tools/parola-ihlal-hijyeni-kontrolu): checks local password hygiene without a breach database or network request.
+- [Privacy Notice Gap Scanner](https://bytequant.org/en/tools/gizlilik-bildirimi-bosluk-tarayicisi): flags missing purpose, basis, retention, rights, and contact disclosures.
+- [Loan Amortization Estimator](https://bytequant.org/en/tools/kredi-amortisman-tahminleyici): generates a transparent fixed-rate repayment scenario.
+- [Inflation Purchasing-Power Calculator](https://bytequant.org/en/tools/enflasyon-satin-alma-gucu): estimates purchasing-power change under explicit rate assumptions.
+- [Break-Even Point Calculator](https://bytequant.org/en/tools/basabas-noktasi-hesaplayici): calculates unit and revenue break-even scenarios.
+- [Margin and Markup Calculator](https://bytequant.org/en/tools/marj-kar-orani-hesaplayici): distinguishes margin, markup, cost, price, and profit.
+- [Probability Calculator](https://bytequant.org/en/tools/olasilik-hesaplayici): combines bounded independent-event scenarios with stated assumptions.
+- [Sample Size Estimator](https://bytequant.org/en/tools/orneklem-buyuklugu-tahminleyici): estimates a simple proportion sample size and discloses model limits.
+- [Decision Matrix](https://bytequant.org/en/tools/karar-matrisi): scores weighted options while keeping assumptions visible.
+- [SMART Goal Builder](https://bytequant.org/en/tools/smart-hedef-olusturucu): adds baselines, targets, dates, evidence, and ownership to goals.
+- [Agenda Builder](https://bytequant.org/en/tools/gundem-olusturucu): separates information, discussion, and decision items with time boxes.
+- [Shift Plan Formatter](https://bytequant.org/en/tools/vardiya-plani-formatlayici): structures pasted shift assignments and flags basic overlaps.
+- [Checklist Organizer](https://bytequant.org/en/tools/kontrol-listesi-duzenleyici): normalizes tasks into grouped, reviewable checklists.
+- [Agent Task Decomposer](https://bytequant.org/en/tools/ajan-gorev-ayristirici): splits a goal into bounded actions, inputs, outputs, and stop conditions.
+- [Context Priority Planner](https://bytequant.org/en/tools/baglam-oncelik-planlayici): ranks context by relevance, authority, freshness, and token cost.
+- [Hallucination Risk Checklist](https://bytequant.org/en/tools/halusinasyon-risk-kontrol-listesi): prepares claim-to-source and uncertainty checks for human review.
+- [RAG Source Quality Scorer](https://bytequant.org/en/tools/rag-kaynak-kalite-puanlayici): scores source primariness, method, freshness, and conflicts.
+- [Model Comparison Rubric](https://bytequant.org/en/tools/model-karsilastirma-rubrigi): creates a repeatable evaluation rubric without calling or endorsing a model.
+- [Package Manifest Auditor](https://bytequant.org/en/tools/paket-manifestosu-denetleyici): reviews dependency ranges, scripts, engines, and metadata in pasted manifests.
+- [npm Script Risk Scanner](https://bytequant.org/en/tools/npm-script-risk-tarayicisi): flags review-worthy shell, network, install-hook, and destructive command patterns.
+- [Regex Complexity Pre-Check](https://bytequant.org/en/tools/regex-karmasiklik-on-kontrolu): detects common backtracking risk signals without claiming proof of safety.
+- [Dockerfile Security Pre-Check](https://bytequant.org/en/tools/dockerfile-guvenlik-on-kontrolu): reviews root use, floating tags, secret patterns, downloads, and package hygiene.
+- [GitHub Actions Permission Auditor](https://bytequant.org/en/tools/github-actions-izin-denetleyici): reviews pasted workflow permissions, triggers, action pinning, and secret exposure signals.
+- [Source Reliability Matrix](https://bytequant.org/en/tools/kaynak-guvenilirlik-matrisi): compares authority, primariness, method, freshness, and conflicts.
+- [Research Question Decomposer](https://bytequant.org/en/tools/arastirma-sorusu-ayristirici): turns a broad question into scope, comparison, outcome, time, and exclusion fields.
+- [Evidence Synthesis Table](https://bytequant.org/en/tools/kanit-sentez-tablosu): aligns claims, sources, methods, findings, limits, and contradictions.
+
 ## Editorial guides and site resources
 
 - Turkish guides: https://bytequant.org/blog
 - English guides: https://bytequant.org/en/blog
 - German guides: https://bytequant.org/de/blog
 - Simplified Chinese guides: https://bytequant.org/zh/blog
+- Turkish RSS: https://bytequant.org/feed.xml
+- English RSS: https://bytequant.org/en/feed.xml
+- German RSS: https://bytequant.org/de/feed.xml
+- Simplified Chinese RSS: https://bytequant.org/zh/feed.xml
 - Regex quick reference: https://bytequant.org/referanslar/regex-cheat-sheet
 - Cron quick reference: https://bytequant.org/referanslar/cron-cheat-sheet
 - About and editorial principles: https://bytequant.org/hakkimizda

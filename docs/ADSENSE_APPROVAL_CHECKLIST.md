@@ -1,7 +1,7 @@
 # ByteQuant AdSense approval checklist
 
-Audit date: 2026-07-22
-Scope: four-language static export, 131 tools, guides, Local Agent, Workstation, and Community.
+Audit date: 2026-07-25
+Scope: four-language static export, 186 tools, 69 Turkish/English guides, 41 German/Chinese localized guide editions, Local Agent, Workstation, Community, and the finite Updates feed.
 
 This checklist is a readiness audit, not a promise of Google approval. Google makes the final account and site decision.
 
@@ -14,6 +14,7 @@ This checklist is a readiness audit, not a promise of Google approval. Google ma
 - [x] Guide ads appear only after substantial publisher content.
 - [x] Home has two content-separated placements; the page still contains substantially more publisher content than advertising space.
 - [x] No ad placement exists in Local Agent, Workstation, P2P, or Community composition/comment surfaces.
+- [x] The Updates feed republishes no article body or image, links visibly to official sources, uses a finite list, and contains no advertising placement beside save/share controls.
 - [x] No auto-refresh, sticky overlay, pop-up, animation, arrow, or attention-forcing treatment is used.
 - [x] No AdSense script, publisher identifier, advertising cookie, analytics tag, or tracking SDK is active.
 - [x] Privacy and storage disclosures explain the activation gate and optional-storage behavior.
@@ -48,4 +49,4 @@ Run: `pnpm audit:adsense`
 | Tool detail | after tool UI + method/use-case guide | 1 | Keeps ads away from actions and errors |
 | Guide index | after complete guide list | 1 | Clear separation from navigation |
 | Guide article | after second substantive section | 1 | In-content placement on editorial pages |
-| Agent / Workstation / Community / P2P | none | 0 | Interactive/private-context and accidental-click risk |
+| Agent / Workstation / Community / P2P / Updates | none | 0 | Interactive/private-context, third-party-source, and accidental-click risk |

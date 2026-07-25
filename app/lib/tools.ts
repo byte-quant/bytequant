@@ -1,8 +1,9 @@
 import type { Locale } from "./site";
 import { localizeTool, type BaseTool } from "./tool-locales";
 import { productivityTools } from "./productivity-tools";
+import { expansionTools } from "./expansion-tools";
 
-export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security" | "calculation" | "general" | "ai" | "codeSecurity";
+export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security" | "calculation" | "general" | "ai" | "codeSecurity" | "research";
 
 export type Tool = {
   slug: string;
@@ -60,6 +61,11 @@ export const categories: Record<ToolCategory, { label: Record<Locale, string>; d
     label: { tr: "Kod ve dosya güvenliği", en: "Code & file security", de: "Code- & Dateisicherheit", zh: "代码与文件安全" },
     description: { tr: "Dosya, URL ve kaynak kodunda açıklanabilir yerel risk ön taramaları çalıştırın.", en: "Run explainable local risk pre-scans for files, URLs, and source code.", de: "Führen Sie erklärbare lokale Risiko-Vorprüfungen für Dateien, URLs und Quellcode aus.", zh: "对文件、网址和源代码执行可解释的本地风险预扫描。" },
     mark: "CS",
+  },
+  research: {
+    label: { tr: "Araştırma ve kanıt", en: "Research & evidence", de: "Recherche & Evidenz", zh: "研究与证据" },
+    description: { tr: "Kaynakları, iddiaları ve kanıt boşluklarını şeffaf yöntemlerle yapılandırın.", en: "Structure sources, claims, and evidence gaps with transparent methods.", de: "Strukturieren Sie Quellen, Aussagen und Evidenzlücken mit transparenten Methoden.", zh: "使用透明方法整理来源、主张与证据缺口。" },
+    mark: "R",
   },
 };
 
@@ -799,7 +805,7 @@ const discoveryTools: BaseTool[] = [
   { slug: "semver-karsilastirici", category: "data", mark: "104", title: { tr: "SemVer Karşılaştırıcı", en: "SemVer Comparator" }, short: { tr: "Sürüm numaralarını SemVer ön sürüm kurallarıyla karşılaştırın ve sıralayın.", en: "Compare and sort versions with SemVer prerelease precedence rules." }, description: { tr: "major.minor.patch sürümlerini ve alpha.1 gibi ön sürüm tanımlayıcılarını SemVer önceliğine göre doğrular, karşılaştırır ve sıralar. Build metadata önceliği değiştirmez; araç bağımlılık uyumluluğunu tek başına kanıtlamaz.", en: "Validates, compares, and sorts major.minor.patch versions with prerelease identifiers such as alpha.1 according to SemVer precedence. Build metadata does not affect precedence, and the result alone does not prove dependency compatibility." }, useCases: { tr: ["Sürüm listesi sıralama", "Yayın önceliği kontrolü", "Ön sürüm karşılaştırma"], en: ["Sorting release lists", "Checking release precedence", "Comparing prereleases"] }, steps: { tr: ["Her satıra bir sürüm yazın.", "Doğrulama ve sıralamayı çalıştırın.", "Uyumluluk kararını paket sözleşmesi ve değişiklik günlüğüyle birlikte verin."], en: ["Enter one version per line.", "Run validation and sorting.", "Decide compatibility together with the package contract and changelog."] } },
 ];
 
-export const tools: Tool[] = [...baseTools, ...demandTools, ...discoveryTools, ...productivityTools].map(localizeTool);
+export const tools: Tool[] = [...baseTools, ...demandTools, ...discoveryTools, ...productivityTools, ...expansionTools].map(localizeTool);
 
 const relatedBySlug: Record<string, string[]> = {
   "prompt-kalite-denetimi": ["meta-prompt-olusturucu", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"],

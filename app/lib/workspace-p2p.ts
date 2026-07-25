@@ -13,6 +13,7 @@ type OfferSignal = { v: 2; kind: "offer"; roomId: string; offerId: string; from:
 type AnswerSignal = { v: 2; kind: "answer"; roomId: string; offerId: string; from: string; to: string; issuedAt: number; sdp: RTCSessionDescriptionInit };
 export type CollaborationSignal = OfferSignal | AnswerSignal;
 type WireChunk = { v: 1; type: "workspace-chunk"; roomId: string; from: string; transferId: string; index: number; total: number; payload: string };
+type WireChat = { v: 1; type: "community-chat"; roomId: string; from: string; messageId: string; issuedAt: number; body: string };
 
 function shortId(prefix: string, size = 8) {
   const bytes = crypto.getRandomValues(new Uint8Array(size));
@@ -83,9 +84,11 @@ export class WorkspacePeerMesh {
   private offers = new Map<string, { connection: RTCPeerConnection; expiresAt: number }>();
   private chunks = new Map<string, { parts: string[]; total: number; bytes: number; from: string; receivedAt: number }>();
   private sharingEnabled = false;
+  private chatEnabled = false;
   onWorkspace?: (document: WorkspaceDocument, from: string) => void;
   onStatus?: (status: string, peers: number) => void;
   onSecurity?: (peer: string, safetyCode: string | null) => void;
+  onMessage?: (body: string, from: string, issuedAt: number) => void;
 
   constructor(roomId = shortId("room", 4)) {
     this.roomId = roomId;
@@ -95,6 +98,7 @@ export class WorkspacePeerMesh {
   get peerCount() { return [...this.channels.values()].filter((channel) => channel.readyState === "open").length; }
 
   setSharingEnabled(enabled: boolean) { this.sharingEnabled = enabled; }
+  setChatEnabled(enabled: boolean) { this.chatEnabled = enabled; }
 
   private cleanupOffers(now = Date.now()) {
     for (const [offerId, offer] of this.offers) if (offer.expiresAt < now) {
@@ -199,12 +203,28 @@ export class WorkspacePeerMesh {
     }
   }
 
+  broadcastMessage(body: string) {
+    const clean = body.replace(/[\u0000-\u001F\u007F]/g, " ").trim().slice(0, 800);
+    if (!this.chatEnabled || clean.length < 1) throw new Error("chat-disabled");
+    const message: WireChat = { v: 1, type: "community-chat", roomId: this.roomId, from: this.peerId, messageId: shortId("msg", 6), issuedAt: Date.now(), body: clean };
+    const raw = JSON.stringify(message);
+    for (const channel of this.channels.values()) if (channel.readyState === "open" && channel.bufferedAmount < 64_000) channel.send(raw);
+  }
+
   private receive(raw: string, peer: string) {
     if (raw.length > CHUNK_SIZE * 2) return;
     const now = Date.now();
     for (const [key, transfer] of this.chunks) if (now - transfer.receivedAt > TRANSFER_LIFETIME_MS) this.chunks.delete(key);
     try {
-      const chunk = JSON.parse(raw) as WireChunk;
+      const value = JSON.parse(raw) as WireChunk | WireChat;
+      if (value?.v === 1 && value.type === "community-chat") {
+        if (!this.chatEnabled || !validId(value.roomId) || !validId(value.from) || !validId(value.messageId) || value.roomId !== this.roomId
+          || !Number.isSafeInteger(value.issuedAt) || Math.abs(now - value.issuedAt) > COLLABORATION_SIGNAL_LIFETIME_MS
+          || typeof value.body !== "string" || value.body.length < 1 || value.body.length > 800) return;
+        this.onMessage?.(value.body.replace(/[\u0000-\u001F\u007F]/g, " ").trim(), peer, value.issuedAt);
+        return;
+      }
+      const chunk = value as WireChunk;
       if (chunk?.v !== 1 || chunk.type !== "workspace-chunk" || !validId(chunk.roomId) || !validId(chunk.from) || !validId(chunk.transferId)
         || !Number.isInteger(chunk.index) || !Number.isInteger(chunk.total) || chunk.index < 0 || chunk.total < 1 || chunk.total > MAX_CHUNKS || chunk.index >= chunk.total
         || typeof chunk.payload !== "string" || chunk.payload.length > CHUNK_SIZE || chunk.roomId !== this.roomId) return;
@@ -220,14 +240,15 @@ export class WorkspacePeerMesh {
       this.chunks.set(key, transfer);
       if (transfer.parts.filter((part) => typeof part === "string").length !== transfer.total) return;
       this.chunks.delete(key);
-      const value = JSON.parse(transfer.parts.join("")) as unknown;
-      if (!validateWorkspaceDocument(value)) return;
-      this.onWorkspace?.(value, transfer.from);
+      const document = JSON.parse(transfer.parts.join("")) as unknown;
+      if (!validateWorkspaceDocument(document)) return;
+      this.onWorkspace?.(document, transfer.from);
     } catch { /* malformed peer data is ignored */ }
   }
 
   close() {
     this.sharingEnabled = false;
+    this.chatEnabled = false;
     this.channels.forEach((channel, peer) => { channel.close(); this.onSecurity?.(peer, null); });
     this.connections.forEach((connection) => connection.close());
     this.channels.clear(); this.connections.clear(); this.offers.clear(); this.chunks.clear();
