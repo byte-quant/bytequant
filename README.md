@@ -16,12 +16,12 @@ ByteQuant is a privacy-first, installable web application containing 186 browser
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
 - 69 long-form editorial guides in Turkish and English, including 41 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent 2.1 with follow-up intent detection, contextual replies, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
+- Explainable Local Agent 2.2 with follow-up intent detection, contextual replies, three visible specialist checks, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
 - Lazy-loaded visual Workstation across all 186 tools, with fifteen starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- Account-free, local-first community feed with local profiles, likes/comments/saves, discovery filters, safety pre-checks, content-carrying share links, portable JSON packs, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
-- A finite updates feed generated at build time from allowlisted official NASA, NIST, and openly licensed GOV.UK feeds; only titles, dates, source names, and original links are retained
+- Account-free, local-first social board with public/private local profiles, public/private/group posts, likes/comments/saves, private groups, discovery filters, spam/secret/personal-data pre-checks, content-carrying share links, privacy-filtered JSON packs, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
+- A finite updates feed generated at build time from allowlisted official NASA, NIST, CISA, and openly licensed GOV.UK feeds; short official-feed summaries are retained only where reuse terms allow them, with source links, reading state, and four-language verification guidance
 - Static sitemap, robots directives, llms.txt, four-language metadata, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -37,6 +37,8 @@ Storage outside explicitly saved Workstation projects is limited to:
 - bq-tool-usage-v1: optional, consent-gated tool slug/count/last-use data—never tool content
 - bq-tool-favorites-v1: optional, consent-gated pinned tool IDs—never tool content
 - bytequant:news-favorites:v1: update-card IDs explicitly saved on the current device—never article content
+- bytequant:news-reviewed:v1: update-card IDs marked as reviewed on the current device
+- bytequant:community-feed:v3 and bytequant:community-profile:v2: tab-scoped social-board state in sessionStorage; private posts are excluded from public links and exports
 
 Workstation projects are opt-in and stay in the browser's `bytequant-workspaces` IndexedDB database. Project documents are encrypted with AES-GCM-256 and a non-extractable device key stored in the same database. This reduces exposure at rest but does not protect a compromised device, malicious extension, or hostile same-origin script. Tab handoffs use bounded sessionStorage records. Recipe URLs omit output and omit input by default.
 
@@ -66,8 +68,8 @@ Next.js App Router (static export)
 │  ├─ gzip/Base64url recipes in a Web Worker
 │  └─ manual WebRTC DataChannel rooms; no signaling/STUN/TURN
 ├─ Source-transparent updates
-│  ├─ build-time allowlisted NASA/NIST/GOV.UK feed sync
-│  └─ finite cards + on-device favorite IDs; no article-body republication
+│  ├─ build-time allowlisted NASA/NIST/CISA/GOV.UK feed sync
+│  └─ finite cards + local reading state + reuse-aware official-feed summaries
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas
 │  ├─ bounded Web Workers
@@ -77,6 +79,16 @@ Next.js App Router (static export)
 ~~~
 
 No secret belongs in the client bundle. Source code is intentionally maintainable rather than obfuscated; obfuscation does not protect browser-side credentials and makes security review harder. Production source maps are disabled. Canonical metadata, a build signature, and an official-domain guard preserve attribution and block interactive use on unauthorized hosts, but no client-side mechanism can make delivered JavaScript impossible to inspect.
+
+## Repository identity
+
+ByteQuant is an open-source, privacy-first browser workbench: 186 local tools, an explainable workflow Agent, an encrypted visual Workstation, four-language guides, and a source-transparent updates desk. The repository intentionally avoids remote inference, hidden telemetry, fake community metrics, and server-side processing of tool input.
+
+Recommended GitHub About description: `Privacy-first browser workbench with 186 local tools, an explainable Agent, encrypted visual workflows, and four-language guides.`
+
+Recommended topics: `privacy-tools`, `browser-tools`, `nextjs`, `typescript`, `pwa`, `local-first`, `web-crypto`, `developer-tools`, `workflow-automation`, `i18n`, `static-site`, `open-source`.
+
+The build badge above maps directly to the pinned, least-privilege Pages workflow in `.github/workflows/deploy.yml`. A passing badge means lint, license audit, production build, application tests, static-output audit, and AdSense-surface audit all completed before deployment.
 
 ## Local development
 
@@ -94,8 +106,10 @@ Run the complete quality gate:
 
 ~~~bash
 pnpm lint
+pnpm audit:licenses
 pnpm build
 pnpm test
+pnpm audit:static
 pnpm audit:adsense
 ~~~
 

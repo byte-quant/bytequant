@@ -1,4 +1,4 @@
-export type CommunitySafetyIssue = "abusive" | "privateKey" | "credential" | "email" | "identity" | "external";
+export type CommunitySafetyIssue = "abusive" | "privateKey" | "credential" | "email" | "identity" | "external" | "spam";
 
 const prohibited = ["fuck", "nigger", "terrorist threat", "öldür", "sikeyim", "piç", "hurensohn", "töten", "去死", "操你"];
 const patterns: ReadonlyArray<{ key: CommunitySafetyIssue; pattern: RegExp }> = [
@@ -18,5 +18,6 @@ export function reviewCommunityText(value: string): CommunitySafetyIssue[] {
   for (const item of patterns) if (item.pattern.test(text)) result.push(item.key);
   const urls = text.match(/https?:\/\/[^\s)]+/g) ?? [];
   if (urls.some((url) => !/^https:\/\/(?:www\.)?bytequant\.org\//i.test(url))) result.push("external");
+  if (urls.length > 3 || /(.)\1{14,}/u.test(text) || /\b([\p{L}\p{N}]{3,})\b(?:\s+\1\b){5,}/iu.test(text)) result.push("spam");
   return [...new Set(result)];
 }

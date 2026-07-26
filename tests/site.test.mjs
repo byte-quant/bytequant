@@ -28,7 +28,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 2\.1/);
+    assert.match(page, /BQ-Agent 2\.2/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -216,7 +216,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-transparency/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /Son güncelleme: 25 Temmuz 2026/);
+  assert.match(page, /Son güncelleme: 26 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
 });
@@ -499,9 +499,9 @@ test("exports instant search, live demo, and no-account community sharing", asyn
   assert.match(englishHome, /4 LIVE DEMOS IN ONE VIEW/);
   assert.match(community, /HESAPSIZ/);
   assert.match(englishCommunity, /NO-ACCOUNT/);
-  assert.match(community, /HESAPSIZ TOPLULUK ALANI/);
-  assert.match(englishCommunity, /NO-ACCOUNT COMMUNITY SPACE/);
-  assert.match(englishCommunity, /Discover ideas, build your own board/);
+  assert.match(community, /YEREL-FIRST SOSYAL ALAN/);
+  assert.match(englishCommunity, /LOCAL-FIRST SOCIAL SPACE/);
+  assert.match(englishCommunity, /Manage your profile, groups, and safe sharing board/);
   assert.match(community, /FAQPage|HowTo/);
   assert.doesNotMatch(community, /api\.github\.com/);
   const styles = await readSource("app/globals.css");
@@ -643,7 +643,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 2\.1/);
+    assert.match(page, /BQ-Agent 2\.2/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -746,7 +746,7 @@ test("exports finite official-source updates and verified session-only P2P chat"
     assert.match(page, /hrefLang="x-default"/);
   }
   assert.match(tr, /NASA|NIST/);
-  assert.match(en, /NASA, NIST, and the openly licensed GOV\.UK feed/);
+  assert.match(en, /NASA, NIST, CISA, and openly licensed GOV\.UK feeds/);
   assert.match(trCommunity, /P2P/);
   assert.match(enCommunity, /DIRECT P2P CHAT/);
   assert.match(enCommunity, /safety code/i);
@@ -755,4 +755,57 @@ test("exports finite official-source updates and verified session-only P2P chat"
   assert.match(syncSource, /4_000_000/);
   assert.match(syncSource, /GOV\.UK/);
   assert.match(syncSource, /AbortSignal\.timeout\(15_000\)/);
+});
+
+test("ships the July 26 depth, local-social, and supply-chain quality pass", async () => {
+  const [trGuide, enGuide, deGuide, zhGuide, communitySource, composerSource, agentSource, toolSource, newsSource, generatedNews, workflow] = await Promise.all([
+    read("blog/local-agent-workstation-verifiable-planning/index.html"),
+    read("en/blog/local-agent-workstation-verifiable-planning/index.html"),
+    read("de/blog/local-agent-workstation-verifiable-planning/index.html"),
+    read("zh/blog/local-agent-workstation-verifiable-planning/index.html"),
+    readSource("app/components/CommunityFeed.tsx"),
+    readSource("app/components/CommunityComposer.tsx"),
+    readSource("app/components/AgenticAssistant.tsx"),
+    readSource("app/components/ExpansionWorkbenches.tsx"),
+    readSource("app/components/NewsFeedClient.tsx"),
+    readSource("app/lib/generated-news.ts"),
+    readSource(".github/workflows/deploy.yml"),
+  ]);
+
+  for (const guide of [trGuide, enGuide, deGuide, zhGuide]) {
+    assert.match(guide, /2026-07-26/);
+    assert.ok((guide.match(/section-index/g) ?? []).length >= 5);
+    assert.match(guide, /BlogPosting/);
+  }
+  assert.match(trGuide, /Kalite kapısı, hata senaryosu ve güvenli teslim/);
+  assert.match(enGuide, /Quality gate, failure path, and safe delivery/);
+  assert.match(deGuide, /Qualitätsgrenze, Fehlerpfad und sichere Übergabe/);
+  assert.match(zhGuide, /质量门槛、失败路径与安全交付/);
+
+  assert.match(communitySource, /type Visibility = "public" \| "private"/);
+  assert.match(communitySource, /type Audience = Visibility \| "group"/);
+  assert.match(communitySource, /bytequant:community-feed:v3/);
+  assert.match(communitySource, /exportPack/);
+  assert.match(composerSource, /audience/);
+  assert.match(composerSource, /groupName/);
+  assert.match(communitySource, /does not fake those features or counts/i);
+  assert.doesNotMatch(communitySource, /simulatedGlobalCount|fakeMemberCount/);
+
+  assert.match(agentSource, /specialistCopy/);
+  assert.match(agentSource, /workflow architect/i);
+  assert.match(agentSource, /not separate LLMs/i);
+  assert.match(toolSource, /SMART goal contract/);
+  assert.match(toolSource, /Decision-focused meeting agenda/);
+  assert.match(toolSource, /Closure gate/);
+  assert.equal((toolSource.match(/pair\.length >= 2/g) ?? []).length, 2);
+  assert.match(newsSource, /news-source-summary/);
+  assert.match(newsSource, /news-reviewed/);
+  assert.match(generatedNews, /"sourceSummary":/);
+  assert.doesNotMatch(generatedNews, /"sourceSummary":\s*"[^"\n]*<[^>]+>/);
+
+  assert.match(workflow, /pnpm audit:licenses/);
+  assert.match(workflow, /pnpm audit:static/);
+  assert.match(workflow, /pnpm audit:adsense/);
+  assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
+  for (const sha of workflow.matchAll(/uses:\s+[^\s]+@([a-f0-9]{40})/g)) assert.equal(sha[1].length, 40);
 });
