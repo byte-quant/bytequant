@@ -29,7 +29,17 @@ for (const entry of readdirSync(store)) scan(path.join(store, entry, "node_modul
 // attribution, notices, file-level copyleft, and relinking remain documented in
 // THIRD_PARTY_NOTICES.md and the upstream package license files.
 const allowed = /^(?:MIT|ISC|Apache-2\.0|BSD(?:-2-Clause|-3-Clause)?|0BSD|BlueOak-1\.0\.0|CC0-1\.0|CC-BY-4\.0|Python-2\.0|MPL-2\.0|MIT OR Apache-2\.0|Apache-2\.0 AND LGPL-3\.0-or-later|\(MIT OR Apache-2\.0\)|\(MIT AND Zlib\)|MIT AND CC-BY-3\.0)$/i;
-const flagged = [...packages].filter(([, license]) => !allowed.test(typeof license === "string" ? license : ""));
+function isAllowed(name, license) {
+  if (typeof license !== "string") return false;
+  if (allowed.test(license)) return true;
+
+  // Sharp's prebuilt libvips packages report the bundled native library as
+  // LGPL-3.0-or-later on Linux. Keep this exception package-scoped so adding
+  // another LGPL dependency still requires an explicit review.
+  return name.startsWith("@img/sharp-libvips-") && license === "LGPL-3.0-or-later";
+}
+
+const flagged = [...packages].filter(([name, license]) => !isAllowed(name, license));
 assert.ok(packages.size > 0, "No installed package metadata was found.");
 assert.deepEqual(flagged, [], `Review non-permissive or missing licenses:\n${flagged.map(([name, license]) => `${name}: ${JSON.stringify(license)}`).join("\n")}`);
 

@@ -808,4 +808,7 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
   assert.match(workflow, /pnpm audit:adsense/);
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
   for (const sha of workflow.matchAll(/uses:\s+[^\s]+@([a-f0-9]{40})/g)) assert.equal(sha[1].length, 40);
+  const licenseAudit = await readSource("scripts/audit-licenses.mjs");
+  assert.match(licenseAudit, /name\.startsWith\("@img\/sharp-libvips-"\)/);
+  assert.match(licenseAudit, /license === "LGPL-3\.0-or-later"/);
 });
