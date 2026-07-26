@@ -1,7 +1,7 @@
-export type NewsItem = { id: string; title: string; url: string; date: string; source: "NASA" | "NIST" | "CISA" | "GOV.UK"; category: "science" | "technology" | "security" | "standards"; region: "global" | "uk"; sourceLanguage: "en"; sourceSummary?: string };
+export type NewsItem = { id: string; title: string; url: string; date: string; source: "NASA" | "NIST" | "CISA" | "GOV.UK" | "NSF" | "NIH" | "ESA" | "NCSC" | "NOAA"; category: "science" | "technology" | "security" | "standards"; region: "global" | "uk"; sourceLanguage: "en"; sourceSummary?: string };
 
 // Generated at build time from official, allowlisted RSS endpoints. Summaries are included only where the source's reuse terms permit it.
-export const newsGeneratedAt = "2026-07-26T08:45:37.731Z";
+export const newsGeneratedAt = "2026-07-26T09:52:30.823Z";
 export const newsItems: NewsItem[] = [
   {
     "id": "nasa-1l8pc5u",
@@ -92,6 +92,36 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "For the first time, AI will be positioned at the very centre of government, thanks to the launch of the PM’s new AI Taskforce which will be chaired by Lord Vallance."
   },
   {
+    "id": "esa-1j8899q",
+    "title": "Why total solar eclipses are so special",
+    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/07/Why_total_solar_eclipses_are_so_special",
+    "date": "2026-07-24",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "esa-1dpybtu",
+    "title": "Earth from Space: Agricultural patchwork",
+    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/07/Earth_from_Space_Agricultural_patchwork",
+    "date": "2026-07-24",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "esa-w3ihfg",
+    "title": "Two new Galileo satellites enter service",
+    "url": "https://www.esa.int/Applications/Satellite_navigation/Two_new_Galileo_satellites_enter_service",
+    "date": "2026-07-24",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
     "id": "nasa-ze0ads",
     "title": "Look for NASA+ Now Streaming on Amazon Fire TV",
     "url": "https://www.nasa.gov/news-release/look-for-nasa-now-streaming-on-amazon-fire-tv/",
@@ -123,6 +153,26 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "NASA MAVEN (Mars Atmosphere and Volatile Evolution) mission scientists have uncovered a key puzzle piece in understanding certain types of auroras on Mars, finding that they form in a similar way to Earth-based auroras. Results published Thursday in Nature Communications show the same mechanism that circulates and catapults charged particles into Earth’s atmosphere is happening at […]"
+  },
+  {
+    "id": "esa-1fw6z6n",
+    "title": "Watch the total solar eclipse with ESA in León",
+    "url": "https://www.esa.int/Science_Exploration/Space_Science/Watch_the_total_solar_eclipse_with_ESA_in_Leon",
+    "date": "2026-07-23",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "ncsc-bilfv7",
+    "title": "UK and partners expose Russian state-supported actors for new ‘zero-click’ phishing campaign targeting Western organisations",
+    "url": "https://www.ncsc.gov.uk/news/uk-and-partners-expose-russian-state-supported-actors-for-new-zero-click-phishing-campaign",
+    "date": "2026-07-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
   },
   {
     "id": "nist-10or147",
@@ -169,6 +219,49 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "Thousands of British workers will accelerate development of advanced technologies for use by the Royal Air Force, following a £708 million investment announced today."
   },
   {
+    "id": "nsf-147qwfm",
+    "title": "New NSF initiative aims to unlock dataset value for AI-enabled scientific discovery",
+    "url": "https://www.nsf.gov/news/new-nsf-initiative-aims-unlock-dataset-value-ai-enabled",
+    "date": "2026-07-22",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation announced the NSF Unlocking Dataset Value for AI-Enabled Scientific Discovery program, a new investment to advance scientific community datasets and enable discovery and innovation using artificial intelligence…"
+  },
+  {
+    "id": "nsf-1hn1w5s",
+    "title": "NSF announces $83M investment in integrated data systems and services to advance AI-driven science and strengthen U.S. research infrastructure",
+    "url": "https://www.nsf.gov/news/nsf-announces-83m-investment-integrated-data-systems",
+    "date": "2026-07-22",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation today announced $83 million in awards through the Integrated Data Systems and Services (IDSS) program. The awards will expand access to data infrastructure resources that researchers can use alongside computing…"
+  },
+  {
+    "id": "nsf-1ntiq5x",
+    "title": "Statement from NSF Chief of Staff Brian Stone, performing the duties of the NSF director, on advancing the Administration's AI priorities through the Genesis Mission",
+    "url": "https://www.nsf.gov/news/statement-nsf-chief-staff-brian-stone-performing-duties-nsf-1",
+    "date": "2026-07-22",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation is proud to join the White House Office of Science and Technology Policy, the U.S. Department of Energy and other federal partners in advancing the administration's artificial intelligence priorities through the…"
+  },
+  {
+    "id": "esa-5mr2o1",
+    "title": "Improved reporting needed on forest carbon emissions",
+    "url": "https://www.esa.int/Applications/Observing_the_Earth/FutureEO/Space_for_our_climate/Improved_reporting_needed_on_forest_carbon_emissions",
+    "date": "2026-07-22",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
     "id": "nasa-1834srb",
     "title": "Coilable Stacked Solar Sails for Very High delta-V Missions",
     "url": "https://www.nasa.gov/directorates/stmd/niac/niac-studies/coilable-stacked-solar-sails-for-very-high-delta-v-missions/",
@@ -191,6 +284,47 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "A team of NASA-sponsored scientists and engineers has developed a novel approach to observing high-energy particles in the near-Earth space environment, incorporating miniaturized sensors into a compact, multi-view particle detection instrument unlike any before it. Built for NASA’s Relativistic Electron Atmospheric Loss (REAL) CubeSat mission, the innovative instrument (also called REAL) enables more complete measurements […]"
   },
   {
+    "id": "nsf-11m8cn3",
+    "title": "Podcast: New treatment to fight deadliest cancer",
+    "url": "https://www.nsf.gov/news/podcast-new-treatment-fight-deadliest-cancer",
+    "date": "2026-07-21",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "U.S. National Science Foundation-supported professor Neil Forbes discusses how the bacteria salmonella can be modified for treatment against some of the deadliest cancers..."
+  },
+  {
+    "id": "esa-1sqbth",
+    "title": "Plato's electronics ready for space",
+    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/07/Plato_s_electronics_ready_for_space",
+    "date": "2026-07-20",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "esa-1idbbyv",
+    "title": "Artemis II crew at ESTEC",
+    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/07/Artemis_II_crew_at_ESTEC",
+    "date": "2026-07-20",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "esa-1fjwlh8",
+    "title": "Week in images: 13-17 July 2026",
+    "url": "https://www.esa.int/About_Us/Week_in_images/Week_in_images_13-17_July_2026",
+    "date": "2026-07-17",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en"
+  },
+  {
     "id": "nasa-1sh84tu",
     "title": "Ontario Wildfire Smoke Moves East",
     "url": "https://science.nasa.gov/earth/earth-observatory/ontario-wildfire-smoke-moves-east/",
@@ -202,6 +336,17 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "Canadian wildfires sent plumes of smoke streaming over Ontario, Quebec, and parts of the U.S. Midwest and Northeast."
   },
   {
+    "id": "nsf-1lcvfu",
+    "title": "Podcast: New security and communications materials",
+    "url": "https://www.nsf.gov/news/podcast-new-security-communications-materials",
+    "date": "2026-07-15",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Nicholas Kotov discusses complex materials and the development of new fused-silk materials with applications in security and communications..."
+  },
+  {
     "id": "nist-1dpewg7",
     "title": "NIST Receives New Patent for Microbe-Killing Water Heater",
     "url": "https://www.nist.gov/news-events/news/2026/07/nist-receives-new-patent-microbe-killing-water-heater",
@@ -211,6 +356,38 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "Warm water in household pipes can be a breeding ground for harmful bacteria."
+  },
+  {
+    "id": "nsf-1rmt4dr",
+    "title": "NSF awards 12 new Regional Innovation Engines to fuel research, jobs and economic growth nationwide",
+    "url": "https://www.nsf.gov/news/nsf-awards-12-new-regional-innovation-engines-fuel-research",
+    "date": "2026-07-14",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation announced it awarded the newest NSF Regional Innovation Engines (NSF Engines) awards to 12 U.S. teams across 20 states. These NSF Engines will build and scale innovation clusters that aim to accelerate the…"
+  },
+  {
+    "id": "noaa-3rsp3w",
+    "title": "How Removing Lost Crab Traps Is Helping Map the Chesapeake Bay",
+    "url": "https://oceanservice.noaa.gov/news/july26/bathymetric-data.html",
+    "date": "2026-07-14",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "How Removing Lost Crab Traps Is Helping Map the Chesapeake Bay"
+  },
+  {
+    "id": "ncsc-1dfjuxd",
+    "title": "UK and Allies urge critical sectors to improve defences against Russian intelligence targeting",
+    "url": "https://www.ncsc.gov.uk/news/uk-and-allies-urge-critical-sectors-to-improve-defences-against-russian-intelligence-targeting",
+    "date": "2026-07-13",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
   },
   {
     "id": "nist-18qr5wm",
@@ -246,6 +423,39 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "Following its longest hibernation period ever of nearly a year, NASA’s New Horizons spacecraft has emerged in good health and is ready to begin transmitting science data gathered in the distant Kuiper Belt far beyond Pluto. On June 23, flight controllers at the Johns Hopkins Applied Physics Laboratory (APL) in Laurel, Maryland, confirmed New Horizons, […]"
   },
   {
+    "id": "nsf-26d7ia",
+    "title": "NSF launches Project Triad to advance quantum technology for real-world applications",
+    "url": "https://www.nsf.gov/news/nsf-launches-project-triad-advance-quantum-technology-real",
+    "date": "2026-07-07",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation today announced Project Triad, a first-of-its-kind initiative to integrate quantum sensing, quantum networking and quantum computing into a single operational..."
+  },
+  {
+    "id": "nsf-9mnjp7",
+    "title": "Podcast: The fight against high blood pressure [hypertension]",
+    "url": "https://www.nsf.gov/news/podcast-fight-against-high-blood-pressure-hypertension",
+    "date": "2026-07-07",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "U.S. National Science Foundation-supported professor Tao Zhou discusses the development of a new 3D-printed hydrogel-based bioelectronic device for hypertension treatment..."
+  },
+  {
+    "id": "noaa-qufz44",
+    "title": "Transforming Chesapeake Bay Water Forecasting",
+    "url": "https://oceanservice.noaa.gov/news/july26/transforming-chesapeake.html",
+    "date": "2026-07-07",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "A rocky jetty crosses the frame in shallow Bay waters. A wooden walkway follows the jetty halfway, then turns and continues as an L-shaped wooden pier out into the water."
+  },
+  {
     "id": "nist-i5q59n",
     "title": "Arvind Raman Confirmed as the 18th NIST Director",
     "url": "https://www.nist.gov/news-events/news/2026/07/arvind-raman-confirmed-18th-nist-director",
@@ -266,6 +476,28 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "As NASA prepares for a sustained human presence on the Moon, missions will increasingly require spacecraft that can navigate and communicate without a direct connection to Earth. NASA’s Cislunar Autonomous Positioning System Technology Operations and Navigation Experiment, or CAPSTONE, validated and advanced these capabilities. Designed to test and validate technologies in lunar orbit, CAPSTONE launched […]"
+  },
+  {
+    "id": "nsf-11h5wpk",
+    "title": "NSF Discovering Our Universe' gallery to open July 1",
+    "url": "https://www.nsf.gov/news/nsf-discovering-our-universe-gallery-open-july-1",
+    "date": "2026-07-01",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The new \"U.S. National Science Foundation Discovering Our Universe\" gallery is opening to the public July 1 at the Smithsonian's National Air and Space Museum in Washington, D.C., in celebration of the museum's 50 th anniversary. The gallery…"
+  },
+  {
+    "id": "nsf-1stt2ne",
+    "title": "Action! NSF-DOE Vera C. Rubin Observatory begins capturing the greatest cosmic movie ever made",
+    "url": "https://www.nsf.gov/news/action-nsf-doe-vera-c-rubin-observatory-begins-capturing",
+    "date": "2026-06-30",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The wait is over: NSF–DOE Rubin Observatory, funded by the U.S. National Science Foundation and the U.S. Department of Energy&#039;s (DOE) Office of Science , is now capturing the cosmos..."
   },
   {
     "id": "nist-rgo50e",
@@ -290,6 +522,17 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "Solicitation Number: 80GRC026R0008 May 19, 2026 – Synopsis issued June 29, 2026 – Draft BAA and Appendix A Issued | Web Article NASA issued a draft Broad Agency Announcement under NextSTEP‑3, Appendix A, on June 29, 2026, to advance concepts that accelerate the technological readiness of critical systems for lunar surface and cislunar architecture. This solicitation seeks to close key technology gaps and […]"
   },
   {
+    "id": "nsf-1noulz2",
+    "title": "Podcast: The future of quantum cryptography",
+    "url": "https://www.nsf.gov/news/podcast-future-quantum-cryptography",
+    "date": "2026-06-29",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Secure information is essential in the digital exchanges of modern life. NSF-supported professor Vinod Vaikuntanathan discusses quantum cryptography and the future of encryption..."
+  },
+  {
     "id": "nasa-2w6ajn",
     "title": "Partners, NASA Ready for June Launch of Swift Boost Mission",
     "url": "https://science.nasa.gov/missions/swift/swift-boost-mission/partners-nasa-ready-for-june-launch-of-swift-boost-mission/",
@@ -301,6 +544,28 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "A mission to raise the orbit of NASA’s Swift observatory is poised for launch June 30."
   },
   {
+    "id": "nsf-17ch6lb",
+    "title": "Podcast: Brain-computer interface controls exoskeleton",
+    "url": "https://www.nsf.gov/news/podcast-brain-computer-interface-controls-exoskeleton",
+    "date": "2026-06-26",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Payam Heydari discusses a breakthrough brain-computer interface that controls a robotic exoskeleton, technology that could transform the lives of people living with spinal cord injuries..."
+  },
+  {
+    "id": "nsf-z4desr",
+    "title": "NSF selects five additional teams in National Quantum Virtual Laboratory design competition",
+    "url": "https://www.nsf.gov/news/nsf-selects-five-additional-teams-national-quantum-virtual",
+    "date": "2026-06-24",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation has selected five new teams to design experimental quantum technologies, from networks that can ferry fragile quantum information across long distances to sensors that can measure faint properties inside a single…"
+  },
+  {
     "id": "nist-t7cfvj",
     "title": "NIST Releases Technical Findings on What Caused the 2021 Partial Collapse of Champlain Towers South",
     "url": "https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse",
@@ -310,6 +575,69 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "In an investigation that began just days after the tragedy, the team examined two dozen possible scenarios for where and why the collapse started."
+  },
+  {
+    "id": "nsf-1jmnnfg",
+    "title": "NSF statement on Executive Order: Ushering in the Next Frontier of Quantum Innovation",
+    "url": "https://www.nsf.gov/news/nsf-statement-executive-order-ushering-next-frontier-quantum",
+    "date": "2026-06-22",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation supports the Administration’s commitment to securing American leadership in quantum information science and technology. This executive order reflects a clear-eyed recognition that quantum innovation is not a…"
+  },
+  {
+    "id": "ncsc-hxumow",
+    "title": "The AI shift in cyber risk: why leaders must act now",
+    "url": "https://www.ncsc.gov.uk/news/the-ai-shift-in-cyber-risk-why-leaders-must-act-now",
+    "date": "2026-06-22",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "nsf-1jqel2n",
+    "title": "Update on Ocean Observatories Initiative",
+    "url": "https://www.nsf.gov/news/update-ocean-observatories-initiative",
+    "date": "2026-06-18",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation appreciates the concerns raised by the range of stakeholders that have informed us they rely on data from the Ocean Observatories Initiative (OOI). Effective immediately, NSF will not proceed with further removal…"
+  },
+  {
+    "id": "ncsc-b2gryq",
+    "title": "Alert: NCSC issues advice following global targeting of Fortinet firewalls and VPN gateways",
+    "url": "https://www.ncsc.gov.uk/news/advice-following-global-targeting-of-fortinet-firewalls-and-vpn-gateways",
+    "date": "2026-06-18",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "ncsc-1aiavvj",
+    "title": "NCSC CEO: Hostile states linked to three-quarters of cyber attacks affecting UK's critical systems",
+    "url": "https://www.ncsc.gov.uk/news/ncsc-ceo-hostile-states-linked-to-three-quarters-of-cyber-attacks",
+    "date": "2026-06-17",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
+  },
+  {
+    "id": "noaa-5y0cc9",
+    "title": "NOAA forecasts an above-average summer 'dead zone' in Gulf of America",
+    "url": "https://oceanservice.noaa.gov/news/jun26/summer-dead-zone.html",
+    "date": "2026-06-16",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Low-oxygen conditions are expected to be larger than average, impacting a 7,027 square-mile area."
   },
   {
     "id": "nist-7oz3o8",
@@ -356,6 +684,17 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "NIST also improved how X-rays are used to study the atomic structure of metals in real time during 3D printing, allowing researchers to observe how materials change under extreme conditions."
   },
   {
+    "id": "noaa-k98w6m",
+    "title": "Harmful Algal Bloom Monitoring Expands to New Coastal Northeast and Great Lakes Regions",
+    "url": "https://oceanservice.noaa.gov/news/jun26/harmful-algal-bloom-monitoring.html",
+    "date": "2026-06-01",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The new products for the Northeast coast and Great Lakes strengthen NOAA’s ability to deliver timely, science-based tools for state, local, and regional partners."
+  },
+  {
     "id": "nist-1ghsuvd",
     "title": "NIST Expands AI Consortium’s Scope, Calls for New Members",
     "url": "https://www.nist.gov/news-events/news/2026/05/nist-expands-ai-consortiums-scope-calls-new-members",
@@ -378,6 +717,17 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "Lunar craters in permanent shadow could be ideal locations for building the most stable optical lasers ever made."
   },
   {
+    "id": "noaa-21v7if",
+    "title": "El Niño and high tide flooding, a possible double whammy for some coastal communities in 2026",
+    "url": "https://oceanservice.noaa.gov/news/may26/el-nino-flooding.html",
+    "date": "2026-05-15",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The predicted El Niño could mean more high tide flooding for many locations."
+  },
+  {
     "id": "nist-1wwu3sn",
     "title": "Wear and Tear Changes Measurable PFAS Levels in Firefighter Hoods, Gloves and Wildland Gear",
     "url": "https://www.nist.gov/news-events/news/2026/05/wear-and-tear-changes-measurable-pfas-levels-firefighter-hoods-gloves-and",
@@ -389,80 +739,44 @@ export const newsItems: NewsItem[] = [
     "sourceSummary": "In the fourth of an ongoing series of reports, NIST shows that wear and tear increased the levels of PFAS found in hoods and gloves."
   },
   {
-    "id": "nist-1wetxzt",
-    "title": "NIST Weighs In on the Mystery of the Gravitational Constant",
-    "url": "https://www.nist.gov/news-events/news/2026/04/nist-weighs-mystery-gravitational-constant",
-    "date": "2026-04-16",
-    "source": "NIST",
-    "category": "standards",
+    "id": "noaa-1c0l41i",
+    "title": "NOAA releases new National Coral Reef Resilience Strategy",
+    "url": "https://oceanservice.noaa.gov/news/may26/coral-reef-resilience.html",
+    "date": "2026-05-06",
+    "source": "NOAA",
+    "category": "science",
     "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "A NIST researcher has unveiled the results of a 10-year quest to measure the constant."
+    "sourceLanguage": "en"
   },
   {
-    "id": "nist-1qhwjkg",
-    "title": "Any Color You Like: NIST Scientists Create ‘Any Wavelength’ Lasers in Tiny Circuits for Light",
-    "url": "https://www.nist.gov/news-events/news/2026/04/any-color-you-nist-scientists-create-any-wavelength-lasers-tiny-circuits",
-    "date": "2026-04-15",
-    "source": "NIST",
-    "category": "standards",
+    "id": "noaa-1p55gvv",
+    "title": "NOAA Ship Thomas Jefferson returns to the Great Lakes",
+    "url": "https://oceanservice.noaa.gov/news/may26/noaaship-greatlakes-survey-2026.html",
+    "date": "2026-05-01",
+    "source": "NOAA",
+    "category": "science",
     "region": "global",
     "sourceLanguage": "en",
-    "sourceSummary": "NIST scientists and collaborators have pioneered a way to make integrated circuits for light by depositing complex patterns of specialized materials onto silicon wafers."
+    "sourceSummary": "Marine sectors show increases in jobs and wages"
   },
   {
-    "id": "nist-4zkurq",
-    "title": "NIST Researchers Develop Photonic Chip Packaging That Can Withstand Extreme Environments",
-    "url": "https://www.nist.gov/news-events/news/2026/03/nist-researchers-develop-photonic-chip-packaging-can-withstand-extreme",
-    "date": "2026-03-30",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The advance could allow these technologies to operate in deep-space probes, inside nuclear reactors, in ultrahigh vacuum systems, and at temperatures both near absolute zero and in scorchingly hot industrial settings."
+    "id": "ncsc-foh8hf",
+    "title": "NCSC: Leave passwords in the past - passkeys are the future",
+    "url": "https://www.ncsc.gov.uk/news/ncsc-leave-passwords-in-the-past-passkeys-are-the-future",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
   },
   {
-    "id": "nist-3x0gxe",
-    "title": "NIST Helps Fingerprint Examiners With New Data and Software Release",
-    "url": "https://www.nist.gov/news-events/news/2026/03/nist-helps-fingerprint-examiners-new-data-and-software-release",
-    "date": "2026-03-23",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The new tools are an annotated collection of 10,000 fingerprints and a software program that can sort fingerprints according to their quality."
-  },
-  {
-    "id": "nist-1sj7nxv",
-    "title": "NIST Submits Annual Report to Congress Summarizing FY 2025 Progress on National Construction Safety Team Investigations",
-    "url": "https://www.nist.gov/news-events/news/2026/03/nist-submits-annual-report-congress-summarizing-fy-2025-progress-national",
-    "date": "2026-03-19",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The report includes an overview of work completed on the Champlain Towers South investigation."
-  },
-  {
-    "id": "nist-130sgyf",
-    "title": "2 Health Care Organizations Will Receive 2025 Baldrige National Quality Awards",
-    "url": "https://www.nist.gov/news-events/news/2026/02/2-health-care-organizations-will-receive-2025-baldrige-national-quality",
-    "date": "2026-02-19",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The award highlights organizations that focus on resilience."
-  },
-  {
-    "id": "nist-xx2ey2",
-    "title": "Announcing the &quot;AI Agent Standards Initiative&quot; for Interoperable and Secure Innovation",
-    "url": "https://www.nist.gov/news-events/news/2026/02/announcing-ai-agent-standards-initiative-interoperable-and-secure",
-    "date": "2026-02-17",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The Initiative will ensure that the next generation of AI is widely adopted with confidence, can function securely on behalf of its users, and can interoperate smoothly across the digital ecosystem."
+    "id": "ncsc-1kupztg",
+    "title": "International cyber agencies share fresh advice to defend against China-linked covert networks",
+    "url": "https://www.ncsc.gov.uk/news/international-cyber-agencies-fresh-advice-defend-against-china-linked-covert-networks",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en"
   }
 ];

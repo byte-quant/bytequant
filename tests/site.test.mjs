@@ -497,10 +497,10 @@ test("exports instant search, live demo, and no-account community sharing", asyn
   assert.match(englishHome, /JSON, PDF, privacy, regex/);
   assert.match(home, /TEK EKRANDA 4 CANLI DEMO/);
   assert.match(englishHome, /4 LIVE DEMOS IN ONE VIEW/);
-  assert.match(community, /HESAPSIZ/);
-  assert.match(englishCommunity, /NO-ACCOUNT/);
-  assert.match(community, /YEREL-FIRST SOSYAL ALAN/);
-  assert.match(englishCommunity, /LOCAL-FIRST SOCIAL SPACE/);
+  assert.match(community, /CİHAZINIZDA SOSYAL ÜRETİM/);
+  assert.match(englishCommunity, /SOCIAL MAKING ON YOUR DEVICE/);
+  assert.match(community, /Fikirleri ve güvenli iş akışlarını/);
+  assert.match(englishCommunity, /Share ideas and safer workflows/);
   assert.match(englishCommunity, /Manage your profile, groups, and safe sharing board/);
   assert.match(community, /FAQPage|HowTo/);
   assert.doesNotMatch(community, /api\.github\.com/);
@@ -635,10 +635,10 @@ test("exports the four-language local agent, domain integrity, and security head
     read("blog/browser-only-agentic-ai-tool-orchestration/index.html"),
     read("en/blog/browser-only-agentic-ai-tool-orchestration/index.html"),
   ]);
-  assert.match(turkish, /Ne yapmak istediğinizi anlatın/);
-  assert.match(english, /Tell us what you want to finish/);
-  assert.match(german, /Sagen Sie, was erledigt werden soll/);
-  assert.match(chinese, /告诉我们想完成什么/);
+  assert.match(turkish, /Hedefinizi yazın, uygulanabilir yolu/);
+  assert.match(english, /Describe the outcome and build a practical path/);
+  assert.match(german, /Ziel beschreiben und gemeinsam einen praktischen Weg/);
+  assert.match(chinese, /描述目标，一起生成可执行的路径/);
   for (const page of [turkish, english, german, chinese]) {
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
@@ -652,7 +652,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
   }
   assert.match(turkish, /uzak model|Uzak model/i);
-  assert.match(english, /not a generative foundation model/i);
+  assert.match(english, /not a generative LLM/i);
   assert.match(headers, /Content-Security-Policy:/);
   assert.match(headers, /frame-ancestors 'none'/);
   assert.match(headers, /Strict-Transport-Security:/);
@@ -746,7 +746,7 @@ test("exports finite official-source updates and verified session-only P2P chat"
     assert.match(page, /hrefLang="x-default"/);
   }
   assert.match(tr, /NASA|NIST/);
-  assert.match(en, /NASA, NIST, CISA, and openly licensed GOV\.UK feeds/);
+  assert.match(en, /official sources/i);
   assert.match(trCommunity, /P2P/);
   assert.match(enCommunity, /DIRECT P2P CHAT/);
   assert.match(enCommunity, /safety code/i);
@@ -754,6 +754,11 @@ test("exports finite official-source updates and verified session-only P2P chat"
   assert.match(syncSource, /hosts:/);
   assert.match(syncSource, /4_000_000/);
   assert.match(syncSource, /GOV\.UK/);
+  assert.match(syncSource, /NSF/);
+  assert.match(syncSource, /NIH/);
+  assert.match(syncSource, /ESA/);
+  assert.match(syncSource, /NCSC/);
+  assert.match(syncSource, /NOAA/);
   assert.match(syncSource, /AbortSignal\.timeout\(15_000\)/);
 });
 
@@ -799,7 +804,8 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
   assert.match(toolSource, /Closure gate/);
   assert.equal((toolSource.match(/pair\.length >= 2/g) ?? []).length, 2);
   assert.match(newsSource, /news-source-summary/);
-  assert.match(newsSource, /news-reviewed/);
+  assert.match(newsSource, /news-checklist/);
+  assert.match(newsSource, /reviewedKey/);
   assert.match(generatedNews, /"sourceSummary":/);
   assert.doesNotMatch(generatedNews, /"sourceSummary":\s*"[^"\n]*<[^>]+>/);
 
