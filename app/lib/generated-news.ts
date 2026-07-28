@@ -1,7 +1,7 @@
 export type NewsItem = { id: string; title: string; url: string; date: string; source: "NASA" | "NIST" | "CISA" | "GOV.UK" | "NSF" | "NIH" | "ESA" | "NCSC" | "NOAA"; category: "science" | "technology" | "security" | "standards"; region: "global" | "uk"; sourceLanguage: "en"; sourceSummary: string; summaryOrigin: "feed" | "metadata" };
 
 // Generated at build time from official, allowlisted RSS endpoints. Feed descriptions are attribution-linked and intentionally limited to a short excerpt.
-export const newsGeneratedAt = "2026-07-28T18:50:52.153Z";
+export const newsGeneratedAt = "2026-07-28T20:34:19.380Z";
 export const newsItems: NewsItem[] = [
   {
     "id": "nasa-p1c61s",
@@ -424,18 +424,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nasa-1sh84tu",
-    "title": "Ontario Wildfire Smoke Moves East",
-    "url": "https://science.nasa.gov/earth/earth-observatory/ontario-wildfire-smoke-moves-east/",
-    "date": "2026-07-16",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Canadian wildfires sent plumes of smoke streaming over Ontario, Quebec, and parts of the U.S. Midwest and Northeast.",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-1lcvfu",
     "title": "Podcast: New security and communications materials",
     "url": "https://www.nsf.gov/news/podcast-new-security-communications-materials",
@@ -508,30 +496,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nasa-1lkrs5g",
-    "title": "Super Typhoon Bavi",
-    "url": "https://science.nasa.gov/earth/earth-observatory/super-typhoon-bavi/",
-    "date": "2026-07-09",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The third category 5 tropical cyclone of 2026 crossed the U.S. Northern Mariana Islands and Guam before continuing toward Asia.",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1lb1308",
-    "title": "NASA’s New Horizons Spacecraft Wakes from Hibernation in Good Health",
-    "url": "https://science.nasa.gov/missions/new-horizons/nasas-new-horizons-spacecraft-wakes-from-hibernation-in-good-health/",
-    "date": "2026-07-07",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Following its longest hibernation period ever of nearly a year, NASA’s New Horizons spacecraft has emerged in good health and is ready to begin…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-26d7ia",
     "title": "NSF launches Project Triad to advance quantum technology for real-world applications",
     "url": "https://www.nsf.gov/news/nsf-launches-project-triad-advance-quantum-technology-real",
@@ -580,18 +544,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nasa-18g6yer",
-    "title": "NASA’s CAPSTONE Completes Extended Mission Testing Lunar Technologies",
-    "url": "https://www.nasa.gov/technology/space-comms/nasas-capstone-completes-extended-mission-testing-lunar-technologies/",
-    "date": "2026-07-06",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "As NASA prepares for a sustained human presence on the Moon, missions will increasingly require spacecraft that can navigate and communicate without a direct…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-11h5wpk",
     "title": "NSF Discovering Our Universe' gallery to open July 1",
     "url": "https://www.nsf.gov/news/nsf-discovering-our-universe-gallery-open-july-1",
@@ -628,18 +580,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nasa-1378clb",
-    "title": "NextSTEP-3 A: Lunar Enabling Technology",
-    "url": "https://www.nasa.gov/directorates/stmd/nextstep-3-a-lunar-enabling-technology/",
-    "date": "2026-06-29",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Solicitation Number: 80GRC026R0008 May 19, 2026 – Synopsis issued June 29, 2026 – Draft BAA and Appendix A Issued | Web Article NASA issued…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-1noulz2",
     "title": "Podcast: The future of quantum cryptography",
     "url": "https://www.nsf.gov/news/podcast-future-quantum-cryptography",
@@ -652,18 +592,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nasa-2w6ajn",
-    "title": "Partners, NASA Ready for June Launch of Swift Boost Mission",
-    "url": "https://science.nasa.gov/missions/swift/swift-boost-mission/partners-nasa-ready-for-june-launch-of-swift-boost-mission/",
-    "date": "2026-06-26",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "A mission to raise the orbit of NASA’s Swift observatory is poised for launch June 30.",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-17ch6lb",
     "title": "Podcast: Brain-computer interface controls exoskeleton",
     "url": "https://www.nsf.gov/news/podcast-brain-computer-interface-controls-exoskeleton",
@@ -673,18 +601,6 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "Payam Heydari discusses a breakthrough brain-computer interface that controls a robotic exoskeleton, technology that could transform the lives of people living with spinal cord…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nsf-z4desr",
-    "title": "NSF selects five additional teams in National Quantum Virtual Laboratory design competition",
-    "url": "https://www.nsf.gov/news/nsf-selects-five-additional-teams-national-quantum-virtual",
-    "date": "2026-06-24",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The U.S. National Science Foundation has selected five new teams to design experimental quantum technologies, from networks that can ferry fragile quantum information across…",
     "summaryOrigin": "feed"
   },
   {
@@ -866,5 +782,89 @@ export const newsItems: NewsItem[] = [
     "sourceLanguage": "en",
     "sourceSummary": "NOAA published this official science update under the headline “NOAA releases new National Coral Reef Resilience Strategy”. Open the source for full context.",
     "summaryOrigin": "metadata"
+  },
+  {
+    "id": "noaa-1p55gvv",
+    "title": "NOAA Ship Thomas Jefferson returns to the Great Lakes",
+    "url": "https://oceanservice.noaa.gov/news/may26/noaaship-greatlakes-survey-2026.html",
+    "date": "2026-05-01",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Marine sectors show increases in jobs and wages",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-ucf6a4",
+    "title": "Defending against China-nexus covert networks of compromised devices",
+    "url": "https://www.ncsc.gov.uk/news/defending-against-china-nexus-covert-networks-of-compromised-devices",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "Explaining the widespread shift in tactics, techniques and procedures (TTPs) towards networks of compromised infrastructure, and how to defend against it",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-foh8hf",
+    "title": "NCSC: Leave passwords in the past - passkeys are the future",
+    "url": "https://www.ncsc.gov.uk/news/ncsc-leave-passwords-in-the-past-passkeys-are-the-future",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "Passkeys are the more secure and user-friendly login method and should be the default authentication option for consumers.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-1kupztg",
+    "title": "International cyber agencies share fresh advice to defend against China-linked covert networks",
+    "url": "https://www.ncsc.gov.uk/news/international-cyber-agencies-fresh-advice-defend-against-china-linked-covert-networks",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "New advisory highlights how to defend against attacker tactics believed to be used by China-linked actors to hide malicious cyber activity.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-mc5szq",
+    "title": "Executive Summary: Defending against China-nexus covert networks of compromised devices",
+    "url": "https://www.ncsc.gov.uk/news/executive-summary-defending-against-china-nexus-covert-networks-of-compromised-devices",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "Organisations should map and baseline their edge device traffic, especially VPN and remote access connections, and adopt dynamic threat feed filtering that includes known…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-1o4x745",
+    "title": "World-first NCSC-engineered device secures vulnerable display links",
+    "url": "https://www.ncsc.gov.uk/news/world-first-ncsc-engineered-device-secures-vulnerable-display-links",
+    "date": "2026-04-22",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "SilentGlass, a plug-and-play device, actively blocks any unexpected or malicious HDMI and Display Port connections.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-7g15h7",
+    "title": "Cyber chief: UK faces \"perfect storm\" for cyber security",
+    "url": "https://www.ncsc.gov.uk/news/cyber-chief-uk-faces-perfect-storm-for-cyber-security",
+    "date": "2026-04-21",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "As the technology landscape develops, the definition of cyber security is expanding with it.",
+    "summaryOrigin": "feed"
   }
 ];

@@ -556,7 +556,11 @@ test("activates the exact owner-provided AdSense tag while keeping placements aw
   assert.equal((guide.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 1);
   for (const page of [agent, workstation, community]) assert.doesNotMatch(page, /data-ad-status="auto-ads-eligible"/);
   for (const page of [home, tool, guide, agent, workstation, community]) {
-    assert.equal((page.match(/<script[^>]+src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847"[^>]*>/g) ?? []).length, 1);
+    // next/script with afterInteractive is represented by a preload in static
+    // HTML and injects the executable tag only after hydration. Requiring a
+    // server-rendered script here would reintroduce the hydration race this
+    // integration deliberately avoids.
+    assert.equal((page.match(/<link[^>]+href="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847"[^>]+as="script"[^>]*>/g) ?? []).length, 1);
     assert.match(page, /google-adsense-account/);
   }
 });
