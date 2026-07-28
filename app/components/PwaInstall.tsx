@@ -36,13 +36,12 @@ function detectPlatform(): Platform {
 
 export function PwaProvider({ children }: { children: ReactNode }) {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
-  const [state, setState] = useState<InstallState>(() => {
-    if (typeof window === "undefined") return "checking";
-    return window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone)) ? "installed" : "manual";
-  });
+  const [state, setState] = useState<InstallState>("checking");
   const [guideLocale, setGuideLocale] = useState<Locale | null>(null);
 
   useEffect(() => {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
+    const stateFrame = requestAnimationFrame(() => setState(standalone ? "installed" : "manual"));
     const beforeInstall = (event: Event) => {
       event.preventDefault();
       // A browser-generated prompt is authoritative. Do not reject it based on
@@ -59,12 +58,14 @@ export function PwaProvider({ children }: { children: ReactNode }) {
       if (document.readyState === "complete") void register();
       else window.addEventListener("load", register, { once: true });
       return () => {
+        cancelAnimationFrame(stateFrame);
         window.removeEventListener("beforeinstallprompt", beforeInstall);
         window.removeEventListener("appinstalled", appInstalled);
         window.removeEventListener("load", register);
       };
     }
     return () => {
+      cancelAnimationFrame(stateFrame);
       window.removeEventListener("beforeinstallprompt", beforeInstall);
       window.removeEventListener("appinstalled", appInstalled);
     };

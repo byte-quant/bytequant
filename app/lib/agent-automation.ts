@@ -1,0 +1,127 @@
+import type { AgentPlan } from "./agent-core";
+import type { Locale } from "./site";
+
+export type AgentAutomationStep = {
+  toolSlug: string;
+  title: string;
+  status: "completed" | "failed";
+  note: string;
+  outputLength: number;
+};
+
+export type AgentAutomationResult = {
+  output: string;
+  steps: AgentAutomationStep[];
+};
+
+const MAX_INPUT = 200_000;
+
+const messages = {
+  tr: { validated: "Yapı doğrulandı ve veri sonraki adıma aktarıldı.", transformed: "Dönüşüm cihazda tamamlandı.", empty: "İşlenecek veri boş.", large: "Otomatik çalışma için veri 200.000 karakteri aşmamalı.", unsupported: "Bu adım dosya seçimi veya görsel etkileşim gerektirdiği için otomatik çalıştırılamıyor.", csv: "CSV satırlarında sütun sayısı tutarsız.", json: "Geçerli JSON gerekli." },
+  en: { validated: "Structure validated and the data was passed to the next step.", transformed: "Transformation completed on this device.", empty: "There is no data to process.", large: "Automated runs accept up to 200,000 characters.", unsupported: "This step needs file selection or visual interaction and cannot run automatically.", csv: "CSV rows contain inconsistent column counts.", json: "Valid JSON is required." },
+  de: { validated: "Struktur geprüft; Daten wurden an den nächsten Schritt übergeben.", transformed: "Umwandlung wurde auf diesem Gerät abgeschlossen.", empty: "Keine Daten zur Verarbeitung.", large: "Automatische Abläufe akzeptieren höchstens 200.000 Zeichen.", unsupported: "Dieser Schritt benötigt Dateiauswahl oder visuelle Interaktion und kann nicht automatisch laufen.", csv: "CSV-Zeilen haben unterschiedliche Spaltenzahlen.", json: "Gültiges JSON ist erforderlich." },
+  zh: { validated: "结构已验证，数据已传递到下一步。", transformed: "转换已在此设备完成。", empty: "没有可处理的数据。", large: "自动运行最多接受 200,000 个字符。", unsupported: "此步骤需要选择文件或进行可视交互，无法自动运行。", csv: "CSV 各行的列数不一致。", json: "需要有效的 JSON。" },
+} as const;
+
+function parseCsv(input: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+  for (let index = 0; index < input.length; index += 1) {
+    const char = input[index];
+    if (char === '"') {
+      if (quoted && input[index + 1] === '"') { cell += '"'; index += 1; }
+      else quoted = !quoted;
+    } else if (char === "," && !quoted) { row.push(cell); cell = ""; }
+    else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && input[index + 1] === "\n") index += 1;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += char;
+  }
+  if (quoted) throw new Error("CSV quote is not closed.");
+  row.push(cell);
+  if (row.some(Boolean) || rows.length === 0) rows.push(row);
+  return rows.filter((item) => item.some((value) => value.trim()));
+}
+
+function csvToJson(input: string, locale: Locale) {
+  const rows = parseCsv(input);
+  const headers = rows[0]?.map((value) => value.trim()) ?? [];
+  if (!headers.length || rows.some((row) => row.length !== headers.length)) throw new Error(messages[locale].csv);
+  return JSON.stringify(rows.slice(1).map((row) => Object.fromEntries(headers.map((header, index) => [header || `column_${index + 1}`, row[index] ?? ""]))), null, 2);
+}
+
+function jsonToCsv(input: string, locale: Locale) {
+  let parsed: unknown;
+  try { parsed = JSON.parse(input); } catch { throw new Error(messages[locale].json); }
+  if (!Array.isArray(parsed) || parsed.some((item) => !item || typeof item !== "object" || Array.isArray(item))) throw new Error(messages[locale].json);
+  const records = parsed as Array<Record<string, unknown>>;
+  const headers = [...new Set(records.flatMap((record) => Object.keys(record)))];
+  const escape = (value: unknown) => { const text = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value); return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
+  return [headers.map(escape).join(","), ...records.map((record) => headers.map((header) => escape(record[header])).join(","))].join("\n");
+}
+
+function maskPrivateData(input: string) {
+  return input
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL]")
+    .replace(/(?<!\d)(?:\+?90\s*)?(?:0\s*)?5\d{2}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)/g, "[PHONE]")
+    .replace(/(?<!\d)\d{11}(?!\d)/g, "[ID]")
+    .replace(/(?<!\d)(?:\d[ -]?){13,19}(?!\d)/g, "[PAYMENT_NUMBER]");
+}
+
+function encodeBase64(input: string) {
+  const bytes = new TextEncoder().encode(input);
+  let binary = "";
+  const chunk = 16_384;
+  for (let index = 0; index < bytes.length; index += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunk));
+  }
+  return btoa(binary);
+}
+
+function runStep(slug: string, input: string, locale: Locale): { output: string; validated: boolean } {
+  switch (slug) {
+    case "csv-inceleyici": {
+      const rows = parseCsv(input);
+      const width = rows[0]?.length ?? 0;
+      if (!width || rows.some((row) => row.length !== width)) throw new Error(messages[locale].csv);
+      return { output: input, validated: true };
+    }
+    case "json-bicimlendirici": {
+      try { return { output: JSON.stringify(JSON.parse(input), null, 2), validated: false }; } catch { throw new Error(messages[locale].json); }
+    }
+    case "json-csv-donusturucu": return { output: input.trimStart().startsWith("[") ? jsonToCsv(input, locale) : csvToJson(input, locale), validated: false };
+    case "kvkk-veri-maskeleyici": return { output: maskPrivateData(input), validated: false };
+    case "e-posta-listesi-temizleyici": return { output: [...new Set(input.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)?.map((item) => item.toLocaleLowerCase()) ?? [])].sort().join("\n"), validated: false };
+    case "satir-siralayici-tekillestirici": return { output: [...new Set(input.split(/\r?\n/).map((item) => item.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, locale)).join("\n"), validated: false };
+    case "base64-kodlayici": return { output: encodeBase64(input), validated: false };
+    case "url-kodlayici": return { output: encodeURIComponent(input), validated: false };
+    case "unicode-normalizasyon-inceleyici": return { output: input.normalize("NFC"), validated: false };
+    default: throw new Error(messages[locale].unsupported);
+  }
+}
+
+const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "unicode-normalizasyon-inceleyici"]);
+
+export function canAutomatePlan(plan: AgentPlan) {
+  return plan.steps.length > 0 && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
+}
+
+export function runAgentAutomation(plan: AgentPlan, input: string, locale: Locale): AgentAutomationResult {
+  if (!input.trim()) throw new Error(messages[locale].empty);
+  if (input.length > MAX_INPUT) throw new Error(messages[locale].large);
+  let output = input;
+  const steps: AgentAutomationStep[] = [];
+  for (const step of plan.steps) {
+    try {
+      const result = runStep(step.toolSlug, output, locale);
+      output = result.output;
+      steps.push({ toolSlug: step.toolSlug, title: step.title, status: "completed", note: result.validated ? messages[locale].validated : messages[locale].transformed, outputLength: output.length });
+    } catch (error) {
+      steps.push({ toolSlug: step.toolSlug, title: step.title, status: "failed", note: error instanceof Error ? error.message : messages[locale].unsupported, outputLength: output.length });
+      throw Object.assign(new Error(steps.at(-1)?.note), { steps, output });
+    }
+  }
+  return { output, steps };
+}

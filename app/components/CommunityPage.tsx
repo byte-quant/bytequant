@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { absoluteUrl, languageTag, organizationId, pathFor, toolPath, type Locale } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, type Locale } from "../lib/site";
 import { CommunityComposer } from "./CommunityComposer";
 import { CommunityFeed } from "./CommunityFeed";
+import { CommunityNetwork } from "./CommunityNetwork";
 import { CommunityP2PChat } from "./CommunityP2PChat";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
-
-type StarterDestination = "mask" | "agent" | "workstation";
 
 const copy = {
   tr: {
@@ -43,25 +42,29 @@ const copy = {
   },
 } as const;
 
-function starterHref(locale: Locale, destination: StarterDestination) {
-  if (destination === "mask") return toolPath(locale, "kvkk-veri-maskeleyici");
-  return pathFor(locale, destination);
-}
+const networkHero = {
+  tr: { eyebrow: "BYTEQUANT TOPLULUK", title: "Gerçek insanlardan iş akışları, fikirler ve sorular", intro: "Global akışı okuyun; isterseniz cihazınızda şifrelenen taşınabilir bir profil oluşturup paylaşın, yanıtlayın ve beğenin. Yerel arşiv ve doğrudan P2P seçenekleri ayrı, sade alanlarda kalır.", global: "Global akışı aç", local: "Cihaz arşivi", live: "Doğrudan görüşme", archiveTitle: "Cihazınızdaki özel pano", archiveBody: "Bağlantıya göndermek istemediğiniz taslakları, özel grupları ve taşınabilir paketleri yalnızca bu cihazda yönetin.", p2pTitle: "Tek kullanımlık P2P görüşme", p2pBody: "Belirli bir kişiyle eşzamanlı konuşmak için davet kodu kullanın. Bu alan global akıştan bağımsızdır." },
+  en: { eyebrow: "BYTEQUANT COMMUNITY", title: "Workflows, ideas, and questions from real people", intro: "Read the global feed, then optionally create a portable profile encrypted on your device to post, reply, and react. The private archive and direct P2P tools remain in separate, calm spaces.", global: "Open global feed", local: "Device archive", live: "Direct session", archiveTitle: "Private board on this device", archiveBody: "Manage drafts, private groups, and portable packs that you do not want to send to a relay.", p2pTitle: "One-time P2P session", p2pBody: "Use an invitation code to talk synchronously with one specific person. This is independent from the global feed." },
+  de: { eyebrow: "BYTEQUANT COMMUNITY", title: "Abläufe, Ideen und Fragen von echten Menschen", intro: "Globalen Feed lesen und optional ein lokal verschlüsseltes, portables Profil zum Veröffentlichen, Antworten und Reagieren erstellen. Privates Archiv und P2P bleiben getrennt und übersichtlich.", global: "Globalen Feed öffnen", local: "Gerätearchiv", live: "Direkte Sitzung", archiveTitle: "Privates Board auf diesem Gerät", archiveBody: "Entwürfe, private Gruppen und portable Pakete verwalten, die nicht an ein Relay gesendet werden sollen.", p2pTitle: "Einmalige P2P-Sitzung", p2pBody: "Per Einladungscode synchron mit einer bestimmten Person sprechen. Dieser Bereich ist vom globalen Feed getrennt." },
+  zh: { eyebrow: "BYTEQUANT 社区", title: "来自真实用户的工作流、想法与问题", intro: "浏览全球动态；也可创建仅在设备上加密的便携资料，用于发布、回复与点赞。本地私密归档和直接 P2P 工具保持独立、清晰。", global: "打开全球动态", local: "设备归档", live: "直接会话", archiveTitle: "此设备上的私密看板", archiveBody: "管理不希望发送到中继的草稿、私密小组和便携内容包。", p2pTitle: "一次性 P2P 会话", p2pBody: "使用邀请码与指定用户实时交流。此功能与全球动态相互独立。" },
+} as const;
 
 export function CommunityPage({ locale }: { locale: Locale }) {
   const c = copy[locale];
+  const hero = networkHero[locale];
   const pageUrl = absoluteUrl(pathFor(locale, "community"));
   const schema = [
-    { "@context": "https://schema.org", "@type": "CollectionPage", name: c.title, description: c.intro, url: pageUrl, inLanguage: languageTag(locale), isPartOf: { "@id": `${absoluteUrl(pathFor(locale, "home"))}#website` }, author: { "@id": organizationId } },
+    { "@context": "https://schema.org", "@type": "CollectionPage", name: hero.title, description: hero.intro, url: pageUrl, inLanguage: languageTag(locale), isPartOf: { "@id": `${absoluteUrl(pathFor(locale, "home"))}#website` }, author: { "@id": organizationId } },
     { "@context": "https://schema.org", "@type": "HowTo", name: c.title, inLanguage: languageTag(locale), step: c.steps.map(([number, name, text], index) => ({ "@type": "HowToStep", position: index + 1, name: `${number} · ${name}`, text })) },
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "community")} languageHrefs={{ tr: pathFor("tr", "community"), en: pathFor("en", "community"), de: pathFor("de", "community"), zh: pathFor("zh", "community") }}>
     <SchemaScript data={schema} />
-    <section className="community-product-intro"><div className="container"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p></div><nav aria-label={c.title}><a className="primary-button" href="#community-feed">{c.jump[0]} ↓</a><a className="secondary-button" href="#community-compose">{c.jump[1]} +</a><a className="secondary-button" href="#community-live">{c.jump[2]} →</a></nav><ol>{c.steps.map(([number, title, text]) => <li key={number}><span>{number}</span><div><strong>{title}</strong><small>{text}</small></div></li>)}</ol></div></section>
-    <section className="section community-compose-section" id="community-compose"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">CREATE</span><h2>{c.compose}</h2></div><p>{c.composeHelp}</p></div><CommunityComposer locale={locale} /></div></section>
-    <section className="section community-feed-section" id="community-feed"><div className="container"><CommunityFeed locale={locale} /></div></section>
-    <section className="section community-starters"><div className="container"><div className="section-heading"><span className="kicker">STARTERS</span><h2>{c.startersTitle}</h2></div><div>{c.starters.map(([title, text, destination]) => <article key={title}><span aria-hidden="true">↗</span><h3>{title}</h3><p>{text}</p><Link className="text-link" href={starterHref(locale, destination)}>{c.open} →</Link></article>)}</div></div></section>
-    <section className="section community-live-section" id="community-live"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">DIRECT P2P</span><h2>{c.live}</h2></div><p>{c.liveHelp}</p></div><details className="community-live-details"><summary><span>●</span><strong>{c.jump[2]}</strong><small>{c.liveHelp}</small><b>+</b></summary><CommunityP2PChat locale={locale} /></details></div></section>
-    <section className="section community-boundary"><div className="container"><div><span className="kicker">TRUST & SAFETY</span><h2>{c.boundaryTitle}</h2><p>{c.boundary}</p></div><Link className="secondary-button" href="https://github.com/byte-quant/bytequant" target="_blank" rel="noreferrer noopener">{c.repo} ↗</Link></div></section>
+    <section className="community-product-intro community-product-intro-compact"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#global-community">{hero.global} ↓</a><a className="secondary-button" href="#community-local">{hero.local}</a><a className="secondary-button" href="#community-live">{hero.live}</a></nav></div></section>
+    <section className="section community-network-section" id="global-community"><div className="container wide-container"><CommunityNetwork locale={locale} /></div></section>
+    <section className="section community-secondary-tools"><div className="container">
+      <details className="community-secondary-panel" id="community-local"><summary><span>▣</span><div><strong>{hero.archiveTitle}</strong><small>{hero.archiveBody}</small></div><b>+</b></summary><div className="community-secondary-panel-body"><CommunityComposer locale={locale} /><CommunityFeed locale={locale} /></div></details>
+      <details className="community-secondary-panel" id="community-live"><summary><span>◉</span><div><strong>{hero.p2pTitle}</strong><small>{hero.p2pBody}</small></div><b>+</b></summary><div className="community-secondary-panel-body"><CommunityP2PChat locale={locale} /></div></details>
+      <div className="community-boundary-inline"><div><strong>{c.boundaryTitle}</strong><p>{c.boundary}</p></div><Link href="https://github.com/byte-quant/bytequant" target="_blank" rel="noreferrer noopener">{c.repo} ↗</Link></div>
+    </div></section>
   </SiteShell>;
 }
