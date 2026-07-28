@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Locale } from "../lib/site";
 import { isAuthorizedByteQuantHostname } from "../lib/brand-integrity";
 
@@ -9,93 +9,100 @@ interface InstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
-const content = {
-  tr: { kicker: "BYTEQUANT UYGULAMASI", title: "Araçlarınıza masaüstünden veya ana ekrandan ulaşın", body: "ByteQuant'ı kurulabilir web uygulaması olarak ekleyin. Ayrı mağaza hesabı gerekmez; uygulama kendi penceresinde açılır, daha önce ziyaret edilen sayfalar çevrimdışıyken kullanılabilir ve araç girdileri önbelleğe yazılmaz.", install: "Uygulamayı yükle", installed: "Uygulama yüklendi", manual: "Tarayıcı menüsünden “Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini kullanın.", ios: "iPhone/iPad: Safari'de Paylaş düğmesine, ardından “Ana Ekrana Ekle” seçeneğine dokunun.", android: "Android: güncel Chrome veya Edge kullanın. Daha önce yüklenen ByteQuant kısayolunu/uygulamasını kaldırın, sayfayı yenileyin ve tarayıcı menüsünden yeniden yükleyin.", legacy: "Bu eski veya yerleşik Android tarayıcısında güvenli kurulum istemi açılmadı. Görünen eski Android uyarısını onaylamayın; tarayıcıyı güncelleyin ve kurulumu güncel Chrome/Edge menüsünden başlatın.", noApk: "ByteQuant APK dağıtmaz. Android uygulama sarmalayıcısını tarayıcınız üretir; hedef Android sürümü uyarısı site tarafından ayarlanamaz.", failed: "Kurulum istemi tamamlanamadı. Tarayıcı menüsündeki kurulum seçeneğini deneyin.", ready: "Kurulum istemi hazır. Yükleme yalnızca açıkça onayladığınızda başlar." },
-  en: { kicker: "BYTEQUANT APP", title: "Open your tools from the desktop or home screen", body: "Install ByteQuant as a web app. No app-store account is required; it opens in its own window, previously visited pages can work offline, and tool inputs are never written to the cache.", install: "Install app", installed: "App installed", manual: "Use “Install app” or “Add to Home Screen” in your browser menu.", ios: "iPhone/iPad: in Safari, tap Share and then “Add to Home Screen.”", android: "Android: use an up-to-date Chrome or Edge. Remove any previously installed ByteQuant shortcut/app, reload the page, and install it again from the browser menu.", legacy: "The safe install prompt was not opened in this old or embedded Android browser. Do not accept an old-Android warning; update the browser and start installation from the current Chrome/Edge menu.", noApk: "ByteQuant does not distribute an APK. Your browser creates the Android app wrapper; the site's manifest cannot set its target Android version.", failed: "The install prompt could not complete. Try the install option in your browser menu.", ready: "The install prompt is ready. Installation begins only after your explicit approval." },
-  de: { kicker: "BYTEQUANT APP", title: "Werkzeuge direkt vom Desktop oder Startbildschirm öffnen", body: "Installieren Sie ByteQuant als Web-App. Kein App-Store-Konto ist nötig; sie öffnet sich in einem eigenen Fenster, bereits besuchte Seiten können offline funktionieren und Werkzeugeingaben werden nie im Cache gespeichert.", install: "App installieren", installed: "App installiert", manual: "Wählen Sie im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.", ios: "iPhone/iPad: Tippen Sie in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.", android: "Android: Verwenden Sie eine aktuelle Chrome- oder Edge-Version. Entfernen Sie eine zuvor installierte ByteQuant-Verknüpfung/App, laden Sie die Seite neu und installieren Sie sie erneut über das Browsermenü.", legacy: "In diesem alten oder eingebetteten Android-Browser wurde keine sichere Installationsabfrage geöffnet. Bestätigen Sie keine Warnung zu einer alten Android-Version; aktualisieren Sie den Browser und starten Sie die Installation im aktuellen Chrome-/Edge-Menü.", noApk: "ByteQuant verteilt keine APK. Der Browser erzeugt die Android-App-Hülle; die Website kann deren Android-Zielversion nicht festlegen.", failed: "Die Installationsabfrage konnte nicht abgeschlossen werden. Nutzen Sie die Installationsoption im Browsermenü.", ready: "Die Installationsabfrage ist bereit. Die Installation beginnt nur nach Ihrer ausdrücklichen Bestätigung." },
-  zh: { kicker: "BYTEQUANT 应用", title: "从桌面或主屏幕直接打开工具", body: "把 ByteQuant 安装为 Web 应用，无需应用商店账户。它会在独立窗口中打开，已访问页面可在离线时使用，工具输入绝不会写入缓存。", install: "安装应用", installed: "应用已安装", manual: "请在浏览器菜单中选择“安装应用”或“添加到主屏幕”。", ios: "iPhone/iPad：在 Safari 中点击“分享”，然后选择“添加到主屏幕”。", android: "Android：请使用最新版 Chrome 或 Edge。先移除以前安装的 ByteQuant 快捷方式/应用，刷新页面，再从浏览器菜单重新安装。", legacy: "此旧版或内嵌 Android 浏览器未打开安全安装提示。请勿确认有关旧版 Android 的警告；更新浏览器后，从最新版 Chrome/Edge 菜单开始安装。", noApk: "ByteQuant 不分发 APK。Android 应用封装由浏览器生成；网站清单无法设置其目标 Android 版本。", failed: "安装提示未能完成。请改用浏览器菜单中的安装选项。", ready: "安装提示已就绪。只有在您明确确认后才会开始安装。" },
+type InstallState = "checking" | "ready" | "installed" | "manual" | "error";
+type Platform = "ios" | "android" | "desktop";
+
+const copy = {
+  tr: { kicker: "BYTEQUANT UYGULAMASI", title: "ByteQuant’ı telefonunuza veya bilgisayarınıza ekleyin", body: "Araçlara tek dokunuşla ulaşın. Mağaza hesabı ve APK gerekmez; daha önce açtığınız sayfalar çevrimdışıyken de kullanılabilir. Araç girdileri önbelleğe alınmaz.", install: "Uygulamayı yükle", installed: "Uygulama yüklü", checking: "Kurulum desteği kontrol ediliyor…", ready: "Tarayıcınız kuruluma hazır.", manual: "Kurulum adımlarını göster", failed: "Tarayıcı kurulum penceresini açamadı. Aşağıdaki güvenli adımları kullanın.", guideTitle: "ByteQuant nasıl yüklenir?", guideIntro: "Bu işlem bir APK indirmez. Yalnızca tarayıcınızın yerleşik web uygulaması özelliğini kullanır.", ios: ["Safari’de ByteQuant’ı açın.", "Paylaş düğmesine dokunun.", "Ana Ekrana Ekle’yi seçip onaylayın."], android: ["Güncel Chrome veya Edge’de ByteQuant’ı açın.", "Sağ üstteki tarayıcı menüsünü açın.", "Uygulamayı yükle veya Ana ekrana ekle’yi seçin."], desktop: ["ByteQuant’ı Chrome veya Edge’de açın.", "Adres çubuğundaki yükle simgesini ya da tarayıcı menüsünü açın.", "ByteQuant’ı yükle seçeneğini onaylayın."], close: "Kapat", privacy: "Girdi ve çıktılarınız bu kurulum sırasında gönderilmez veya PWA önbelleğine yazılmaz." },
+  en: { kicker: "BYTEQUANT APP", title: "Add ByteQuant to your phone or computer", body: "Reach your tools in one tap. No app-store account or APK is needed; previously opened pages can work offline. Tool inputs are never cached.", install: "Install app", installed: "App installed", checking: "Checking install support…", ready: "Your browser is ready to install.", manual: "Show install steps", failed: "The browser could not open its install prompt. Use the safe steps below.", guideTitle: "How to install ByteQuant", guideIntro: "This does not download an APK. It only uses your browser’s built-in web-app feature.", ios: ["Open ByteQuant in Safari.", "Tap the Share button.", "Choose Add to Home Screen and confirm."], android: ["Open ByteQuant in an up-to-date Chrome or Edge.", "Open the browser menu in the top-right corner.", "Choose Install app or Add to Home screen."], desktop: ["Open ByteQuant in Chrome or Edge.", "Use the install icon in the address bar or open the browser menu.", "Confirm Install ByteQuant."], close: "Close", privacy: "Your inputs and outputs are not sent or written to the PWA cache during installation." },
+  de: { kicker: "BYTEQUANT APP", title: "ByteQuant auf Smartphone oder Computer installieren", body: "Werkzeuge mit einem Tipp öffnen. Kein App-Store-Konto und keine APK nötig; bereits geöffnete Seiten können offline funktionieren. Werkzeugeingaben werden nie gecacht.", install: "App installieren", installed: "App installiert", checking: "Installationsunterstützung wird geprüft…", ready: "Ihr Browser ist zur Installation bereit.", manual: "Installationsschritte anzeigen", failed: "Der Browser konnte den Installationsdialog nicht öffnen. Nutzen Sie die sicheren Schritte unten.", guideTitle: "ByteQuant installieren", guideIntro: "Dabei wird keine APK heruntergeladen. Es wird nur die integrierte Web-App-Funktion des Browsers verwendet.", ios: ["ByteQuant in Safari öffnen.", "Auf Teilen tippen.", "Zum Home-Bildschirm wählen und bestätigen."], android: ["ByteQuant in einem aktuellen Chrome oder Edge öffnen.", "Das Browsermenü oben rechts öffnen.", "App installieren oder Zum Startbildschirm wählen."], desktop: ["ByteQuant in Chrome oder Edge öffnen.", "Das Installationssymbol in der Adressleiste oder das Browsermenü öffnen.", "ByteQuant installieren bestätigen."], close: "Schließen", privacy: "Ihre Ein- und Ausgaben werden bei der Installation weder gesendet noch im PWA-Cache gespeichert." },
+  zh: { kicker: "BYTEQUANT 应用", title: "将 ByteQuant 添加到手机或电脑", body: "一键打开常用工具。无需应用商店账户或 APK；已打开的页面可离线使用，工具输入绝不会写入缓存。", install: "安装应用", installed: "应用已安装", checking: "正在检查安装支持…", ready: "浏览器已准备好安装。", manual: "查看安装步骤", failed: "浏览器无法打开安装提示，请使用下方的安全步骤。", guideTitle: "如何安装 ByteQuant", guideIntro: "此过程不会下载 APK，只使用浏览器内置的 Web 应用功能。", ios: ["在 Safari 中打开 ByteQuant。", "点击分享按钮。", "选择添加到主屏幕并确认。"], android: ["在最新版 Chrome 或 Edge 中打开 ByteQuant。", "打开右上角的浏览器菜单。", "选择安装应用或添加到主屏幕。"], desktop: ["在 Chrome 或 Edge 中打开 ByteQuant。", "点击地址栏的安装图标或打开浏览器菜单。", "确认安装 ByteQuant。"], close: "关闭", privacy: "安装过程中，您的输入和输出不会被发送或写入 PWA 缓存。" },
 } as const;
 
-const simpleInstallNote = {
-  tr: "Bu bir APK indirmesi değildir. ByteQuant tarayıcınızın güvenli ‘uygulama olarak yükle’ özelliğini kullanır; şüpheli veya eski Android uyarısı görürseniz işlemi iptal edip tarayıcınızı güncelleyin.",
-  en: "This is not an APK download. ByteQuant uses your browser's safe ‘install as an app’ feature; cancel and update the browser if you see a suspicious or old-Android warning.",
-  de: "Dies ist kein APK-Download. ByteQuant nutzt die sichere Browserfunktion „Als App installieren“; bei einer verdächtigen oder alten Android-Warnung abbrechen und den Browser aktualisieren.",
-  zh: "这不是 APK 下载。ByteQuant 使用浏览器安全的“安装为应用”功能；若看到可疑或旧版 Android 警告，请取消并更新浏览器。",
-} as const;
+type PwaContextValue = {
+  state: InstallState;
+  install: (locale: Locale) => Promise<void>;
+  showGuide: (locale: Locale) => void;
+};
 
-type AndroidInstallMode = "ready" | "manual" | "legacy";
+const PwaContext = createContext<PwaContextValue | null>(null);
 
-function androidInstallMode(userAgent: string): AndroidInstallMode {
-  if (!/Android/i.test(userAgent)) return "ready";
-  if (/;\s*wv\)|Version\/4\.0.+Chrome\//i.test(userAgent)) return "legacy";
-  const chromium = /(?:Chrome|EdgA)\/(\d+)/i.exec(userAgent);
-  if (!chromium) return "manual";
-  return Number(chromium[1]) >= 120 ? "ready" : "legacy";
+function detectPlatform(): Platform {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  return "desktop";
 }
 
-export function PwaRegistrar() {
-  useEffect(() => {
-    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production" || !isAuthorizedByteQuantHostname(location.hostname)) return;
-    const register = () => navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
-    window.addEventListener("load", register, { once: true });
-    return () => window.removeEventListener("load", register);
-  }, []);
-  return null;
-}
-
-export function PwaInstall({ locale, compact = false }: { locale: Locale; compact?: boolean }) {
-  const labels = content[locale];
+export function PwaProvider({ children }: { children: ReactNode }) {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
-  const [manual, setManual] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [installMode, setInstallMode] = useState<AndroidInstallMode>("manual");
-  const userAgent = typeof navigator === "undefined" ? "" : navigator.userAgent;
-  const isAndroid = /Android/i.test(userAgent);
-  const isIos = /iPad|iPhone|iPod/.test(userAgent);
+  const [state, setState] = useState<InstallState>(() => {
+    if (typeof window === "undefined") return "checking";
+    return window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone)) ? "installed" : "manual";
+  });
+  const [guideLocale, setGuideLocale] = useState<Locale | null>(null);
 
   useEffect(() => {
-    const media = window.matchMedia("(display-mode: standalone)");
-    const frame = window.requestAnimationFrame(() => {
-      setInstalled(media.matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone)));
-      const mode = androidInstallMode(navigator.userAgent);
-      if (mode === "legacy") setInstallMode(mode);
-    });
     const beforeInstall = (event: Event) => {
       event.preventDefault();
-      const mode = androidInstallMode(navigator.userAgent);
-      setInstallMode(mode);
-      setPrompt(mode === "ready" ? event as InstallPromptEvent : null);
+      // A browser-generated prompt is authoritative. Do not reject it based on
+      // user-agent version guesses: that was the source of false Android blocks.
+      setPrompt(event as InstallPromptEvent);
+      setState("ready");
     };
-    const appInstalled = () => { setInstalled(true); setPrompt(null); };
+    const appInstalled = () => { setPrompt(null); setState("installed"); };
     window.addEventListener("beforeinstallprompt", beforeInstall);
     window.addEventListener("appinstalled", appInstalled);
-    return () => { window.cancelAnimationFrame(frame); window.removeEventListener("beforeinstallprompt", beforeInstall); window.removeEventListener("appinstalled", appInstalled); };
+
+    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production" && isAuthorizedByteQuantHostname(location.hostname)) {
+      const register = () => navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => setState((current) => current === "installed" ? current : "manual"));
+      if (document.readyState === "complete") void register();
+      else window.addEventListener("load", register, { once: true });
+      return () => {
+        window.removeEventListener("beforeinstallprompt", beforeInstall);
+        window.removeEventListener("appinstalled", appInstalled);
+        window.removeEventListener("load", register);
+      };
+    }
+    return () => {
+      window.removeEventListener("beforeinstallprompt", beforeInstall);
+      window.removeEventListener("appinstalled", appInstalled);
+    };
   }, []);
 
-  async function install() {
-    if (!prompt) { setManual(true); return; }
-    setFailed(false);
+  async function install(locale: Locale) {
+    if (state === "installed") return;
+    if (!prompt) { setGuideLocale(locale); return; }
     try {
       await prompt.prompt();
       const choice = await prompt.userChoice;
-      if (choice.outcome === "accepted") setInstalled(true);
+      if (choice.outcome === "accepted") setState("installed");
+      else setState("manual");
     } catch {
-      setFailed(true);
-      setManual(true);
+      setState("error");
+      setGuideLocale(locale);
     } finally {
       setPrompt(null);
     }
   }
 
-  if (compact) return <button type="button" className="install-trigger" aria-label={installed ? labels.installed : labels.install} title={installed ? labels.installed : labels.install} onClick={() => void install()} disabled={installed}><span aria-hidden="true">⇩</span><b>{installed ? labels.installed : labels.install}</b></button>;
-  return (
-    <section className="section install-section" aria-labelledby={"install-" + locale}>
-      <div className="container install-card">
-        <div className="install-icon" aria-hidden="true"><span>BQ</span><i>＋</i></div>
-        <div><span className="kicker">{labels.kicker}</span><h2 id={"install-" + locale}>{labels.title}</h2><p>{labels.body}</p><ul><li>✓ {locale === "tr" ? "Ana ekrandan tek dokunuş" : locale === "de" ? "Mit einem Tipp vom Startbildschirm" : locale === "zh" ? "从主屏幕一键打开" : "One tap from your home screen"}</li><li>✓ {locale === "tr" ? "Daha önce açılan sayfalara çevrimdışı erişim" : locale === "de" ? "Bereits besuchte Seiten offline öffnen" : locale === "zh" ? "离线打开已访问页面" : "Previously visited pages available offline"}</li><li>✓ {locale === "tr" ? "Araç girdileri önbelleğe alınmaz" : locale === "de" ? "Werkzeugeingaben werden nicht gecacht" : locale === "zh" ? "工具输入不会缓存" : "Tool inputs are never cached"}</li></ul><p className="install-security-note">{simpleInstallNote[locale]}</p></div>
-        <div className="install-actions" aria-live="polite"><button type="button" className="primary-button" onClick={() => void install()} disabled={installed}>{installed ? labels.installed : labels.install}</button><small className={installMode === "legacy" ? "install-warning" : undefined}>{failed ? labels.failed : installMode === "legacy" ? labels.legacy : prompt ? labels.ready : labels.manual}</small>{(isIos || (manual && isAndroid)) && <small>{isAndroid ? labels.android : labels.ios}</small>}</div>
-      </div>
-    </section>
-  );
+  const value: PwaContextValue = { state, install, showGuide: setGuideLocale };
+  const labels = guideLocale ? copy[guideLocale] : null;
+  const steps = labels ? labels[typeof navigator === "undefined" ? "desktop" : detectPlatform()] : [];
+  return <PwaContext.Provider value={value}>{children}{labels && <div className="pwa-guide-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setGuideLocale(null); }}><section className="pwa-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="pwa-guide-title"><header><div><span>{labels.kicker}</span><h2 id="pwa-guide-title">{labels.guideTitle}</h2></div><button type="button" onClick={() => setGuideLocale(null)} aria-label={labels.close}>×</button></header><p>{state === "error" ? labels.failed : labels.guideIntro}</p><ol>{steps.map((step, index) => <li key={step}><span>{index + 1}</span><strong>{step}</strong></li>)}</ol><div className="pwa-guide-privacy"><span aria-hidden="true">✓</span><p>{labels.privacy}</p></div><button type="button" className="primary-button" onClick={() => setGuideLocale(null)}>{labels.close}</button></section></div>}</PwaContext.Provider>;
+}
+
+function usePwa() {
+  const context = useContext(PwaContext);
+  if (!context) throw new Error("PwaInstall must be rendered inside PwaProvider");
+  return context;
+}
+
+export function PwaInstall({ locale, compact = false }: { locale: Locale; compact?: boolean }) {
+  const labels = copy[locale];
+  const { state, install, showGuide } = usePwa();
+  const installed = state === "installed";
+  if (compact) return <button type="button" className="install-trigger" aria-label={installed ? labels.installed : labels.install} title={installed ? labels.installed : labels.install} onClick={() => void install(locale)} disabled={installed}><span aria-hidden="true">⇩</span><b>{installed ? labels.installed : labels.install}</b></button>;
+  const status = state === "checking" ? labels.checking : state === "ready" ? labels.ready : state === "error" ? labels.failed : labels.manual;
+  return <section className="section install-section" aria-labelledby={`install-${locale}`}><div className="container install-card"><div className="install-icon" aria-hidden="true"><span>BQ</span><i>＋</i></div><div><span className="kicker">{labels.kicker}</span><h2 id={`install-${locale}`}>{labels.title}</h2><p>{labels.body}</p><ul><li>✓ {locale === "tr" ? "Tek dokunuşla açılır" : locale === "de" ? "Mit einem Tipp öffnen" : locale === "zh" ? "一键打开" : "Open in one tap"}</li><li>✓ {locale === "tr" ? "Güvenli tarayıcı kurulumu" : locale === "de" ? "Sichere Browser-Installation" : locale === "zh" ? "安全的浏览器安装" : "Safe browser installation"}</li><li>✓ {locale === "tr" ? "Girdiler önbelleğe alınmaz" : locale === "de" ? "Eingaben werden nicht gecacht" : locale === "zh" ? "输入不会缓存" : "Inputs are never cached"}</li></ul></div><div className="install-actions" aria-live="polite"><button type="button" className="primary-button" onClick={() => void install(locale)} disabled={installed}>{installed ? labels.installed : state === "ready" ? labels.install : labels.manual}</button><small>{status}</small>{state !== "ready" && !installed && <button type="button" className="text-button" onClick={() => showGuide(locale)}>{labels.manual} →</button>}</div></div></section>;
 }

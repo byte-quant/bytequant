@@ -49,7 +49,19 @@ export function AgentToolBridge({ slug, locale }: { slug: string; locale: Locale
   const applyInput = () => {
     if (step.requiresFile) { setNotice(t.manual); return; }
     const scope = document.querySelector<HTMLElement>(".workbench");
-    const field = scope?.querySelector<HTMLTextAreaElement>("textarea:not([readonly]):not([disabled])")
+    const contractFields = Array.from(scope?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("[data-agent-input][data-agent-key]") ?? []);
+    if (contractFields.length) {
+      let mapped: Record<string, string> | undefined;
+      try {
+        const parsed: unknown = JSON.parse(inputValue);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) mapped = Object.fromEntries(Object.entries(parsed).filter((entry): entry is [string, string | number | boolean] => ["string", "number", "boolean"].includes(typeof entry[1])).map(([key, value]) => [key, String(value)]));
+      } catch { /* plain text is a valid first-field handoff */ }
+      window.dispatchEvent(new CustomEvent("bytequant:agent-input", { detail: mapped ? { fields: mapped } : { value: inputValue.slice(0, AGENT_SESSION_LIMIT) } }));
+      contractFields[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      setNotice(t.applied);
+      return;
+    }
+    const field = scope?.querySelector<HTMLTextAreaElement>("[data-agent-input]:not([readonly]):not([disabled]), textarea:not([readonly]):not([disabled])")
       ?? scope?.querySelector<HTMLInputElement>('input:not([type="file"]):not([type="hidden"]):not([type="password"]):not([readonly]):not([disabled])');
     if (!field || !inputValue) { setNotice(step.requiresFile ? t.manual : t.missing); return; }
     setNativeValue(field, inputValue.slice(0, AGENT_SESSION_LIMIT));
@@ -59,7 +71,8 @@ export function AgentToolBridge({ slug, locale }: { slug: string; locale: Locale
 
   const captureOutput = () => {
     const scope = document.querySelector<HTMLElement>(".workbench");
-    const candidates = Array.from(scope?.querySelectorAll<HTMLElement>("[data-agent-output], pre, output") ?? []).reverse();
+    const contracted = Array.from(scope?.querySelectorAll<HTMLElement>('[data-agent-output][data-ready="true"]') ?? []).reverse();
+    const candidates = contracted.length ? contracted : Array.from(scope?.querySelectorAll<HTMLElement>("[data-agent-output], output") ?? []).reverse();
     const output = candidates.map((item) => item.innerText.trim()).find((value) => value.length > 0 && value.length <= AGENT_SESSION_LIMIT);
     if (!output) { setNotice(t.noOutput); return; }
     const nextSession: AgentSession = {

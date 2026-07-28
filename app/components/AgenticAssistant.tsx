@@ -167,7 +167,7 @@ export function AgenticAssistant({ locale }: { locale: Locale }) {
     setPlanning(true);
     window.setTimeout(() => {
       const nextPlan = createAgentPlan(goal, tools, locale, plan);
-      const nextTurns = [...turns, { goal: nextPlan.goal, response: nextPlan.response, tools: nextPlan.steps.map((step) => step.title), createdAt: Date.now() }].slice(-20);
+      const nextTurns = [...turns, { goal: goal.trim(), response: nextPlan.response, tools: nextPlan.steps.map((step) => step.title), createdAt: Date.now() }].slice(-20);
       setPlan(nextPlan); setTurns(nextTurns); setPlanning(false);
       try {
         sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify({ plan: nextPlan, currentStep: 0, stepOutputs: {}, completedStepIds: [] }));

@@ -1,10 +1,17 @@
 /* ByteQuant service worker: same-origin application shell caching only.
    Tool inputs and generated outputs are never persisted by this worker. */
-const CACHE = "bytequant-shell-v12";
+const CACHE = "bytequant-shell-v13";
 const SHELL = ["/", "/en/", "/de/", "/zh/", "/ajan/", "/en/agent/", "/de/agent/", "/zh/agent/", "/is-istasyonu/", "/en/workstation/", "/de/workstation/", "/zh/workstation/", "/workspace/", "/offline.html", "/favicon.png", "/app-icon.svg", "/app-icon-maskable.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((cache) => Promise.allSettled(SHELL.map(async (path) => {
+        const response = await fetch(path, { cache: "reload" });
+        if (response.ok) await cache.put(path, response);
+      })))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (event) => {

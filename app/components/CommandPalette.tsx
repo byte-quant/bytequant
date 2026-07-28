@@ -11,7 +11,7 @@ function searchable(value: string, locale: Locale) {
   return value.toLocaleLowerCase({ tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" }[locale]).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function CommandPalette({ locale }: { locale: Locale }) {
+export function CommandPalette({ locale, showTrigger = true }: { locale: Locale; showTrigger?: boolean }) {
   const labels = {
     tr: { aria: "Araç ve referans ara", placeholder: `${tools.length} araç ve ${references.length} referansta ara…`, close: "Kapat", quick: "Hızlı geçiş", result: "sonuç", empty: "Bu aramayla eşleşen hedef yok.", select: "seç", open: "aç", search: "Ara" },
     en: { aria: "Search tools and references", placeholder: `Search ${tools.length} tools and ${references.length} references…`, close: "Close", quick: "Quick navigation", result: "results", empty: "No destination matches this search.", select: "select", open: "open", search: "Search" },
@@ -104,5 +104,5 @@ export function CommandPalette({ locale }: { locale: Locale }) {
     </section>
   </div> : null;
 
-  return <><button className="palette-trigger" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={labels.aria}><span>⌕</span><b>{labels.search}</b><kbd>⌘ K</kbd></button>{overlay && createPortal(overlay, document.body)}</>;
+  return <>{showTrigger && <button className="palette-trigger" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={labels.aria}><span>⌕</span><b>{labels.search}</b><kbd>⌘ K</kbd></button>}{overlay && createPortal(overlay, document.body)}</>;
 }

@@ -1,5 +1,6 @@
 import type { ArticleSection } from "./posts";
 import { expansionLocalizedGuides } from "./expansion-guides";
+import { essentialLocalizedGuides } from "./essential-guides";
 
 export type LocalizedGuideLocale = "de" | "zh";
 type GuideCopy = { title: string; excerpt: string; description: string; category: string; readTime: string; sections: ArticleSection[] };
@@ -498,7 +499,7 @@ localizedGuides.push(
   },
 );
 
-localizedGuides.push(...expansionLocalizedGuides);
+localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides);
 
 export const legacyLocalizedGuideSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",

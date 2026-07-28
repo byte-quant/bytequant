@@ -28,7 +28,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 2\.2/);
+    assert.match(page, /BQ-Agent 3\.0/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -107,13 +107,14 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 186);
-  assert.match(home, /aria-label="Araç ve referans ara"/);
-  assert.match(german, /aria-label="Werkzeuge und Referenzen durchsuchen"/);
-  assert.match(chinese, /aria-label="搜索工具和参考资料"/);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 211);
+  assert.match(home, /Araçlarda anında ara/);
+  assert.match(german, /Werkzeuge sofort durchsuchen/);
+  assert.match(chinese, /即时搜索工具/);
+  for (const page of [home, english, german, chinese]) assert.doesNotMatch(page, /class="palette-trigger"/);
   assert.match(manifest, /standalone/);
   assert.match(manifest, /app-icon-maskable\.svg/);
-  assert.match(worker, /bytequant-shell-v12/);
+  assert.match(worker, /bytequant-shell-v13/);
   assert.match(worker, /\/en\/agent\//);
   assert.match(worker, /\/en\/workstation\//);
   assert.doesNotMatch(worker, /localStorage/i);
@@ -151,10 +152,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 186);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 186);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 186);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 186);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 211);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 211);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 211);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 211);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -219,6 +220,37 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /Son güncelleme: 26 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
+});
+
+test("ships exactly 25 new working tools and seven deep guides in all four locales", async () => {
+  const [{ essentialToolSlugs }, { essentialPosts, essentialLocalizedGuides }] = await Promise.all([
+    import("../app/lib/essential-tool-slugs.ts"),
+    import("../app/lib/essential-guides.ts"),
+  ]);
+  assert.equal(essentialToolSlugs.size, 25);
+  assert.equal(essentialPosts.length, 7);
+  assert.equal(essentialLocalizedGuides.length, 7);
+  for (const slug of essentialToolSlugs) {
+    const pages = await Promise.all([
+      read(`araclar/${slug}/index.html`),
+      read(`en/tools/${slug}/index.html`),
+      read(`de/tools/${slug}/index.html`),
+      read(`zh/tools/${slug}/index.html`),
+    ]);
+    for (const page of pages) {
+      assert.match(page, /HowTo/);
+      assert.match(page, /essential-workbench/);
+      assert.match(page, /data-agent-input/);
+    }
+  }
+  for (const post of essentialPosts) {
+    await Promise.all([
+      access(new URL(`blog/${post.slug}/index.html`, root)),
+      access(new URL(`en/blog/${post.slug}/index.html`, root)),
+      access(new URL(`de/blog/${post.slug}/index.html`, root)),
+      access(new URL(`zh/blog/${post.slug}/index.html`, root)),
+    ]);
+  }
 });
 
 test("exports the new bilingual tool package", async () => {
@@ -597,8 +629,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>69<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>69<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>76<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>76<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -643,7 +675,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 2\.2/);
+    assert.match(page, /BQ-Agent 3\.0/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -678,10 +710,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /186 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 186 tools in a visual workflow/);
-  assert.match(german, /186 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 186 个工具/);
+  assert.match(turkish, /211 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 211 tools in a visual workflow/);
+  assert.match(german, /211 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 211 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
@@ -789,7 +821,7 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
 
   assert.match(communitySource, /type Visibility = "public" \| "private"/);
   assert.match(communitySource, /type Audience = Visibility \| "group"/);
-  assert.match(communitySource, /bytequant:community-feed:v3/);
+  assert.match(communitySource, /bytequant:community-feed:v4/);
   assert.match(communitySource, /exportPack/);
   assert.match(composerSource, /audience/);
   assert.match(composerSource, /groupName/);
@@ -803,7 +835,7 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
   assert.match(toolSource, /Decision-focused meeting agenda/);
   assert.match(toolSource, /Closure gate/);
   assert.equal((toolSource.match(/pair\.length >= 2/g) ?? []).length, 2);
-  assert.match(newsSource, /news-source-summary/);
+  assert.match(newsSource, /news-source-brief-prominent/);
   assert.match(newsSource, /news-checklist/);
   assert.match(newsSource, /reviewedKey/);
   assert.match(generatedNews, /"sourceSummary":/);

@@ -9,6 +9,8 @@ import { expansionToolSlugs } from "../lib/expansion-tools";
 import { NewToolWorkbench, newWorkbenchSlugs } from "./NewToolWorkbenches";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
 import { AdvancedWorkbench, advancedWorkbenchSlugs } from "./AdvancedWorkbenches";
+import { EssentialWorkbench } from "./EssentialWorkbenches";
+import { essentialToolSlugs, guidedLegacyToolSlugs } from "../lib/essential-tool-slugs";
 import { GrowthWorkbench, growthWorkbenchSlugs } from "./GrowthWorkbenches";
 import { demandToolSlugs } from "../lib/demand-tool-slugs";
 import { discoveryToolSlugs } from "../lib/discovery-tool-slugs";
@@ -43,7 +45,7 @@ const samples: Record<string, Record<"tr" | "en", string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":186}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":186}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":211}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":211}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -349,6 +351,7 @@ function explainCron(expression: string, isTr: boolean) {
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  if (essentialToolSlugs.has(slug) || guidedLegacyToolSlugs.has(slug)) return <EssentialWorkbench slug={slug} locale={locale} />;
   if (expansionToolSlugs.has(slug)) return <ExpansionWorkbench slug={slug} locale={locale} />;
   if (discoveryToolSlugs.has(slug)) return <DiscoveryWorkbench slug={slug} locale={locale} />;
   if ((productivityToolSlugs as readonly string[]).includes(slug)) return <ProductivityWorkbench slug={slug} locale={locale} />;
@@ -681,7 +684,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
       <div className="workbench-bar"><span className="local-status"><i />{labels.local}<small>{labels.shortcut}</small></span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo} disabled={busy}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench} disabled={busy}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
-          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / 100.000</small></label>}
+          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea data-agent-input data-agent-key="input" value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / 100.000</small></label>}
           {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input value={secondary} maxLength={500} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" /> : <textarea value={secondary} maxLength={50000} rows={5} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" />}<small className="field-counter">{secondary.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / {slug === "regex-test-araci" ? "500" : "50.000"}</small></label>}
           {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => { setFlags(event.target.value.replace(/[^dgimsuvy]/g, "")); resetResult(); }} /></label>}
           {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => { setLength(Number(event.target.value)); resetResult(); }} /><small className="field-help">{isTr ? "Her parola büyük/küçük harf, rakam ve sembol içerir." : "Every password includes upper/lowercase, digits, and symbols."}</small></label>}
@@ -698,7 +701,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         <div className="result-panel" aria-live="polite">
           <div className="result-header"><span>{labels.output}</span><div className="output-actions"><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
           {metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}
-          <pre className={output ? "has-output" : ""}>{output || labels.empty}</pre>
+          <pre data-agent-output data-ready={output ? "true" : "false"} className={output ? "has-output" : ""}>{output || labels.empty}</pre>
           <ToolNotice notice={notice} locale={locale} />
         </div>
       </div>
