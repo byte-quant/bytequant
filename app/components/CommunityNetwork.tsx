@@ -15,6 +15,9 @@ const identityKey = "bytequant:nostr-identity:v1";
 const relayKey = "bytequant:nostr-relays:v1";
 const blockedKey = "bytequant:nostr-blocked:v1";
 const defaultRelays = ["wss://relay.damus.io", "wss://nos.lol"];
+const MAX_EVENT_BYTES = 6_000;
+const MAX_CLOCK_SKEW_SECONDS = 5 * 60;
+const AUTO_LOCK_MS = 15 * 60 * 1000;
 const localeTags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
 
 const copy = {
@@ -30,6 +33,13 @@ const copy = {
   zh: {
     eyebrow: "全球社区", title: "在同一动态中连接想法、流程与人", intro: "无需账号即可阅读。若要发布、回复或点赞，可创建仅在设备上加密的便携身份。", connect: "连接全球动态", connecting: "正在连接中继…", connected: "全球动态已连接", partial: "部分中继离线；动态仍可使用", error: "目前无法连接中继", privacy: "连接后，所选中继运营者可能看到您的 IP 地址。帖子公开并带有加密签名。", refresh: "刷新", compose: "发布到社区", composeHint: "添加清晰标题和他人可执行的背景信息。", titleLabel: "标题", body: "想分享什么？", kind: "类型", group: "主题 / 小组", publish: "发布", publishing: "正在发布…", published: "至少一个中继已接受帖子。", identity: "您的资料", create: "创建安全资料", unlock: "解锁资料", lock: "锁定", name: "显示名称", about: "简介", pass: "设备密码", passHint: "至少 10 个字符。密码和私钥不会发送给 ByteQuant。", identityReady: "资料已解锁", identityLocked: "此设备上有一个已锁定资料", npub: "便携身份", feed: "发现", latest: "最新", groups: "小组", people: "用户", saved: "已收藏", all: "全部", search: "搜索动态", empty: "此标签下暂无帖子。您可以发布第一条有用内容。", editorial: "ByteQuant 示例", comment: "评论", commentPlaceholder: "写下建设性回复", sendComment: "回复", like: "点赞", repost: "转发", share: "分享链接", block: "隐藏用户", blocked: "已隐藏账户", moderation: "本地审核", moderationBody: "签名可减少冒充，但不能证明内容真实或安全。滥用过滤和隐藏列表只在本设备生效。", relaySettings: "连接设置", relayHelp: "每行填写一个 wss:// 中继。ByteQuant 不运营中继；可用性、保留与审核政策由中继运营者决定。", saveRelays: "保存设置", status: "状态", comments: "条回复", likes: "次点赞", kinds: { workflow: "工作流", tip: "技巧", question: "问题", idea: "想法" }, unsafe: "内容未通过安全检查，可能包含个人数据、机密、垃圾内容或不当语言。", identityError: "无法打开资料。请检查密码与浏览器存储权限。", relayDisclosure: "开放 Nostr 协议 · 自由选择免费中继 · 无 ByteQuant 账号", noIdentity: "互动前请创建或解锁资料。", liveProfiles: "动态中的用户", activeGroups: "活跃小组", copyId: "复制身份", copied: "已复制", explain: "如何工作？", explainBody: "资料与帖子按 Nostr 格式签名，并由您选择的中继分发。私钥仅保留在当前内存中，并使用设备密码通过 AES-GCM 加密存储。中继不是 ByteQuant 服务器。", localStarter: "全球连接建立前的示例动态", resetIdentity: "从此设备删除资料", resetConfirm: "要从此设备删除加密资料吗？若无备份，该身份无法恢复。",
   },
+} as const;
+
+const secureCopy = {
+  tr: { autoLocked: "Profil 15 dakikalık hareketsizlikten sonra otomatik kilitlendi.", rateLimited: "Çok hızlı işlem yapıldı. Spam koruması için kısa bir süre bekleyin.", security: ["İmzalar doğrulanır", "Spam ve sır filtresi", "15 dk otomatik kilit"], profileSettings: "Profil ve güvenlik", startPost: "Yeni bir paylaşım başlat", closeComposer: "Taslağı kapat", backup: "Şifreli profil yedeğini indir", restore: "Şifreli yedeği içe aktar", backupReady: "Şifreli profil yedeği hazırlandı.", restoreReady: "Şifreli profil bu cihaza aktarıldı. Açmak için parolanızı girin.", publicProfile: "Nostr profili ve gönderileri herkese açıktır. Gerçek ad, konum veya özel iletişim bilgisi yazmayın.", clearBlocked: "Gizlenenleri temizle" },
+  en: { autoLocked: "The profile was locked automatically after 15 minutes of inactivity.", rateLimited: "Too many actions were attempted. Wait briefly while anti-spam protection resets.", security: ["Signatures verified", "Spam and secret filter", "15 min auto-lock"], profileSettings: "Profile and security", startPost: "Start a new post", closeComposer: "Close draft", backup: "Download encrypted profile backup", restore: "Import encrypted backup", backupReady: "The encrypted profile backup is ready.", restoreReady: "The encrypted profile was imported to this device. Enter its passphrase to unlock it.", publicProfile: "Nostr profiles and posts are public. Do not add your real name, location, or private contact details.", clearBlocked: "Clear hidden accounts" },
+  de: { autoLocked: "Das Profil wurde nach 15 Minuten Inaktivität automatisch gesperrt.", rateLimited: "Zu viele Aktionen. Bitte kurz warten, bis der Spam-Schutz zurückgesetzt ist.", security: ["Signaturen geprüft", "Spam- und Geheimnisfilter", "15 Min. Auto-Sperre"], profileSettings: "Profil und Sicherheit", startPost: "Neuen Beitrag beginnen", closeComposer: "Entwurf schließen", backup: "Verschlüsselte Profilsicherung laden", restore: "Verschlüsselte Sicherung importieren", backupReady: "Die verschlüsselte Profilsicherung wurde erstellt.", restoreReady: "Das verschlüsselte Profil wurde importiert. Zum Entsperren Passphrase eingeben.", publicProfile: "Nostr-Profile und Beiträge sind öffentlich. Keine echten Namen, Orte oder privaten Kontaktdaten angeben.", clearBlocked: "Ausgeblendete Konten leeren" },
+  zh: { autoLocked: "资料已在闲置 15 分钟后自动锁定。", rateLimited: "操作过于频繁。请稍候，待反垃圾保护重置。", security: ["验证事件签名", "垃圾与机密过滤", "15 分钟自动锁定"], profileSettings: "资料与安全", startPost: "发布新内容", closeComposer: "关闭草稿", backup: "下载加密资料备份", restore: "导入加密备份", backupReady: "加密资料备份已生成。", restoreReady: "加密资料已导入此设备。请输入密码解锁。", publicProfile: "Nostr 资料与帖子均为公开内容。请勿填写真实姓名、位置或私人联系方式。", clearBlocked: "清空隐藏账户" },
 } as const;
 
 const starters: Record<Locale, Array<SocialContent & { id: string; author: string }>> = {
@@ -55,6 +65,11 @@ function clean(value: string, max: number) { return value.replace(/[\u0000-\u001
 function bytesToBase64(value: Uint8Array) { let binary = ""; value.forEach((byte) => { binary += String.fromCharCode(byte); }); return btoa(binary); }
 function base64ToBytes(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 function tagValue(event: NostrEvent, name: string) { return event.tags.find((tag) => tag[0] === name)?.[1] ?? ""; }
+function plausibleEvent(event: NostrEvent, now = Math.floor(Date.now() / 1000)) {
+  return /^[0-9a-f]{64}$/i.test(event.id) && /^[0-9a-f]{64}$/i.test(event.pubkey) && /^[0-9a-f]{128}$/i.test(event.sig)
+    && event.created_at <= now + MAX_CLOCK_SKEW_SECONDS && event.created_at >= now - 60 * 60 * 24 * 46
+    && event.content.length <= MAX_EVENT_BYTES && event.tags.length <= 30 && event.tags.every((tag) => tag.length <= 8 && tag.every((item) => typeof item === "string" && item.length <= 500));
+}
 function parsePost(event: NostrEvent): SocialContent | null {
   try {
     const value = JSON.parse(event.content) as Partial<SocialContent>;
@@ -63,8 +78,14 @@ function parsePost(event: NostrEvent): SocialContent | null {
     return result.title.length >= 3 && result.body.length >= 10 && reviewCommunityText(`${result.title}\n${result.body}`).length === 0 ? result : null;
   } catch { return null; }
 }
-function parseProfile(event: NostrEvent): Profile | null { try { const value = JSON.parse(event.content) as Record<string, unknown>; const name = clean(String(value.display_name ?? value.name ?? ""), 40); const about = clean(String(value.about ?? ""), 180); return name ? { name, about } : null; } catch { return null; } }
-function validRelays(value: string) { return [...new Set(value.split(/\s+/).map((item) => item.trim()).filter((item) => { try { const url = new URL(item); return url.protocol === "wss:" && !url.username && !url.password; } catch { return false; } }))].slice(0, 5); }
+function parseProfile(event: NostrEvent): Profile | null { try { if (event.content.length > 2_000) return null; const value = JSON.parse(event.content) as Record<string, unknown>; const name = clean(String(value.display_name ?? value.name ?? ""), 40); const about = clean(String(value.about ?? ""), 180); return name && reviewCommunityText(`${name}\n${about}`).length === 0 ? { name, about } : null; } catch { return null; } }
+function isPrivateRelayHost(hostname: string) {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (host === "localhost" || host === "::1" || host.endsWith(".local") || host.endsWith(".internal")) return true;
+  const parts = host.split(".").map(Number);
+  return parts.length === 4 && parts.every(Number.isInteger) && (parts[0] === 10 || parts[0] === 127 || parts[0] === 0 || (parts[0] === 169 && parts[1] === 254) || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) || (parts[0] === 192 && parts[1] === 168));
+}
+function validRelays(value: string) { return [...new Set(value.split(/\s+/).map((item) => item.trim()).filter((item) => { try { const url = new URL(item); return url.protocol === "wss:" && !url.username && !url.password && !isPrivateRelayHost(url.hostname); } catch { return false; } }))].slice(0, 5); }
 
 async function keyFromPassphrase(passphrase: string, salt: Uint8Array) {
   const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]);
@@ -79,9 +100,18 @@ async function decryptSecret(identity: StoredIdentity, passphrase: string) {
   const salt = base64ToBytes(identity.salt); const iv = base64ToBytes(identity.iv); const key = await keyFromPassphrase(passphrase, salt);
   return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv as BufferSource }, key, base64ToBytes(identity.cipher) as BufferSource));
 }
+function validStoredIdentity(value: unknown): value is StoredIdentity {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<StoredIdentity>;
+  return candidate.v === 1 && typeof candidate.pubkey === "string" && /^[0-9a-f]{64}$/i.test(candidate.pubkey)
+    && typeof candidate.salt === "string" && candidate.salt.length <= 128 && typeof candidate.iv === "string" && candidate.iv.length <= 128
+    && typeof candidate.cipher === "string" && candidate.cipher.length <= 512 && typeof candidate.name === "string" && candidate.name.length <= 40
+    && typeof candidate.about === "string" && candidate.about.length <= 180;
+}
 
 export function CommunityNetwork({ locale }: { locale: Locale }) {
-  const t = copy[locale];
+  const passHint = { tr: "En az 12 karakter. Parola ve özel anahtar ByteQuant’a gönderilmez.", en: "At least 12 characters. Your passphrase and private key are never sent to ByteQuant.", de: "Mindestens 12 Zeichen. Passphrase und privater Schlüssel verlassen das Gerät nicht.", zh: "至少 12 个字符。密码和私钥不会发送给 ByteQuant。" }[locale];
+  const t = { ...copy[locale], ...secureCopy[locale], passHint };
   const [network, setNetwork] = useState<NetworkState>("idle");
   const [events, setEvents] = useState<NostrEvent[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -100,14 +130,17 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const [blocked, setBlocked] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [savedOnly, setSavedOnly] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
   const poolRef = useRef<SimplePoolType | null>(null);
   const subscriptionRef = useRef<{ close(reason?: string): void } | null>(null);
+  const actionTimesRef = useRef<Record<string, number[]>>({});
+  const importRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
       try {
-        const stored = JSON.parse(localStorage.getItem(identityKey) ?? "null") as StoredIdentity | null;
-        if (stored?.v === 1 && /^[0-9a-f]{64}$/i.test(stored.pubkey)) { setIdentity(stored); setProfileDraft((current) => ({ ...current, name: stored.name, about: stored.about })); }
+        const stored: unknown = JSON.parse(localStorage.getItem(identityKey) ?? "null");
+        if (validStoredIdentity(stored)) { setIdentity(stored); setProfileDraft((current) => ({ ...current, name: stored.name, about: stored.about })); }
         const relayList = validRelays(JSON.parse(localStorage.getItem(relayKey) ?? "[]").join("\n")); if (relayList.length) { setRelays(relayList); setRelayDraft(relayList.join("\n")); }
         const hidden = JSON.parse(localStorage.getItem(blockedKey) ?? "[]"); if (Array.isArray(hidden)) setBlocked(hidden.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-100));
         const kept = JSON.parse(localStorage.getItem("bytequant:nostr-saved:v1") ?? "[]"); if (Array.isArray(kept)) setSaved(kept.filter((item): item is string => typeof item === "string").slice(-200));
@@ -116,26 +149,46 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     return () => { window.clearTimeout(restore); subscriptionRef.current?.close("component-unmount"); poolRef.current?.destroy(); };
   }, []);
 
+  useEffect(() => {
+    if (!secret) return;
+    const lock = () => { setSecret((current) => { current?.fill(0); return null; }); setStatus(t.autoLocked); };
+    let timer = window.setTimeout(lock, AUTO_LOCK_MS);
+    const renew = () => { window.clearTimeout(timer); timer = window.setTimeout(lock, AUTO_LOCK_MS); };
+    const hide = () => { if (document.visibilityState === "hidden") lock(); };
+    window.addEventListener("pointerdown", renew, { passive: true });
+    window.addEventListener("keydown", renew);
+    document.addEventListener("visibilitychange", hide);
+    return () => { window.clearTimeout(timer); window.removeEventListener("pointerdown", renew); window.removeEventListener("keydown", renew); document.removeEventListener("visibilitychange", hide); };
+  }, [secret, t.autoLocked]);
+
+  function allowAction(bucket: string, limit: number, windowMs: number) {
+    const now = Date.now();
+    const recent = (actionTimesRef.current[bucket] ?? []).filter((time) => now - time < windowMs);
+    if (recent.length >= limit) { setStatus(t.rateLimited); return false; }
+    actionTimesRef.current[bucket] = [...recent, now];
+    return true;
+  }
+
   async function connect() {
     if (network === "connecting") return;
     setNetwork("connecting"); setStatus("");
     try {
-      const { SimplePool } = await import("nostr-tools/pool");
+      const [{ SimplePool }, { verifyEvent }] = await Promise.all([import("nostr-tools/pool"), import("nostr-tools/pure")]);
       poolRef.current?.destroy();
       const pool = new SimplePool({ enableReconnect: true }); poolRef.current = pool;
       const since = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 45;
       const initial = await pool.querySync(relays, { kinds: [1], "#t": ["bytequant"], since, limit: 100 }, { maxWait: 6500 });
-      const accepted = initial.filter((event) => parsePost(event) && !blocked.includes(event.pubkey));
+      const accepted = initial.filter((event) => plausibleEvent(event) && verifyEvent(event) && parsePost(event) && !blocked.includes(event.pubkey));
       setEvents(accepted.sort((a, b) => b.created_at - a.created_at));
       subscriptionRef.current?.close("refresh");
-      subscriptionRef.current = pool.subscribeMany(relays, { kinds: [1], "#t": ["bytequant"], since, limit: 100 }, { onevent: (event) => { if (!parsePost(event) || blocked.includes(event.pubkey)) return; setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120)); }, maxWait: 6500 });
+      subscriptionRef.current = pool.subscribeMany(relays, { kinds: [1], "#t": ["bytequant"], since, limit: 100 }, { onevent: (event) => { if (!plausibleEvent(event) || !verifyEvent(event) || !parsePost(event) || blocked.includes(event.pubkey)) return; setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120)); }, maxWait: 6500 });
       const authors = [...new Set(accepted.map((event) => event.pubkey))].slice(0, 80);
       if (authors.length) {
         const profileEvents = await pool.querySync(relays, { kinds: [0], authors, limit: authors.length * 2 }, { maxWait: 5000 });
         const latest = new Map<string, NostrEvent>(); profileEvents.forEach((event) => { if ((latest.get(event.pubkey)?.created_at ?? 0) < event.created_at) latest.set(event.pubkey, event); });
-        setProfiles(Object.fromEntries([...latest].flatMap(([pubkey, event]) => { const profile = parseProfile(event); return profile ? [[pubkey, profile]] : []; })));
+        setProfiles(Object.fromEntries([...latest].flatMap(([pubkey, event]) => { const profile = plausibleEvent(event) && verifyEvent(event) ? parseProfile(event) : null; return profile ? [[pubkey, profile]] : []; })));
         const ids = accepted.map((event) => event.id).slice(0, 80);
-        if (ids.length) setInteractions(await pool.querySync(relays, { kinds: [1, 6, 7], "#e": ids, since, limit: 300 }, { maxWait: 5000 }));
+        if (ids.length) setInteractions((await pool.querySync(relays, { kinds: [1, 6, 7], "#e": ids, since, limit: 300 }, { maxWait: 5000 })).filter((event) => plausibleEvent(event) && verifyEvent(event)));
       }
       const statuses = [...pool.listConnectionStatus().values()];
       setNetwork(statuses.some(Boolean) ? statuses.every(Boolean) ? "connected" : "partial" : accepted.length ? "partial" : "error");
@@ -153,6 +206,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
 
   async function updateProfile() {
     if (!secret || !identity) return;
+    if (!allowAction("profile", 3, 10 * 60 * 1000)) return;
     const profile = { name: clean(profileDraft.name, 40), about: clean(profileDraft.about, 180) };
     if (profile.name.length < 2 || reviewCommunityText(`${profile.name}\n${profile.about}`).length) { setStatus(t.unsafe); return; }
     setBusy(true); setStatus("");
@@ -165,7 +219,8 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   }
 
   async function createIdentity() {
-    if (profileDraft.name.trim().length < 2 || profileDraft.passphrase.length < 10) { setStatus(t.identityError); return; }
+    if (profileDraft.name.trim().length < 2 || profileDraft.passphrase.length < 12) { setStatus(t.identityError); return; }
+    if (reviewCommunityText(`${profileDraft.name}\n${profileDraft.about}`).length) { setStatus(t.unsafe); return; }
     setBusy(true); setStatus("");
     try {
       const { generateSecretKey, getPublicKey } = await import("nostr-tools/pure");
@@ -181,7 +236,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   }
 
   async function unlockIdentity() {
-    if (!identity || profileDraft.passphrase.length < 10) { setStatus(t.identityError); return; }
+    if (!identity || profileDraft.passphrase.length < 12) { setStatus(t.identityError); return; }
     setBusy(true); setStatus("");
     try {
       const nextSecret = await decryptSecret(identity, profileDraft.passphrase);
@@ -193,19 +248,21 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   async function publishPost() {
     const content: SocialContent = { v: 1, title: clean(composer.title, 120), body: clean(composer.body, 3000), kind: composer.kind, group: clean(composer.group, 40) };
     if (!secret) { setStatus(t.noIdentity); return; }
+    if (!allowAction("post", 3, 10 * 60 * 1000)) return;
     if (content.title.length < 3 || content.body.length < 10 || reviewCommunityText(`${content.title}\n${content.body}`).length) { setStatus(t.unsafe); return; }
     setBusy(true); setStatus("");
     try {
       const event = await publishEvent(1, JSON.stringify(content), [["t", "bytequant"], ["t", `bytequant-${content.kind}`], ["g", content.group.toLocaleLowerCase().replace(/[^a-z0-9\p{L}]+/gu, "-").slice(0, 40)], ["lang", locale], ["client", "ByteQuant"]]);
-      if (event) { setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)]); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setStatus(t.published); }
+      if (event) { setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)]); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setComposerOpen(false); setStatus(t.published); }
     } catch { setStatus(t.error); } finally { setBusy(false); }
   }
 
   async function react(event: NostrEvent, kind: 1 | 6 | 7) {
     if (!secret) { setStatus(t.noIdentity); return; }
+    if (!allowAction(kind === 1 ? "comment" : "reaction", kind === 1 ? 8 : 16, 5 * 60 * 1000)) return;
     setBusy(true); setStatus("");
     try {
-      const content = kind === 7 ? "+" : kind === 6 ? JSON.stringify(event) : clean(reply[event.id] ?? "", 800);
+      const content = kind === 7 ? "+" : kind === 6 ? "" : clean(reply[event.id] ?? "", 800);
       if (kind === 1 && (content.length < 3 || reviewCommunityText(content).length)) { setStatus(t.unsafe); return; }
       const next = await publishEvent(kind, content, [["e", event.id, "", "root"], ["p", event.pubkey], ["t", "bytequant"], ["client", "ByteQuant"]]);
       if (next) { setInteractions((current) => [next, ...current.filter((item) => item.id !== next.id)]); if (kind === 1) setReply((current) => ({ ...current, [event.id]: "" })); }
@@ -219,6 +276,20 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   function setHidden(pubkey: string) { const next = [...new Set([...blocked, pubkey])].slice(-100); setBlocked(next); localStorage.setItem(blockedKey, JSON.stringify(next)); }
   function toggleSaved(id: string) { const next = saved.includes(id) ? saved.filter((item) => item !== id) : [...saved, id].slice(-200); setSaved(next); localStorage.setItem("bytequant:nostr-saved:v1", JSON.stringify(next)); }
   async function share(event: NostrEvent) { const { nip19 } = await import("nostr-tools"); const value = `nostr:${nip19.neventEncode({ id: event.id, author: event.pubkey, relays })}`; if (navigator.share) { try { await navigator.share({ title: "ByteQuant Community", url: value }); return; } catch { return; } } await navigator.clipboard.writeText(value); setStatus(t.copied); }
+  function backupIdentity() {
+    if (!identity) return;
+    const blob = new Blob([JSON.stringify({ type: "bytequant-nostr-profile", version: 1, identity }, null, 2)], { type: "application/json" });
+    const href = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = href; anchor.download = `bytequant-nostr-${identity.pubkey.slice(0, 8)}.json`; anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(href), 0); setStatus(t.backupReady);
+  }
+  async function restoreIdentity(file: File | undefined) {
+    if (!file || file.size > 16_000 || file.type && file.type !== "application/json") { setStatus(t.identityError); return; }
+    try {
+      const parsed = JSON.parse(await file.text()) as { type?: string; version?: number; identity?: unknown };
+      if (parsed.type !== "bytequant-nostr-profile" || parsed.version !== 1 || !validStoredIdentity(parsed.identity)) throw new Error("invalid-backup");
+      localStorage.setItem(identityKey, JSON.stringify(parsed.identity)); setIdentity(parsed.identity); setSecret(null); setProfileDraft({ name: parsed.identity.name, about: parsed.identity.about, passphrase: "" }); setStatus(t.restoreReady);
+    } catch { setStatus(t.identityError); }
+  }
 
   const visiblePosts = socialPosts.length ? socialPosts : events.length || query || groupFilter || savedOnly ? [] : starters[locale].map((content) => ({ event: { id: content.id, pubkey: "bytequant", created_at: 0, kind: 1, tags: [], content: JSON.stringify(content), sig: "" } as NostrEvent, content }));
   const stateLabel = network === "connected" ? t.connected : network === "partial" ? t.partial : network === "connecting" ? t.connecting : network === "error" ? t.error : t.connect;
@@ -226,21 +297,24 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   return <section className="community-network" aria-labelledby="global-community-title">
     <header className="community-network-head"><div><span className="eyebrow"><i />{t.eyebrow}</span><h2 id="global-community-title">{t.title}</h2><p>{t.intro}</p></div><div className={`community-network-status status-${network}`}><span /><strong>{stateLabel}</strong><small>{t.relayDisclosure}</small>{network === "idle" || network === "error" ? <button className="primary-button" type="button" onClick={() => void connect()}>{t.connect} →</button> : <button type="button" onClick={() => void connect()}>{t.refresh}</button>}</div></header>
     <div className="community-network-disclosure"><span>ⓘ</span><p>{t.privacy}</p><details><summary>{t.explain}</summary><p>{t.explainBody}</p></details></div>
+    <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
 
     <div className="community-social-layout">
       <aside className="community-social-left">
         <section className="community-identity-card"><header><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><div><strong>{t.identity}</strong><small>{secret ? t.identityReady : identity ? t.identityLocked : t.create}</small></div></header>
+          <details className="community-profile-setup" open={!identity}><summary>{t.profileSettings}<span>+</span></summary><p className="community-public-warning">{t.publicProfile}</p>
           <label><span>{t.name}</span><input value={profileDraft.name} maxLength={40} disabled={Boolean(identity) && !secret} onChange={(event) => setProfileDraft((current) => ({ ...current, name: event.target.value }))} /></label>
           <label><span>{t.about}</span><textarea value={profileDraft.about} maxLength={180} rows={3} disabled={Boolean(identity) && !secret} onChange={(event) => setProfileDraft((current) => ({ ...current, about: event.target.value }))} /></label>
-          {!secret && <label><span>{t.pass}</span><input type="password" value={profileDraft.passphrase} minLength={10} autoComplete="current-password" onChange={(event) => setProfileDraft((current) => ({ ...current, passphrase: event.target.value }))} /><small>{t.passHint}</small></label>}
-          {!identity ? <button type="button" className="primary-button" disabled={busy} onClick={() => void createIdentity()}>{t.create}</button> : !secret ? <button type="button" className="primary-button" disabled={busy} onClick={() => void unlockIdentity()}>{t.unlock}</button> : <div className="community-profile-actions"><button type="button" className="primary-button" disabled={busy || network === "idle" || network === "error"} onClick={() => void updateProfile()}>{t.publish}</button><button type="button" onClick={() => { setSecret(null); setStatus(""); }}>{t.lock}</button></div>}
-          {identity && <><div className="community-public-key"><small>{t.npub}</small><code>{identity.pubkey.slice(0, 12)}…{identity.pubkey.slice(-8)}</code><button type="button" onClick={async () => { const { nip19 } = await import("nostr-tools"); await navigator.clipboard.writeText(nip19.npubEncode(identity.pubkey)); setStatus(t.copied); }}>{t.copyId}</button></div><details className="community-danger-zone"><summary>{t.resetIdentity}</summary><button type="button" onClick={() => { if (!window.confirm(t.resetConfirm)) return; localStorage.removeItem(identityKey); setIdentity(null); setSecret(null); setProfileDraft({ name: "", about: "", passphrase: "" }); }}>{t.resetIdentity}</button></details></>}
+          {!secret && <label><span>{t.pass}</span><input type="password" value={profileDraft.passphrase} minLength={12} autoComplete={identity ? "current-password" : "new-password"} onChange={(event) => setProfileDraft((current) => ({ ...current, passphrase: event.target.value }))} /><small>{t.passHint}</small></label>}
+          {!identity ? <button type="button" className="primary-button" disabled={busy} onClick={() => void createIdentity()}>{t.create}</button> : !secret ? <button type="button" className="primary-button" disabled={busy} onClick={() => void unlockIdentity()}>{t.unlock}</button> : <div className="community-profile-actions"><button type="button" className="primary-button" disabled={busy || network === "idle" || network === "error"} onClick={() => void updateProfile()}>{t.publish}</button><button type="button" onClick={() => { setSecret((current) => { current?.fill(0); return null; }); setStatus(""); }}>{t.lock}</button></div>}
+          {identity && <><div className="community-public-key"><small>{t.npub}</small><code>{identity.pubkey.slice(0, 12)}…{identity.pubkey.slice(-8)}</code><button type="button" onClick={async () => { const { nip19 } = await import("nostr-tools"); await navigator.clipboard.writeText(nip19.npubEncode(identity.pubkey)); setStatus(t.copied); }}>{t.copyId}</button></div><div className="community-backup-actions"><button type="button" onClick={backupIdentity}>{t.backup}</button><button type="button" onClick={() => importRef.current?.click()}>{t.restore}</button><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => { void restoreIdentity(event.target.files?.[0]); event.currentTarget.value = ""; }} /></div><details className="community-danger-zone"><summary>{t.resetIdentity}</summary><button type="button" onClick={() => { if (!window.confirm(t.resetConfirm)) return; localStorage.removeItem(identityKey); setIdentity(null); setSecret(null); setProfileDraft({ name: "", about: "", passphrase: "" }); }}>{t.resetIdentity}</button></details></>}
+          </details>
         </section>
         <nav className="community-social-nav"><button type="button" className={!groupFilter && !savedOnly ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); setQuery(""); }}>⌂ {t.feed}</button><button type="button" onClick={() => { setQuery(""); setSavedOnly(false); }}>◉ {t.latest}</button><button type="button" onClick={() => { setGroupFilter(groupCounts[0]?.[0] ?? ""); setSavedOnly(false); }}># {t.groups}</button><button type="button" onClick={() => { setQuery(identity?.name ?? ""); setSavedOnly(false); }}>◎ {t.people}</button><button type="button" className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setGroupFilter(""); setQuery(""); }}>☆ {t.saved}</button></nav>
       </aside>
 
       <section className="community-social-main">
-        <section className="community-global-composer"><header><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><div><strong>{t.compose}</strong><small>{secret ? t.composeHint : t.noIdentity}</small></div></header><input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={4} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label><button type="button" className="primary-button" disabled={!secret || busy || network === "idle" || network === "error"} onClick={() => void publishPost()}>{busy ? t.publishing : t.publish} ↑</button></div></section>
+        <section className={`community-global-composer${composerOpen ? " open" : ""}`}><button type="button" className="community-compose-launch" onClick={() => setComposerOpen((value) => !value)}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><span><strong>{composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : t.noIdentity}</small></span><b>{composerOpen ? "×" : "+"}</b></button>{composerOpen && <div className="community-composer-fields"><input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={4} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label><button type="button" className="primary-button" disabled={!secret || busy || network === "idle" || network === "error"} onClick={() => void publishPost()}>{busy ? t.publishing : t.publish} ↑</button></div></div>}</section>
         <div className="community-feed-toolbar"><label><span>⌕</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSavedOnly(false); }} placeholder={t.search} /></label><div><button type="button" className={!groupFilter && !savedOnly ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); }}>{t.all}</button>{groupCounts.slice(0, 4).map(([group, count]) => <button type="button" className={groupFilter === group ? "active" : ""} onClick={() => { setGroupFilter(group); setSavedOnly(false); }} key={group}>#{group} · {count}</button>)}</div></div>
         {status && <p className="community-network-message" role="status">{status}</p>}
         {network !== "connected" && network !== "partial" && <small className="community-starter-label">{t.localStarter}</small>}
@@ -256,7 +330,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       <aside className="community-social-right">
         <section><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => setGroupFilter(group)} key={group}><span>#{group}</span><small>{count}</small></button>) : <p>{t.empty}</p>}</section>
         <section><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8))} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase()}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <p>{t.empty}</p>}</section>
-        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small></section>
+        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); localStorage.removeItem(blockedKey); }}>{t.clearBlocked}</button>}</section>
         <details className="community-relay-settings"><summary>{t.relaySettings}<span>+</span></summary><p>{t.relayHelp}</p><textarea value={relayDraft} rows={4} onChange={(event) => setRelayDraft(event.target.value)} /><button type="button" onClick={() => { const next = validRelays(relayDraft); if (!next.length) { setStatus(t.error); return; } setRelays(next); localStorage.setItem(relayKey, JSON.stringify(next)); setNetwork("idle"); poolRef.current?.destroy(); }}>{t.saveRelays}</button></details>
       </aside>
     </div>

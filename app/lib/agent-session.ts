@@ -1,7 +1,8 @@
 import type { AgentSession } from "./agent-core";
 
-export const AGENT_VERSION = "BQ-Agent 4.0";
+export const AGENT_VERSION = "BQ-Agent 4.1";
 export const AGENT_SESSION_KEY = "bytequant:local-agent:v1";
+export const AGENT_AUTO_PREPARE_KEY = "bytequant:local-agent:auto-prepare:v1";
 export const AGENT_SESSION_LIMIT = 200_000;
 
 export function readAgentPlan(raw: string | null): AgentSession["plan"] | null {
@@ -27,6 +28,7 @@ export function readAgentSession(raw: string | null): AgentSession | null {
     const outputEntries = Object.entries(value.stepOutputs);
     if (outputEntries.length > 6 || outputEntries.some(([key, output]) => !plan.steps.some((step) => step.id === key) || typeof output !== "string" || output.length > AGENT_SESSION_LIMIT)) return null;
     const completedStepIds = Array.isArray(value.completedStepIds) ? value.completedStepIds.filter((id): id is string => typeof id === "string" && plan.steps.some((step) => step.id === id)).slice(0, 6) : [];
-    return { ...value, plan, currentStep: Math.max(0, Math.min(value.currentStep, plan.steps.length - 1)), stepOutputs: Object.fromEntries(outputEntries), completedStepIds };
+    const preparedInput = typeof value.preparedInput === "string" && value.preparedInput.length <= 180_000 ? value.preparedInput : undefined;
+    return { ...value, plan, currentStep: Math.max(0, Math.min(value.currentStep, plan.steps.length - 1)), stepOutputs: Object.fromEntries(outputEntries), completedStepIds, preparedInput };
   } catch { return null; }
 }

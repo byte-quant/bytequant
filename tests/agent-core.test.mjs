@@ -4,6 +4,7 @@ import {
   AGENT_SESSION_KEY,
   AGENT_VERSION,
   createAgentPlan,
+  extractAgentPayload,
   extractAgentParameters,
   readAgentSession,
   semanticToolSearch,
@@ -30,6 +31,8 @@ const catalog = [
   tool("dosya-hash-karsilastirici", "security", "11", "Dosya Hash Hesaplayıcı", "File Hash Calculator", "Datei-Hash-Rechner", "文件哈希计算器", "SHA-256 file integrity compare"),
   tool("prompt-kalite-denetimi", "prompt", "04", "Prompt Denetimi", "Prompt Review", "Prompt-Prüfung", "提示词审查", "prompt clarity"),
   tool("metin-temizleyici", "text", "05", "Metin Temizleyici", "Text Cleaner", "Textbereinigung", "文本清理", "clean text"),
+  tool("e-posta-listesi-temizleyici", "text", "12", "E-posta Listesi Temizleyici", "Email List Cleaner", "E-Mail-Listenbereinigung", "电子邮件列表清理器", "extract clean deduplicate email list"),
+  tool("satir-siralayici-tekillestirici", "text", "13", "Satır Sıralayıcı", "Line Sorter", "Zeilensortierer", "文本行排序器", "sort lines alphabetically and deduplicate"),
 ];
 
 test("local agent semantically ranks tools and extracts bounded parameters", () => {
@@ -42,6 +45,12 @@ test("local agent semantically ranks tools and extracts bounded parameters", () 
   assert.ok(parameters.some((item) => item.kind === "url-host" && item.value === "bytequant.org"));
   assert.ok(parameters.some((item) => item.kind === "number"));
   assert.ok(parameters.some((item) => item.kind === "privacy"));
+});
+
+test("local agent extracts only strongly bounded payloads for safe handoff", () => {
+  assert.equal(extractAgentPayload('Format this JSON: {"ok":true}'), '{"ok":true}');
+  assert.equal(extractAgentPayload("Clean this list\ninput: a@example.com, b@example.com"), "a@example.com, b@example.com");
+  assert.equal(extractAgentPayload("Explain how JSON formatting works"), "");
 });
 
 test("local agent builds explicit workflows without executing tools", () => {
@@ -61,6 +70,10 @@ test("local agent builds explicit workflows without executing tools", () => {
   assert.equal(numbered.steps.length, 2);
   assert.deepEqual(numbered.steps.map((step) => step.toolSlug), ["json-bicimlendirici", "json-diff-karsilastirma"]);
 
+  const pastedList = createAgentPlan("E-posta listesini temizle, tekrarları kaldır ve alfabetik sırala. Veri:\nADA@EXAMPLE.COM\nada@example.com\nveli@example.org", catalog, "tr");
+  assert.deepEqual(pastedList.steps.map((step) => step.toolSlug), ["e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici"]);
+  assert.ok(pastedList.steps.every((step) => !step.toolSlug.includes("exif")));
+
   const uncertain = createAgentPlan("help me with this unusual thing", catalog, "en");
   assert.equal(uncertain.matchQuality, "review");
   assert.equal(uncertain.clarifyingQuestions.length, 3);
@@ -78,8 +91,9 @@ test("local agent carries a bounded previous goal into natural follow-up request
 
 test("agent session parser rejects untrusted or oversized bridge data", () => {
   const plan = createAgentPlan("compare JSON", catalog, "en");
-  const valid = { plan, currentStep: 99, stepOutputs: {}, completedStepIds: [] };
+  const valid = { plan, currentStep: 99, stepOutputs: {}, completedStepIds: [], preparedInput: '{"safe":true}' };
   assert.equal(readAgentSession(JSON.stringify(valid))?.currentStep, plan.steps.length - 1);
+  assert.equal(readAgentSession(JSON.stringify(valid))?.preparedInput, '{"safe":true}');
   assert.equal(readAgentSession(JSON.stringify({ ...valid, plan: { ...plan, version: "forged" } })), null);
   assert.equal(readAgentSession(JSON.stringify({ ...valid, stepOutputs: { unknown: "injected" } })), null);
   assert.equal(readAgentSession("{"), null);

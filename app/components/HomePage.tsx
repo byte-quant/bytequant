@@ -21,7 +21,7 @@ const faqs = {
     ["Sonuçlar hukuki veya güvenlik garantisi verir mi?", "Hayır. Maskeleme ve analiz araçları ön kontrol sağlar. KVKK, GDPR, güvenlik veya hukuki kararlar için yetkin uzman incelemesi gerekir."],
     ["Token sayacı neden yaklaşık sonuç verir?", "Her model farklı bir tokenizer kullanır. ByteQuant, veriyi dışarı göndermeden hızlı planlama yapabilmeniz için karakter ve dil yapısına dayalı yaklaşık değer üretir."],
     ["Araçlar mobil cihazlarda çalışır mı?", "Evet. Güncel mobil tarayıcılarda temel araçlar çalışır. Web Crypto gibi bazı özellikler tarayıcı desteğine bağlıdır."],
-    ["Site reklam içeriyor mu?", "Şu anda ayrılmış reklam alanları gösterilir. Reklam hizmeti etkinleştirilirse çerez, onay ve gizlilik bilgileri hizmet devreye alınmadan önce güncellenecektir."],
+    ["Site reklam içeriyor mu?", "Evet. ByteQuant, içerikten ve araç düğmelerinden ayrılan, açıkça etiketlenmiş Google AdSense reklamlarıyla desteklenebilir. Araç girdileri reklamlara gönderilmez; desteklenen bölgelerde reklam gizlilik seçimi Google sertifikalı CMP ile sunulur."],
     ["Yeni araçların sonuçları nasıl doğrulanmalı?", "JSON Schema yalnızca örneği yansıtır, özetleyici kaynak cümleleri seçer, kredi hesabı matematiksel senaryodur ve güvenlik denetimleri ön kontroldür. Her araç yöntem sınırını gösterir; yüksek etkili sonuçları bağımsız kaynakla doğrulayın."],
     ["Görsel ve dosya araçları verimi saklıyor mu?", "Hayır. Görsel yeniden boyutlandırma ve SHA-256 hesaplama bu sekmede çalışır. Seçtiğiniz dosya sunucuya gönderilmez veya localStorage'a yazılmaz; yalnızca sizin indirdiğiniz çıktı cihazda kalır."],
   ],
@@ -31,7 +31,7 @@ const faqs = {
     ["Do results provide legal or security assurance?", "No. Masking and analysis are pre-checks. KVKK, GDPR, security, and legal decisions require qualified human review."],
     ["Why is the token count approximate?", "Each model uses a different tokenizer. ByteQuant estimates from characters and language so you can plan without transmitting the text."],
     ["Do the tools work on mobile?", "Yes. Core tools work in current mobile browsers. Some features, including Web Crypto operations, depend on browser support."],
-    ["Does the site contain advertising?", "Reserved advertising areas are currently shown. If an ad service is activated, consent and privacy information will be updated before launch."],
+    ["Does the site contain advertising?", "Yes. ByteQuant may be supported by clearly labelled Google AdSense advertising separated from content and tool controls. Tool input is never sent to ads; where required, ad privacy choices are provided through a Google-certified CMP."],
     ["How should I verify output from the new tools?", "JSON Schema reflects only its sample, summaries select source sentences, loan figures are mathematical scenarios, and security audits are pre-checks. Review each disclosed limitation and independently verify high-impact output."],
     ["Do image and file tools retain my data?", "No. Image resizing and SHA-256 run in this tab. Selected files are neither uploaded nor written to localStorage; only output you explicitly download remains on your device."],
   ],
@@ -41,7 +41,7 @@ const faqs = {
     ["Sind Ergebnisse eine Rechts- oder Sicherheitsgarantie?", "Nein. Maskierung, Berechnung und Scans sind Vorprüfungen. Rechtliche, finanzielle und sicherheitskritische Entscheidungen erfordern qualifizierte menschliche Prüfung."],
     ["Warum sind Tokenwerte nur Schätzungen?", "Modelle verwenden unterschiedliche Tokenizer. ByteQuant schätzt lokal aus Zeichen- und Sprachstruktur, ohne Text zu übertragen."],
     ["Funktionieren die Werkzeuge mobil?", "Ja. Die Kernfunktionen laufen in aktuellen mobilen Browsern. Einige Datei- und Web-Crypto-Funktionen hängen von Browser und Gerätespeicher ab."],
-    ["Enthält die Website Werbung?", "Derzeit werden nur reservierte Werbeflächen gezeigt. Vor Aktivierung eines Werbedienstes werden Einwilligung und Datenschutzinformationen aktualisiert."],
+    ["Enthält die Website Werbung?", "Ja. ByteQuant kann durch klar gekennzeichnete Google-AdSense-Werbung unterstützt werden, die von Inhalt und Werkzeugsteuerung getrennt ist. Werkzeugeingaben werden nie an Werbung gesendet; erforderliche Datenschutzoptionen laufen über eine Google-zertifizierte CMP."],
     ["Wie müssen Ergebnisse der neuen Werkzeuge geprüft werden?", "JSON Schema beschreibt nur das Beispiel, Zusammenfassungen wählen Quellsätze, Kreditwerte sind Rechenszenarien und Sicherheitsprüfungen sind Vorchecks. Prüfen Sie wichtige Ausgaben unabhängig."],
     ["Werden Bild- oder Dateidaten gespeichert?", "Nein. Bildskalierung und SHA-256 laufen in diesem Tab. Dateien werden weder hochgeladen noch in localStorage geschrieben; nur ausdrücklich heruntergeladene Ergebnisse bleiben auf Ihrem Gerät."],
   ],
@@ -51,7 +51,7 @@ const faqs = {
     ["结果是否构成法律或安全保证？", "不构成。遮蔽、计算和扫描只是预检查。法律、财务和安全关键决策仍需合格专业人员审查。"],
     ["为什么 Token 数只是估算？", "不同模型使用不同分词器。ByteQuant 根据字符与语言结构在本地估算，无需传输文本。"],
     ["工具能在手机上运行吗？", "可以。核心工具支持现代移动浏览器；部分文件与 Web Crypto 功能取决于浏览器能力和设备内存。"],
-    ["网站是否包含广告？", "目前仅显示预留广告位。若启用广告服务，将提前更新同意和隐私说明。"],
+    ["网站是否包含广告？", "是。ByteQuant 可通过与内容和工具控件分隔、明确标注的 Google AdSense 广告获得支持。工具输入绝不会发送给广告系统；适用地区的广告隐私选择通过 Google 认证的 CMP 提供。"],
     ["如何核验新工具的结果？", "JSON Schema 只反映示例，摘要器选择原句，贷款结果是数学情景，安全审计只是预检查。请阅读每项方法限制，并独立核验高影响输出。"],
     ["图片和文件工具会保存数据吗？", "不会。图片调整和 SHA-256 在当前标签页运行，文件不会上传或写入 localStorage；只有您主动下载的输出会留在设备上。"],
   ],
@@ -129,7 +129,7 @@ export function HomePage({ locale }: { locale: Locale }) {
               <footer><Link className="primary-button platform-workstation-button" href={pathFor(locale, "workstation")}><b aria-hidden="true">⌘</b><span>{localized("İş İstasyonunu aç", "Open Workstation", "Workstation öffnen", "打开工作站")}</span><i aria-hidden="true">→</i></Link><span>{localized("Şablon · Düğüm · Tarif", "Template · Node · Recipe", "Vorlage · Knoten · Rezept", "模板 · 节点 · 配方")}</span></footer>
             </article>
           </div>
-          <p className="home-platform-boundary"><span aria-hidden="true">ⓘ</span>{localized("Yerel Ajan üretken bir LLM değildir; İş İstasyonu da araçları sizden habersiz çalıştırmaz. Dosya seçimi, yürütme, indirme ve paylaşma açık kullanıcı eylemi gerektirir.", "Local Agent is not a generative LLM, and Workstation never runs tools without you. File selection, execution, download, and sharing require explicit user action.", "Der lokale Agent ist kein generatives LLM; die Workstation führt Werkzeuge nicht selbstständig aus. Dateiauswahl, Ausführung, Download und Freigabe erfordern Ihre Handlung.", "本地助手不是生成式大模型，工作站也不会擅自运行工具。文件选择、执行、下载与分享均需用户明确操作。")}</p>
+          <p className="home-platform-boundary"><span aria-hidden="true">ⓘ</span>{localized("Yerel Ajan üretken bir LLM değildir; desteklenen metin akışlarını cihazda tamamlayabilir ve ilk aracı hazırlayabilir. Dosya seçimi, parola, kod çalıştırma, indirme ve paylaşma yine açık kullanıcı eylemi gerektirir.", "Local Agent is not a generative LLM; it can finish supported text flows on-device and prepare the first tool. File selection, passwords, code execution, downloads, and sharing still require explicit action.", "Der lokale Agent ist kein generatives LLM; er kann unterstützte Textabläufe lokal abschließen und das erste Werkzeug vorbereiten. Dateiauswahl, Passwörter, Codeausführung, Download und Freigabe bleiben ausdrückliche Nutzeraktionen.", "本地助手不是生成式大模型；它可在设备端完成受支持的文本流程并准备第一个工具。文件选择、密码、代码执行、下载与分享仍需用户明确操作。")}</p>
         </div>
       </section>
 

@@ -45,6 +45,7 @@ export type AgentSession = {
   currentStep: number;
   stepOutputs: Record<string, string>;
   completedStepIds: string[];
+  preparedInput?: string;
 };
 
 export type AgentSearchResult = {
@@ -202,6 +203,34 @@ export function extractAgentParameters(goal: string, locale: Locale): AgentParam
   return result;
 }
 
+/** Extracts user data only when the message contains a strong data boundary. */
+export function extractAgentPayload(goal: string) {
+  const bounded = goal.slice(0, 200_000);
+  const fenced = bounded.match(/```(?:json|csv|yaml|xml|text|txt|md|markdown)?\s*\r?\n?([\s\S]*?)```/i)?.[1]?.trim();
+  if (fenced) return fenced.slice(0, 180_000);
+
+  const labelled = bounded.match(/(?:^|\n|\b)(?:girdi|veri|metin|input|data|inhalt|eingabe|输入|数据)\s*:\s*([\s\S]+)/iu)?.[1]?.trim();
+  if (labelled) return labelled.slice(0, 180_000);
+
+  for (const opener of ["{", "["] as const) {
+    const start = bounded.indexOf(opener);
+    if (start < 0) continue;
+    const candidate = bounded.slice(start).trim();
+    try { JSON.parse(candidate); return candidate.slice(0, 180_000); } catch { /* not a complete JSON payload */ }
+  }
+
+  const lines = bounded.split(/\r?\n/);
+  const structuredLine = lines.findIndex((line, index) => index > 0 && /[,\t;]/.test(line) && /[,\t;]/.test(lines[index + 1] ?? ""));
+  if (structuredLine >= 0) return lines.slice(structuredLine).join("\n").trim().slice(0, 180_000);
+
+  const colon = bounded.search(/:\s+/);
+  if (colon >= 0) {
+    const tail = bounded.slice(colon + 1).trim();
+    if (/@|https?:\/\/|\b(?:true|false|null)\b|[,\t].*[,\t]/iu.test(tail)) return tail.slice(0, 180_000);
+  }
+  return "";
+}
+
 type Recipe = { test: RegExp[]; steps: string[]; signal: Record<Locale, string> };
 const recipes: Recipe[] = [
   { test: [/(tip|bahşiş|trinkgeld|小费|bill split|hesap böl|rechnung teilen|分账)/i], steps: ["bahsis-hesap-bolusturucu"], signal: { tr: "Genel kullanıcı için alan bazlı hesap ve bahşiş paylaşımı", en: "Field-based bill and tip split for everyday use", de: "Feldbasierte Rechnungs- und Trinkgeldaufteilung", zh: "面向日常使用的字段式账单与小费分摊" } },
@@ -233,7 +262,9 @@ function stepReason(locale: Locale, tool: Tool, index: number) {
 }
 
 function splitGoal(goal: string) {
-  return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])?)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
+  // A plain newline often separates pasted data rows, not workflow steps. Only
+  // treat a newline as a boundary when it starts an explicit bullet/number.
+  return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])\s+)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
 const followUpPattern = /(?:az önce|önceki|devam et|bunu|şunu|aynı akış|sonucu|previous|just now|continue|this flow|that plan|make it|vorher|gerade|weiter|diesen plan|dieses ergebnis|刚才|继续|这个流程|该计划|结果)/iu;

@@ -16,7 +16,7 @@ Languages:
 - Tool input is not intentionally uploaded to ByteQuant application servers.
 - Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts plus pinned tool IDs used for local personalization.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
-- ByteQuant does not currently activate analytics or advertising technology. Advertising must remain inactive until the required regional consent platform is configured.
+- ByteQuant uses no analytics SDK. The Google AdSense site tag for publisher ca-pub-4158794981134847 is active; tool input is not sent to advertising systems, ad areas are labelled and separated, and required regional choices must be provided through a Google-certified CMP.
 - Local Agent 3.0 is an explainable, browser-only semantic search and workflow planner with follow-up intent detection and contextual replies. It is not a generative LLM and makes no remote model request. Goal framing, plan self-review, plans, up to twenty conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
 - Community is local-first rather than a hosted social network: reactions, comments, profiles, and saved items stay on the device. Posts can travel through content-carrying links or validated portable JSON packs; verified P2P chat is session-only.
 - Updates retain only title, date, source, original language, and original link from allowlisted official NASA, NIST, and openly licensed GOV.UK feeds. Article bodies and images are not republished.

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AgentSession } from "../lib/agent-core";
-import { AGENT_SESSION_KEY, AGENT_SESSION_LIMIT, readAgentSession } from "../lib/agent-session";
+import { AGENT_AUTO_PREPARE_KEY, AGENT_SESSION_KEY, AGENT_SESSION_LIMIT, readAgentSession } from "../lib/agent-session";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 
 const copy = {
@@ -39,16 +39,15 @@ export function AgentToolBridge({ slug, locale }: { slug: string; locale: Locale
   }, []);
   const stepIndex = useMemo(() => session?.plan.steps.findIndex((item) => item.toolSlug === slug) ?? -1, [session, slug]);
   const step = stepIndex >= 0 ? session?.plan.steps[stepIndex] : undefined;
-  if (!session || !step) return null;
-
-  const inputValue = step.inputMode === "previous" && stepIndex > 0
+  const inputValue = session && step ? step.inputMode === "previous" && stepIndex > 0
     ? session.stepOutputs[session.plan.steps[stepIndex - 1].id] ?? ""
-    : session.plan.goal;
-  const nextStep = session.plan.steps[stepIndex + 1];
+    : session.preparedInput ?? session.plan.goal : "";
+  const nextStep = session?.plan.steps[stepIndex + 1];
 
-  const applyInput = () => {
+  const applyInput = useCallback(() => {
+    if (!step) return;
     if (step.requiresFile) { setNotice(t.manual); return; }
-    const scope = document.querySelector<HTMLElement>(".workbench");
+    const scope = document.querySelector<HTMLElement>(".tool-workbench, .workbench");
     const contractFields = Array.from(scope?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("[data-agent-input][data-agent-key]") ?? []);
     if (contractFields.length) {
       let mapped: Record<string, string> | undefined;
@@ -67,10 +66,24 @@ export function AgentToolBridge({ slug, locale }: { slug: string; locale: Locale
     setNativeValue(field, inputValue.slice(0, AGENT_SESSION_LIMIT));
     field.scrollIntoView({ behavior: "smooth", block: "center" });
     setNotice(t.applied);
-  };
+  }, [inputValue, step, t.applied, t.manual, t.missing]);
+
+  useEffect(() => {
+    if (!session || !step || !inputValue) return;
+    try {
+      const raw = sessionStorage.getItem(AGENT_AUTO_PREPARE_KEY);
+      const request = raw ? JSON.parse(raw) as { slug?: string; createdAt?: number } : null;
+      if (request?.slug !== slug || !Number.isFinite(request.createdAt) || Date.now() - Number(request.createdAt) > 120_000) return;
+      sessionStorage.removeItem(AGENT_AUTO_PREPARE_KEY);
+      const frame = requestAnimationFrame(() => requestAnimationFrame(applyInput));
+      return () => cancelAnimationFrame(frame);
+    } catch { sessionStorage.removeItem(AGENT_AUTO_PREPARE_KEY); }
+  }, [applyInput, inputValue, session, slug, step]);
+
+  if (!session || !step) return null;
 
   const captureOutput = () => {
-    const scope = document.querySelector<HTMLElement>(".workbench");
+    const scope = document.querySelector<HTMLElement>(".tool-workbench, .workbench");
     const contracted = Array.from(scope?.querySelectorAll<HTMLElement>('[data-agent-output][data-ready="true"]') ?? []).reverse();
     const candidates = contracted.length ? contracted : Array.from(scope?.querySelectorAll<HTMLElement>("[data-agent-output], output") ?? []).reverse();
     const output = candidates.map((item) => item.innerText.trim()).find((value) => value.length > 0 && value.length <= AGENT_SESSION_LIMIT);

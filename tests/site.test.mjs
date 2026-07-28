@@ -28,7 +28,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 4\.0/);
+    assert.match(page, /BQ-Agent 4\.1/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -103,7 +103,7 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /en\/cookies/);
   assert.match(sitemap, /hreflang="x-default"/);
   assert.match(robots, /sitemap\.xml/i);
-  for (const crawler of ["Google-Extended", "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Applebot-Extended", "CCBot"]) {
+  for (const crawler of ["Google-Extended", "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "PerplexityBot", "Applebot-Extended", "CCBot", "Mediapartners-Google"]) {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
@@ -123,7 +123,8 @@ test("exports the complete four-language site", async () => {
   assert.doesNotMatch(navigationCacheBranch, /cache\.put\(request/);
   assert.match(worker, /\["script", "style", "image", "font"\]\.includes\(request\.destination\)/);
   assert.doesNotMatch(home, /codex-preview|react-loading-skeleton|Your site is taking shape/);
-  assert.doesNotMatch(home, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
+  assert.match(home, /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847/);
+  assert.doesNotMatch(home, /googletagmanager\.com/i);
 });
 
 test("exports consent, storage, and security disclosures", async () => {
@@ -138,7 +139,8 @@ test("exports consent, storage, and security disclosures", async () => {
     assert.match(page, /bq-consent-v1/);
     assert.match(page, /bq-tool-usage-v1/);
     assert.match(page, /180/);
-    assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|googletagmanager\.com|adsbygoogle/i);
+    assert.match(page, /google-adsense-account/);
+    assert.doesNotMatch(page, /googletagmanager\.com/i);
   }
   assert.match(privacy, /Google-certified CMP|CMP/);
   assert.match(privacy, /bytequant-workspaces/);
@@ -219,7 +221,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /Tamamen tarayıcıda çalışır/);
   assert.match(page, /Son güncelleme: 26 Temmuz 2026/);
   assert.match(page, /Örnek veri yükle/);
-  assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|fetch\(|axios/i);
+  assert.doesNotMatch(page, /fetch\(|axios/i);
 });
 
 test("ships exactly 25 new working tools and seven deep guides in all four locales", async () => {
@@ -273,7 +275,7 @@ test("exports the new bilingual tool package", async () => {
   for (const page of [fewShot, markdown, jwt, qr, exif, password, englishCron]) {
     assert.match(page, /HowTo/);
     assert.match(page, /Örnek veri yükle|Load example/);
-    assert.doesNotMatch(page, /pagead2\.googlesyndication\.com|axios/i);
+    assert.doesNotMatch(page, /axios/i);
   }
 });
 
@@ -354,7 +356,7 @@ test("exports the nine new growth tools and localized guides", async () => {
     assert.match(page, /HowTo/);
     assert.match(page, /WebApplication/);
     assert.match(page, /Load example|Örnek veri yükle|Beispiel laden|加载示例/);
-    assert.doesNotMatch(page, /axios|pagead2\.googlesyndication\.com/i);
+    assert.doesNotMatch(page, /axios/i);
   }
 
   const guides = await Promise.all([
@@ -406,7 +408,7 @@ test("exports 27 high-demand tools in every category and four localized deep gui
     assert.match(page, /FAQPage/);
     assert.match(page, /WebApplication/);
     assert.match(page, /Load example|Örnek veri yükle|Beispiel laden|加载示例/);
-    assert.doesNotMatch(page, /axios|pagead2\.googlesyndication\.com/i);
+    assert.doesNotMatch(page, /axios/i);
   }
 
   const guidePaths = [
@@ -537,20 +539,26 @@ test("exports instant search, live demo, and opt-in global community sharing", a
   assert.match(englishCommunity, /selected relay operators can see your IP address/i);
   assert.match(community, /FAQPage|HowTo/);
   assert.doesNotMatch(community, /api\.github\.com/);
+  const communitySource = await readSource("app/components/CommunityNetwork.tsx");
+  for (const pattern of [/verifyEvent/, /MAX_EVENT_BYTES/, /AUTO_LOCK_MS/, /210_000/, /isPrivateRelayHost/, /allowAction/, /validStoredIdentity/, /community-backup-actions/]) assert.match(communitySource, pattern);
   const styles = await readSource("app/globals.css");
   assert.match(styles, /\.sr-only\{[^}]*width:1px!important[^}]*clip:rect\(0,0,0,0\)!important/);
+  assert.match(styles, /\.community-security-strip/);
 });
 
-test("keeps AdSense inventory reserved and away from private interactive surfaces", async () => {
+test("activates the exact owner-provided AdSense tag while keeping placements away from private interactive surfaces", async () => {
   const [home, tool, guide, agent, workstation, community] = await Promise.all([
     read("en/index.html"), read("en/tools/json-bicimlendirici/index.html"), read("en/blog/index.html"),
     read("en/agent/index.html"), read("en/workstation/index.html"), read("en/community/index.html"),
   ]);
-  assert.equal((home.match(/data-ad-status="reserved"/g) ?? []).length, 2);
-  assert.equal((tool.match(/data-ad-status="reserved"/g) ?? []).length, 1);
-  assert.equal((guide.match(/data-ad-status="reserved"/g) ?? []).length, 1);
-  for (const page of [agent, workstation, community]) assert.doesNotMatch(page, /data-ad-status="reserved"/);
-  for (const page of [home, tool, guide]) assert.doesNotMatch(page, /adsbygoogle|ca-pub-|pagead2\.googlesyndication\.com/i);
+  assert.equal((home.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 2);
+  assert.equal((tool.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 1);
+  assert.equal((guide.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 1);
+  for (const page of [agent, workstation, community]) assert.doesNotMatch(page, /data-ad-status="auto-ads-eligible"/);
+  for (const page of [home, tool, guide, agent, workstation, community]) {
+    assert.equal((page.match(/<script[^>]+src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847"[^>]*>/g) ?? []).length, 1);
+    assert.match(page, /google-adsense-account/);
+  }
 });
 
 test("keeps legacy mixed-language guide slugs as noindex canonical aliases", async () => {
@@ -676,7 +684,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 4\.0/);
+    assert.match(page, /BQ-Agent 4\.1/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -693,6 +701,12 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(headers, /connect-src 'self'/);
   assert.doesNotMatch(headers, /api\.github\.com/);
   assert.doesNotMatch(await readSource("worker/index.ts"), /api\.github\.com/);
+  const [conversationSource, bridgeSource] = await Promise.all([readSource("app/components/AgentConversation.tsx"), readSource("app/components/AgentToolBridge.tsx")]);
+  assert.match(conversationSource, /extractAgentPayload/);
+  assert.match(conversationSource, /runAgentAutomation\(next, detectedInput/);
+  assert.match(bridgeSource, /AGENT_AUTO_PREPARE_KEY/);
+  assert.match(bridgeSource, /\.tool-workbench, \.workbench/);
+  assert.match(bridgeSource, /bytequant:agent-input/);
   assert.match(turkish, /bytequant:canonical-origin/);
   assert.match(turkish, /bq-org-agent-v2-20260725/);
   assert.match(guide, /Tarayıcı İçi Agentic AI/);

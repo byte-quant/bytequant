@@ -21,13 +21,14 @@ interface ExecutionContext {
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
   "script-src-attr 'none'",
   "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://*.googlesyndication.com https://*.googleusercontent.com https://*.doubleclick.net https://*.adtrafficquality.google",
   "font-src 'self'",
-  "connect-src 'self' wss:",
+  "connect-src 'self' wss: https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
+  "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google",
   "media-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
@@ -41,7 +42,7 @@ function withSecurityHeaders(response: Response) {
   const headers = new Headers(response.headers);
   headers.set("Content-Security-Policy", contentSecurityPolicy);
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()");
+  headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=(self), payment=(), usb=()");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");

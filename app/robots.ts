@@ -11,6 +11,7 @@ const aiCrawlers = [
   "PerplexityBot",
   "Applebot-Extended",
   "CCBot",
+  "Mediapartners-Google",
 ];
 
 export default function robots(): MetadataRoute.Robots {

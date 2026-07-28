@@ -146,12 +146,14 @@ The deployable static site is written to out/.
 
 Runtime libraries must be open source, free to use commercially, pinned, and documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The current direct runtime dependencies use permissive licenses.
 
-The site contains reserved advertising layout areas but no active AdSense publisher ID, advertising script, analytics SDK, or tracking cookie. Before any advertising activation:
+The site includes the Google AdSense site tag and matching `ads.txt` record for the owner-provided publisher ID `ca-pub-4158794981134847`. Advertising remains separated from tool controls and no tool input is intentionally exposed to advertising code. Release checks verify that the exact ID is consistent across the tag, meta field, seller record, placement inventory, and CSP allowlist; account ownership and site readiness are confirmed only inside AdSense.
 
-1. configure a valid region-aware consent platform;
-2. update privacy and storage disclosures before loading the vendor;
-3. keep all tool input isolated from advertising code;
-4. rerun mobile, accessibility, performance, policy, and consent checks.
+Account-side release gates still matter:
+
+1. publish a Google-certified CMP integrated with the current IAB TCF requirement for EEA, UK, and Swiss traffic;
+2. exclude Local Agent, Workstation, Community, and other private/interaction-heavy routes from Auto ads;
+3. review real creatives at mobile and desktop breakpoints, then monitor Core Web Vitals and the Policy Center;
+4. keep privacy/storage disclosures synchronized with every advertising change.
 
 The audited placement inventory and external activation gates are documented in [docs/ADSENSE_APPROVAL_CHECKLIST.md](docs/ADSENSE_APPROVAL_CHECKLIST.md).
 
