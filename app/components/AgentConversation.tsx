@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { canAutomatePlan, runAgentAutomation, type AgentAutomationResult } from "../lib/agent-automation";
-import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
+import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, prepareAgentInput, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
 import { AGENT_AUTO_PREPARE_KEY } from "../lib/agent-session";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 import { publicTools as tools } from "../lib/tools";
@@ -15,7 +15,7 @@ type LocalSpeechRecognition = { lang: string; continuous: boolean; interimResult
 type LocalSpeechRecognitionConstructor = { new(): LocalSpeechRecognition; available?: (options: { langs: string[]; processLocally: boolean }) => Promise<string> };
 
 const tags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
-const historyKey = "bytequant:local-agent-conversation:v3";
+const historyKey = "bytequant:local-agent-conversation:v4";
 
 const ui = {
   tr: {
@@ -43,9 +43,17 @@ const assistCopy = {
   zh: { next: "安全的后续步骤", reply: "选择一个选项继续", speak: "朗读回答" },
 } as const;
 
+const stateCopy = {
+  tr: { coverage: "Anladığım işlemler", needsInfo: "Devam etmeden önce bir ayrıntı gerekli", provisional: "Aşağıdan kısa bir yanıt seçin", completed: "adım cihazınızda tamamlandı", inherited: "Önceki yerel çıktı bu adıma aktarıldı" },
+  en: { coverage: "Operations I understood", needsInfo: "One detail is needed before continuing", provisional: "Choose a short answer below", completed: "steps finished on this device", inherited: "The previous local result was passed into this step" },
+  de: { coverage: "Verstandene Vorgänge", needsInfo: "Vor dem Fortfahren fehlt eine Angabe", provisional: "Wählen Sie unten eine kurze Antwort", completed: "Schritte wurden lokal abgeschlossen", inherited: "Das vorige lokale Ergebnis wurde an diesen Schritt übergeben" },
+  zh: { coverage: "我理解的操作", needsInfo: "继续前还需要一项信息", provisional: "请从下方选择简短回答", completed: "个步骤已在此设备完成", inherited: "上一项本地结果已传入此步骤" },
+} as const;
+
 export function AgentConversation({ locale }: { locale: Locale }) {
   const t = ui[locale];
   const assist = assistCopy[locale];
+  const state = stateCopy[locale];
   const [goal, setGoal] = useState("");
   const [plan, setPlan] = useState<AgentPlan | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -55,6 +63,8 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   const [preparedInput, setPreparedInput] = useState("");
   const [automation, setAutomation] = useState<AgentAutomationResult | null>(null);
   const [automationError, setAutomationError] = useState("");
+  const [automationBusy, setAutomationBusy] = useState(false);
+  const [inputInherited, setInputInherited] = useState(false);
   const [copied, setCopied] = useState(false);
   const [utilityQuery, setUtilityQuery] = useState("");
   const [errorQuery, setErrorQuery] = useState("");
@@ -88,9 +98,11 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     setBusy(true); setAutomation(null); setAutomationError("");
     requestAnimationFrame(() => {
       const next = createAgentPlan(text, tools, locale, plan);
-      const detectedInput = extractAgentPayload(text);
+      const extractedInput = extractAgentPayload(text);
+      const inheritedInput = !extractedInput && next.conversation.isFollowUp ? automation?.output || preparedInput : "";
+      const detectedInput = prepareAgentInput(text, next, extractedInput || inheritedInput);
       const nextTurns = [...turns, { goal: text, answer: next.response, tools: next.steps.map((step) => step.title), time: Date.now() }].slice(-12);
-      setPlan(next); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setGoal(""); setBusy(false);
+      setPlan(next); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setInputInherited(Boolean(inheritedInput)); setGoal(""); setBusy(false);
       if (detectedInput && canAutomatePlan(next)) {
         try { setAutomation(runAgentAutomation(next, detectedInput, locale)); }
         catch (error) { setAutomationError((error as Error).message); }
@@ -123,24 +135,26 @@ export function AgentConversation({ locale }: { locale: Locale }) {
 
   function runHere() {
     if (!plan) return;
-    setAutomationError(""); setAutomation(null);
-    try { setAutomation(runAgentAutomation(plan, data, locale)); }
-    catch (error) {
-      const value = error as Error & { steps?: AgentAutomationResult["steps"]; output?: string };
-      if (value.steps && typeof value.output === "string") setAutomation({ steps: value.steps, output: value.output });
-      setAutomationError(value.message);
-    }
+    setAutomationError(""); setAutomation(null); setAutomationBusy(true);
+    requestAnimationFrame(() => {
+      try { setAutomation(runAgentAutomation(plan, data, locale)); }
+      catch (error) {
+        const value = error as Error & { steps?: AgentAutomationResult["steps"]; output?: string };
+        if (value.steps && typeof value.output === "string") setAutomation({ steps: value.steps, output: value.output });
+        setAutomationError(value.message);
+      } finally { setAutomationBusy(false); }
+    });
   }
 
   function reset() {
-    setGoal(""); setPlan(null); setTurns([]); setData(""); setPreparedInput(""); setAutomation(null); setAutomationError("");
+    setGoal(""); setPlan(null); setTurns([]); setData(""); setPreparedInput(""); setAutomation(null); setAutomationError(""); setAutomationBusy(false); setInputInherited(false);
     try { sessionStorage.removeItem(historyKey); sessionStorage.removeItem(AGENT_SESSION_KEY); sessionStorage.removeItem(AGENT_AUTO_PREPARE_KEY); } catch { /* optional */ }
     inputRef.current?.focus();
   }
 
   return <section className="agent-chat-app" aria-label={t.hello}>
     <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {t.private}</small></div></div><div><span>{turns.length ? t.memory : t.network}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
-    <div className="agent-capability-path" aria-label={locale === "tr" ? "Ajan çalışma biçimi" : locale === "de" ? "Arbeitsweise des Agenten" : locale === "zh" ? "助手工作方式" : "How the Agent works"}><span><b>1</b>{locale === "tr" ? "İsteği anlar" : locale === "de" ? "Ziel verstehen" : locale === "zh" ? "理解目标" : "Understand"}</span><i>→</i><span><b>2</b>{locale === "tr" ? "Veriyi hazırlar" : locale === "de" ? "Daten vorbereiten" : locale === "zh" ? "准备数据" : "Prepare"}</span><i>→</i><span><b>3</b>{locale === "tr" ? "Onayınızla çalışır" : locale === "de" ? "Mit Freigabe ausführen" : locale === "zh" ? "经确认执行" : "Run with approval"}</span></div>
+    {!turns.length && <div className="agent-capability-path" aria-label={locale === "tr" ? "Ajan çalışma biçimi" : locale === "de" ? "Arbeitsweise des Agenten" : locale === "zh" ? "助手工作方式" : "How the Agent works"}><span><b>1</b>{locale === "tr" ? "İsteği anlatın" : locale === "de" ? "Ziel beschreiben" : locale === "zh" ? "描述目标" : "Describe"}</span><i>→</i><span><b>2</b>{locale === "tr" ? "Planı görün" : locale === "de" ? "Plan prüfen" : locale === "zh" ? "查看计划" : "Review"}</span><i>→</i><span><b>3</b>{locale === "tr" ? "Onaylayın" : locale === "de" ? "Bestätigen" : locale === "zh" ? "确认执行" : "Approve"}</span></div>}
 
     <div className="agent-chat-stream" aria-live="polite">
       <article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><p>{t.helloBody}</p></div></article>
@@ -149,17 +163,18 @@ export function AgentConversation({ locale }: { locale: Locale }) {
 
       {plan && !busy && <article className="agent-answer-card">
         <header><div><span>✓</span><div><small>{t.plan}</small><h2>{plan.conversation.intentSummary}</h2></div></div><strong>{Math.round(plan.confidence * 100)}%</strong></header>
+        {plan.coverage.requested.length > 0 && <div className="agent-goal-coverage"><strong>{state.coverage}</strong><div>{plan.coverage.requested.map((item) => <span key={item}>✓ {item}</span>)}</div></div>}
         <div className="agent-answer-flow">{plan.steps.map((step, index) => <div key={step.id}><span>{index + 1}</span><div><strong>{step.title}</strong><p>{step.reason}</p></div>{index < plan.steps.length - 1 && <i>↓</i>}</div>)}</div>
         <div className="agent-next-actions"><strong>{assist.next}</strong><ol>{plan.nextActions.slice(0, 3).map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ol></div>
-        {preparedInput && <div className="agent-prepared-input"><span>✓</span><div><strong>{t.prepared}</strong><small>{preparedInput.length.toLocaleString(tags[locale])} · {automatable && automation ? t.autoComplete : plan.steps[0].title}</small></div><code>{preparedInput.slice(0, 110)}{preparedInput.length > 110 ? "…" : ""}</code></div>}
-        {plan.clarifyingQuestions.length > 0 && <div className="agent-inline-questions">{plan.clarifyingQuestions.slice(0, 2).map((question) => <button type="button" key={question} onClick={() => { setGoal(`${question}: `); inputRef.current?.focus(); }}>{question}</button>)}</div>}
+        {preparedInput && <div className="agent-prepared-input"><span>✓</span><div><strong>{t.prepared}</strong><small>{preparedInput.length.toLocaleString(tags[locale])} · {automation ? `${automation.steps.filter((step) => step.status === "completed").length}/${plan.steps.length} ${state.completed}` : inputInherited ? state.inherited : plan.steps[0].title}</small></div><code>{preparedInput.slice(0, 110)}{preparedInput.length > 110 ? "…" : ""}</code></div>}
+        {plan.clarifyingQuestions.length > 0 && <div className="agent-inline-questions" role="status"><strong>{state.needsInfo}</strong><p>{plan.clarifyingQuestions[0]}</p><small>{state.provisional}</small></div>}
         <div className="agent-primary-actions">
-          <Link className="primary-button" href={toolPath(locale, plan.steps[0].toolSlug)} onClick={() => startGuided(0)}>{t.start} →</Link>
-          <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link>
+          {plan.matchQuality === "strong" && !plan.coverage.missing.length ? <><Link className="primary-button" href={toolPath(locale, plan.steps[0].toolSlug)} onClick={() => startGuided(0)}>{t.start} →</Link>
+          <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link></> : <button type="button" className="primary-button" onClick={() => inputRef.current?.focus()}>{state.provisional} ↓</button>}
           <button type="button" className="agent-speak-button" aria-label={assist.speak} title={assist.speak} onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(plan.response); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>◖</button>
         </div>
         <div className="agent-followup-strip"><strong>{assist.reply}</strong><div>{plan.conversation.suggestedReplies.slice(0, 3).map((option) => <button type="button" key={option} onClick={() => { setGoal(option); inputRef.current?.focus(); }}>{option}</button>)}</div></div>
-        {automatable ? <details className="agent-inline-run" open={Boolean(automation || automationError)}><summary><span>▶</span><strong>{t.dataRun}</strong><b>+</b></summary><div><p>{t.dataIntro}</p><textarea value={data} onChange={(event) => { setData(event.target.value); setPreparedInput(event.target.value); setAutomation(null); setAutomationError(""); }} placeholder={t.dataPlaceholder} rows={7} maxLength={200_000} /><button type="button" className="primary-button" disabled={!data.trim()} onClick={runHere}>{t.run}</button>{automationError && <p className="error-block" role="alert">{automationError}</p>}{automation && <section className="agent-automation-result"><header><strong>{t.output}</strong><button type="button" onClick={async () => { await navigator.clipboard.writeText(automation.output); setCopied(true); }}>{copied ? t.copied : t.copy}</button></header><ol>{automation.steps.map((step) => <li className={step.status} key={step.toolSlug}><span>{step.status === "completed" ? "✓" : "!"}</span><div><strong>{step.title}</strong><small>{step.note} · {step.outputLength}</small></div></li>)}</ol><pre>{automation.output}</pre></section>}</div></details> : <small className="agent-automation-boundary">ⓘ {t.unavailable}</small>}
+        {automatable ? <details className="agent-inline-run" open={Boolean(automation || automationError)}><summary><span>▶</span><strong>{t.dataRun}</strong><b>+</b></summary><div><p>{t.dataIntro}</p><textarea value={data} onChange={(event) => { setData(event.target.value); setPreparedInput(event.target.value); setAutomation(null); setAutomationError(""); setInputInherited(false); }} placeholder={t.dataPlaceholder} rows={7} maxLength={200_000} /><button type="button" className="primary-button" disabled={!data.trim() || automationBusy} onClick={runHere}>{automationBusy ? t.running : t.run}</button>{automationError && <p className="error-block" role="alert">{automationError}</p>}{automation && <section className="agent-automation-result"><header><strong>{t.output}</strong><button type="button" onClick={async () => { await navigator.clipboard.writeText(automation.output); setCopied(true); }}>{copied ? t.copied : t.copy}</button></header><ol>{automation.steps.map((step) => <li className={step.status} key={step.toolSlug}><span>{step.status === "completed" ? "✓" : "!"}</span><div><strong>{step.title}</strong><small>{step.note} · {step.outputLength}</small></div></li>)}</ol><pre>{automation.output}</pre></section>}</div></details> : <small className="agent-automation-boundary">ⓘ {t.unavailable}</small>}
         <details className="agent-answer-details"><summary>{t.details}<span>+</span></summary><div className="agent-detail-grid"><article><strong>{t.confidence}</strong><p>{Math.round(plan.confidence * 100)}% · {plan.matchQuality}</p></article><article><strong>{t.experts}</strong><p>{t.expertText}</p></article><article><strong>{t.why}</strong><p>{plan.signals.slice(0, 3).join(" · ")}</p></article><article><strong>{t.network}</strong><p>{plan.goalFrame.safety}</p></article></div><ul>{plan.limitations.map((item) => <li key={item}>{item}</li>)}</ul></details>
       </article>}
     </div>

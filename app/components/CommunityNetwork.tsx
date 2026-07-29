@@ -16,6 +16,7 @@ const identityKey = "bytequant:nostr-identity:v1";
 const relayKey = "bytequant:nostr-relays:v1";
 const blockedKey = "bytequant:nostr-blocked:v1";
 const newsQuoteKey = "bytequant:community-news-quote:v1";
+const networkConsentKey = "bytequant:nostr-network-consent:v1";
 const defaultRelays = ["wss://relay.damus.io", "wss://nos.lol"];
 const MAX_EVENT_BYTES = 6_000;
 const MAX_CLOCK_SKEW_SECONDS = 5 * 60;
@@ -45,28 +46,47 @@ const secureCopy = {
 } as const;
 
 const postActionCopy = {
-  tr: { edit: "Düzenle", editing: "Gönderiyi düzenliyorsunuz", cancel: "Vazgeç", update: "Değişikliği yayımla", updated: "Düzenlenmiş sürüm yayımlandı; eski sürüm için silme isteği relay’lere iletildi.", remove: "Sil", removeConfirm: "Bu gönderi için Nostr silme isteği yayımlansın mı? Bazı relay veya istemciler eski kopyayı tutabilir.", removed: "Silme isteği relay’lere iletildi ve gönderi bu akıştan kaldırıldı.", quoted: "Gündemden alıntı", source: "Kaynağı aç" },
-  en: { edit: "Edit", editing: "You are editing this post", cancel: "Cancel", update: "Publish revision", updated: "The revision was published and a deletion request for the old note was sent to relays.", remove: "Delete", removeConfirm: "Publish a Nostr deletion request for this post? Some relays or clients may retain an older copy.", removed: "The deletion request was sent to relays and the post was removed from this feed.", quoted: "Quoted from Updates", source: "Open source" },
-  de: { edit: "Bearbeiten", editing: "Sie bearbeiten diesen Beitrag", cancel: "Abbrechen", update: "Änderung veröffentlichen", updated: "Die neue Fassung wurde veröffentlicht und eine Löschanforderung für die alte Notiz gesendet.", remove: "Löschen", removeConfirm: "Eine Nostr-Löschanforderung senden? Einige Relays oder Clients können eine ältere Kopie behalten.", removed: "Die Löschanforderung wurde gesendet und der Beitrag aus diesem Feed entfernt.", quoted: "Aus Updates zitiert", source: "Quelle öffnen" },
-  zh: { edit: "编辑", editing: "正在编辑此帖子", cancel: "取消", update: "发布修订版", updated: "修订版已发布，并已向中继发送旧帖删除请求。", remove: "删除", removeConfirm: "要为此帖子发布 Nostr 删除请求吗？部分中继或客户端可能仍保留旧副本。", removed: "删除请求已发送到中继，帖子已从当前动态中移除。", quoted: "引用自动态", source: "打开来源" },
+  tr: { edit: "Düzenle", editing: "Gönderiyi düzenliyorsunuz", cancel: "Vazgeç", update: "Değişikliği yayımla", updated: "Düzenlenmiş sürüm yayımlandı; eski sürüm için silme isteği relay’lere iletildi.", updatedPartial: "Düzenlenmiş sürüm yayımlandı; ancak bazı relay’ler eski sürümün silme isteğini kabul etmedi. Eski kopya başka istemcilerde kalabilir.", remove: "Sil", removeConfirm: "Bu gönderi için Nostr silme isteği yayımlansın mı? Bazı relay veya istemciler eski kopyayı tutabilir.", removed: "Silme isteği relay’lere iletildi ve gönderi bu akıştan kaldırıldı.", quoted: "Gündemden alıntı", source: "Kaynağı aç" },
+  en: { edit: "Edit", editing: "You are editing this post", cancel: "Cancel", update: "Publish revision", updated: "The revision was published and a deletion request for the old note was sent to relays.", updatedPartial: "The revision was published, but some relays did not accept the deletion request for the previous note. Older copies may remain in other clients.", remove: "Delete", removeConfirm: "Publish a Nostr deletion request for this post? Some relays or clients may retain an older copy.", removed: "The deletion request was sent to relays and the post was removed from this feed.", quoted: "Quoted from Updates", source: "Open source" },
+  de: { edit: "Bearbeiten", editing: "Sie bearbeiten diesen Beitrag", cancel: "Abbrechen", update: "Änderung veröffentlichen", updated: "Die neue Fassung wurde veröffentlicht und eine Löschanforderung für die alte Notiz gesendet.", updatedPartial: "Die neue Fassung wurde veröffentlicht, aber einige Relays nahmen die Löschanforderung für die alte Notiz nicht an. Ältere Kopien können in anderen Clients bestehen bleiben.", remove: "Löschen", removeConfirm: "Eine Nostr-Löschanforderung senden? Einige Relays oder Clients können eine ältere Kopie behalten.", removed: "Die Löschanforderung wurde gesendet und der Beitrag aus diesem Feed entfernt.", quoted: "Aus Updates zitiert", source: "Quelle öffnen" },
+  zh: { edit: "编辑", editing: "正在编辑此帖子", cancel: "取消", update: "发布修订版", updated: "修订版已发布，并已向中继发送旧帖删除请求。", updatedPartial: "修订版已发布，但部分中继未接受旧帖删除请求；旧副本可能仍保留在其他客户端中。", remove: "删除", removeConfirm: "要为此帖子发布 Nostr 删除请求吗？部分中继或客户端可能仍保留旧副本。", removed: "删除请求已发送到中继，帖子已从当前动态中移除。", quoted: "引用自动态", source: "打开来源" },
+} as const;
+
+const networkCopy = {
+  tr: { disconnect: "Bağlantıyı kes", consent: "Bağlanınca iki seçili Nostr relay’iyle doğrudan iletişim kurulur. Bu tercih cihazınızda hatırlanır; istediğiniz an bağlantıyı kesebilirsiniz.", connectedRelays: "bağlı relay", visiblePosts: "global gönderi", liveActivity: "Canlı etkileşimler açık", connectFirst: "Global gönderileri görmek için güvenli bağlantıyı başlatın. Okumak için profil gerekmez.", profileFirst: "Paylaşmak ve yanıtlamak için soldaki Profil ve güvenlik alanından cihaz profilinizi oluşturun.", newest: "En yeni", active: "Hareketli", myPosts: "Gönderilerim", savedLabel: "Kaydedilenler", copiedLink: "Nostr gönderi adresi kopyalandı.", reactionSent: "Etkileşim relay’lere gönderildi.", noOwnPosts: "Bu profille yayımlanmış bir gönderi bulunamadı.", hideConfirm: "Bu hesabın gönderileri yalnızca bu cihazda gizlensin mi?", loadError: "Global akış şu anda yüklenemedi. Örnek akışı kullanabilir veya biraz sonra yeniden deneyebilirsiniz." },
+  en: { disconnect: "Disconnect", consent: "Connecting talks directly to the two selected Nostr relays. This choice is remembered on this device, and you can disconnect at any time.", connectedRelays: "relays connected", visiblePosts: "global posts", liveActivity: "Live interactions on", connectFirst: "Start the privacy-aware connection to see global posts. No profile is required to read.", profileFirst: "To post or reply, create your device profile in Profile and security on the left.", newest: "Newest", active: "Active", myPosts: "My posts", savedLabel: "Saved", copiedLink: "The Nostr post address was copied.", reactionSent: "The interaction was sent to relays.", noOwnPosts: "No posts published with this profile were found.", hideConfirm: "Hide this account’s posts only on this device?", loadError: "The global feed could not be loaded right now. You can use the starter feed or try again shortly." },
+  de: { disconnect: "Trennen", consent: "Beim Verbinden kommuniziert der Browser direkt mit den zwei gewählten Nostr-Relays. Diese Wahl wird auf diesem Gerät gespeichert und kann jederzeit widerrufen werden.", connectedRelays: "Relays verbunden", visiblePosts: "globale Beiträge", liveActivity: "Live-Interaktionen aktiv", connectFirst: "Datenschutzbewusst verbinden, um globale Beiträge zu sehen. Zum Lesen ist kein Profil nötig.", profileFirst: "Zum Veröffentlichen oder Antworten links unter Profil und Sicherheit ein Geräteprofil anlegen.", newest: "Neueste", active: "Aktiv", myPosts: "Meine Beiträge", savedLabel: "Gespeichert", copiedLink: "Die Nostr-Beitragsadresse wurde kopiert.", reactionSent: "Die Interaktion wurde an Relays gesendet.", noOwnPosts: "Für dieses Profil wurden keine Beiträge gefunden.", hideConfirm: "Beiträge dieses Kontos nur auf diesem Gerät ausblenden?", loadError: "Der globale Feed konnte gerade nicht geladen werden. Nutzen Sie den Start-Feed oder versuchen Sie es später erneut." },
+  zh: { disconnect: "断开连接", consent: "连接后，浏览器会直接与所选的两个 Nostr 中继通信。此选择会保存在本设备上，您可随时断开。", connectedRelays: "个中继已连接", visiblePosts: "条全球帖子", liveActivity: "实时互动已开启", connectFirst: "启动注重隐私的连接即可查看全球帖子；阅读无需创建资料。", profileFirst: "若要发布或回复，请在左侧“资料与安全”中创建设备资料。", newest: "最新", active: "活跃", myPosts: "我的帖子", savedLabel: "已收藏", copiedLink: "Nostr 帖子地址已复制。", reactionSent: "互动已发送到中继。", noOwnPosts: "未找到此资料发布的帖子。", hideConfirm: "仅在此设备上隐藏该账户的帖子吗？", loadError: "目前无法加载全球动态。您可以浏览示例动态，或稍后重试。" },
 } as const;
 
 const starters: Record<Locale, Array<SocialContent & { id: string; author: string }>> = {
   tr: [
     { id: "starter-1", v: 1, title: "KVKK paylaşımı öncesi üç adımlı kontrol", body: "Sentetik örnekle başlayın, maskeleme sonrasında önce/sonra farkını inceleyin ve yalnızca gerekli alanları dışa aktarın.", kind: "workflow", group: "Gizlilik", author: "ByteQuant" },
     { id: "starter-2", v: 1, title: "JSON tesliminde sessiz hataları azaltın", body: "Biçimlendirmeden sonra şema kontrolü yapın; sürüm değiştiyse yapısal diff ile eklenen ve silinen alanları ayrıca inceleyin.", kind: "tip", group: "Veri", author: "ByteQuant" },
+    { id: "starter-3", v: 1, title: "Bir promptu paylaşmadan önce sınırlarını yazın", body: "Hedefi, beklenen çıktı biçimini ve yapılmaması gerekenleri ayrı satırlarda belirtin. Sonra Few-shot aracıyla en az bir olumlu ve bir sınır örneği ekleyin.", kind: "tip", group: "Yapay Zekâ", author: "ByteQuant" },
+    { id: "starter-4", v: 1, title: "API teslimi için tekrar kullanılabilir kontrol akışı", body: "Önce cURL komutunu güvenli biçimde inceleyin; gizli başlıkları kaldırın, eşdeğer kodu üretin ve Cache-Control ile CORS politikasını ayrı ayrı doğrulayın.", kind: "workflow", group: "Geliştirici", author: "ByteQuant" },
+    { id: "starter-5", v: 1, title: "Hangi yerel iş akışını görmek istersiniz?", body: "Yeni başlayanların uygulayabileceği bir araç zinciri önerin. Girdi örneğini sentetik tutun ve beklenen sonucu açıkça tarif edin.", kind: "question", group: "Topluluk", author: "ByteQuant" },
   ],
   en: [
     { id: "starter-1", v: 1, title: "A three-step check before privacy-sensitive sharing", body: "Start with synthetic data, inspect the before/after diff after masking, and export only the fields the recipient needs.", kind: "workflow", group: "Privacy", author: "ByteQuant" },
     { id: "starter-2", v: 1, title: "Reduce silent failures in JSON delivery", body: "Validate against a schema after formatting, then use a structural diff to review added and removed fields when versions change.", kind: "tip", group: "Data", author: "ByteQuant" },
+    { id: "starter-3", v: 1, title: "Write a prompt’s boundaries before sharing it", body: "Separate the goal, expected output format, and prohibited behavior. Then add at least one positive and one boundary example with the Few-shot tool.", kind: "tip", group: "AI", author: "ByteQuant" },
+    { id: "starter-4", v: 1, title: "A reusable API delivery check", body: "Inspect the cURL command safely, remove secret headers, generate equivalent code, then review Cache-Control and CORS policy independently.", kind: "workflow", group: "Developer", author: "ByteQuant" },
+    { id: "starter-5", v: 1, title: "Which local workflow should we document next?", body: "Suggest a tool chain a newcomer can reproduce. Keep the example input synthetic and describe the expected result clearly.", kind: "question", group: "Community", author: "ByteQuant" },
   ],
   de: [
     { id: "starter-1", v: 1, title: "Drei Prüfungen vor datenschutzrelevanter Freigabe", body: "Mit synthetischen Daten beginnen, den Vorher/Nachher-Vergleich nach der Maskierung prüfen und nur notwendige Felder exportieren.", kind: "workflow", group: "Datenschutz", author: "ByteQuant" },
     { id: "starter-2", v: 1, title: "Stille Fehler bei JSON-Ausgaben reduzieren", body: "Nach dem Formatieren per Schema prüfen und bei Versionswechseln hinzugefügte sowie entfernte Felder strukturell vergleichen.", kind: "tip", group: "Daten", author: "ByteQuant" },
+    { id: "starter-3", v: 1, title: "Grenzen eines Prompts vor dem Teilen festlegen", body: "Ziel, Ausgabeformat und unerwünschtes Verhalten getrennt notieren. Danach mit dem Few-shot-Werkzeug mindestens ein positives und ein Grenzbeispiel ergänzen.", kind: "tip", group: "KI", author: "ByteQuant" },
+    { id: "starter-4", v: 1, title: "Wiederverwendbare Prüfung für eine API-Übergabe", body: "cURL-Befehl sicher prüfen, geheime Header entfernen, äquivalenten Code erzeugen und Cache-Control sowie CORS getrennt kontrollieren.", kind: "workflow", group: "Entwicklung", author: "ByteQuant" },
+    { id: "starter-5", v: 1, title: "Welchen lokalen Ablauf sollen wir als Nächstes erklären?", body: "Einen Werkzeugablauf vorschlagen, den Einsteiger nachvollziehen können. Beispieldaten synthetisch halten und das erwartete Ergebnis klar beschreiben.", kind: "question", group: "Community", author: "ByteQuant" },
   ],
   zh: [
     { id: "starter-1", v: 1, title: "隐私数据分享前的三步检查", body: "先使用合成数据，脱敏后查看前后差异，只导出接收方真正需要的字段。", kind: "workflow", group: "隐私", author: "ByteQuant" },
     { id: "starter-2", v: 1, title: "减少 JSON 交付中的静默错误", body: "格式化后进行 Schema 验证；版本变化时用结构化差异检查新增与删除字段。", kind: "tip", group: "数据", author: "ByteQuant" },
+    { id: "starter-3", v: 1, title: "分享提示词前先写清边界", body: "分别写明目标、预期输出格式和禁止行为，再用 Few-shot 工具加入至少一个正向示例与一个边界示例。", kind: "tip", group: "AI", author: "ByteQuant" },
+    { id: "starter-4", v: 1, title: "可复用的 API 交付检查流程", body: "安全检查 cURL 命令，移除敏感请求头，生成等价代码，再分别核对 Cache-Control 与 CORS 策略。", kind: "workflow", group: "开发", author: "ByteQuant" },
+    { id: "starter-5", v: 1, title: "接下来想看到哪种本地工作流？", body: "推荐一个新手也能复现的工具链；示例输入应使用合成数据，并清楚说明预期结果。", kind: "question", group: "社区", author: "ByteQuant" },
   ],
 };
 
@@ -85,9 +105,9 @@ function safeSource(value: unknown): SourceQuote | undefined {
 function bytesToBase64(value: Uint8Array) { let binary = ""; value.forEach((byte) => { binary += String.fromCharCode(byte); }); return btoa(binary); }
 function base64ToBytes(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 function tagValue(event: NostrEvent, name: string) { return event.tags.find((tag) => tag[0] === name)?.[1] ?? ""; }
-function plausibleEvent(event: NostrEvent, now = Math.floor(Date.now() / 1000)) {
+function plausibleEvent(event: NostrEvent, now = Math.floor(Date.now() / 1000), allowHistorical = false) {
   return /^[0-9a-f]{64}$/i.test(event.id) && /^[0-9a-f]{64}$/i.test(event.pubkey) && /^[0-9a-f]{128}$/i.test(event.sig)
-    && event.created_at <= now + MAX_CLOCK_SKEW_SECONDS && event.created_at >= now - 60 * 60 * 24 * 46
+    && event.created_at <= now + MAX_CLOCK_SKEW_SECONDS && (allowHistorical || event.created_at >= now - 60 * 60 * 24 * 46)
     && event.content.length <= MAX_EVENT_BYTES && event.tags.length <= 30 && event.tags.every((tag) => tag.length <= 8 && tag.every((item) => typeof item === "string" && item.length <= 500));
 }
 function parsePost(event: NostrEvent): SocialContent | null {
@@ -105,7 +125,7 @@ function isPrivateRelayHost(hostname: string) {
   const parts = host.split(".").map(Number);
   return parts.length === 4 && parts.every(Number.isInteger) && (parts[0] === 10 || parts[0] === 127 || parts[0] === 0 || (parts[0] === 169 && parts[1] === 254) || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) || (parts[0] === 192 && parts[1] === 168));
 }
-function validRelays(value: string) { return [...new Set(value.split(/\s+/).map((item) => item.trim()).filter((item) => { try { const url = new URL(item); return url.protocol === "wss:" && !url.username && !url.password && !isPrivateRelayHost(url.hostname); } catch { return false; } }))].slice(0, 5); }
+function validRelays(value: string) { return [...new Set(value.slice(0, 2_500).split(/\s+/).map((item) => item.trim()).filter((item) => { try { const url = new URL(item); return url.protocol === "wss:" && !url.username && !url.password && !isPrivateRelayHost(url.hostname); } catch { return false; } }))].slice(0, 5); }
 
 async function keyFromPassphrase(passphrase: string, salt: Uint8Array) {
   const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase), "PBKDF2", false, ["deriveKey"]);
@@ -124,16 +144,26 @@ function validStoredIdentity(value: unknown): value is StoredIdentity {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<StoredIdentity>;
   return candidate.v === 1 && typeof candidate.pubkey === "string" && /^[0-9a-f]{64}$/i.test(candidate.pubkey)
-    && typeof candidate.salt === "string" && candidate.salt.length <= 128 && typeof candidate.iv === "string" && candidate.iv.length <= 128
-    && typeof candidate.cipher === "string" && candidate.cipher.length <= 512 && typeof candidate.name === "string" && candidate.name.length <= 40
-    && typeof candidate.about === "string" && candidate.about.length <= 180;
+    && typeof candidate.salt === "string" && candidate.salt.length >= 20 && candidate.salt.length <= 128 && /^[A-Za-z0-9+/]+={0,2}$/.test(candidate.salt)
+    && typeof candidate.iv === "string" && candidate.iv.length >= 16 && candidate.iv.length <= 128 && /^[A-Za-z0-9+/]+={0,2}$/.test(candidate.iv)
+    && typeof candidate.cipher === "string" && candidate.cipher.length >= 24 && candidate.cipher.length <= 512 && /^[A-Za-z0-9+/]+={0,2}$/.test(candidate.cipher)
+    && typeof candidate.name === "string" && candidate.name.length >= 2 && candidate.name.length <= 40 && candidate.name === clean(candidate.name, 40)
+    && typeof candidate.about === "string" && candidate.about.length <= 180 && candidate.about === clean(candidate.about, 180)
+    && reviewCommunityText(`${candidate.name}\n${candidate.about}`).length === 0;
+}
+
+function readStoredJson(storageName: "localStorage" | "sessionStorage", key: string): unknown {
+  try { return JSON.parse(window[storageName].getItem(key) ?? "null") as unknown; }
+  catch { return null; }
 }
 
 export function CommunityNetwork({ locale }: { locale: Locale }) {
   const passHint = { tr: "En az 12 karakter. Parola ve özel anahtar ByteQuant’a gönderilmez.", en: "At least 12 characters. Your passphrase and private key are never sent to ByteQuant.", de: "Mindestens 12 Zeichen. Passphrase und privater Schlüssel verlassen das Gerät nicht.", zh: "至少 12 个字符。密码和私钥不会发送给 ByteQuant。" }[locale];
   const t = { ...copy[locale], ...secureCopy[locale], passHint };
   const actions = postActionCopy[locale];
+  const networkText = networkCopy[locale];
   const [network, setNetwork] = useState<NetworkState>("idle");
+  const [connectedRelays, setConnectedRelays] = useState(0);
   const [events, setEvents] = useState<NostrEvent[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [interactions, setInteractions] = useState<NostrEvent[]>([]);
@@ -153,26 +183,47 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const [blocked, setBlocked] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [savedOnly, setSavedOnly] = useState(false);
+  const [mineOnly, setMineOnly] = useState(false);
+  const [activeSort, setActiveSort] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const poolRef = useRef<SimplePoolType | null>(null);
   const subscriptionRef = useRef<{ close(reason?: string): void } | null>(null);
+  const connectingRef = useRef(false);
+  const connectionGenerationRef = useRef(0);
   const actionTimesRef = useRef<Record<string, number[]>>({});
   const importRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    let autoConnectTimer: number | undefined;
     const restore = window.setTimeout(() => {
-      try {
-        const stored: unknown = JSON.parse(localStorage.getItem(identityKey) ?? "null");
-        if (validStoredIdentity(stored)) { setIdentity(stored); setProfileDraft((current) => ({ ...current, name: stored.name, about: stored.about })); }
-        const relayList = validRelays(JSON.parse(localStorage.getItem(relayKey) ?? "[]").join("\n")); if (relayList.length) { setRelays(relayList); setRelayDraft(relayList.join("\n")); }
-        const hidden = JSON.parse(localStorage.getItem(blockedKey) ?? "[]"); if (Array.isArray(hidden)) setBlocked(hidden.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-100));
-        const kept = JSON.parse(localStorage.getItem("bytequant:nostr-saved:v1") ?? "[]"); if (Array.isArray(kept)) setSaved(kept.filter((item): item is string => typeof item === "string").slice(-200));
-        const quote = JSON.parse(sessionStorage.getItem(newsQuoteKey) ?? "null") as { title?: unknown; body?: unknown; url?: unknown; source?: unknown } | null;
-        const sourceQuote = safeSource(quote);
-        if (sourceQuote && typeof quote?.body === "string") { setComposer({ title: clean(quote.title as string, 120), body: clean(quote.body, 1200), kind: "idea", group: locale === "tr" ? "Gündem" : locale === "de" ? "Updates" : locale === "zh" ? "动态" : "Updates" }); setQuoteSource(sourceQuote); setComposerOpen(true); sessionStorage.removeItem(newsQuoteKey); }
-      } catch { /* optional local preferences */ }
+      const stored = readStoredJson("localStorage", identityKey);
+      if (validStoredIdentity(stored)) { setIdentity(stored); setProfileDraft((current) => ({ ...current, name: stored.name, about: stored.about })); }
+
+      const relayValue = readStoredJson("localStorage", relayKey);
+      const relayList = Array.isArray(relayValue) ? validRelays(relayValue.filter((item): item is string => typeof item === "string" && item.length <= 500).join("\n")) : [];
+      if (relayList.length) { setRelays(relayList); setRelayDraft(relayList.join("\n")); }
+
+      const hidden = readStoredJson("localStorage", blockedKey);
+      if (Array.isArray(hidden)) setBlocked(hidden.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-100));
+
+      const kept = readStoredJson("localStorage", "bytequant:nostr-saved:v1");
+      if (Array.isArray(kept)) setSaved(kept.filter((item): item is string => typeof item === "string" && (/^[0-9a-f]{64}$/i.test(item) || /^starter-[1-9]\d?$/.test(item))).slice(-200));
+
+      const quote = readStoredJson("sessionStorage", newsQuoteKey) as { title?: unknown; body?: unknown; url?: unknown; source?: unknown } | null;
+      const sourceQuote = safeSource(quote);
+      if (sourceQuote && typeof quote?.title === "string" && typeof quote.body === "string") {
+        setComposer({ title: clean(quote.title, 120), body: clean(quote.body, 1200), kind: "idea", group: locale === "tr" ? "Gündem" : locale === "de" ? "Updates" : locale === "zh" ? "动态" : "Updates" });
+        setQuoteSource(sourceQuote); setComposerOpen(true);
+        try { sessionStorage.removeItem(newsQuoteKey); } catch { /* optional draft bridge */ }
+      }
+
+      let consented = false;
+      try { consented = localStorage.getItem(networkConsentKey) === "accepted"; } catch { /* explicit reconnect remains available */ }
+      if (consented) autoConnectTimer = window.setTimeout(() => { void connect(relayList.length ? relayList : defaultRelays); }, 0);
     }, 0);
-    return () => { window.clearTimeout(restore); subscriptionRef.current?.close("component-unmount"); poolRef.current?.destroy(); };
+    return () => { window.clearTimeout(restore); if (autoConnectTimer !== undefined) window.clearTimeout(autoConnectTimer); connectionGenerationRef.current += 1; connectingRef.current = false; subscriptionRef.current?.close("component-unmount"); poolRef.current?.destroy(); };
+    // The restore runs once per locale mount; connect reads the validated snapshot passed above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   useEffect(() => {
@@ -195,32 +246,61 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     return true;
   }
 
-  async function connect() {
-    if (network === "connecting") return;
-    setNetwork("connecting"); setStatus("");
+  async function connect(targetRelays = relays) {
+    if (connectingRef.current) return;
+    const generation = ++connectionGenerationRef.current;
+    connectingRef.current = true; setNetwork("connecting"); setStatus("");
     try {
       const [{ SimplePool }, { verifyEvent }] = await Promise.all([import("nostr-tools/pool"), import("nostr-tools/pure")]);
       poolRef.current?.destroy();
       const pool = new SimplePool({ enableReconnect: true }); poolRef.current = pool;
       const since = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 45;
-      const initial = await pool.querySync(relays, { kinds: [1, 5], "#t": ["bytequant"], since, limit: 140 }, { maxWait: 6500 });
+      const [notes, activity] = await Promise.all([
+        pool.querySync(targetRelays, { kinds: [1, 5], "#t": ["bytequant"], since, limit: 160 }, { maxWait: 6500 }).catch(() => []),
+        pool.querySync(targetRelays, { kinds: [1, 6, 7], "#t": ["bytequant"], since, limit: 240 }, { maxWait: 6500 }).catch(() => []),
+      ]);
+      const noteIds = new Set(notes.map((event) => event.id));
+      const initial = [...notes, ...activity.filter((candidate) => !noteIds.has(candidate.id))];
+      if (generation !== connectionGenerationRef.current) { pool.destroy(); return; }
       const verified = initial.filter((event) => plausibleEvent(event) && verifyEvent(event));
       const deleted = new Set(verified.filter((event) => event.kind === 5).flatMap((event) => event.tags.filter((tag) => tag[0] === "e").map((tag) => `${event.pubkey}:${tag[1]}`)));
       const accepted = verified.filter((event) => event.kind === 1 && parsePost(event) && !deleted.has(`${event.pubkey}:${event.id}`) && !blocked.includes(event.pubkey));
       setEvents(accepted.sort((a, b) => b.created_at - a.created_at));
+      setInteractions(verified.filter((event) => (event.kind === 6 || event.kind === 7 || (event.kind === 1 && !parsePost(event))) && Boolean(tagValue(event, "e"))));
       subscriptionRef.current?.close("refresh");
-      subscriptionRef.current = pool.subscribeMany(relays, { kinds: [1, 5], "#t": ["bytequant"], since, limit: 140 }, { onevent: (event) => { if (!plausibleEvent(event) || !verifyEvent(event)) return; if (event.kind === 5) { const ids = new Set(event.tags.filter((tag) => tag[0] === "e").map((tag) => tag[1])); setEvents((current) => current.filter((item) => item.pubkey !== event.pubkey || !ids.has(item.id))); return; } if (!parsePost(event) || blocked.includes(event.pubkey)) return; setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120)); }, maxWait: 6500 });
+      subscriptionRef.current = pool.subscribeMany(targetRelays, { kinds: [1, 5, 6, 7], "#t": ["bytequant"], since, limit: 320 }, { onevent: (event) => {
+        if (!plausibleEvent(event) || !verifyEvent(event)) return;
+        if (event.kind === 5) { const ids = new Set(event.tags.filter((tag) => tag[0] === "e").map((tag) => tag[1])); setEvents((current) => current.filter((item) => item.pubkey !== event.pubkey || !ids.has(item.id))); return; }
+        const content = event.kind === 1 ? parsePost(event) : null;
+        if (!content && Boolean(tagValue(event, "e"))) { setInteractions((current) => [event, ...current.filter((item) => item.id !== event.id)].slice(0, 400)); return; }
+        if (!content || blocked.includes(event.pubkey)) return;
+        setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120));
+      }, maxWait: 6500 });
       const authors = [...new Set(accepted.map((event) => event.pubkey))].slice(0, 80);
       if (authors.length) {
-        const profileEvents = await pool.querySync(relays, { kinds: [0], authors, limit: authors.length * 2 }, { maxWait: 5000 });
+        const profileEvents = await pool.querySync(targetRelays, { kinds: [0], authors, limit: authors.length * 2 }, { maxWait: 5000 });
         const latest = new Map<string, NostrEvent>(); profileEvents.forEach((event) => { if ((latest.get(event.pubkey)?.created_at ?? 0) < event.created_at) latest.set(event.pubkey, event); });
-        setProfiles(Object.fromEntries([...latest].flatMap(([pubkey, event]) => { const profile = plausibleEvent(event) && verifyEvent(event) ? parseProfile(event) : null; return profile ? [[pubkey, profile]] : []; })));
-        const ids = accepted.map((event) => event.id).slice(0, 80);
-        if (ids.length) setInteractions((await pool.querySync(relays, { kinds: [1, 6, 7], "#e": ids, since, limit: 300 }, { maxWait: 5000 })).filter((event) => plausibleEvent(event) && verifyEvent(event)));
+        setProfiles(Object.fromEntries([...latest].flatMap(([pubkey, event]) => { const profile = plausibleEvent(event, undefined, true) && verifyEvent(event) ? parseProfile(event) : null; return profile ? [[pubkey, profile]] : []; })));
       }
       const statuses = [...pool.listConnectionStatus().values()];
-      setNetwork(statuses.some(Boolean) ? statuses.every(Boolean) ? "connected" : "partial" : accepted.length ? "partial" : "error");
-    } catch { setNetwork("error"); }
+      const online = statuses.filter(Boolean).length;
+      setConnectedRelays(online);
+      setNetwork(online > 0 ? online === targetRelays.length ? "connected" : "partial" : accepted.length ? "partial" : "error");
+    } catch { if (generation === connectionGenerationRef.current) { setNetwork("error"); setConnectedRelays(0); setStatus(networkText.loadError); } }
+    finally { if (generation === connectionGenerationRef.current) connectingRef.current = false; }
+  }
+
+  function consentAndConnect() {
+    try { localStorage.setItem(networkConsentKey, "accepted"); } catch { /* connection still works without persistence */ }
+    void connect();
+  }
+
+  function disconnect() {
+    connectionGenerationRef.current += 1;
+    subscriptionRef.current?.close("user-disconnect"); subscriptionRef.current = null;
+    poolRef.current?.destroy(); poolRef.current = null;
+    connectingRef.current = false; setNetwork("idle"); setConnectedRelays(0); setEvents([]); setProfiles({}); setInteractions([]); setStatus("");
+    try { localStorage.removeItem(networkConsentKey); } catch { /* optional preference */ }
   }
 
   async function publishEvent(kind: number, content: string, tags: string[][]) {
@@ -285,9 +365,12 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       if (previous) tags.push(["e", previous.id, "", "replace"], ["edited", previous.id]);
       const event = await publishEvent(1, JSON.stringify(content), tags);
       if (event) {
-        if (previous) await publishEvent(5, "Replaced by an edited version", [["e", previous.id], ["k", "1"], ["t", "bytequant"], ["client", "ByteQuant"]]);
         setEvents((current) => [event, ...current.filter((item) => item.id !== event.id && item.id !== previous?.id)]);
-        setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setQuoteSource(undefined); setEditingId(""); setComposerOpen(false); setStatus(previous ? actions.updated : t.published);
+        setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setQuoteSource(undefined); setEditingId(""); setComposerOpen(false);
+        if (previous) {
+          try { await publishEvent(5, "Replaced by an edited version", [["e", previous.id], ["k", "1"], ["t", "bytequant"], ["client", "ByteQuant"]]); setStatus(actions.updated); }
+          catch { setStatus(actions.updatedPartial); }
+        } else setStatus(t.published);
       }
     } catch { setStatus(t.error); } finally { setBusy(false); }
   }
@@ -311,20 +394,24 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     if (!allowAction(kind === 1 ? "comment" : "reaction", kind === 1 ? 8 : 16, 5 * 60 * 1000)) return;
     setBusy(true); setStatus("");
     try {
-      const content = kind === 7 ? "+" : kind === 6 ? "" : clean(reply[event.id] ?? "", 800);
+      const content = kind === 7 ? "+" : kind === 6 ? JSON.stringify(event) : clean(reply[event.id] ?? "", 800);
       if (kind === 1 && (content.length < 3 || reviewCommunityText(content).length)) { setStatus(t.unsafe); return; }
       const next = await publishEvent(kind, content, [["e", event.id, "", "root"], ["p", event.pubkey], ["t", "bytequant"], ["client", "ByteQuant"]]);
-      if (next) { setInteractions((current) => [next, ...current.filter((item) => item.id !== next.id)]); if (kind === 1) setReply((current) => ({ ...current, [event.id]: "" })); }
+      if (next) { setInteractions((current) => [next, ...current.filter((item) => item.id !== next.id)]); if (kind === 1) setReply((current) => ({ ...current, [event.id]: "" })); setStatus(networkText.reactionSent); }
     } catch { setStatus(t.error); } finally { setBusy(false); }
   }
 
-  const socialPosts = useMemo(() => events.flatMap((event) => { const content = parsePost(event); return content ? [{ event, content }] : []; }).filter(({ event, content }) => !blocked.includes(event.pubkey) && (!savedOnly || saved.includes(event.id)) && (!groupFilter || content.group === groupFilter) && `${content.title} ${content.body} ${content.group} ${profiles[event.pubkey]?.name ?? ""}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).sort((a, b) => b.event.created_at - a.event.created_at), [blocked, events, groupFilter, profiles, query, saved, savedOnly]);
+  const interactionCounts = useMemo(() => interactions.reduce<Record<string, number>>((counts, event) => { const target = tagValue(event, "e"); if (target) counts[target] = (counts[target] ?? 0) + 1; return counts; }, {}), [interactions]);
+  const socialPosts = useMemo(() => events.flatMap((event) => { const content = parsePost(event); return content ? [{ event, content }] : []; }).filter(({ event, content }) => !blocked.includes(event.pubkey) && (!savedOnly || saved.includes(event.id)) && (!mineOnly || event.pubkey === identity?.pubkey) && (!groupFilter || content.group === groupFilter) && `${content.title} ${content.body} ${content.group} ${profiles[event.pubkey]?.name ?? ""}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())).sort((a, b) => {
+    if (!activeSort) return b.event.created_at - a.event.created_at;
+    return (interactionCounts[b.event.id] ?? 0) - (interactionCounts[a.event.id] ?? 0) || b.event.created_at - a.event.created_at;
+  }), [activeSort, blocked, events, groupFilter, identity?.pubkey, interactionCounts, mineOnly, profiles, query, saved, savedOnly]);
   const groupCounts = useMemo(() => Object.entries(events.reduce<Record<string, number>>((result, event) => { const group = parsePost(event)?.group; if (group) result[group] = (result[group] ?? 0) + 1; return result; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 8), [events]);
   const authorCounts = useMemo(() => Object.entries(events.reduce<Record<string, number>>((result, event) => { result[event.pubkey] = (result[event.pubkey] ?? 0) + 1; return result; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 6), [events]);
 
-  function setHidden(pubkey: string) { const next = [...new Set([...blocked, pubkey])].slice(-100); setBlocked(next); localStorage.setItem(blockedKey, JSON.stringify(next)); }
-  function toggleSaved(id: string) { const next = saved.includes(id) ? saved.filter((item) => item !== id) : [...saved, id].slice(-200); setSaved(next); localStorage.setItem("bytequant:nostr-saved:v1", JSON.stringify(next)); }
-  async function share(event: NostrEvent) { const { nip19 } = await import("nostr-tools"); const value = `nostr:${nip19.neventEncode({ id: event.id, author: event.pubkey, relays })}`; if (navigator.share) { try { await navigator.share({ title: "ByteQuant Community", url: value }); return; } catch { return; } } await navigator.clipboard.writeText(value); setStatus(t.copied); }
+  function setHidden(pubkey: string) { if (!window.confirm(networkText.hideConfirm)) return; const next = [...new Set([...blocked, pubkey])].slice(-100); setBlocked(next); try { localStorage.setItem(blockedKey, JSON.stringify(next)); } catch { /* optional local moderation preference */ } }
+  function toggleSaved(id: string) { const next = saved.includes(id) ? saved.filter((item) => item !== id) : [...saved, id].slice(-200); setSaved(next); try { localStorage.setItem("bytequant:nostr-saved:v1", JSON.stringify(next)); } catch { /* optional saved-post preference */ } }
+  async function share(event: NostrEvent) { const { nip19 } = await import("nostr-tools"); const value = `nostr:${nip19.neventEncode({ id: event.id, author: event.pubkey, relays })}`; if (navigator.share) { try { await navigator.share({ title: "ByteQuant Community", text: value }); return; } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; } } try { await navigator.clipboard.writeText(value); setStatus(networkText.copiedLink); } catch { setStatus(t.error); } }
   function backupIdentity() {
     if (!identity) return;
     const blob = new Blob([JSON.stringify({ type: "bytequant-nostr-profile", version: 1, identity }, null, 2)], { type: "application/json" });
@@ -340,48 +427,51 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     } catch { setStatus(t.identityError); }
   }
 
-  const visiblePosts = socialPosts.length ? socialPosts : events.length || query || groupFilter || savedOnly ? [] : starters[locale].map((content) => ({ event: { id: content.id, pubkey: "bytequant", created_at: 0, kind: 1, tags: [], content: JSON.stringify(content), sig: "" } as NostrEvent, content }));
+  const visiblePosts = socialPosts.length ? socialPosts : events.length || query || groupFilter || savedOnly || mineOnly ? [] : starters[locale].map((content) => ({ event: { id: content.id, pubkey: "bytequant", created_at: 0, kind: 1, tags: [], content: JSON.stringify(content), sig: "" } as NostrEvent, content }));
   const stateLabel = network === "connected" ? t.connected : network === "partial" ? t.partial : network === "connecting" ? t.connecting : network === "error" ? t.error : t.connect;
 
   return <section className="community-network" aria-labelledby="global-community-title">
-    <header className="community-network-head"><div><span className="eyebrow"><i />{t.eyebrow}</span><h2 id="global-community-title">{t.title}</h2><p>{t.intro}</p></div><div className={`community-network-status status-${network}`}><span /><strong>{stateLabel}</strong><small>{t.relayDisclosure}</small>{network === "idle" || network === "error" ? <button className="primary-button" type="button" onClick={() => void connect()}>{t.connect} →</button> : <button type="button" onClick={() => void connect()}>{t.refresh}</button>}</div></header>
-    <div className="community-network-disclosure"><span>ⓘ</span><p>{t.privacy}</p><details><summary>{t.explain}</summary><p>{t.explainBody}</p></details></div>
+    <header className="community-network-head"><div><span className="eyebrow"><i />{t.eyebrow}</span><h2 id="global-community-title">{t.title}</h2><p>{t.intro}</p></div><div className={`community-network-status status-${network}`} role="status" aria-live="polite"><span /><strong>{stateLabel}</strong><small>{t.relayDisclosure}</small>{network === "connected" || network === "partial" ? <><div className="community-network-stats"><b>{connectedRelays}</b><small>{networkText.connectedRelays}</small><b>{events.length}</b><small>{networkText.visiblePosts}</small></div><div className="community-network-buttons"><button type="button" onClick={() => void connect()}>{t.refresh}</button><button type="button" onClick={disconnect}>{networkText.disconnect}</button></div></> : <button className="primary-button" type="button" disabled={network === "connecting"} onClick={consentAndConnect}>{network === "connecting" ? t.connecting : `${t.connect} →`}</button>}</div></header>
+    <div className="community-network-disclosure"><span>ⓘ</span><p>{network === "idle" ? `${networkText.consent} ${t.privacy}` : t.privacy}</p><details><summary>{t.explain}</summary><p>{t.explainBody}</p></details></div>
     <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
 
     <div className="community-social-layout">
       <aside className="community-social-left">
-        <section className="community-identity-card"><header><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><div><strong>{t.identity}</strong><small>{secret ? t.identityReady : identity ? t.identityLocked : t.create}</small></div></header>
+        <section className="community-identity-card" id="community-profile"><header><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><div><strong>{t.identity}</strong><small>{secret ? t.identityReady : identity ? t.identityLocked : t.create}</small></div></header>
           <details className="community-profile-setup" open={!identity}><summary>{t.profileSettings}<span>+</span></summary><p className="community-public-warning">{t.publicProfile}</p>
           <label><span>{t.name}</span><input value={profileDraft.name} maxLength={40} disabled={Boolean(identity) && !secret} onChange={(event) => setProfileDraft((current) => ({ ...current, name: event.target.value }))} /></label>
           <label><span>{t.about}</span><textarea value={profileDraft.about} maxLength={180} rows={3} disabled={Boolean(identity) && !secret} onChange={(event) => setProfileDraft((current) => ({ ...current, about: event.target.value }))} /></label>
           {!secret && <label><span>{t.pass}</span><input type="password" value={profileDraft.passphrase} minLength={12} autoComplete={identity ? "current-password" : "new-password"} onChange={(event) => setProfileDraft((current) => ({ ...current, passphrase: event.target.value }))} /><small>{t.passHint}</small></label>}
-          {!identity ? <button type="button" className="primary-button" disabled={busy} onClick={() => void createIdentity()}>{t.create}</button> : !secret ? <button type="button" className="primary-button" disabled={busy} onClick={() => void unlockIdentity()}>{t.unlock}</button> : <div className="community-profile-actions"><button type="button" className="primary-button" disabled={busy || network === "idle" || network === "error"} onClick={() => void updateProfile()}>{t.publish}</button><button type="button" onClick={() => { setSecret((current) => { current?.fill(0); return null; }); setStatus(""); }}>{t.lock}</button></div>}
-          {identity && <><div className="community-public-key"><small>{t.npub}</small><code>{identity.pubkey.slice(0, 12)}…{identity.pubkey.slice(-8)}</code><button type="button" onClick={async () => { const { nip19 } = await import("nostr-tools"); await navigator.clipboard.writeText(nip19.npubEncode(identity.pubkey)); setStatus(t.copied); }}>{t.copyId}</button></div><div className="community-backup-actions"><button type="button" onClick={backupIdentity}>{t.backup}</button><button type="button" onClick={() => importRef.current?.click()}>{t.restore}</button><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => { void restoreIdentity(event.target.files?.[0]); event.currentTarget.value = ""; }} /></div><details className="community-danger-zone"><summary>{t.resetIdentity}</summary><button type="button" onClick={() => { if (!window.confirm(t.resetConfirm)) return; localStorage.removeItem(identityKey); setIdentity(null); setSecret(null); setProfileDraft({ name: "", about: "", passphrase: "" }); }}>{t.resetIdentity}</button></details></>}
+          {!identity ? <button type="button" className="primary-button" disabled={busy} onClick={() => void createIdentity()}>{t.create}</button> : !secret ? <button type="button" className="primary-button" disabled={busy} onClick={() => void unlockIdentity()}>{t.unlock}</button> : <div className="community-profile-actions"><button type="button" className="primary-button" disabled={busy || !(network === "connected" || network === "partial")} onClick={() => void updateProfile()}>{t.publish}</button><button type="button" onClick={() => { setSecret((current) => { current?.fill(0); return null; }); setStatus(""); }}>{t.lock}</button></div>}
+           {identity && <><div className="community-public-key"><small>{t.npub}</small><code>{identity.pubkey.slice(0, 12)}…{identity.pubkey.slice(-8)}</code><button type="button" onClick={async () => { const { nip19 } = await import("nostr-tools"); try { await navigator.clipboard.writeText(nip19.npubEncode(identity.pubkey)); setStatus(t.copied); } catch { setStatus(t.error); } }}>{t.copyId}</button></div><div className="community-backup-actions"><button type="button" onClick={backupIdentity}>{t.backup}</button><button type="button" onClick={() => importRef.current?.click()}>{t.restore}</button><input ref={importRef} hidden type="file" accept="application/json" onChange={(event) => { void restoreIdentity(event.target.files?.[0]); event.currentTarget.value = ""; }} /></div><details className="community-danger-zone"><summary>{t.resetIdentity}</summary><button type="button" onClick={() => { if (!window.confirm(t.resetConfirm)) return; try { localStorage.removeItem(identityKey); } catch { /* state can still be cleared for this session */ } setIdentity(null); setSecret((current) => { current?.fill(0); return null; }); setProfileDraft({ name: "", about: "", passphrase: "" }); }}>{t.resetIdentity}</button></details></>}
           </details>
         </section>
-        <nav className="community-social-nav"><button type="button" aria-pressed={!groupFilter && !savedOnly && !query} className={!groupFilter && !savedOnly && !query ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); setQuery(""); }}>⌂ {t.feed}</button><button type="button" aria-pressed={!groupFilter && !savedOnly && Boolean(query)} onClick={() => { setQuery(""); setGroupFilter(""); setSavedOnly(false); }}>◉ {t.latest}</button><button type="button" aria-pressed={Boolean(groupFilter)} onClick={() => { setGroupFilter(groupCounts[0]?.[0] ?? ""); setSavedOnly(false); }}># {t.groups}</button><button type="button" aria-pressed={query === identity?.name && Boolean(query)} onClick={() => { setQuery(identity?.name ?? ""); setSavedOnly(false); }}>◎ {t.people}</button><button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setGroupFilter(""); setQuery(""); }}>☆ {t.saved}</button></nav>
+        <nav className="community-social-nav" aria-label={t.feed}><button type="button" aria-pressed={!activeSort && !mineOnly && !savedOnly && !groupFilter} className={!activeSort && !mineOnly && !savedOnly && !groupFilter ? "active" : ""} onClick={() => { setActiveSort(false); setMineOnly(false); setGroupFilter(""); setSavedOnly(false); setQuery(""); }}>⌂ {networkText.newest}</button><button type="button" aria-pressed={activeSort && !mineOnly && !savedOnly} className={activeSort && !mineOnly && !savedOnly ? "active" : ""} onClick={() => { setActiveSort(true); setMineOnly(false); setQuery(""); setGroupFilter(""); setSavedOnly(false); }}>◉ {networkText.active}</button><button type="button" aria-pressed={Boolean(groupFilter)} onClick={() => { setGroupFilter(groupCounts[0]?.[0] ?? ""); setMineOnly(false); setSavedOnly(false); }}># {t.groups}</button><button type="button" aria-pressed={mineOnly} className={mineOnly ? "active" : ""} disabled={!identity} onClick={() => { setMineOnly(true); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}>◎ {networkText.myPosts}</button><button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setMineOnly(false); setGroupFilter(""); setQuery(""); }}>☆ {networkText.savedLabel}</button></nav>
       </aside>
 
       <section className="community-social-main">
-        <section className={`community-global-composer${composerOpen ? " open" : ""}`}><button type="button" className="community-compose-launch" onClick={() => setComposerOpen((value) => !value)}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><span><strong>{editingId ? actions.editing : composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : t.noIdentity}</small></span><b>{composerOpen ? "×" : "+"}</b></button>{composerOpen && <div className="community-composer-fields">{quoteSource && <aside className="community-source-quote"><small>{actions.quoted} · {quoteSource.source}</small><strong>{quoteSource.title}</strong><a href={quoteSource.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={4} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label>{editingId && <button type="button" onClick={() => { setEditingId(""); setQuoteSource(undefined); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); }}>{actions.cancel}</button>}<button type="button" className="primary-button" disabled={!secret || busy || network === "idle" || network === "error"} onClick={() => void publishPost()}>{busy ? t.publishing : editingId ? actions.update : t.publish} ↑</button></div></div>}</section>
-        <div className="community-feed-toolbar"><label><span>⌕</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSavedOnly(false); }} placeholder={t.search} /></label><div><button type="button" aria-pressed={!groupFilter && !savedOnly} className={!groupFilter && !savedOnly ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); }}>{t.all}</button>{groupCounts.slice(0, 4).map(([group, count]) => <button type="button" aria-pressed={groupFilter === group} className={groupFilter === group ? "active" : ""} onClick={() => { setGroupFilter(group); setSavedOnly(false); }} key={group}>#{group} · {count}</button>)}</div></div>
-        {status && <p className="community-network-message" role="status">{status}</p>}
-        {network !== "connected" && network !== "partial" && <small className="community-starter-label">{t.localStarter}</small>}
-        <div className="community-global-feed">{visiblePosts.map(({ event, content }) => {
+        <section className={`community-global-composer${composerOpen ? " open" : ""}`}><button type="button" className="community-compose-launch" aria-expanded={composerOpen} onClick={() => { if (!secret) { document.getElementById("community-profile")?.scrollIntoView({ behavior: "smooth", block: "start" }); return; } setComposerOpen((value) => !value); }}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><span><strong>{editingId ? actions.editing : composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : networkText.profileFirst}</small></span><b>{composerOpen ? "×" : "+"}</b></button>{composerOpen && <div className="community-composer-fields">{quoteSource && <aside className="community-source-quote"><small>{actions.quoted} · {quoteSource.source}</small><strong>{quoteSource.title}</strong><a href={quoteSource.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={5} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><small className="community-character-count">{composer.title.length}/120 · {composer.body.length}/3000</small><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label>{editingId && <button type="button" onClick={() => { setEditingId(""); setQuoteSource(undefined); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); }}>{actions.cancel}</button>}<button type="button" className="primary-button" disabled={!secret || busy || !(network === "connected" || network === "partial") || composer.title.trim().length < 3 || composer.body.trim().length < 10} onClick={() => void publishPost()}>{busy ? t.publishing : editingId ? actions.update : t.publish} ↑</button></div></div>}</section>
+        <div className="community-feed-toolbar"><label><span aria-hidden="true">⌕</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSavedOnly(false); setMineOnly(false); }} placeholder={t.search} /></label><div><button type="button" aria-pressed={!groupFilter} className={!groupFilter ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); setMineOnly(false); }}>{t.all}</button>{groupCounts.slice(0, 4).map(([group, count]) => <button type="button" aria-pressed={groupFilter === group} className={groupFilter === group ? "active" : ""} onClick={() => { setGroupFilter(group); setSavedOnly(false); setMineOnly(false); }} key={group}>#{group} · {count}</button>)}</div></div>
+        {status && <p className="community-network-message" role="status" aria-live="polite">{status}</p>}
+        {network !== "connected" && network !== "partial" && <div className="community-starter-label"><strong>{t.localStarter}</strong><span>{networkText.connectFirst}</span></div>}
+        <div className="community-global-feed" aria-busy={network === "connecting"}>{visiblePosts.map(({ event, content }) => {
           const profile = profiles[event.pubkey] ?? { name: event.pubkey === "bytequant" ? "ByteQuant" : `${event.pubkey.slice(0, 8)}…`, about: "" };
           const postInteractions = interactions.filter((item) => tagValue(item, "e") === event.id);
           const comments = postInteractions.filter((item) => item.kind === 1 && clean(item.content, 800).length >= 3 && reviewCommunityText(item.content).length === 0);
-          const likes = new Set(postInteractions.filter((item) => item.kind === 7 && item.content === "+").map((item) => item.pubkey)).size;
+          const likeAuthors = new Set(postInteractions.filter((item) => item.kind === 7 && item.content === "+").map((item) => item.pubkey));
+          const likes = likeAuthors.size;
+          const reposts = new Set(postInteractions.filter((item) => item.kind === 6).map((item) => item.pubkey)).size;
+          const likedByMe = Boolean(identity && likeAuthors.has(identity.pubkey));
         const owned = Boolean(secret && identity && event.pubkey === identity.pubkey);
-        return <article className={`community-global-post${owned ? " owned" : ""}`} key={event.id}><header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase()}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div>{owned ? <div className="community-owner-actions"><button type="button" onClick={() => editPost(event, content)}>{actions.edit}</button><button type="button" onClick={() => void deletePost(event)}>{actions.remove}</button></div> : <button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setHidden(event.pubkey)} aria-label={t.block}>•••</button>}</header><div className="community-post-meta"><span>{t.kinds[content.kind]}</span>{content.group && <button type="button" onClick={() => setGroupFilter(content.group)}>#{content.group}</button>}</div><h3>{content.title}</h3><p>{content.body}</p>{content.source && <aside className="community-source-quote"><small>{actions.quoted} · {content.source.source}</small><strong>{content.source.title}</strong><a href={content.source.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<footer><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 7)}>♡ {t.like}{likes ? ` · ${likes}` : ""}</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setReply((current) => ({ ...current, [event.id]: current[event.id] ?? "" }))}>◌ {t.comment}{comments.length ? ` · ${comments.length}` : ""}</button><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 6)}>↻ {t.repost}</button><button type="button" className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}>☆</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => void share(event)}>↗ {t.share}</button></footer>{reply[event.id] !== undefined && <section className="community-global-comments">{comments.map((comment) => <p key={comment.id}><strong>{profiles[comment.pubkey]?.name ?? `${comment.pubkey.slice(0, 8)}…`}</strong>{clean(comment.content, 800)}</p>)}<div><textarea value={reply[event.id]} rows={2} maxLength={800} placeholder={t.commentPlaceholder} onChange={(change) => setReply((current) => ({ ...current, [event.id]: change.target.value }))} /><button type="button" disabled={!secret || !(reply[event.id] ?? "").trim()} onClick={() => void react(event, 1)}>{t.sendComment}</button></div></section>}</article>;
-        })}{!visiblePosts.length && <div className="community-network-empty"><span>◎</span><p>{t.empty}</p></div>}</div>
+        return <article className={`community-global-post${owned ? " owned" : ""}`} key={event.id}><header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase()}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div>{owned ? <div className="community-owner-actions"><button type="button" onClick={() => editPost(event, content)}>{actions.edit}</button><button type="button" disabled={busy} onClick={() => void deletePost(event)}>{actions.remove}</button></div> : <button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setHidden(event.pubkey)} aria-label={t.block} title={t.block}>×</button>}</header><div className="community-post-meta"><span>{t.kinds[content.kind]}</span>{content.group && <button type="button" onClick={() => { setGroupFilter(content.group); setMineOnly(false); setSavedOnly(false); }}>#{content.group}</button>}</div><h3>{content.title}</h3><p>{content.body}</p>{content.source && <aside className="community-source-quote"><small>{actions.quoted} · {content.source.source}</small><strong>{content.source.title}</strong><a href={content.source.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<footer><button type="button" aria-pressed={likedByMe} className={likedByMe ? "active" : ""} disabled={!secret || likedByMe || event.pubkey === "bytequant"} onClick={() => void react(event, 7)}>♡ {t.like}{likes ? ` · ${likes}` : ""}</button><button type="button" aria-expanded={reply[event.id] !== undefined} disabled={event.pubkey === "bytequant"} onClick={() => setReply((current) => { const next = { ...current }; if (Object.hasOwn(next, event.id)) delete next[event.id]; else next[event.id] = ""; return next; })}>◌ {t.comment}{comments.length ? ` · ${comments.length}` : ""}</button><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 6)}>↻ {t.repost}{reposts ? ` · ${reposts}` : ""}</button><button type="button" aria-label={networkText.savedLabel} aria-pressed={saved.includes(event.id)} className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}>☆</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => void share(event)}>↗ {t.share}</button></footer>{reply[event.id] !== undefined && <section className="community-global-comments" aria-label={t.comments}>{comments.map((comment) => <p key={comment.id}><strong>{profiles[comment.pubkey]?.name ?? `${comment.pubkey.slice(0, 8)}…`}</strong>{clean(comment.content, 800)}</p>)}<div><textarea aria-label={t.commentPlaceholder} value={reply[event.id]} rows={2} maxLength={800} placeholder={t.commentPlaceholder} onChange={(change) => setReply((current) => ({ ...current, [event.id]: change.target.value }))} /><button type="button" disabled={!secret || !(reply[event.id] ?? "").trim()} onClick={() => void react(event, 1)}>{t.sendComment}</button></div></section>}</article>;
+        })}{!visiblePosts.length && <div className="community-network-empty"><span>◎</span><p>{mineOnly ? networkText.noOwnPosts : t.empty}</p></div>}</div>
       </section>
 
       <aside className="community-social-right">
-        <section><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => setGroupFilter(group)} key={group}><span>#{group}</span><small>{count}</small></button>) : <p>{t.empty}</p>}</section>
-        <section><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8))} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase()}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <p>{t.empty}</p>}</section>
-        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); localStorage.removeItem(blockedKey); }}>{t.clearBlocked}</button>}</section>
-        <details className="community-relay-settings"><summary>{t.relaySettings}<span>+</span></summary><p>{t.relayHelp}</p><textarea value={relayDraft} rows={4} onChange={(event) => setRelayDraft(event.target.value)} /><button type="button" onClick={() => { const next = validRelays(relayDraft); if (!next.length) { setStatus(t.error); return; } setRelays(next); localStorage.setItem(relayKey, JSON.stringify(next)); setNetwork("idle"); poolRef.current?.destroy(); }}>{t.saveRelays}</button></details>
+        <section id="community-groups"><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => { setGroupFilter(group); setMineOnly(false); setSavedOnly(false); }} key={group}><span>#{group}</span><small>{count}</small></button>) : <p>{networkText.connectFirst}</p>}</section>
+        <section id="community-people"><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => { setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8)); setMineOnly(false); setSavedOnly(false); }} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase()}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <p>{networkText.connectFirst}</p>}</section>
+        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); try { localStorage.removeItem(blockedKey); } catch { /* the in-memory list is still cleared */ } }}>{t.clearBlocked}</button>}</section>
+        <details className="community-relay-settings"><summary>{t.relaySettings}<span>+</span></summary><p>{t.relayHelp}</p><textarea value={relayDraft} rows={4} maxLength={2_500} onChange={(event) => setRelayDraft(event.target.value)} /><button type="button" onClick={() => { const next = validRelays(relayDraft); if (!next.length) { setStatus(t.error); return; } setRelays(next); try { localStorage.setItem(relayKey, JSON.stringify(next)); } catch { /* current-session relay choice still works */ } disconnect(); setRelays(next); setRelayDraft(next.join("\n")); }}>{t.saveRelays}</button></details>
       </aside>
     </div>
   </section>;

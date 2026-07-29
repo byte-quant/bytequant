@@ -29,7 +29,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 4\.2/);
+    assert.match(page, /BQ-Agent 4\.3/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -767,7 +767,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 4\.2/);
+    assert.match(page, /BQ-Agent 4\.3/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -785,12 +785,25 @@ test("exports the four-language local agent, domain integrity, and security head
   assert.match(headers, /connect-src 'self'/);
   assert.doesNotMatch(headers, /api\.github\.com/);
   assert.doesNotMatch(await readSource("worker/index.ts"), /api\.github\.com/);
-  const [conversationSource, bridgeSource] = await Promise.all([readSource("app/components/AgentConversation.tsx"), readSource("app/components/AgentToolBridge.tsx")]);
+  const [conversationSource, bridgeSource, genericWorkbenchSource, essentialWorkbenchSource] = await Promise.all([
+    readSource("app/components/AgentConversation.tsx"),
+    readSource("app/components/AgentToolBridge.tsx"),
+    readSource("app/components/ToolWorkbench.tsx"),
+    readSource("app/components/EssentialWorkbenches.tsx"),
+  ]);
   assert.match(conversationSource, /extractAgentPayload/);
   assert.match(conversationSource, /runAgentAutomation\(next, detectedInput/);
   assert.match(bridgeSource, /AGENT_AUTO_PREPARE_KEY/);
   assert.match(bridgeSource, /\.tool-workbench, \.workbench/);
   assert.match(bridgeSource, /bytequant:agent-input/);
+  assert.match(bridgeSource, /querySelector<HTMLElement>\("\[data-agent-contract\]"\)/);
+  assert.match(bridgeSource, /\[data-agent-mode\]/);
+  assert.match(bridgeSource, /step\.toolSlug === "csv-inceleyici"/);
+  assert.match(bridgeSource, /sourceField\.value\.slice\(0, AGENT_SESSION_LIMIT\)/);
+  assert.match(bridgeSource, /\[data-agent-output\]:not\(\[data-ready\]\)/);
+  assert.match(bridgeSource, /slug: nextStep\.toolSlug, createdAt: Date\.now\(\)/);
+  assert.match(genericWorkbenchSource, /data-agent-mode/);
+  assert.match(essentialWorkbenchSource, /data-agent-contract="fields-v1"/);
   assert.match(turkish, /bytequant:canonical-origin/);
   assert.match(turkish, /bq-org-agent-v2-20260725/);
   assert.match(guide, /Tarayıcı İçi Agentic AI/);

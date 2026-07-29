@@ -46,7 +46,7 @@ function Output({ locale, value, filename, notice, children }: { locale: Locale;
   return <div className="result-panel growth-result">
     <div className="result-header"><span>{t(locale, { tr: "Çıktı · inceleyin ve doğrulayın", en: "Output · review and verify", de: "Ausgabe · prüfen und verifizieren", zh: "输出 · 请检查并核验" })}</span><div className="output-actions"><button type="button" disabled={!value} onClick={() => void copy()}>{t(locale, { tr: "Kopyala", en: "Copy", de: "Kopieren", zh: "复制" })}</button><button type="button" disabled={!value} onClick={() => downloadText(value, filename)}>{t(locale, { tr: "İndir", en: "Download", de: "Herunterladen", zh: "下载" })}</button></div></div>
     {notice && <ToolNotice notice={notice} locale={locale} />}{copyNotice && <ToolNotice notice={copyNotice} locale={locale} />}{children}
-    <pre tabIndex={0}>{value || t(locale, { tr: "Sonuç burada görünecek.", en: "The result will appear here.", de: "Das Ergebnis erscheint hier.", zh: "结果将显示在这里。" })}</pre>
+    <pre data-agent-output data-ready={value ? "true" : "false"} tabIndex={0}>{value || t(locale, { tr: "Sonuç burada görünecek.", en: "The result will appear here.", de: "Das Ergebnis erscheint hier.", zh: "结果将显示在这里。" })}</pre>
   </div>;
 }
 

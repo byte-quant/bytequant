@@ -35,7 +35,9 @@ function firstInput(scope: HTMLElement | null) {
 }
 
 function readableOutput(scope: HTMLElement | null) {
-  const candidates = Array.from(scope?.querySelectorAll<HTMLElement>("[data-agent-output], output, .result-panel pre.has-output, .rich-result-panel pre, .diff-output, .markdown-preview") ?? []).reverse();
+  const ready = Array.from(scope?.querySelectorAll<HTMLElement>('[data-agent-output][data-ready="true"]') ?? []).reverse();
+  const legacy = Array.from(scope?.querySelectorAll<HTMLElement>('[data-agent-output]:not([data-ready]), output:not([data-ready]), .result-panel pre.has-output, .rich-result-panel pre, .diff-output, .markdown-preview') ?? []).reverse();
+  const candidates = ready.length ? ready : legacy;
   return candidates.map((item) => (item.innerText || item.textContent || "").trim()).find((value) => value.length > 0 && value.length <= maxTransferLength) ?? "";
 }
 

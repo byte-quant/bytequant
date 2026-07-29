@@ -1667,3 +1667,34 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 
 .community-product-intro nav .secondary-button{color:var(--text);border-color:color-mix(in srgb,var(--teal) 34%,var(--line-strong));background:color-mix(in srgb,var(--teal) 6%,var(--surface));-webkit-text-fill-color:currentColor}
 [data-theme="dark"] .community-product-intro nav .secondary-button{color:#edf5f6;border-color:#36505d;background:#101a22}
+
+/* Release 4.3: verified agent coverage, clearer social state, and source-first news actions. */
+.agent-goal-coverage{margin:14px 0;padding:12px;border:1px solid color-mix(in srgb,var(--blue) 24%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--blue) 5%,var(--surface))}.agent-goal-coverage>strong{display:block;margin-bottom:8px;color:var(--text);font-size:10px}.agent-goal-coverage>div{display:flex;gap:6px;flex-wrap:wrap}.agent-goal-coverage span{padding:6px 8px;border:1px solid color-mix(in srgb,var(--green) 24%,var(--line));border-radius:8px;color:var(--text);background:color-mix(in srgb,var(--green) 6%,var(--surface));font-size:9px;font-weight:800;line-height:1.35}
+.agent-inline-questions{margin:13px 0;padding:12px;border-left:3px solid var(--orange);border-radius:9px;background:color-mix(in srgb,var(--orange) 7%,var(--surface))}.agent-inline-questions>strong,.agent-inline-questions>small{display:block}.agent-inline-questions>strong{color:var(--text);font-size:10px}.agent-inline-questions>p{margin:5px 0;color:var(--text);font-size:12px;line-height:1.55}.agent-inline-questions>small{color:var(--muted);font-size:9px}
+.community-network-stats{width:100%;margin-top:8px;padding-top:8px;display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:2px 7px;align-items:center;border-top:1px solid var(--line)}.community-network-stats b{color:var(--teal-dark);font:900 13px/1 var(--font-mono)}.community-network-stats small{min-width:0;color:var(--muted);font-size:8px;line-height:1.3}.community-network-buttons{width:100%;margin-top:8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.community-network-buttons button{min-height:36px;padding:7px;border:1px solid var(--line);border-radius:8px;color:var(--text);background:var(--surface-soft);font-size:9px;font-weight:850;cursor:pointer}.community-network-buttons button:last-child{color:var(--danger,#c53c4a)}.community-character-count{display:block;margin:-2px 0 8px;color:var(--muted);font:750 8px/1.4 var(--font-mono);text-align:right}
+.news-action-status{position:sticky;top:78px;z-index:4;margin:0 0 10px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--green) 28%,var(--line));border-radius:10px;color:var(--text);background:color-mix(in srgb,var(--green) 8%,var(--surface));box-shadow:var(--shadow-sm);font-size:10px;font-weight:800}.news-attribution-note{margin-top:8px;border-top:1px solid color-mix(in srgb,var(--teal) 24%,var(--line))}.news-attribution-note>summary{min-height:36px;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:9px;font-weight:800;cursor:pointer;list-style:none}.news-attribution-note>summary::-webkit-details-marker{display:none}.news-attribution-note>summary span{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:var(--surface)}.news-attribution-note[open]>summary span{rotate:45deg}.news-attribution-note>small{padding:8px 0 0!important;border-top:0!important}.news-grid footer .news-source-action,.news-grid footer .news-quote-action{min-height:42px;padding:9px 11px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;font-size:10px;font-weight:850;text-align:center}.news-grid footer .news-source-action{order:-2;margin-left:0;color:#fff;background:var(--teal-dark)}.news-grid footer .news-quote-action{order:-1;border-color:color-mix(in srgb,var(--blue) 28%,var(--line));color:var(--blue);background:color-mix(in srgb,var(--blue) 6%,var(--surface))}
+:root[data-theme="dark"] .agent-goal-coverage,:root[data-theme="dark"] .agent-inline-questions,:root[data-theme="dark"] .news-action-status{border-color:var(--line-strong);background:color-mix(in srgb,var(--surface-soft) 82%,var(--bg))}:root[data-theme="dark"] .news-grid footer .news-source-action{color:#fff;background:#147a72}:root[data-theme="dark"] .news-grid footer .news-quote-action{color:#b9d5ff;border-color:#36506c;background:#101d2b}
+@media(max-width:760px){.agent-goal-coverage>div{display:grid}.community-network-stats{grid-template-columns:auto minmax(0,1fr)}.community-network-buttons{grid-template-columns:minmax(0,1fr)}.news-action-status{top:68px}.news-grid footer .news-source-action,.news-grid footer .news-quote-action{width:100%;flex-basis:100%}}
+
+/* Release 4.3: focused navigation shell and touch-safe mobile menu. */
+.mobile-menu-open-icon,.mobile-menu-close-icon{font-size:19px;line-height:1}
+.mobile-menu-close-icon{display:none}
+.mobile-menu[open]>summary{color:#fff;border-color:var(--teal-dark);background:var(--teal-dark);box-shadow:0 8px 20px color-mix(in srgb,var(--teal) 24%,transparent)}
+.mobile-menu[open]>summary .mobile-menu-open-icon{display:none}
+.mobile-menu[open]>summary .mobile-menu-close-icon{display:block}
+@media(max-width:760px){
+  body:has(.mobile-menu[open]){overflow:hidden}
+  .mobile-menu[open]::before{content:"";position:fixed;z-index:51;inset:64px 0 0;background:color-mix(in srgb,#06131b 54%,transparent);backdrop-filter:blur(3px)}
+  .mobile-menu>summary{position:relative;z-index:53}
+  .mobile-menu-panel{z-index:52;top:72px;max-height:calc(100dvh - 84px);border-color:var(--line-strong);box-shadow:0 28px 80px rgba(3,17,24,.32)}
+  .mobile-menu[open] .mobile-menu-panel{animation:bq-mobile-menu .18s ease-out}
+  .mobile-menu-heading{padding-inline:8px}
+  .mobile-menu-product-grid>a{min-height:66px;padding:10px}
+  .mobile-menu-section a{min-height:44px}
+  .mobile-install-row{position:sticky;bottom:-1px;background:var(--surface)}
+}
+@media(max-width:420px){
+  .mobile-menu-panel{right:8px;left:8px}
+  .mobile-menu-section>div{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:no-preference){@keyframes bq-mobile-menu{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}}

@@ -80,6 +80,35 @@ function encodeBase64(input: string) {
   return btoa(binary);
 }
 
+function decodeBase64(input: string, locale: Locale) {
+  const compact = input.trim().replace(/\s+/gu, "").replace(/-/g, "+").replace(/_/g, "/");
+  if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(compact) || compact.length % 4 === 1) throw new Error(messages[locale].json);
+  try {
+    const bytes = Uint8Array.from(atob(compact.padEnd(Math.ceil(compact.length / 4) * 4, "=")), (char) => char.charCodeAt(0));
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch { throw new Error(messages[locale].json); }
+}
+
+function decodeJwt(input: string, locale: Locale) {
+  const parts = input.trim().split(".");
+  if (parts.length !== 3 || !parts[0] || !parts[1]) throw new Error(messages[locale].json);
+  try {
+    const header = JSON.parse(decodeBase64(parts[0], locale));
+    const payload = JSON.parse(decodeBase64(parts[1], locale));
+    return JSON.stringify({ header, payload, signature: parts[2] ? "present — not verified" : "missing — not verified", verified: false }, null, 2);
+  } catch { throw new Error(messages[locale].json); }
+}
+
+function uniqueLines(input: string, locale: Locale) {
+  const rows = parseCsv(input);
+  const csv = rows.length > 1 && (rows[0]?.length ?? 0) > 1 && rows.every((row) => row.length === rows[0].length);
+  if (!csv) return [...new Set(input.split(/\r?\n/u).map((item) => item.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, locale)).join("\n");
+  const escape = (value: string) => /[",\r\n]/u.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  const header = rows[0];
+  const records = [...new Map(rows.slice(1).map((row) => [JSON.stringify(row), row])).values()].sort((a, b) => a.join("\u0000").localeCompare(b.join("\u0000"), locale));
+  return [header, ...records].map((row) => row.map(escape).join(",")).join("\n");
+}
+
 function keyValueToJson(input: string, sections: boolean, locale: Locale) {
   const root: Record<string, unknown> = {};
   let target = root;
@@ -96,8 +125,8 @@ function keyValueToJson(input: string, sections: boolean, locale: Locale) {
   return JSON.stringify(root, null, 2);
 }
 
-function runStep(slug: string, input: string, locale: Locale): { output: string; validated: boolean } {
-  switch (slug) {
+function runStep(step: AgentPlan["steps"][number], input: string, locale: Locale): { output: string; validated: boolean } {
+  switch (step.toolSlug) {
     case "csv-inceleyici": {
       const rows = parseCsv(input);
       const width = rows[0]?.length ?? 0;
@@ -105,14 +134,16 @@ function runStep(slug: string, input: string, locale: Locale): { output: string;
       return { output: input, validated: true };
     }
     case "json-bicimlendirici": {
-      try { return { output: JSON.stringify(JSON.parse(input), null, 2), validated: false }; } catch { throw new Error(messages[locale].json); }
+      try { return { output: JSON.stringify(JSON.parse(input), null, step.operation === "minify" ? 0 : 2), validated: false }; } catch { throw new Error(messages[locale].json); }
     }
-    case "json-csv-donusturucu": return { output: input.trimStart().startsWith("[") ? jsonToCsv(input, locale) : csvToJson(input, locale), validated: false };
+    case "json-csv-donusturucu": return { output: step.operation === "csv-to-json" || (step.operation !== "json-to-csv" && !input.trimStart().startsWith("[")) ? csvToJson(input, locale) : jsonToCsv(input, locale), validated: false };
     case "kvkk-veri-maskeleyici": return { output: maskPrivateData(input), validated: false };
     case "e-posta-listesi-temizleyici": return { output: [...new Set(input.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)?.map((item) => item.toLocaleLowerCase()) ?? [])].sort().join("\n"), validated: false };
-    case "satir-siralayici-tekillestirici": return { output: [...new Set(input.split(/\r?\n/).map((item) => item.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, locale)).join("\n"), validated: false };
-    case "base64-kodlayici": return { output: encodeBase64(input), validated: false };
-    case "url-kodlayici": return { output: encodeURIComponent(input), validated: false };
+    case "satir-siralayici-tekillestirici": return { output: uniqueLines(input, locale), validated: false };
+    case "base64-kodlayici": return { output: step.operation === "decode" ? decodeBase64(input, locale) : encodeBase64(input), validated: false };
+    case "url-kodlayici": return { output: step.operation === "decode" ? decodeURIComponent(input.trim()) : encodeURIComponent(input), validated: false };
+    case "jwt-decoder": return { output: decodeJwt(input, locale), validated: false };
+    case "metin-temizleyici": return { output: input.replace(/[\t ]+/gu, " ").replace(/ *\r?\n */gu, "\n").replace(/\n{3,}/gu, "\n\n").trim(), validated: false };
     case "unicode-normalizasyon-inceleyici": return { output: input.normalize("NFC"), validated: false };
     case "beyaz-alan-gorunurlestirici": return { output: input.replace(/\t/g, "⇥\t").replace(/ /g, "·").replace(/\r?\n/g, "↵\n"), validated: false };
     case "satir-sonu-donusturucu": return { output: input.replace(/\r\n?|\n/g, "\n"), validated: false };
@@ -123,10 +154,10 @@ function runStep(slug: string, input: string, locale: Locale): { output: string;
   }
 }
 
-const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "unicode-normalizasyon-inceleyici", "beyaz-alan-gorunurlestirici", "satir-sonu-donusturucu", "paragraf-ana-hat-cikarici", "ini-json-donusturucu", "properties-json-donusturucu"]);
+const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "jwt-decoder", "metin-temizleyici", "unicode-normalizasyon-inceleyici", "beyaz-alan-gorunurlestirici", "satir-sonu-donusturucu", "paragraf-ana-hat-cikarici", "ini-json-donusturucu", "properties-json-donusturucu"]);
 
 export function canAutomatePlan(plan: AgentPlan) {
-  return plan.steps.length > 0 && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
+  return plan.steps.length > 0 && (!plan.coverage || plan.coverage.missing.length === 0) && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
 }
 
 export function runAgentAutomation(plan: AgentPlan, input: string, locale: Locale): AgentAutomationResult {
@@ -136,7 +167,7 @@ export function runAgentAutomation(plan: AgentPlan, input: string, locale: Local
   const steps: AgentAutomationStep[] = [];
   for (const step of plan.steps) {
     try {
-      const result = runStep(step.toolSlug, output, locale);
+      const result = runStep(step, output, locale);
       output = result.output;
       steps.push({ toolSlug: step.toolSlug, title: step.title, status: "completed", note: result.validated ? messages[locale].validated : messages[locale].transformed, outputLength: output.length });
     } catch (error) {

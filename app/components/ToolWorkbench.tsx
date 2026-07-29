@@ -629,8 +629,28 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
             { label: "PHONE", re: /(?<!\d)(?:\+?\d{1,3}[ .-]?)?(?:\(?\d{3}\)?[ .-]?)\d{3}[ .-]?\d{2}[ .-]?\d{2}(?!\d)/g, validate: undefined },
           ];
           let masked = input; const found: Metric[] = [];
-          patterns.forEach(({ label, re, validate }) => { let count = 0; masked = masked.replace(re, (candidate) => { if (validate && !validate(candidate)) return candidate; count += 1; return `[${label}_${count}]`; }); if (count) found.push({ label, value: count }); });
-          setResult(`${masked}\n\n${isTr ? "Not: Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. TCKN/kart checksum kontrolü yalnızca aday tespitidir; gerçek kimlik, sahiplik veya hukuki uygunluk doğrulaması değildir. Paylaşmadan önce elle kontrol edin." : "Note: automatic masking cannot find all contextual personal data. TCKN/card checksum checks identify candidates only; they do not verify identity, ownership, or legal compliance. Review manually before sharing."}`, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
+          patterns.forEach(({ label, re, validate }) => {
+            let count = 0;
+            const aliases = new Map<string, string>();
+            masked = masked.replace(re, (candidate) => {
+              if (validate && !validate(candidate)) return candidate;
+              count += 1;
+              const key = candidate.toLocaleLowerCase(localeTags[locale]);
+              const existing = aliases.get(key);
+              if (existing) return existing;
+              const alias = `[${label}_${aliases.size + 1}]`;
+              aliases.set(key, alias);
+              return alias;
+            });
+            if (count) found.push({ label, value: count });
+          });
+          setResult(masked, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
+          setNotice({ kind: "warning", text: ui(locale, {
+            tr: "Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. TCKN/kart checksum kontrolü yalnızca aday tespitidir; gerçek kimlik, sahiplik veya hukuki uygunluk doğrulaması değildir. Paylaşmadan önce elle kontrol edin.",
+            en: "Automatic masking cannot find all contextual personal data. TCKN/card checksum checks identify candidates only; they do not verify identity, ownership, or legal compliance. Review manually before sharing.",
+            de: "Die automatische Maskierung erkennt nicht alle kontextabhängigen personenbezogenen Daten. TCKN-/Karten-Prüfsummen finden nur Kandidaten und bestätigen weder Identität noch Eigentum oder Rechtskonformität. Vor dem Teilen manuell prüfen.",
+            zh: "自动脱敏无法识别所有依赖语境的个人数据。TCKN/银行卡校验和只用于发现候选项，不验证身份、所有权或法律合规性；分享前请人工复核。",
+          }) });
           break;
         }
         case "guclu-parola-uretici": {
@@ -692,7 +712,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => { setFlags(event.target.value.replace(/[^dgimsuvy]/g, "")); resetResult(); }} /></label>}
           {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => { setLength(Number(event.target.value)); resetResult(); }} /><small className="field-help">{isTr ? "Her parola büyük/küçük harf, rakam ve sembol içerir." : "Every password includes upper/lowercase, digits, and symbols."}</small></label>}
           {slug === "uuid-uretici" && <label className="field-label compact-field"><span>{labels.quantity}</span><input type="number" min="1" max="50" value={quantity} onChange={(event) => { setQuantity(Math.min(50, Math.max(1, Number(event.target.value) || 1))); resetResult(); }} /><small className="field-help">{isTr ? "Tek işlemde 1–50 kriptografik UUID v4." : "Generate 1–50 cryptographic UUID v4 values at once."}</small></label>}
-          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
+          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select data-agent-mode value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
             {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{isTr ? "Başlık biçimi" : "Title case"}</option><option value="sentence">{isTr ? "Cümle biçimi" : "Sentence case"}</option><option value="upper">{isTr ? "BÜYÜK HARF" : "UPPERCASE"}</option><option value="lower">{isTr ? "küçük harf" : "lowercase"}</option></>}
             {slug === "json-bicimlendirici" && <><option value="default">{isTr ? "Biçimlendir" : "Pretty print"}</option><option value="minify">{isTr ? "Küçült" : "Minify"}</option></>}
             {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}

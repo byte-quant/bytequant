@@ -6,10 +6,12 @@ import {
   createAgentPlan,
   extractAgentPayload,
   extractAgentParameters,
+  prepareAgentInput,
   readAgentSession,
   semanticToolSearch,
   translateAgentError,
 } from "../app/lib/agent-core.ts";
+import { canAutomatePlan, runAgentAutomation } from "../app/lib/agent-automation.ts";
 
 function tool(slug, category, mark, tr, en, de, zh, keywords = "") {
   const title = { tr, en, de, zh };
@@ -33,6 +35,16 @@ const catalog = [
   tool("metin-temizleyici", "text", "05", "Metin Temizleyici", "Text Cleaner", "Textbereinigung", "文本清理", "clean text"),
   tool("e-posta-listesi-temizleyici", "text", "12", "E-posta Listesi Temizleyici", "Email List Cleaner", "E-Mail-Listenbereinigung", "电子邮件列表清理器", "extract clean deduplicate email list"),
   tool("satir-siralayici-tekillestirici", "text", "13", "Satır Sıralayıcı", "Line Sorter", "Zeilensortierer", "文本行排序器", "sort lines alphabetically and deduplicate"),
+  tool("jwt-decoder", "data", "14", "JWT Çözücü", "JWT Decoder", "JWT-Dekodierer", "JWT 解码器", "decode inspect JWT token"),
+  tool("base64-kodlayici", "data", "15", "Base64 Kodlayıcı", "Base64 Encoder", "Base64-Kodierer", "Base64 编码器", "encode decode Base64"),
+  tool("qr-kod-olusturucu", "data", "16", "QR Kod Oluşturucu", "QR Code Generator", "QR-Code-Ersteller", "二维码生成器", "generate QR code"),
+  tool("bahsis-hesap-bolusturucu", "calculation", "17", "Bahşiş Hesapla", "Tip Calculator", "Trinkgeldrechner", "小费计算器", "calculate tip split bill"),
+  tool("kredi-amortisman-tahminleyici", "calculation", "18", "Kredi Amortismanı", "Loan Amortization", "Kredittilgung", "贷款摊还", "loan payment amortization"),
+  tool("enflasyon-satin-alma-gucu", "calculation", "19", "Enflasyon Satın Alma Gücü", "Inflation Purchasing Power", "Inflations-Kaufkraft", "通胀购买力", "inflation purchasing power"),
+  tool("basabas-noktasi-hesaplayici", "calculation", "20", "Başabaş Noktası", "Break-even Calculator", "Break-even-Rechner", "盈亏平衡计算器", "break even fixed variable cost"),
+  tool("marj-kar-orani-hesaplayici", "calculation", "21", "Marj ve Kâr Oranı", "Margin and Markup", "Marge und Aufschlag", "毛利率与加价率", "margin markup profit"),
+  tool("olasilik-hesaplayici", "calculation", "22", "Olasılık Hesaplayıcı", "Probability Calculator", "Wahrscheinlichkeitsrechner", "概率计算器", "probability intersection union"),
+  tool("orneklem-buyuklugu-tahminleyici", "calculation", "23", "Örneklem Büyüklüğü", "Sample Size Estimator", "Stichprobengröße", "样本量估算器", "sample size confidence margin"),
 ];
 
 test("local agent semantically ranks tools and extracts bounded parameters", () => {
@@ -87,6 +99,60 @@ test("local agent carries a bounded previous goal into natural follow-up request
   assert.match(followUp.conversation.contextNote, /previous/i);
   assert.ok(followUp.conversation.suggestedReplies.length >= 2);
   assert.ok(followUp.goal.includes(previous.goal));
+});
+
+test("local agent preserves every explicit CSV operation and executes the verified chain", () => {
+  const prompt = "Bu CSV'deki e-postaları maskele, tekrarları kaldır ve JSON'a çevir:\nname,email\nAli,ali@example.com\nAli,ali@example.com\nAyşe,ayse@example.com";
+  const plan = createAgentPlan(prompt, catalog, "tr");
+  assert.deepEqual(plan.steps.map((step) => step.toolSlug), ["csv-inceleyici", "kvkk-veri-maskeleyici", "satir-siralayici-tekillestirici", "json-csv-donusturucu"]);
+  assert.equal(plan.coverage.missing.length, 0);
+  assert.equal(canAutomatePlan(plan), true);
+  const result = runAgentAutomation(plan, extractAgentPayload(prompt), "tr");
+  assert.equal(result.steps.length, 4);
+  assert.deepEqual(JSON.parse(result.output), [{ name: "Ali", email: "[EMAIL]" }, { name: "Ayşe", email: "[EMAIL]" }]);
+});
+
+test("short standalone intents do not inherit an unrelated previous plan", () => {
+  const previous = createAgentPlan("Bahşiş hesapla: hesap 1200 TL, 4 kişi, yüzde 10", catalog, "tr");
+  const jwt = createAgentPlan("JWT tokenımı çöz: eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjMifQ.", catalog, "tr", previous);
+  assert.equal(jwt.conversation.isFollowUp, false);
+  assert.equal(jwt.steps[0].toolSlug, "jwt-decoder");
+  assert.match(extractAgentPayload(jwt.goal), /^eyJ/);
+
+  const qr = createAgentPlan("QR kod oluştur https://bytequant.org", catalog, "tr", jwt);
+  assert.equal(qr.conversation.isFollowUp, false);
+  assert.equal(qr.steps[0].toolSlug, "qr-kod-olusturucu");
+  assert.equal(extractAgentPayload(qr.goal), "https://bytequant.org");
+  assert.equal(extractAgentPayload("bunu Base64 yap: merhaba dünya"), "merhaba dünya");
+});
+
+test("agent prepares field-mapped input for everyday form tools", () => {
+  const goal = "Bahşiş hesapla: hesap 1200 TL, 4 kişi, yüzde 10";
+  const plan = createAgentPlan(goal, catalog, "tr");
+  assert.deepEqual(JSON.parse(prepareAgentInput(goal, plan)), { subtotal: "1200", tip: "10", people: "4" });
+});
+
+test("agent maps natural-language values into all six guided calculator contracts", () => {
+  const cases = [
+    ["tr", "Kredi amortismanı hesapla: kredi tutarı 250.000 TL, yıllık faiz %3,4, vade 10 yıl, aylık ek ödeme 250 TL", "kredi-amortisman-tahminleyici", { principal: "250000", annualRate: "3.4", years: "10", extraMonthly: "250" }],
+    ["en", "Compare inflation purchasing power: amount today 100,000, annual inflation 12%, period 5 years", "enflasyon-satin-alma-gucu", { amount: "100000", annualInflation: "12", years: "5" }],
+    ["de", "Break-even berechnen: Fixkosten 120.000, Verkaufspreis je Einheit 480, variable Kosten je Einheit 210", "basabas-noktasi-hesaplayici", { fixedCost: "120000", unitPrice: "480", unitVariableCost: "210" }],
+    ["zh", "计算利润率与加价率：单位成本80，售价125", "marj-kar-orani-hesaplayici", { cost: "80", price: "125" }],
+    ["en", "Calculate intersection and union probability for independent events: probability A 65%, probability B 40%", "olasilik-hesaplayici", { a: "65", b: "40", relationship: "independent" }],
+    ["tr", "Örneklem büyüklüğü hesapla: güven düzeyi %95, hata payı %5, beklenen oran %50, evren büyüklüğü 10.000", "orneklem-buyuklugu-tahminleyici", { confidence: "95", marginOfError: "5", proportion: "50", population: "10000" }],
+  ];
+  for (const [locale, goal, slug, expected] of cases) {
+    const plan = createAgentPlan(goal, catalog, locale);
+    assert.equal(plan.steps[0].toolSlug, slug);
+    assert.deepEqual(JSON.parse(prepareAgentInput(goal, plan)), expected);
+  }
+});
+
+test("agent preserves partial calculator values without claiming raw prose was applied", () => {
+  const goal = "Kredi amortismanı hesapla, girdi: kredi 250000, faiz %3";
+  const plan = createAgentPlan(goal, catalog, "tr");
+  assert.equal(plan.steps[0].toolSlug, "kredi-amortisman-tahminleyici");
+  assert.deepEqual(JSON.parse(prepareAgentInput(goal, plan)), { principal: "250000", annualRate: "3" });
 });
 
 test("agent session parser rejects untrusted or oversized bridge data", () => {

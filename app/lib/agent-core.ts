@@ -14,6 +14,7 @@ export type AgentPlanStep = {
   inputMode: AgentInputMode;
   requiresFile: boolean;
   parameterHints: string[];
+  operation?: "encode" | "decode" | "csv-to-json" | "json-to-csv" | "format" | "minify" | "sort" | "deduplicate" | "mask" | "inspect" | "extract";
 };
 
 export type AgentPlan = {
@@ -37,6 +38,11 @@ export type AgentPlan = {
     intentSummary: string;
     contextNote: string;
     suggestedReplies: string[];
+  };
+  coverage: {
+    requested: string[];
+    covered: string[];
+    missing: string[];
   };
 };
 
@@ -121,7 +127,7 @@ const categoryTerms: Record<ToolCategory, string[]> = {
 };
 
 function normalize(value: string, locale: Locale) {
-  return value.toLocaleLowerCase(localeTags[locale]).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}+#./-]+/gu, " ").trim();
+  return value.toLocaleLowerCase(localeTags[locale]).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[ıİ]/g, "i").replace(/ß/g, "ss").replace(/[^\p{L}\p{N}+#./-]+/gu, " ").trim();
 }
 
 function tokens(value: string, locale: Locale) {
@@ -224,14 +230,23 @@ export function extractAgentPayload(goal: string) {
     try { JSON.parse(candidate); return candidate.slice(0, 180_000); } catch { /* not a complete JSON payload */ }
   }
 
+  // Tokens and URLs are common one-line inputs. Requiring a data label made
+  // apparently successful JWT/QR handoffs arrive at an empty tool before.
+  const jwt = bounded.match(/\beyJ[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{2,}\.[A-Za-z0-9_-]*(?=$|\s)/u)?.[0];
+  if (jwt) return jwt.slice(0, 180_000);
+  const url = bounded.match(/https?:\/\/[^\s<>"']+/iu)?.[0];
+  if (url && /(?:qr|encode|decode|kodla|coz|çöz|analiz|incele|check|pruf|prüf|生成|编码|解码|检查)/iu.test(bounded.slice(0, Math.max(0, bounded.indexOf(url))))) return url.slice(0, 180_000);
+
   const lines = bounded.split(/\r?\n/);
   const structuredLine = lines.findIndex((line, index) => index > 0 && /[,\t;]/.test(line) && /[,\t;]/.test(lines[index + 1] ?? ""));
   if (structuredLine >= 0) return lines.slice(structuredLine).join("\n").trim().slice(0, 180_000);
 
   const colon = bounded.search(/:\s+/);
   if (colon >= 0) {
+    const lead = bounded.slice(0, colon);
     const tail = bounded.slice(colon + 1).trim();
-    if (/@|https?:\/\/|\b(?:true|false|null)\b|[,\t].*[,\t]/iu.test(tail)) return tail.slice(0, 180_000);
+    const explicitAction = /(?:girdi|veri|metin|input|data|content|inhalt|eingabe|输入|数据|bicimlendir|biçimlendir|format|donustur|dönüştür|cevir|çevir|convert|\byap\b|\bmake\b|maskele|mask|redact|kodla|encode|decode|coz|çöz|olustur|oluştur|generate|temizle|clean|sirala|sırala|sort|incele|inspect|compare|karsilastir|karşılaştır)/iu.test(lead);
+    if (tail && (explicitAction || /@|https?:\/\/|\b(?:true|false|null)\b|[,\t].*[,\t]/iu.test(tail))) return tail.slice(0, 180_000);
   }
   return "";
 }
@@ -262,6 +277,186 @@ const recipes: Recipe[] = [
   { test: [/(cagr|roas|roi|growth|büyüme|wachstum|增长|回报)/i], steps: ["cagr-hesaplayici", "roas-roi-hesaplayici"], signal: { tr: "Büyüme ve reklam getirisi varsayımlarını ayrı gösteren hesaplama", en: "Calculation that separates growth and advertising-return assumptions", de: "Berechnung mit getrennten Wachstums- und Werberenditeannahmen", zh: "区分增长与广告回报假设的计算流程" } },
 ];
 
+type GoalIntent = { slug: string; label: Record<Locale, string> };
+
+const intentLabel = (tr: string, en: string, de: string, zh: string): Record<Locale, string> => ({ tr, en, de, zh });
+
+/**
+ * Detects explicit operations before fuzzy catalog ranking. This keeps a
+ * multi-intent request intact: mentioning e-mail inside a CSV must not turn a
+ * masking/conversion request into a destructive e-mail-extraction workflow.
+ */
+function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalIntent[] {
+  const text = normalize(goal, locale);
+  const rawPayload = payload.trim();
+  const intents: GoalIntent[] = [];
+  const add = (slug: string, label: Record<Locale, string>) => {
+    if (!intents.some((item) => item.slug === slug)) intents.push({ slug, label });
+  };
+  const has = (pattern: RegExp) => pattern.test(text);
+  const csvShape = rawPayload.split(/\r?\n/u).filter(Boolean).slice(0, 3).filter((line) => /[,;\t]/u.test(line)).length >= 2;
+  const jsonShape = /^[\[{]/u.test(rawPayload);
+  const csvMention = has(/\bcsv\b|comma separated|virgulle ayril|tablo|tabelle|表格/u) || csvShape;
+  const jsonMention = has(/\bjson\b/u) || jsonShape;
+  const mask = has(/mask|maskele|redact|anonim|kisisel veri|hassas veri|kvkk|gdpr|personenbezogen|遮蔽|匿名/u);
+  const deduplicate = has(/duplicate|deduplic|tekrar(?:lari|ları)? kaldir|tekillestir|yinelenen|duplikat|去重|重复/u);
+  const sort = has(/alphabet|alfabetik|sirala|sort|排序/u);
+  const toJson = has(/json(?:a| a| olarak| format)|to json|into json|als json|zu json|转(?:为|成) json/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
+  const toCsv = has(/csv(?:ye| ye| olarak| format)|to csv|into csv|als csv|zu csv|转(?:为|成) csv/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
+
+  if (has(/\bjwt\b|json web token/u) && has(/decode|coz|incele|oku|inspect|解析|解码/u)) {
+    add("jwt-decoder", intentLabel("JWT içeriğini yerel olarak çöz", "Decode JWT content locally", "JWT-Inhalt lokal dekodieren", "在本地解码 JWT 内容"));
+  } else if (has(/regex|regular expression|duzenli ifade/u) && has(/test|hata|error|kontrol|dene|pruf|prüf|检查|错误/u)) {
+    add("regex-test-araci", intentLabel("Regex ifadesini güvenli biçimde test et", "Test the regular expression safely", "Regulären Ausdruck sicher testen", "安全测试正则表达式"));
+  } else if (has(/\bcron\b/u) && has(/acikla|explain|yorumla|parse|erklar|erklär|解释/u)) {
+    add("cron-ifadesi-aciklayici", intentLabel("Cron ifadesini açıkla", "Explain the cron expression", "Cron-Ausdruck erklären", "解释 Cron 表达式"));
+  }
+
+  if (has(/\bqr\b|qr kod/u) && has(/olustur|uret|generate|create|erstell|生成/u)) add("qr-kod-olusturucu", intentLabel("QR kod oluştur", "Generate a QR code", "QR-Code erstellen", "生成二维码"));
+  if (has(/base64/u) && has(/kodla|encode|coz|decode|dekod|编码|解码/u)) add("base64-kodlayici", intentLabel("Base64 işlemini uygula", "Apply the Base64 operation", "Base64-Vorgang ausführen", "执行 Base64 操作"));
+  if (has(/\burl\b|link|adres|网址/u) && has(/kodla|encode|coz|decode|percent encoding|编码|解码/u)) add("url-kodlayici", intentLabel("URL kodlama işlemini uygula", "Apply URL encoding", "URL-Kodierung anwenden", "执行 URL 编码"));
+  if (has(/password|parola|sifre|passwort|密码/u) && has(/strength|guc|guven|test|pruf|prüf|强度/u)) add("sifre-gucu-test-araci", intentLabel("Parola gücünü yerel ölçütlerle incele", "Review password strength with local checks", "Passwortstärke lokal prüfen", "在本地检查密码强度"));
+
+  if (csvMention && !toCsv && (mask || deduplicate || sort || toJson)) add("csv-inceleyici", intentLabel("CSV yapısını ve sütunları doğrula", "Validate CSV structure and columns", "CSV-Struktur und Spalten prüfen", "验证 CSV 结构与列"));
+  if (jsonMention && !toJson && (toCsv || has(/bicimlendir|format|pretty|dogrula|validate|gultig|gültig|格式化|验证/u))) add("json-bicimlendirici", intentLabel("JSON yapısını doğrula ve biçimlendir", "Validate and format JSON", "JSON prüfen und formatieren", "验证并格式化 JSON"));
+  if (mask) add("kvkk-veri-maskeleyici", intentLabel("Hassas değerleri geri alınabilir olmayan etiketlerle maskele", "Mask sensitive values with non-reversible labels", "Sensible Werte mit nicht umkehrbaren Markern maskieren", "使用不可逆标签遮蔽敏感值"));
+
+  const emailMention = has(/e posta|e-posta|email|e-mail|邮件/u);
+  const extractEmail = emailMention && has(/ayikla|cikar|extract|liste[\p{L}]* temizle|collect|sammel|提取|收集/u) && !mask && !csvMention;
+  if (extractEmail) add("e-posta-listesi-temizleyici", intentLabel("E-posta adreslerini ayıkla ve normalleştir", "Extract and normalize email addresses", "E-Mail-Adressen extrahieren und normalisieren", "提取并规范化电子邮件地址"));
+  if (deduplicate || sort) add("satir-siralayici-tekillestirici", intentLabel(deduplicate ? "Yinelenen kayıtları kaldır" : "Kayıtları sırala", deduplicate ? "Remove duplicate records" : "Sort records", deduplicate ? "Doppelte Einträge entfernen" : "Einträge sortieren", deduplicate ? "删除重复记录" : "排序记录"));
+  if (toJson || toCsv) add("json-csv-donusturucu", intentLabel(toJson ? "Temizlenmiş CSV'yi JSON'a dönüştür" : "JSON'u CSV'ye dönüştür", toJson ? "Convert the cleaned CSV to JSON" : "Convert JSON to CSV", toJson ? "Bereinigtes CSV in JSON umwandeln" : "JSON in CSV umwandeln", toJson ? "将清理后的 CSV 转为 JSON" : "将 JSON 转为 CSV"));
+
+  if (jsonMention && has(/compare|diff|fark|karsilastir|vergleich|比较/u)) add("json-diff-karsilastirma", intentLabel("JSON yapılarını karşılaştır", "Compare JSON structures", "JSON-Strukturen vergleichen", "比较 JSON 结构"));
+  if (has(/markdown/u) && has(/preview|onizle|render|vorschau|预览/u)) add("markdown-onizleyici", intentLabel("Markdown önizlemesi oluştur", "Render a Markdown preview", "Markdown-Vorschau erzeugen", "生成 Markdown 预览"));
+  if (has(/metin|text|yazi|text|文本/u) && has(/temizle|clean|whitespace|bosluk|bereinig|清理/u) && !emailMention) add("metin-temizleyici", intentLabel("Metni normalize et", "Normalize the text", "Text normalisieren", "规范化文本"));
+  if (has(/kredi|loan|darlehen|kredit|贷款/u) && has(/amort|taksit|odeme|payment|tilgung|还款|摊还/u)) add("kredi-amortisman-tahminleyici", intentLabel("Kredi ödeme ve amortisman senaryosunu hesapla", "Estimate the loan payment and amortization", "Kreditrate und Tilgung schätzen", "估算贷款还款与摊还"));
+  if (has(/enflasyon|inflation|通胀/u) && has(/satin alma|purchasing power|kaufkraft|reel deger|real value|购买力/u)) add("enflasyon-satin-alma-gucu", intentLabel("Enflasyon altında satın alma gücünü karşılaştır", "Compare purchasing power under inflation", "Kaufkraft unter Inflation vergleichen", "比较通胀下的购买力"));
+  if (has(/basabas|break even|break-even|盈亏平衡/u)) add("basabas-noktasi-hesaplayici", intentLabel("Başabaş satış eşiğini hesapla", "Calculate the break-even sales threshold", "Break-even-Schwelle berechnen", "计算盈亏平衡点"));
+  if (has(/marj|markup|margin|aufschlag|marge|毛利率|加价率/u) && has(/kar|profit|gewinn|利润/u)) add("marj-kar-orani-hesaplayici", intentLabel("Marj ve maliyet üstü kâr oranını karşılaştır", "Compare margin and markup", "Marge und Aufschlag vergleichen", "比较利润率与加价率"));
+  if (has(/olasilik|probability|wahrscheinlichkeit|概率/u) && has(/a[^\p{L}\p{N}]{0,4}b|kesisim|intersection|schnitt|交集|birlesim|union|并集/u)) add("olasilik-hesaplayici", intentLabel("Olay olasılıklarını hesapla", "Calculate event probabilities", "Ereigniswahrscheinlichkeiten berechnen", "计算事件概率"));
+  if (has(/orneklem|sample size|stichprob|样本量/u) && has(/guven|confidence|konfidenz|置信|hata payi|margin of error|fehlerspanne|误差/u)) add("orneklem-buyuklugu-tahminleyici", intentLabel("Anket örneklem büyüklüğünü tahmin et", "Estimate survey sample size", "Stichprobengröße schätzen", "估算调查样本量"));
+  if (has(/bahsis|tip|trinkgeld|小费/u) && has(/hesap|calculate|split|bol|rechnung|计算|分摊/u)) add("bahsis-hesap-bolusturucu", intentLabel("Bahşişi ve kişi başı tutarı hesapla", "Calculate the tip and per-person amount", "Trinkgeld und Pro-Kopf-Betrag berechnen", "计算小费与人均金额"));
+
+  return intents.slice(0, 6);
+}
+
+function operationFor(slug: string, goal: string, locale: Locale): AgentPlanStep["operation"] {
+  const text = normalize(goal, locale);
+  if (slug === "json-csv-donusturucu") return /json(?:a| a| olarak)|to json|als json|zu json|转(?:为|成) json/u.test(text) ? "csv-to-json" : "json-to-csv";
+  if (slug === "base64-kodlayici" || slug === "url-kodlayici") return /decode|coz|dekod|解码/u.test(text) ? "decode" : "encode";
+  if (slug === "json-bicimlendirici") return /minif|kucult|sikistir|kompakt|压缩/u.test(text) ? "minify" : "format";
+  if (slug === "kvkk-veri-maskeleyici") return "mask";
+  if (slug === "e-posta-listesi-temizleyici") return "extract";
+  if (slug === "satir-siralayici-tekillestirici") return /duplicate|deduplic|tekrar|tekillestir|yinelenen|duplikat|去重|重复/u.test(text) ? "deduplicate" : "sort";
+  if (slug === "csv-inceleyici" || slug === "jwt-decoder" || slug === "regex-test-araci" || slug === "cron-ifadesi-aciklayici") return "inspect";
+  return undefined;
+}
+
+function recipeMatches(recipe: Recipe, rawGoal: string, normalizedGoal: string) {
+  return recipe.test.every((pattern) => pattern.test(rawGoal) || pattern.test(normalizedGoal));
+}
+
+function numberNear(goal: string, labels: string, after = true) {
+  const expression = after
+    ? new RegExp(`(?:${labels})[^\\d+-]{0,24}([-+]?\\d[\\d .,'’]*\\d|[-+]?\\d)`, "iu")
+    : new RegExp(`([-+]?\\d[\\d .,'’]*\\d|[-+]?\\d)[^\\p{L}\\d]{0,10}(?:${labels})`, "iu");
+  const value = expression.exec(goal)?.[1];
+  if (!value) return undefined;
+  const compact = value.replace(/[\s'’]/gu, "");
+  const comma = compact.lastIndexOf(",");
+  const dot = compact.lastIndexOf(".");
+  if (comma >= 0 && dot >= 0) {
+    const decimal = comma > dot ? "," : ".";
+    return compact.replace(new RegExp(`\\${decimal === "," ? "." : ","}`, "g"), "").replace(decimal, ".");
+  }
+  const separator = comma >= 0 ? "," : dot >= 0 ? "." : "";
+  if (!separator) return compact;
+  const parts = compact.split(separator);
+  if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3 && parts[0].replace(/^[-+]/u, "").length <= 3)) return parts.join("");
+  return compact.replace(separator, ".");
+}
+
+function numberAround(goal: string, labels: string) {
+  return numberNear(goal, labels) ?? numberNear(goal, labels, false);
+}
+
+/** Creates a bounded first-tool input, including field maps for form tools. */
+export function prepareAgentInput(goal: string, plan: AgentPlan, detectedPayload = extractAgentPayload(goal)) {
+  const slug = plan.steps[0]?.toolSlug;
+  if (/^\s*\{/u.test(detectedPayload)) {
+    try { const value: unknown = JSON.parse(detectedPayload); if (value && typeof value === "object" && !Array.isArray(value)) return detectedPayload.slice(0, 180_000); } catch { /* infer fields from natural language instead */ }
+  }
+  if (slug === "bahsis-hesap-bolusturucu") {
+    const subtotal = numberNear(goal, "hesap(?: tutari)?|ara toplam|subtotal|bill(?: amount)?|rechnungsbetrag|账单金额")
+      ?? goal.match(/(?:^|\s)(\d+(?:[.,]\d+)?)\s*(?:tl|try|usd|eur|gbp|₺|€|\$)/iu)?.[1]?.replace(",", ".");
+    const tax = numberNear(goal, "vergi|servis|tax|service|steuer|税费");
+    const tip = goal.match(/(\d+(?:[.,]\d+)?)\s*%/u)?.[1]?.replace(",", ".")
+      ?? numberNear(goal, "yuzde|yüzde|percent", true)
+      ?? numberNear(goal, "bahsis(?: orani)?|bahşiş(?: oranı)?|tip rate|trinkgeldsatz|小费比例");
+    const people = numberNear(goal, "kisi|kişi|people|person|personen|人", false) ?? numberNear(goal, "kisi|kişi|people|person|personen|人数");
+    const fields = Object.fromEntries(Object.entries({ subtotal, tax, tip, people }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length >= 2) return JSON.stringify(fields);
+  }
+  if (["yuzde-degisim-hesaplayici", "yuzde-degisim-hizli-hesaplayici"].includes(slug ?? "")) {
+    const old = numberNear(goal, "ilk|eski|baslangic|başlangıç|old|from|ausgang|原值");
+    const next = numberNear(goal, "yeni|son|next|to|neu|新值");
+    if (old && next) return JSON.stringify({ old, next });
+  }
+  if (["kdv-indirim-hesaplayici", "indirim-kdv-hesaplayici"].includes(slug ?? "")) {
+    const price = numberNear(goal, "fiyat|tutar|price|preis|价格");
+    const discount = numberNear(goal, "indirim|discount|rabatt|折扣");
+    const vat = numberNear(goal, "kdv|vat|vergi|steuer|增值税");
+    const fields = Object.fromEntries(Object.entries({ price, discount, vat }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length >= 2) return JSON.stringify(fields);
+  }
+  if (slug === "kredi-amortisman-tahminleyici") {
+    const principal = numberAround(goal, "kredi tutari|kredi tutarı|\\bkredi\\b|ana para|principal|loan amount|kreditbetrag|darlehensbetrag|贷款金额|本金");
+    const annualRate = numberAround(goal, "yillik faiz|yıllık faiz|faiz orani|faiz oranı|\\bfaiz\\b|annual (?:interest )?rate|annual interest|jahreszins|zinssatz|年利率");
+    const years = numberAround(goal, "vade|sure|süre|term|years?|laufzeit|jahre|期限|年限");
+    const extraMonthly = numberAround(goal, "aylik ek odeme|aylık ek ödeme|ek odeme|ek ödeme|extra monthly|monthly extra|monatliche sondertilgung|sondertilgung|每月额外还款|额外月供");
+    const fields = Object.fromEntries(Object.entries({ principal, annualRate, years, extraMonthly }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length) return JSON.stringify(fields);
+  }
+  if (slug === "enflasyon-satin-alma-gucu") {
+    const amount = numberAround(goal, "bugunku tutar|tutar|amount today|current amount|heutiger betrag|betrag|当前金额|当前价值");
+    const annualInflation = numberAround(goal, "yillik enflasyon|enflasyon|annual inflation|inflation rate|inflationsrate|通胀率|年通胀");
+    const years = numberAround(goal, "sure|yil|period|years?|zeitraum|jahre|期限|年");
+    const fields = Object.fromEntries(Object.entries({ amount, annualInflation, years }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length) return JSON.stringify(fields);
+  }
+  if (slug === "basabas-noktasi-hesaplayici") {
+    const fixedCost = numberAround(goal, "sabit maliyet|fixed costs?|fixkosten|固定成本");
+    const unitPrice = numberAround(goal, "birim satis fiyati|birim fiyat|unit selling price|unit price|verkaufspreis je einheit|stuckpreis|stückpreis|单位售价|单价");
+    const unitVariableCost = numberAround(goal, "birim degisken maliyet|variable cost per unit|variable kosten je einheit|单位变动成本");
+    const fields = Object.fromEntries(Object.entries({ fixedCost, unitPrice, unitVariableCost }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length) return JSON.stringify(fields);
+  }
+  if (slug === "marj-kar-orani-hesaplayici") {
+    const cost = numberAround(goal, "birim maliyet|maliyet|unit cost|cost|stuckkosten|stückkosten|kosten|单位成本|成本");
+    const price = numberAround(goal, "satis fiyati|fiyat|selling price|price|verkaufspreis|售价");
+    if (cost || price) return JSON.stringify(Object.fromEntries(Object.entries({ cost, price }).filter((entry): entry is [string, string] => Boolean(entry[1]))));
+  }
+  if (slug === "olasilik-hesaplayici") {
+    const a = numberAround(goal, "p\\s*\\(\\s*a\\s*\\)|a olasiligi|probability a|wahrscheinlichkeit a|a 概率");
+    const b = numberAround(goal, "p\\s*\\(\\s*b\\s*\\)|b olasiligi|probability b|wahrscheinlichkeit b|b 概率");
+    const intersection = numberAround(goal, "kesisim|p\\s*\\(\\s*a[^)]*b\\s*\\)|intersection|schnittmenge|交集");
+    const known = /kesişim biliniyor|known intersection|bekannte schnittmenge|已知交集/iu.test(goal);
+    const independent = /bagimsiz|bağımsız|independent|unabhangig|unabhängig|独立/iu.test(goal);
+    const fields = Object.fromEntries(Object.entries({ a, b, relationship: known ? "known" : independent ? "independent" : undefined, intersection: known ? intersection : undefined }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length) return JSON.stringify(fields);
+  }
+  if (slug === "orneklem-buyuklugu-tahminleyici") {
+    const confidence = numberAround(goal, "guven duzeyi|güven düzeyi|confidence(?: level)?|konfidenzniveau|置信水平");
+    const marginOfError = numberAround(goal, "hata payi|hata payı|margin of error|fehlerspanne|误差范围");
+    const proportion = numberAround(goal, "beklenen oran|expected proportion|erwarteter anteil|预期比例");
+    const population = numberAround(goal, "evren buyuklugu|evren büyüklüğü|population(?: size)?|grundgesamtheit|总体规模");
+    const fields = Object.fromEntries(Object.entries({ confidence, marginOfError, proportion, population }).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    if (Object.keys(fields).length) return JSON.stringify(fields);
+  }
+  return detectedPayload.slice(0, 180_000);
+}
+
 function stepReason(locale: Locale, tool: Tool, index: number) {
   const purpose = tool.short[locale].replace(/[.!?。！？]+$/u, "");
   return local(locale, {
@@ -278,7 +473,7 @@ function splitGoal(goal: string) {
   return goal.split(/\s*(?:→|=>|->|;|\bsonra\b|\bthen\b|\banschließend\b|然后|接着|\r?\n\s*(?:[-*]|\d+[.)])\s+)\s*/iu).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
 
-const followUpPattern = /(?:az önce|önceki|devam et|bunu|şunu|aynı akış|sonucu|previous|just now|continue|this flow|that plan|make it|vorher|gerade|weiter|diesen plan|dieses ergebnis|刚才|继续|这个流程|该计划|结果)/iu;
+const followUpPattern = /(?:az önce|önceki|devam et|bunu|şunu|aynı akış|sonucu|\bşimdi\b|previous|just now|\bnow\b|continue|this flow|that plan|make (?:it|the result|the output)|\bresult\b|\boutput\b|vorher|gerade|\bnun\b|weiter|diesen plan|dieses ergebnis|刚才|继续|现在|这个流程|该计划|结果)/iu;
 const simplifyPattern = /(?:sadeleştir|daha az adım|kısalt|simplif|fewer steps|shorter flow|vereinfach|weniger schritte|简化|更少步骤)/iu;
 const safetyPattern = /(?:güvenli|güvenlik|gizlilik|kvkk|gdpr|maskele|security|privacy|safe|redact|sicher|datenschutz|安全|隐私|遮蔽)/iu;
 const deliveryPattern = /(?:paylaş|teslim|indir|dışa aktar|share|deliver|download|export|teilen|liefern|herunterladen|分享|交付|下载|导出)/iu;
@@ -306,9 +501,12 @@ function frameGoal(goal: string, locale: Locale, extracted: AgentParameter[], st
 export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, previousPlan?: AgentPlan | null): AgentPlan {
   const cleanGoal = goal.trim().slice(0, 20_000);
   const normalizedGoal = normalize(cleanGoal, locale);
+  const payload = extractAgentPayload(cleanGoal);
   const signals: string[] = [];
   let selected: Tool[] = [];
-  const isFollowUp = Boolean(previousPlan && (followUpPattern.test(cleanGoal) || cleanGoal.length < 72));
+  // Length alone is not conversational context. The former `<72` shortcut
+  // caused short, unrelated requests (JWT, QR, Base64) to inherit an old plan.
+  const isFollowUp = Boolean(previousPlan && followUpPattern.test(cleanGoal));
   const contextualGoal = isFollowUp && previousPlan ? `${previousPlan.goal}. ${cleanGoal}`.slice(0, 20_000) : cleanGoal;
   if (isFollowUp && previousPlan) {
     signals.push(local(locale, { tr: "Önceki plan bu sekmenin bağlamından devralındı", en: "The previous plan was carried forward from this tab's context", de: "Der vorige Plan wurde aus dem Kontext dieses Tabs übernommen", zh: "已从当前标签页语境继承上一份计划" }));
@@ -318,21 +516,33 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       signals.push(local(locale, { tr: "Sadeleştirme isteği: yalnızca başlangıç ve teslim için gerekli adımlar korundu", en: "Simplification request: only essential start and delivery steps were retained", de: "Vereinfachung: nur wesentliche Start- und Übergabeschritte bleiben", zh: "简化请求：仅保留必要的开始与交付步骤" }));
     }
   }
+  const detectedIntents = detectGoalIntents(cleanGoal, payload, locale);
+  if (!selected.length && detectedIntents.length) {
+    selected = detectedIntents.map((intent) => catalog.find((tool) => tool.slug === intent.slug)).filter((tool): tool is Tool => Boolean(tool));
+    signals.push(local(locale, {
+      tr: `${detectedIntents.length} açık işlem niyeti sıraya kondu`,
+      en: `${detectedIntents.length} explicit operations were ordered`,
+      de: `${detectedIntents.length} eindeutige Vorgänge wurden angeordnet`,
+      zh: `已按顺序识别 ${detectedIntents.length} 个明确操作`,
+    }));
+  }
   const segments = splitGoal(cleanGoal);
   if (!selected.length && segments.length > 1) {
     selected = segments.map((segment) => semanticToolSearch(segment, catalog, locale, 1)[0]?.tool).filter((tool): tool is Tool => Boolean(tool));
     signals.push(local(locale, { tr: "Açık çok adımlı sıra algılandı", en: "Explicit multi-step sequence detected", de: "Explizite Schrittfolge erkannt", zh: "检测到明确的多步骤顺序" }));
   }
-  let matchedWorkflow = selected.length > 1;
+  let matchedWorkflow = selected.length > 1 || detectedIntents.length > 0;
   if (!selected.length) {
-    const recipe = recipes.find((item) => item.test.every((pattern) => pattern.test(normalizedGoal)));
+    const recipe = recipes.find((item) => recipeMatches(item, cleanGoal, normalizedGoal));
     if (recipe) {
       selected = recipe.steps.map((slug) => catalog.find((tool) => tool.slug === slug)).filter((tool): tool is Tool => Boolean(tool));
       matchedWorkflow = selected.length > 0;
       signals.push(recipe.signal[locale]);
     }
   }
-  const ranked = semanticToolSearch(contextualGoal, catalog, locale, 5);
+  const currentRanked = semanticToolSearch(cleanGoal, catalog, locale, 5);
+  const contextualRanked = isFollowUp ? semanticToolSearch(contextualGoal, catalog, locale, 5) : currentRanked;
+  const ranked = currentRanked[0]?.score && currentRanked[0].score >= 12 ? currentRanked : contextualRanked;
   if (!selected.length && ranked.length) selected = [ranked[0].tool];
   if (!selected.length) selected = catalog.filter((tool) => ["prompt-kalite-denetimi", "metin-temizleyici", "json-bicimlendirici"].includes(tool.slug)).slice(0, 3);
   selected = selected.filter((tool, index, list) => list.findIndex((item) => item.slug === tool.slug) === index).slice(0, 6);
@@ -347,17 +557,22 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     inputMode: fileTools.has(tool.slug) ? "manual" : index === 0 ? "goal" : "previous",
     requiresFile: fileTools.has(tool.slug),
     parameterHints: extracted.map((item) => `${item.label}: ${item.value}`).slice(0, 5),
+    operation: operationFor(tool.slug, cleanGoal, locale),
   }));
+  const requested = detectedIntents.map((intent) => intent.label[locale]);
+  const covered = detectedIntents.filter((intent) => steps.some((step) => step.toolSlug === intent.slug)).map((intent) => intent.label[locale]);
+  const missing = detectedIntents.filter((intent) => !steps.some((step) => step.toolSlug === intent.slug)).map((intent) => intent.label[locale]);
+  if (missing.length) signals.push(local(locale, { tr: `${missing.length} istenen işlem mevcut katalogla güvenle eşleşmedi`, en: `${missing.length} requested operations could not be safely matched to the catalog`, de: `${missing.length} gewünschte Vorgänge konnten nicht sicher zugeordnet werden`, zh: `${missing.length} 个请求操作无法安全匹配目录` }));
   const manualSteps = steps.filter((step) => step.requiresFile).length;
   if (manualSteps) signals.push(local(locale, { tr: `${manualSteps} adım dosya seçimi için açık kullanıcı eylemi istiyor`, en: `${manualSteps} steps require explicit user file selection`, de: `${manualSteps} Schritte erfordern eine ausdrückliche Dateiauswahl`, zh: `${manualSteps} 个步骤需要用户明确选择文件` }));
   const topScore = ranked[0]?.score ?? 0; const runnerUp = ranked[1]?.score ?? 0;
-  const needsClarification = !matchedWorkflow && topScore < 18;
+  const needsClarification = missing.length > 0 || (!matchedWorkflow && topScore < 18);
   const confidence = Math.max(.35, Math.min(.94, .52 + Math.min(.28, topScore / 80) + Math.min(.14, Math.max(0, topScore - runnerUp) / 50) - (needsClarification ? .12 : 0)));
   const alternativeSlugs = ranked.map((item) => item.tool.slug).filter((slug) => !selected.some((tool) => tool.slug === slug)).slice(0, 3);
   const first = selected[0]?.title[locale] ?? local(locale, { tr: "araç araması", en: "tool search", de: "Werkzeugsuche", zh: "工具搜索" });
   const last = selected.at(-1)?.title[locale] ?? first;
   const previousLast = isFollowUp ? previousPlan?.steps.at(-1)?.title : undefined;
-  const response = needsClarification
+  const baseResponse = needsClarification
     ? local(locale, {
       tr: `Size yardımcı olabilirim; ancak hedefte giriş veya beklenen çıktı biçimi henüz net değil. En yakın başlangıç olarak ${first} aracını buldum. Aşağıdaki kısa sorulardan birini yanıtladığınızda daha güvenilir bir akış kuracağım.`,
       en: `I can help, but the input or desired output is not clear enough yet. ${first} is the closest starting point I found. Answer one of the short questions below and I will build a more reliable workflow.`,
@@ -377,6 +592,16 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       de: `Ich empfehle, mit ${first} zu beginnen${selected.length > 1 ? ` und kontrolliert bis ${last} weiterzugehen` : ""}. Die Auswahl folgt dem stärksten Treffer für Format- und Datenschutzsignale.`,
       zh: `建议先使用${first}${selected.length > 1 ? `，再按顺序推进到${last}` : ""}。该选择基于目标中的格式与隐私信号的最强匹配。`,
     });
+  const looksLikeError = /(?:syntaxerror|typeerror|referenceerror|unexpected token|invalid regular expression|exception|\bhata\b|\berror\b|\bfehler\b|错误)/iu.test(cleanGoal);
+  const diagnostic = looksLikeError ? translateAgentError(cleanGoal, locale) : null;
+  const response = diagnostic
+    ? local(locale, {
+      tr: `${diagnostic.title}: ${diagnostic.explanation} İlk güvenli adım olarak ${first} aracını hazırladım.`,
+      en: `${diagnostic.title}: ${diagnostic.explanation} I prepared ${first} as the first safe step.`,
+      de: `${diagnostic.title}: ${diagnostic.explanation} Als ersten sicheren Schritt habe ich ${first} vorbereitet.`,
+      zh: `${diagnostic.title}：${diagnostic.explanation}。我已将${first}准备为第一个安全步骤。`,
+    })
+    : baseResponse;
   const clarifyingQuestions = needsClarification ? [
     local(locale, { tr: "Hangi biçimde veriyle başlayacağız?", en: "What input format are we starting with?", de: "Mit welchem Eingabeformat beginnen wir?", zh: "输入数据是什么格式？" }),
     local(locale, { tr: "Sonuç hangi biçimde ve ne amaçla kullanılacak?", en: "What output format and use do you need?", de: "Welches Ausgabeformat und welchen Zweck benötigen Sie?", zh: "需要什么输出格式，用于什么目的？" }),
@@ -388,7 +613,11 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     local(locale, { tr: "Yüksek etkili sonucu bağımsız olarak kontrol edin", en: "Independently verify high-impact output", de: "Folgenreiche Ausgaben unabhängig prüfen", zh: "独立核验高影响结果" }),
   ];
   const suggestedReplies = needsClarification
-    ? clarifyingQuestions
+    ? [
+      local(locale, { tr: "CSV girdisiyle başlayıp JSON çıktısı istiyorum", en: "Start with CSV and produce JSON", de: "Mit CSV beginnen und JSON ausgeben", zh: "从 CSV 开始并输出 JSON" }),
+      local(locale, { tr: "Düz metni temizleyip kopyalanabilir sonuç istiyorum", en: "Clean plain text and return a copyable result", de: "Klartext bereinigen und kopierbar ausgeben", zh: "清理纯文本并返回可复制结果" }),
+      local(locale, { tr: "Önce yalnızca doğru aracı bul", en: "First, only find the right tool", de: "Zuerst nur das passende Werkzeug finden", zh: "先只查找合适的工具" }),
+    ]
     : [
       local(locale, { tr: "Bu akışı daha az adımla sadeleştir", en: "Simplify this workflow into fewer steps", de: "Diesen Ablauf auf weniger Schritte kürzen", zh: "把这个流程简化为更少步骤" }),
       local(locale, { tr: "Gizlilik risklerini kontrol edip güvenli hale getir", en: "Review privacy risks and make it safer", de: "Datenschutzrisiken prüfen und sicherer machen", zh: "检查隐私风险并提高安全性" }),
@@ -417,6 +646,7 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
         : local(locale, { tr: "Bu, yeni bir hedef olarak ele alındı.", en: "This was treated as a new outcome.", de: "Dies wurde als neues Ziel behandelt.", zh: "该请求被视为新目标。" }),
       suggestedReplies,
     },
+    coverage: { requested, covered, missing },
     limitations: [
       local(locale, { tr: "Bu plan büyük dil modeli çıktısı değil; sürümlenmiş semantik puanlar ve açıklanabilir kurallarla üretilir.", en: "This plan is not large-language-model output; it is generated from versioned semantic scores and explainable rules.", de: "Dieser Plan ist keine LLM-Ausgabe, sondern entsteht aus versionierten semantischen Bewertungen und nachvollziehbaren Regeln.", zh: "该计划不是大语言模型输出，而是由版本化语义评分与可解释规则生成。" }),
       local(locale, { tr: "Ajan gizli düşünce zinciri göstermez; yalnızca karar sinyallerini ve seçilen adımları açıklar.", en: "The agent does not expose hidden chain-of-thought; it shows decision signals and selected steps only.", de: "Der Agent zeigt keine verborgene Gedankenkette, sondern nur Entscheidungssignale und gewählte Schritte.", zh: "助手不展示隐藏思维链，只显示决策信号与所选步骤。" }),
