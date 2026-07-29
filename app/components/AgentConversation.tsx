@@ -69,6 +69,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   const [utilityQuery, setUtilityQuery] = useState("");
   const [errorQuery, setErrorQuery] = useState("");
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const primaryActionsRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<LocalSpeechRecognition | null>(null);
   const utilityResults = useMemo(() => semanticToolSearch(utilityQuery, tools, locale, 4), [locale, utilityQuery]);
   const errorResult = useMemo(() => errorQuery.trim() ? translateAgentError(errorQuery, locale) : null, [errorQuery, locale]);
@@ -91,6 +92,17 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   }, [locale]);
 
   useEffect(() => () => { try { recognitionRef.current?.stop(); } catch { /* already stopped */ } window.speechSynthesis?.cancel(); }, []);
+
+  useEffect(() => {
+    if (!plan || busy) return;
+    const frame = requestAnimationFrame(() => {
+      primaryActionsRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [busy, plan]);
 
   function submit() {
     const text = goal.trim();
@@ -168,7 +180,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
         <div className="agent-next-actions"><strong>{assist.next}</strong><ol>{plan.nextActions.slice(0, 3).map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ol></div>
         {preparedInput && <div className="agent-prepared-input"><span>✓</span><div><strong>{t.prepared}</strong><small>{preparedInput.length.toLocaleString(tags[locale])} · {automation ? `${automation.steps.filter((step) => step.status === "completed").length}/${plan.steps.length} ${state.completed}` : inputInherited ? state.inherited : plan.steps[0].title}</small></div><code>{preparedInput.slice(0, 110)}{preparedInput.length > 110 ? "…" : ""}</code></div>}
         {plan.clarifyingQuestions.length > 0 && <div className="agent-inline-questions" role="status"><strong>{state.needsInfo}</strong><p>{plan.clarifyingQuestions[0]}</p><small>{state.provisional}</small></div>}
-        <div className="agent-primary-actions">
+        <div className="agent-primary-actions" ref={primaryActionsRef}>
           {plan.matchQuality === "strong" && !plan.coverage.missing.length ? <><Link className="primary-button" href={toolPath(locale, plan.steps[0].toolSlug)} onClick={() => startGuided(0)}>{t.start} →</Link>
           <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link></> : <button type="button" className="primary-button" onClick={() => inputRef.current?.focus()}>{state.provisional} ↓</button>}
           <button type="button" className="agent-speak-button" aria-label={assist.speak} title={assist.speak} onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(plan.response); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>◖</button>

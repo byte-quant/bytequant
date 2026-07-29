@@ -80,3 +80,17 @@ test("privacy masking keeps review guidance outside the transferable data payloa
   assert.match(source, /const existing = aliases\.get\(key\)/);
   assert.doesNotMatch(source, /setResult\(`\$\{masked\}\\n\\n/);
 });
+
+test("agent actions remain reachable and localized tool feedback cannot overflow", async () => {
+  const [agent, styles] = await Promise.all([
+    read("app/components/AgentConversation.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(agent, /const primaryActionsRef = useRef<HTMLDivElement \| null>\(null\)/);
+  assert.match(agent, /primaryActionsRef\.current\?\.scrollIntoView/);
+  assert.match(agent, /className="agent-primary-actions" ref=\{primaryActionsRef\}/);
+  assert.match(styles, /\.agent-chat-stream \.agent-answer-card\{flex:0 0 auto\}/);
+  assert.match(styles, /scrollbar-gutter:stable/);
+  assert.match(styles, /\.tool-status>span,\.local-trust-card>p/);
+  assert.match(styles, /overflow-wrap:anywhere/);
+});

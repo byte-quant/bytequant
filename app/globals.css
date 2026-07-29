@@ -1698,3 +1698,59 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   .mobile-menu-section>div{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:no-preference){@keyframes bq-mobile-menu{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}}
+
+/* Release 4.4: reachable agent actions and overflow-safe localized controls. */
+.agent-chat-stream{
+  overscroll-behavior:contain;
+  scrollbar-color:color-mix(in srgb,var(--teal) 52%,var(--line-strong)) var(--surface-soft);
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+}
+.agent-chat-stream .agent-message,
+.agent-chat-stream .agent-answer-card{flex:0 0 auto}
+.agent-chat-stream::-webkit-scrollbar{width:11px}
+.agent-chat-stream::-webkit-scrollbar-track{background:var(--surface-soft)}
+.agent-chat-stream::-webkit-scrollbar-thumb{border:3px solid var(--surface-soft);border-radius:999px;background:color-mix(in srgb,var(--teal) 52%,var(--line-strong))}
+.agent-chat-stream::-webkit-scrollbar-thumb:hover{background:var(--teal-dark)}
+.agent-primary-actions{
+  max-width:100%;
+  padding:10px;
+  scroll-margin-block:18px;
+  border:1px solid color-mix(in srgb,var(--teal) 25%,var(--line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--teal-soft) 45%,var(--surface));
+}
+.agent-primary-actions>.primary-button,
+.agent-primary-actions>.secondary-button{
+  min-width:0;
+  max-width:100%;
+  height:auto;
+  padding-block:10px;
+  line-height:1.35;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.primary-button,.secondary-button,.light-button,.ghost-button,
+.workbench button,.tool-workbench button,
+.workbench-output>header button,.result-header button,.workbench-toolbar button{
+  min-width:0;
+  max-width:100%;
+  height:auto;
+  line-height:1.35;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.tool-notice>div,.tool-status>span,.local-trust-card>p,
+.workbench-output>header>div,.result-header>div{min-width:0}
+.tool-notice strong,.tool-notice p,.tool-status>span,.local-trust-card>p,
+.tool-experience-notice,.workspace-notice{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+@media(max-width:480px){
+  .agent-primary-actions{display:grid;grid-template-columns:minmax(0,1fr)}
+  .agent-primary-actions>.agent-speak-button{justify-self:end}
+  .essential-workbench .workbench-actions>button,
+  .workbench-output>header>div:last-child>button{flex:1 1 min(140px,100%)}
+}
