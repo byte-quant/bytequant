@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 211 free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 205 distinct free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence. Six established legacy URLs remain available as canonical aliases so existing links do not break.
 
 Canonical site: https://bytequant.org/
 
@@ -43,7 +43,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 211 tools.
+- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 205 distinct tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -54,7 +54,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 211 tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any of the 205 distinct tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
@@ -302,17 +302,12 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [Evidence Synthesis Table](https://bytequant.org/en/tools/kanit-sentez-tablosu): aligns claims, sources, methods, findings, limits, and contradictions.
 - [Quick Percentage Change Calculator](https://bytequant.org/en/tools/yuzde-degisim-hizli-hesaplayici): calculates relative and absolute change between two values with direct fields.
 - [Discount & VAT Calculator](https://bytequant.org/en/tools/indirim-kdv-hesaplayici): separates discount, tax base, tax, and payable total.
-- [Loan Payment Calculator](https://bytequant.org/en/tools/kredi-taksit-hesaplayici): simulates monthly payment, total repayment, and interest cost.
 - [Rent & Expense Splitter](https://bytequant.org/en/tools/kira-paylasim-hesaplayici): divides shared costs equally or with transparent weights.
-- [Date Duration Calculator](https://bytequant.org/en/tools/tarih-sure-hesaplayici): reports calendar days, weeks, and approximate months between dates.
 - [Age Calculator](https://bytequant.org/en/tools/yas-hesaplayici): calculates an exact age in years, months, and days.
 - [Recipe Scaler](https://bytequant.org/en/tools/tarif-olceklendirici): rescales numeric ingredient amounts for a new serving count.
 - [Salary & Hourly Pay Converter](https://bytequant.org/en/tools/maas-saatlik-ucret-donusturucu): compares annual, monthly, and hourly gross pay with visible assumptions.
 - [Unit Price Comparator](https://bytequant.org/en/tools/birim-fiyat-karsilastirici): compares differently sized packages on a common unit basis.
 - [Random Team Generator](https://bytequant.org/en/tools/rastgele-takim-olusturucu): creates balanced, reproducible groups from a local name list.
-- [List Sort & Cleanup](https://bytequant.org/en/tools/liste-siralama-temizleme): naturally sorts cleaned lines and removes case-insensitive duplicates.
-- [Word Frequency Analyzer](https://bytequant.org/en/tools/kelime-sikligi-analizoru): measures high-frequency words and their share of the text.
-- [Quick Readability Preflight](https://bytequant.org/en/tools/okunabilirlik-on-analizi): flags long sentences and dense paragraphs without remote inference.
 - [Email List Cleaner](https://bytequant.org/en/tools/e-posta-listesi-temizleyici): extracts syntactically valid addresses and removes duplicates.
 - [Safe Filename Converter](https://bytequant.org/en/tools/dosya-adi-guvenli-donusturucu): converts titles to cross-platform filenames.
 - [Query String Builder](https://bytequant.org/en/tools/query-string-olusturucu): creates encoded URL parameters from key-value rows.
@@ -322,7 +317,6 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [JSON Sample Data Builder](https://bytequant.org/en/tools/json-ornek-veri-olusturucu): produces bounded synthetic records from simple field definitions.
 - [JSON Path Lister](https://bytequant.org/en/tools/json-yol-listeleyici): lists leaf paths, types, and values in nested JSON.
 - [Checksum Comparator](https://bytequant.org/en/tools/checksum-karsilastirici): computes SHA-256 and compares an expected digest without an API.
-- [SRI Hash Generator](https://bytequant.org/en/tools/sri-hash-olusturucu): generates SHA-256, SHA-384, or SHA-512 Subresource Integrity values.
 - [CSP Directive Merger](https://bytequant.org/en/tools/csp-direktif-birlestirici): merges directives while exposing policy-loosening risk.
 - [Agent Input/Output Contract](https://bytequant.org/en/tools/ajan-girdi-cikti-sozlesmesi): prepares verifiable inputs, outputs, errors, and stop conditions for an agent task.
 

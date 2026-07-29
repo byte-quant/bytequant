@@ -3,6 +3,7 @@ import { localizeTool, type BaseTool } from "./tool-locales";
 import { productivityTools } from "./productivity-tools";
 import { expansionTools } from "./expansion-tools";
 import { essentialTools } from "./essential-tools";
+import { canonicalToolSlug, isToolAlias } from "./tool-aliases";
 
 export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security" | "calculation" | "general" | "ai" | "codeSecurity" | "research";
 
@@ -807,6 +808,7 @@ const discoveryTools: BaseTool[] = [
 ];
 
 export const tools: Tool[] = [...baseTools, ...demandTools, ...discoveryTools, ...productivityTools, ...expansionTools, ...essentialTools].map(localizeTool);
+export const publicTools: Tool[] = tools.filter((tool) => !isToolAlias(tool.slug));
 
 const relatedBySlug: Record<string, string[]> = {
   "prompt-kalite-denetimi": ["meta-prompt-olusturucu", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"],
@@ -894,10 +896,14 @@ export function getTool(slug: string) {
   return tools.find((tool) => tool.slug === slug);
 }
 
+export function getCanonicalTool(slug: string) {
+  return getTool(canonicalToolSlug(slug));
+}
+
 export function getRelatedTools(tool: Tool, limit = 3) {
   const preferred = (relatedBySlug[tool.slug] ?? [])
-    .map((slug) => getTool(slug))
+    .map((slug) => getCanonicalTool(slug))
     .filter((item): item is Tool => Boolean(item));
-  const fallback = tools.filter((item) => item.category === tool.category && item.slug !== tool.slug && !preferred.some((candidate) => candidate.slug === item.slug));
-  return [...preferred, ...fallback].slice(0, limit);
+  const fallback = publicTools.filter((item) => item.category === tool.category && item.slug !== canonicalToolSlug(tool.slug) && !preferred.some((candidate) => candidate.slug === item.slug));
+  return [...preferred, ...fallback].filter((item, index, all) => all.findIndex((candidate) => candidate.slug === item.slug) === index).slice(0, limit);
 }

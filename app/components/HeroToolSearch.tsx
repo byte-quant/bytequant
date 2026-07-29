@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
-import { categories, tools } from "../lib/tools";
+import { categories, publicTools as tools } from "../lib/tools";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 import { ToolIcon } from "./ToolIcon";
 

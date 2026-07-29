@@ -13,7 +13,7 @@ import {
 } from "../lib/agent-core";
 import { WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_AGENT_PLAN_KEY } from "../lib/workspace-handoff";
 import { pathFor, toolPath, type Locale } from "../lib/site";
-import { categories, tools } from "../lib/tools";
+import { categories, publicTools as tools } from "../lib/tools";
 
 type Mode = "plan" | "search" | "error";
 type VoiceState = "idle" | "listening" | "unsupported" | "unavailable" | "denied";

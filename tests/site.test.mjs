@@ -6,6 +6,7 @@ const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 const readSource = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+const toolAliases = new Set(["kredi-taksit-hesaplayici", "tarih-sure-hesaplayici", "kelime-sikligi-analizoru", "okunabilirlik-on-analizi", "liste-siralama-temizleme", "sri-hash-olusturucu"]);
 
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
@@ -107,7 +108,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 211);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 205);
   assert.match(home, /Araçlarda anında ara/);
   assert.match(german, /Werkzeuge sofort durchsuchen/);
   assert.match(chinese, /即时搜索工具/);
@@ -239,6 +240,10 @@ test("ships exactly 25 new working tools and seven deep guides in all four local
       read(`de/tools/${slug}/index.html`),
       read(`zh/tools/${slug}/index.html`),
     ]);
+    if (toolAliases.has(slug)) {
+      for (const page of pages) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+      continue;
+    }
     for (const page of pages) {
       assert.match(page, /HowTo/);
       assert.match(page, /essential-workbench/);
@@ -546,15 +551,14 @@ test("exports instant search, live demo, and opt-in global community sharing", a
   assert.match(styles, /\.community-security-strip/);
 });
 
-test("activates the exact owner-provided AdSense tag while keeping placements away from private interactive surfaces", async () => {
+test("keeps the exact owner-provided Auto Ads tag without manual placeholder inventory", async () => {
   const [home, tool, guide, agent, workstation, community] = await Promise.all([
     read("en/index.html"), read("en/tools/json-bicimlendirici/index.html"), read("en/blog/index.html"),
     read("en/agent/index.html"), read("en/workstation/index.html"), read("en/community/index.html"),
   ]);
-  assert.equal((home.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 2);
-  assert.equal((tool.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 1);
-  assert.equal((guide.match(/data-ad-status="auto-ads-eligible"/g) ?? []).length, 1);
-  for (const page of [agent, workstation, community]) assert.doesNotMatch(page, /data-ad-status="auto-ads-eligible"/);
+  for (const page of [home, tool, guide, agent, workstation, community]) {
+    assert.doesNotMatch(page, /data-ad-status="auto-ads-eligible"|class="[^"]*\bad-slot\b/);
+  }
   for (const page of [home, tool, guide, agent, workstation, community]) {
     // next/script with afterInteractive is represented by a preload in static
     // HTML and injects the executable tag only after hydration. Requiring a
@@ -575,6 +579,22 @@ test("keeps legacy mixed-language guide slugs as noindex canonical aliases", asy
   assert.match(aliases[0], /rel="canonical" href="https:\/\/bytequant\.org\/de\/blog\/local-prompt-text-date-workflow\//);
   assert.match(aliases[1], /rel="canonical" href="https:\/\/bytequant\.org\/zh\/blog\/json-schema-image-hash-workflow\//);
   assert.match(aliases[2], /rel="canonical" href="https:\/\/bytequant\.org\/en\/blog\/loan-ai-rubric-csp-workflow\//);
+});
+
+test("consolidates duplicate tools without breaking established URLs", async () => {
+  const [turkish, english, german, chinese, sitemap, llms] = await Promise.all([
+    read("araclar/kredi-taksit-hesaplayici/index.html"),
+    read("en/tools/tarih-sure-hesaplayici/index.html"),
+    read("de/tools/kelime-sikligi-analizoru/index.html"),
+    read("zh/tools/sri-hash-olusturucu/index.html"),
+    read("sitemap.xml"), read("llms.txt"),
+  ]);
+  for (const page of [turkish, english, german, chinese]) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+  assert.match(turkish, /rel="canonical" href="https:\/\/bytequant\.org\/araclar\/kredi-odeme-hesaplayici\//);
+  assert.match(english, /rel="canonical" href="https:\/\/bytequant\.org\/en\/tools\/tarih-farki-hesaplayici\//);
+  assert.match(german, /rel="canonical" href="https:\/\/bytequant\.org\/de\/tools\/kelime-sikligi-ngram-analizi\//);
+  assert.match(chinese, /rel="canonical" href="https:\/\/bytequant\.org\/zh\/tools\/sri-butunluk-hash-uretici\//);
+  for (const slug of toolAliases) { assert.doesNotMatch(sitemap, new RegExp(`(?:araclar|tools)/${slug}`)); assert.doesNotMatch(llms, new RegExp(`/tools/${slug}`)); }
 });
 
 test("exports localized reference content and reciprocal hreflang", async () => {
@@ -606,21 +626,25 @@ test("every localized tool exposes demo UX and HowTo schema", async () => {
     read("zh/faq/index.html"),
   ]);
   for (const slug of turkishTools.filter((name) => !name.startsWith("."))) {
+    if (toolAliases.has(slug)) continue;
     const page = await read(`araclar/${slug}/index.html`);
     assert.match(page, /Örnek veri yükle/);
     assert.match(page, /HowTo/);
   }
   for (const slug of englishTools.filter((name) => !name.startsWith("."))) {
+    if (toolAliases.has(slug)) continue;
     const page = await read(`en/tools/${slug}/index.html`);
     assert.match(page, /Load example/);
     assert.match(page, /HowTo/);
   }
   for (const slug of germanTools.filter((name) => !name.startsWith("."))) {
+    if (toolAliases.has(slug)) continue;
     const page = await read(`de/tools/${slug}/index.html`);
     assert.match(page, /Beispiel laden/);
     assert.match(page, /HowTo/);
   }
   for (const slug of chineseTools.filter((name) => !name.startsWith("."))) {
+    if (toolAliases.has(slug)) continue;
     const page = await read(`zh/tools/${slug}/index.html`);
     assert.match(page, /加载示例/);
     assert.match(page, /HowTo/);
@@ -729,10 +753,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /211 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 211 tools in a visual workflow/);
-  assert.match(german, /211 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 211 个工具/);
+  assert.match(turkish, /205 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 205 tools in a visual workflow/);
+  assert.match(german, /205 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 205 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);

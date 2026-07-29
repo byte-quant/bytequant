@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { posts } from "./lib/posts";
-import { tools } from "./lib/tools";
+import { publicTools as tools } from "./lib/tools";
 import { absoluteUrl, bilingualLanguageUrls, locales, localizedLanguageUrls, pathFor, postPath, toolPath } from "./lib/site";
 import { referencePath, references } from "./lib/references";
 import { localizedGuides } from "./lib/localized-guides";

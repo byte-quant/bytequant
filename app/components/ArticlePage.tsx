@@ -1,9 +1,8 @@
 import Link from "next/link";
 import type { EditorialLocale, Post } from "../lib/posts";
 import { posts } from "../lib/posts";
-import { getTool, tools, type Tool } from "../lib/tools";
+import { getTool, publicTools as tools, type Tool } from "../lib/tools";
 import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, siteUrl, toolPath, websiteId } from "../lib/site";
-import { AdSlot } from "./AdSlot";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { getLocalizedGuide } from "../lib/localized-guides";
@@ -102,7 +101,6 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
                 <h2>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 {section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
-                {index === 1 && <AdSlot locale={locale} placement="guide-in-article" format="rectangle" />}
               </section>
             ))}
 

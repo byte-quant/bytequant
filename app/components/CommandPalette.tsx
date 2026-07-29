@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { referenceCopy, referencePath, references } from "../lib/references";
 import { pathFor, toolPath, type Locale } from "../lib/site";
-import { categories, tools } from "../lib/tools";
+import { categories, publicTools as tools } from "../lib/tools";
 
 function searchable(value: string, locale: Locale) {
   return value.toLocaleLowerCase({ tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" }[locale]).normalize("NFD").replace(/[\u0300-\u036f]/g, "");

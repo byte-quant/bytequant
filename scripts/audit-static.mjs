@@ -55,6 +55,7 @@ for (const pathName of ["/ajan/", "/en/agent/", "/de/agent/", "/zh/agent/", "/is
   assert.ok(sitemapUrls.some((url) => new URL(url).pathname === pathName), `Sitemap is missing ${pathName}`);
 }
 assert.ok(!sitemap.match(/lokale-produktivitaet|json-schema-bild|kredit-ai-bewertung/), "Legacy mixed-language slugs must not appear in the sitemap.");
+assert.ok(!sitemap.match(/kredi-taksit-hesaplayici|tarih-sure-hesaplayici|kelime-sikligi-analizoru|okunabilirlik-on-analizi|liste-siralama-temizleme|sri-hash-olusturucu/), "Canonical tool aliases must not appear in the sitemap.");
 assert.ok(!sitemapUrls.some((url) => new URL(url).pathname === "/workspace/"), "Private recipe importer must not appear in the sitemap.");
 
 console.log(`Static audit passed: ${htmlFiles.length} HTML files, ${schemaBlocks} valid JSON-LD blocks, ${sitemapUrls.length} unique sitemap URLs, 0 broken internal links.`);

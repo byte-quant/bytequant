@@ -6,7 +6,7 @@ import { canAutomatePlan, runAgentAutomation, type AgentAutomationResult } from 
 import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
 import { AGENT_AUTO_PREPARE_KEY } from "../lib/agent-session";
 import { pathFor, toolPath, type Locale } from "../lib/site";
-import { tools } from "../lib/tools";
+import { publicTools as tools } from "../lib/tools";
 import { WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_AGENT_PLAN_KEY } from "../lib/workspace-handoff";
 
 type Turn = { goal: string; answer: string; tools: string[]; time: number };
@@ -36,8 +36,16 @@ const ui = {
   },
 } as const;
 
+const assistCopy = {
+  tr: { next: "Bundan sonra güvenle yapabilecekleriniz", reply: "Devam etmek için bir seçenek seçin", speak: "Yanıtı sesli oku" },
+  en: { next: "Safe next steps", reply: "Choose an option to continue", speak: "Read the answer aloud" },
+  de: { next: "Sichere nächste Schritte", reply: "Wählen Sie eine Option zum Fortfahren", speak: "Antwort vorlesen" },
+  zh: { next: "安全的后续步骤", reply: "选择一个选项继续", speak: "朗读回答" },
+} as const;
+
 export function AgentConversation({ locale }: { locale: Locale }) {
   const t = ui[locale];
+  const assist = assistCopy[locale];
   const [goal, setGoal] = useState("");
   const [plan, setPlan] = useState<AgentPlan | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -141,13 +149,15 @@ export function AgentConversation({ locale }: { locale: Locale }) {
       {plan && !busy && <article className="agent-answer-card">
         <header><div><span>✓</span><div><small>{t.plan}</small><h2>{plan.conversation.intentSummary}</h2></div></div><strong>{Math.round(plan.confidence * 100)}%</strong></header>
         <div className="agent-answer-flow">{plan.steps.map((step, index) => <div key={step.id}><span>{index + 1}</span><div><strong>{step.title}</strong><p>{step.reason}</p></div>{index < plan.steps.length - 1 && <i>↓</i>}</div>)}</div>
+        <div className="agent-next-actions"><strong>{assist.next}</strong><ol>{plan.nextActions.slice(0, 3).map((item) => <li key={item}>✓ <span>{item}</span></li>)}</ol></div>
         {preparedInput && <div className="agent-prepared-input"><span>✓</span><div><strong>{t.prepared}</strong><small>{preparedInput.length.toLocaleString(tags[locale])} · {automatable && automation ? t.autoComplete : plan.steps[0].title}</small></div><code>{preparedInput.slice(0, 110)}{preparedInput.length > 110 ? "…" : ""}</code></div>}
         {plan.clarifyingQuestions.length > 0 && <div className="agent-inline-questions">{plan.clarifyingQuestions.slice(0, 2).map((question) => <button type="button" key={question} onClick={() => { setGoal(`${question}: `); inputRef.current?.focus(); }}>{question}</button>)}</div>}
         <div className="agent-primary-actions">
           <Link className="primary-button" href={toolPath(locale, plan.steps[0].toolSlug)} onClick={() => startGuided(0)}>{t.start} →</Link>
           <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link>
-          <button type="button" className="agent-speak-button" onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(plan.response); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>◖</button>
+          <button type="button" className="agent-speak-button" aria-label={assist.speak} title={assist.speak} onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(plan.response); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>◖</button>
         </div>
+        <div className="agent-followup-strip"><strong>{assist.reply}</strong><div>{plan.conversation.suggestedReplies.slice(0, 3).map((option) => <button type="button" key={option} onClick={() => { setGoal(option); inputRef.current?.focus(); }}>{option}</button>)}</div></div>
         {automatable ? <details className="agent-inline-run" open={Boolean(automation || automationError)}><summary><span>▶</span><strong>{t.dataRun}</strong><b>+</b></summary><div><p>{t.dataIntro}</p><textarea value={data} onChange={(event) => { setData(event.target.value); setPreparedInput(event.target.value); setAutomation(null); setAutomationError(""); }} placeholder={t.dataPlaceholder} rows={7} maxLength={200_000} /><button type="button" className="primary-button" disabled={!data.trim()} onClick={runHere}>{t.run}</button>{automationError && <p className="error-block" role="alert">{automationError}</p>}{automation && <section className="agent-automation-result"><header><strong>{t.output}</strong><button type="button" onClick={async () => { await navigator.clipboard.writeText(automation.output); setCopied(true); }}>{copied ? t.copied : t.copy}</button></header><ol>{automation.steps.map((step) => <li className={step.status} key={step.toolSlug}><span>{step.status === "completed" ? "✓" : "!"}</span><div><strong>{step.title}</strong><small>{step.note} · {step.outputLength}</small></div></li>)}</ol><pre>{automation.output}</pre></section>}</div></details> : <small className="agent-automation-boundary">ⓘ {t.unavailable}</small>}
         <details className="agent-answer-details"><summary>{t.details}<span>+</span></summary><div className="agent-detail-grid"><article><strong>{t.confidence}</strong><p>{Math.round(plan.confidence * 100)}% · {plan.matchQuality}</p></article><article><strong>{t.experts}</strong><p>{t.expertText}</p></article><article><strong>{t.why}</strong><p>{plan.signals.slice(0, 3).join(" · ")}</p></article><article><strong>{t.network}</strong><p>{plan.goalFrame.safety}</p></article></div><ul>{plan.limitations.map((item) => <li key={item}>{item}</li>)}</ul></details>
       </article>}

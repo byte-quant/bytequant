@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { categories, tools, type Tool } from "../lib/tools";
+import { categories, publicTools as tools, type Tool } from "../lib/tools";
+import { canonicalToolSlug } from "../lib/tool-aliases";
 import { consentChangeEvent, favoritesStorageKey, hasPreferenceConsent, openPrivacySettings, usageStorageKey } from "../lib/consent";
 import { toolPath, type Locale } from "../lib/site";
 import { ToolIcon } from "./ToolIcon";
@@ -26,7 +27,7 @@ function readUsage(): UsageMap {
 
 function readFavorites() {
   if (!hasPreferenceConsent()) return [] as string[];
-  try { const value: unknown = JSON.parse(localStorage.getItem(favoritesStorageKey) ?? "[]"); return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 12) : []; }
+  try { const value: unknown = JSON.parse(localStorage.getItem(favoritesStorageKey) ?? "[]"); return Array.isArray(value) ? [...new Set(value.filter((item): item is string => typeof item === "string").map(canonicalToolSlug))].slice(0, 12) : []; }
   catch { return []; }
 }
 

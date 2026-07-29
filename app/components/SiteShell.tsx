@@ -6,7 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { BrandLogo } from "./BrandLogo";
 import { CommandPalette } from "./CommandPalette";
 import { referencePath } from "../lib/references";
-import { tools } from "../lib/tools";
+import { publicTools as tools } from "../lib/tools";
 import { SchemaScript } from "./SchemaScript";
 import { PwaInstall } from "./PwaInstall";
 
