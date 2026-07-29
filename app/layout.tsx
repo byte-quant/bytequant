@@ -8,7 +8,7 @@ import { BYTEQUANT_BUILD_SIGNATURE, BYTEQUANT_CANONICAL_ORIGIN } from "./lib/bra
 export const metadata: Metadata = {
   metadataBase: new URL("https://bytequant.org"),
   title: { default: "ByteQuant · Gizlilik Odaklı Tarayıcı İçi Araçlar", template: "ByteQuant · %s" },
-  description: "Prompt, metin, hesaplama, veri, PDF, görsel, araştırma, yapay zekâ ve güvenlik işlemlerini tarayıcınızda tamamlayan 211 ücretsiz araç.",
+  description: "Prompt, metin, hesaplama, veri, PDF, görsel, araştırma, yapay zekâ ve güvenlik işlemlerini tarayıcınızda tamamlayan 234 benzersiz ücretsiz araç.",
   applicationName: "ByteQuant",
   authors: [{ name: "ByteQuant Editorial", url: "https://bytequant.org/hakkimizda" }],
   creator: "ByteQuant",
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   alternates: { canonical: BYTEQUANT_CANONICAL_ORIGIN },
   other: { "bytequant:canonical-origin": BYTEQUANT_CANONICAL_ORIGIN, "bytequant:build-signature": BYTEQUANT_BUILD_SIGNATURE, "google-adsense-account": "ca-pub-4158794981134847" },
   formatDetection: { email: false, address: false, telephone: false },
-  openGraph: { type: "website", siteName: "ByteQuant", locale: "tr_TR", alternateLocale: ["en_US", "de_DE", "zh_CN"], url: "https://bytequant.org", title: "ByteQuant · Yerel İş İstasyonu ve 211 Tarayıcı Aracı", description: "211 ücretsiz araç, açıklanabilir çok adımlı planlar, şifreli cihaz içi projeler ve sunucusuz P2P. Üyelik, veri yükleme ve uzak model yok.", images: [{ url: "/og.png", width: 1200, height: 630, alt: "ByteQuant Yerel İş İstasyonu: JSON doğrulama, hassas veri maskeleme ve CSV hazırlama akışı" }] },
-  twitter: { card: "summary_large_image", title: "ByteQuant · Yerel İş İstasyonu + 211 Araç", description: "Görsel akışlar, çok adımlı yerel AI planlama, şifreli cihaz içi projeler ve güven kodlu P2P.", images: ["/og.png"] },
+  openGraph: { type: "website", siteName: "ByteQuant", locale: "tr_TR", alternateLocale: ["en_US", "de_DE", "zh_CN"], url: "https://bytequant.org", title: "ByteQuant · Yerel İş İstasyonu ve 234 Tarayıcı Aracı", description: "234 benzersiz ücretsiz araç, açıklanabilir çok adımlı planlar, şifreli cihaz içi projeler ve sunucusuz P2P. Üyelik, veri yükleme ve uzak model yok.", images: [{ url: "/og.png", width: 1200, height: 630, alt: "ByteQuant Yerel İş İstasyonu: JSON doğrulama, hassas veri maskeleme ve CSV hazırlama akışı" }] },
+  twitter: { card: "summary_large_image", title: "ByteQuant · Yerel İş İstasyonu + 234 Araç", description: "Görsel akışlar, çok adımlı yerel AI planlama, şifreli cihaz içi projeler ve güven kodlu P2P.", images: ["/og.png"] },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   icons: { icon: [{ url: "/favicon.png", type: "image/png", sizes: "512x512" }], shortcut: "/favicon.png", apple: [{ url: "/favicon.png", sizes: "512x512", type: "image/png" }] },
 };

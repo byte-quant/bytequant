@@ -30,7 +30,7 @@ const examples: Record<string, [string, string?]> = {
   "json-schema-ornek-uretici": ["{\n  \"type\": \"object\",\n  \"required\": [\"name\", \"active\"],\n  \"properties\": {\n    \"name\": {\"type\": \"string\", \"example\": \"Ada\"},\n    \"active\": {\"type\": \"boolean\"},\n    \"tags\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}\n  }\n}"],
   "csv-sutun-profilleyici": ["name,age,city\nAda,31,Ankara\nLin,29,\nMira,31,Berlin"],
   "csv-birlestirme-simulatoru": ["id,name\n1,Ada\n2,Lin", "id,score\n1,92\n3,77"],
-  "json-patch-olusturucu": ["{\"name\":\"ByteQuant\",\"tools\":211,\"beta\":true}", "{\"name\":\"ByteQuant\",\"tools\":211,\"locale\":\"de\"}"],
+  "json-patch-olusturucu": ["{\"name\":\"ByteQuant\",\"tools\":234,\"beta\":true}", "{\"name\":\"ByteQuant\",\"tools\":234,\"locale\":\"de\"}"],
   "json-merge-patch-laboratuvari": ["{\"profile\":{\"name\":\"Ada\",\"city\":\"Ankara\"},\"active\":true}", "{\"profile\":{\"city\":\"Berlin\"},\"active\":null}"],
   "api-sayfalama-planlayici": ["{\"strategy\":\"cursor\",\"pageSize\":50,\"maxPages\":20,\"retryLimit\":3,\"dedupeKey\":\"id\"}"],
   "http-durum-kodu-gezgini": ["200\n201\n304\n401\n404\n409\n422\n429\n503"],

@@ -6,7 +6,8 @@ import { reviewCommunityText } from "../lib/community-safety";
 import type { Locale } from "../lib/site";
 
 type SocialKind = "workflow" | "tip" | "question" | "idea";
-type SocialContent = { v: 1; title: string; body: string; kind: SocialKind; group: string };
+type SourceQuote = { title: string; url: string; source: string };
+type SocialContent = { v: 1; title: string; body: string; kind: SocialKind; group: string; source?: SourceQuote };
 type Profile = { name: string; about: string; picture?: string };
 type StoredIdentity = { v: 1; pubkey: string; salt: string; iv: string; cipher: string; name: string; about: string };
 type NetworkState = "idle" | "connecting" | "connected" | "partial" | "error";
@@ -14,6 +15,7 @@ type NetworkState = "idle" | "connecting" | "connected" | "partial" | "error";
 const identityKey = "bytequant:nostr-identity:v1";
 const relayKey = "bytequant:nostr-relays:v1";
 const blockedKey = "bytequant:nostr-blocked:v1";
+const newsQuoteKey = "bytequant:community-news-quote:v1";
 const defaultRelays = ["wss://relay.damus.io", "wss://nos.lol"];
 const MAX_EVENT_BYTES = 6_000;
 const MAX_CLOCK_SKEW_SECONDS = 5 * 60;
@@ -42,6 +44,13 @@ const secureCopy = {
   zh: { autoLocked: "资料已在闲置 15 分钟后自动锁定。", rateLimited: "操作过于频繁。请稍候，待反垃圾保护重置。", security: ["验证事件签名", "垃圾与机密过滤", "15 分钟自动锁定"], profileSettings: "资料与安全", startPost: "发布新内容", closeComposer: "关闭草稿", backup: "下载加密资料备份", restore: "导入加密备份", backupReady: "加密资料备份已生成。", restoreReady: "加密资料已导入此设备。请输入密码解锁。", publicProfile: "Nostr 资料与帖子均为公开内容。请勿填写真实姓名、位置或私人联系方式。", clearBlocked: "清空隐藏账户" },
 } as const;
 
+const postActionCopy = {
+  tr: { edit: "Düzenle", editing: "Gönderiyi düzenliyorsunuz", cancel: "Vazgeç", update: "Değişikliği yayımla", updated: "Düzenlenmiş sürüm yayımlandı; eski sürüm için silme isteği relay’lere iletildi.", remove: "Sil", removeConfirm: "Bu gönderi için Nostr silme isteği yayımlansın mı? Bazı relay veya istemciler eski kopyayı tutabilir.", removed: "Silme isteği relay’lere iletildi ve gönderi bu akıştan kaldırıldı.", quoted: "Gündemden alıntı", source: "Kaynağı aç" },
+  en: { edit: "Edit", editing: "You are editing this post", cancel: "Cancel", update: "Publish revision", updated: "The revision was published and a deletion request for the old note was sent to relays.", remove: "Delete", removeConfirm: "Publish a Nostr deletion request for this post? Some relays or clients may retain an older copy.", removed: "The deletion request was sent to relays and the post was removed from this feed.", quoted: "Quoted from Updates", source: "Open source" },
+  de: { edit: "Bearbeiten", editing: "Sie bearbeiten diesen Beitrag", cancel: "Abbrechen", update: "Änderung veröffentlichen", updated: "Die neue Fassung wurde veröffentlicht und eine Löschanforderung für die alte Notiz gesendet.", remove: "Löschen", removeConfirm: "Eine Nostr-Löschanforderung senden? Einige Relays oder Clients können eine ältere Kopie behalten.", removed: "Die Löschanforderung wurde gesendet und der Beitrag aus diesem Feed entfernt.", quoted: "Aus Updates zitiert", source: "Quelle öffnen" },
+  zh: { edit: "编辑", editing: "正在编辑此帖子", cancel: "取消", update: "发布修订版", updated: "修订版已发布，并已向中继发送旧帖删除请求。", remove: "删除", removeConfirm: "要为此帖子发布 Nostr 删除请求吗？部分中继或客户端可能仍保留旧副本。", removed: "删除请求已发送到中继，帖子已从当前动态中移除。", quoted: "引用自动态", source: "打开来源" },
+} as const;
+
 const starters: Record<Locale, Array<SocialContent & { id: string; author: string }>> = {
   tr: [
     { id: "starter-1", v: 1, title: "KVKK paylaşımı öncesi üç adımlı kontrol", body: "Sentetik örnekle başlayın, maskeleme sonrasında önce/sonra farkını inceleyin ve yalnızca gerekli alanları dışa aktarın.", kind: "workflow", group: "Gizlilik", author: "ByteQuant" },
@@ -62,6 +71,17 @@ const starters: Record<Locale, Array<SocialContent & { id: string; author: strin
 };
 
 function clean(value: string, max: number) { return value.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().slice(0, max); }
+function safeSource(value: unknown): SourceQuote | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<SourceQuote>;
+  if (typeof candidate.title !== "string" || typeof candidate.url !== "string" || typeof candidate.source !== "string") return undefined;
+  try {
+    const url = new URL(candidate.url);
+    if (url.protocol !== "https:" || url.username || url.password || candidate.url.length > 500) return undefined;
+    const result = { title: clean(candidate.title, 160), url: url.toString(), source: clean(candidate.source, 80) };
+    return result.title && result.source ? result : undefined;
+  } catch { return undefined; }
+}
 function bytesToBase64(value: Uint8Array) { let binary = ""; value.forEach((byte) => { binary += String.fromCharCode(byte); }); return btoa(binary); }
 function base64ToBytes(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 function tagValue(event: NostrEvent, name: string) { return event.tags.find((tag) => tag[0] === name)?.[1] ?? ""; }
@@ -74,7 +94,7 @@ function parsePost(event: NostrEvent): SocialContent | null {
   try {
     const value = JSON.parse(event.content) as Partial<SocialContent>;
     if (value.v !== 1 || !["workflow", "tip", "question", "idea"].includes(value.kind ?? "") || typeof value.title !== "string" || typeof value.body !== "string") return null;
-    const result: SocialContent = { v: 1, title: clean(value.title, 120), body: clean(value.body, 3000), kind: value.kind as SocialKind, group: clean(value.group ?? "", 40) };
+    const result: SocialContent = { v: 1, title: clean(value.title, 120), body: clean(value.body, 3000), kind: value.kind as SocialKind, group: clean(value.group ?? "", 40), source: safeSource(value.source) };
     return result.title.length >= 3 && result.body.length >= 10 && reviewCommunityText(`${result.title}\n${result.body}`).length === 0 ? result : null;
   } catch { return null; }
 }
@@ -112,6 +132,7 @@ function validStoredIdentity(value: unknown): value is StoredIdentity {
 export function CommunityNetwork({ locale }: { locale: Locale }) {
   const passHint = { tr: "En az 12 karakter. Parola ve özel anahtar ByteQuant’a gönderilmez.", en: "At least 12 characters. Your passphrase and private key are never sent to ByteQuant.", de: "Mindestens 12 Zeichen. Passphrase und privater Schlüssel verlassen das Gerät nicht.", zh: "至少 12 个字符。密码和私钥不会发送给 ByteQuant。" }[locale];
   const t = { ...copy[locale], ...secureCopy[locale], passHint };
+  const actions = postActionCopy[locale];
   const [network, setNetwork] = useState<NetworkState>("idle");
   const [events, setEvents] = useState<NostrEvent[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -122,6 +143,8 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const [secret, setSecret] = useState<Uint8Array | null>(null);
   const [profileDraft, setProfileDraft] = useState({ name: "", about: "", passphrase: "" });
   const [composer, setComposer] = useState({ title: "", body: "", kind: "workflow" as SocialKind, group: "ByteQuant" });
+  const [quoteSource, setQuoteSource] = useState<SourceQuote | undefined>();
+  const [editingId, setEditingId] = useState("");
   const [reply, setReply] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -144,10 +167,13 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
         const relayList = validRelays(JSON.parse(localStorage.getItem(relayKey) ?? "[]").join("\n")); if (relayList.length) { setRelays(relayList); setRelayDraft(relayList.join("\n")); }
         const hidden = JSON.parse(localStorage.getItem(blockedKey) ?? "[]"); if (Array.isArray(hidden)) setBlocked(hidden.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-100));
         const kept = JSON.parse(localStorage.getItem("bytequant:nostr-saved:v1") ?? "[]"); if (Array.isArray(kept)) setSaved(kept.filter((item): item is string => typeof item === "string").slice(-200));
+        const quote = JSON.parse(sessionStorage.getItem(newsQuoteKey) ?? "null") as { title?: unknown; body?: unknown; url?: unknown; source?: unknown } | null;
+        const sourceQuote = safeSource(quote);
+        if (sourceQuote && typeof quote?.body === "string") { setComposer({ title: clean(quote.title as string, 120), body: clean(quote.body, 1200), kind: "idea", group: locale === "tr" ? "Gündem" : locale === "de" ? "Updates" : locale === "zh" ? "动态" : "Updates" }); setQuoteSource(sourceQuote); setComposerOpen(true); sessionStorage.removeItem(newsQuoteKey); }
       } catch { /* optional local preferences */ }
     }, 0);
     return () => { window.clearTimeout(restore); subscriptionRef.current?.close("component-unmount"); poolRef.current?.destroy(); };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!secret) return;
@@ -177,11 +203,13 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       poolRef.current?.destroy();
       const pool = new SimplePool({ enableReconnect: true }); poolRef.current = pool;
       const since = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 45;
-      const initial = await pool.querySync(relays, { kinds: [1], "#t": ["bytequant"], since, limit: 100 }, { maxWait: 6500 });
-      const accepted = initial.filter((event) => plausibleEvent(event) && verifyEvent(event) && parsePost(event) && !blocked.includes(event.pubkey));
+      const initial = await pool.querySync(relays, { kinds: [1, 5], "#t": ["bytequant"], since, limit: 140 }, { maxWait: 6500 });
+      const verified = initial.filter((event) => plausibleEvent(event) && verifyEvent(event));
+      const deleted = new Set(verified.filter((event) => event.kind === 5).flatMap((event) => event.tags.filter((tag) => tag[0] === "e").map((tag) => `${event.pubkey}:${tag[1]}`)));
+      const accepted = verified.filter((event) => event.kind === 1 && parsePost(event) && !deleted.has(`${event.pubkey}:${event.id}`) && !blocked.includes(event.pubkey));
       setEvents(accepted.sort((a, b) => b.created_at - a.created_at));
       subscriptionRef.current?.close("refresh");
-      subscriptionRef.current = pool.subscribeMany(relays, { kinds: [1], "#t": ["bytequant"], since, limit: 100 }, { onevent: (event) => { if (!plausibleEvent(event) || !verifyEvent(event) || !parsePost(event) || blocked.includes(event.pubkey)) return; setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120)); }, maxWait: 6500 });
+      subscriptionRef.current = pool.subscribeMany(relays, { kinds: [1, 5], "#t": ["bytequant"], since, limit: 140 }, { onevent: (event) => { if (!plausibleEvent(event) || !verifyEvent(event)) return; if (event.kind === 5) { const ids = new Set(event.tags.filter((tag) => tag[0] === "e").map((tag) => tag[1])); setEvents((current) => current.filter((item) => item.pubkey !== event.pubkey || !ids.has(item.id))); return; } if (!parsePost(event) || blocked.includes(event.pubkey)) return; setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120)); }, maxWait: 6500 });
       const authors = [...new Set(accepted.map((event) => event.pubkey))].slice(0, 80);
       if (authors.length) {
         const profileEvents = await pool.querySync(relays, { kinds: [0], authors, limit: authors.length * 2 }, { maxWait: 5000 });
@@ -246,14 +274,35 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   }
 
   async function publishPost() {
-    const content: SocialContent = { v: 1, title: clean(composer.title, 120), body: clean(composer.body, 3000), kind: composer.kind, group: clean(composer.group, 40) };
+    const content: SocialContent = { v: 1, title: clean(composer.title, 120), body: clean(composer.body, 3000), kind: composer.kind, group: clean(composer.group, 40), source: quoteSource };
     if (!secret) { setStatus(t.noIdentity); return; }
     if (!allowAction("post", 3, 10 * 60 * 1000)) return;
     if (content.title.length < 3 || content.body.length < 10 || reviewCommunityText(`${content.title}\n${content.body}`).length) { setStatus(t.unsafe); return; }
     setBusy(true); setStatus("");
     try {
-      const event = await publishEvent(1, JSON.stringify(content), [["t", "bytequant"], ["t", `bytequant-${content.kind}`], ["g", content.group.toLocaleLowerCase().replace(/[^a-z0-9\p{L}]+/gu, "-").slice(0, 40)], ["lang", locale], ["client", "ByteQuant"]]);
-      if (event) { setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)]); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setComposerOpen(false); setStatus(t.published); }
+      const previous = editingId ? events.find((item) => item.id === editingId && item.pubkey === identity?.pubkey) : undefined;
+      const tags = [["t", "bytequant"], ["t", `bytequant-${content.kind}`], ["g", content.group.toLocaleLowerCase().replace(/[^a-z0-9\p{L}]+/gu, "-").slice(0, 40)], ["lang", locale], ["client", "ByteQuant"]];
+      if (previous) tags.push(["e", previous.id, "", "replace"], ["edited", previous.id]);
+      const event = await publishEvent(1, JSON.stringify(content), tags);
+      if (event) {
+        if (previous) await publishEvent(5, "Replaced by an edited version", [["e", previous.id], ["k", "1"], ["t", "bytequant"], ["client", "ByteQuant"]]);
+        setEvents((current) => [event, ...current.filter((item) => item.id !== event.id && item.id !== previous?.id)]);
+        setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); setQuoteSource(undefined); setEditingId(""); setComposerOpen(false); setStatus(previous ? actions.updated : t.published);
+      }
+    } catch { setStatus(t.error); } finally { setBusy(false); }
+  }
+
+  function editPost(event: NostrEvent, content: SocialContent) {
+    if (!identity || event.pubkey !== identity.pubkey) return;
+    setEditingId(event.id); setComposer({ title: content.title, body: content.body, kind: content.kind, group: content.group }); setQuoteSource(content.source); setComposerOpen(true); document.getElementById("global-community")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function deletePost(event: NostrEvent) {
+    if (!identity || event.pubkey !== identity.pubkey || !secret || !window.confirm(actions.removeConfirm) || !allowAction("delete", 4, 10 * 60 * 1000)) return;
+    setBusy(true); setStatus("");
+    try {
+      const deletion = await publishEvent(5, "Deleted by author", [["e", event.id], ["k", "1"], ["t", "bytequant"], ["client", "ByteQuant"]]);
+      if (deletion) { setEvents((current) => current.filter((item) => item.id !== event.id)); setSaved((current) => current.filter((id) => id !== event.id)); setStatus(actions.removed); }
     } catch { setStatus(t.error); } finally { setBusy(false); }
   }
 
@@ -314,7 +363,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       </aside>
 
       <section className="community-social-main">
-        <section className={`community-global-composer${composerOpen ? " open" : ""}`}><button type="button" className="community-compose-launch" onClick={() => setComposerOpen((value) => !value)}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><span><strong>{composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : t.noIdentity}</small></span><b>{composerOpen ? "×" : "+"}</b></button>{composerOpen && <div className="community-composer-fields"><input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={4} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label><button type="button" className="primary-button" disabled={!secret || busy || network === "idle" || network === "error"} onClick={() => void publishPost()}>{busy ? t.publishing : t.publish} ↑</button></div></div>}</section>
+        <section className={`community-global-composer${composerOpen ? " open" : ""}`}><button type="button" className="community-compose-launch" onClick={() => setComposerOpen((value) => !value)}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase()}</span><span><strong>{editingId ? actions.editing : composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : t.noIdentity}</small></span><b>{composerOpen ? "×" : "+"}</b></button>{composerOpen && <div className="community-composer-fields">{quoteSource && <aside className="community-source-quote"><small>{actions.quoted} · {quoteSource.source}</small><strong>{quoteSource.title}</strong><a href={quoteSource.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<input aria-label={t.titleLabel} value={composer.title} maxLength={120} onChange={(event) => setComposer((current) => ({ ...current, title: event.target.value }))} placeholder={t.titleLabel} /><textarea aria-label={t.body} value={composer.body} maxLength={3000} rows={4} onChange={(event) => setComposer((current) => ({ ...current, body: event.target.value }))} placeholder={t.body} /><div className="community-composer-meta"><label><span>{t.kind}</span><select value={composer.kind} onChange={(event) => setComposer((current) => ({ ...current, kind: event.target.value as SocialKind }))}>{(Object.keys(t.kinds) as SocialKind[]).map((kind) => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}</select></label><label><span>{t.group}</span><input value={composer.group} maxLength={40} onChange={(event) => setComposer((current) => ({ ...current, group: event.target.value }))} /></label>{editingId && <button type="button" onClick={() => { setEditingId(""); setQuoteSource(undefined); setComposer({ title: "", body: "", kind: "workflow", group: "ByteQuant" }); }}>{actions.cancel}</button>}<button type="button" className="primary-button" disabled={!secret || busy || network === "idle" || network === "error"} onClick={() => void publishPost()}>{busy ? t.publishing : editingId ? actions.update : t.publish} ↑</button></div></div>}</section>
         <div className="community-feed-toolbar"><label><span>⌕</span><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSavedOnly(false); }} placeholder={t.search} /></label><div><button type="button" aria-pressed={!groupFilter && !savedOnly} className={!groupFilter && !savedOnly ? "active" : ""} onClick={() => { setGroupFilter(""); setSavedOnly(false); }}>{t.all}</button>{groupCounts.slice(0, 4).map(([group, count]) => <button type="button" aria-pressed={groupFilter === group} className={groupFilter === group ? "active" : ""} onClick={() => { setGroupFilter(group); setSavedOnly(false); }} key={group}>#{group} · {count}</button>)}</div></div>
         {status && <p className="community-network-message" role="status">{status}</p>}
         {network !== "connected" && network !== "partial" && <small className="community-starter-label">{t.localStarter}</small>}
@@ -323,7 +372,8 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
           const postInteractions = interactions.filter((item) => tagValue(item, "e") === event.id);
           const comments = postInteractions.filter((item) => item.kind === 1 && clean(item.content, 800).length >= 3 && reviewCommunityText(item.content).length === 0);
           const likes = new Set(postInteractions.filter((item) => item.kind === 7 && item.content === "+").map((item) => item.pubkey)).size;
-        return <article className="community-global-post" key={event.id}><header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase()}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setHidden(event.pubkey)} aria-label={t.block}>•••</button></header><div className="community-post-meta"><span>{t.kinds[content.kind]}</span>{content.group && <button type="button" onClick={() => setGroupFilter(content.group)}>#{content.group}</button>}</div><h3>{content.title}</h3><p>{content.body}</p><footer><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 7)}>♡ {t.like}{likes ? ` · ${likes}` : ""}</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setReply((current) => ({ ...current, [event.id]: current[event.id] ?? "" }))}>◌ {t.comment}{comments.length ? ` · ${comments.length}` : ""}</button><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 6)}>↻ {t.repost}</button><button type="button" className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}>☆</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => void share(event)}>↗ {t.share}</button></footer>{reply[event.id] !== undefined && <section className="community-global-comments">{comments.map((comment) => <p key={comment.id}><strong>{profiles[comment.pubkey]?.name ?? `${comment.pubkey.slice(0, 8)}…`}</strong>{clean(comment.content, 800)}</p>)}<div><textarea value={reply[event.id]} rows={2} maxLength={800} placeholder={t.commentPlaceholder} onChange={(change) => setReply((current) => ({ ...current, [event.id]: change.target.value }))} /><button type="button" disabled={!secret || !(reply[event.id] ?? "").trim()} onClick={() => void react(event, 1)}>{t.sendComment}</button></div></section>}</article>;
+        const owned = Boolean(secret && identity && event.pubkey === identity.pubkey);
+        return <article className={`community-global-post${owned ? " owned" : ""}`} key={event.id}><header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase()}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div>{owned ? <div className="community-owner-actions"><button type="button" onClick={() => editPost(event, content)}>{actions.edit}</button><button type="button" onClick={() => void deletePost(event)}>{actions.remove}</button></div> : <button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setHidden(event.pubkey)} aria-label={t.block}>•••</button>}</header><div className="community-post-meta"><span>{t.kinds[content.kind]}</span>{content.group && <button type="button" onClick={() => setGroupFilter(content.group)}>#{content.group}</button>}</div><h3>{content.title}</h3><p>{content.body}</p>{content.source && <aside className="community-source-quote"><small>{actions.quoted} · {content.source.source}</small><strong>{content.source.title}</strong><a href={content.source.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}<footer><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 7)}>♡ {t.like}{likes ? ` · ${likes}` : ""}</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => setReply((current) => ({ ...current, [event.id]: current[event.id] ?? "" }))}>◌ {t.comment}{comments.length ? ` · ${comments.length}` : ""}</button><button type="button" disabled={!secret || event.pubkey === "bytequant"} onClick={() => void react(event, 6)}>↻ {t.repost}</button><button type="button" className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}>☆</button><button type="button" disabled={event.pubkey === "bytequant"} onClick={() => void share(event)}>↗ {t.share}</button></footer>{reply[event.id] !== undefined && <section className="community-global-comments">{comments.map((comment) => <p key={comment.id}><strong>{profiles[comment.pubkey]?.name ?? `${comment.pubkey.slice(0, 8)}…`}</strong>{clean(comment.content, 800)}</p>)}<div><textarea value={reply[event.id]} rows={2} maxLength={800} placeholder={t.commentPlaceholder} onChange={(change) => setReply((current) => ({ ...current, [event.id]: change.target.value }))} /><button type="button" disabled={!secret || !(reply[event.id] ?? "").trim()} onClick={() => void react(event, 1)}>{t.sendComment}</button></div></section>}</article>;
         })}{!visiblePosts.length && <div className="community-network-empty"><span>◎</span><p>{t.empty}</p></div>}</div>
       </section>
 

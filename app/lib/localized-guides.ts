@@ -1,6 +1,7 @@
 import type { ArticleSection } from "./posts";
 import { expansionLocalizedGuides } from "./expansion-guides";
 import { essentialLocalizedGuides } from "./essential-guides";
+import { precisionLocalizedGuides } from "./precision-guides";
 
 export type LocalizedGuideLocale = "de" | "zh";
 type GuideCopy = { title: string; excerpt: string; description: string; category: string; readTime: string; sections: ArticleSection[] };
@@ -499,7 +500,7 @@ localizedGuides.push(
   },
 );
 
-localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides);
+localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides);
 
 export const legacyLocalizedGuideSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",

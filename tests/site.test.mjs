@@ -6,7 +6,7 @@ const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 const readSource = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
-const toolAliases = new Set(["kredi-taksit-hesaplayici", "tarih-sure-hesaplayici", "kelime-sikligi-analizoru", "okunabilirlik-on-analizi", "liste-siralama-temizleme", "sri-hash-olusturucu"]);
+const toolAliases = new Set(["kredi-taksit-hesaplayici", "tarih-sure-hesaplayici", "kelime-sikligi-analizoru", "okunabilirlik-on-analizi", "liste-siralama-temizleme", "sri-hash-olusturucu", "yuzde-degisim-hizli-hesaplayici", "indirim-kdv-hesaplayici", "rastgele-takim-olusturucu", "query-string-olusturucu", "http-durum-kodu-rehberi", "mime-turu-bulucu"]);
 
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
@@ -29,7 +29,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 4\.1/);
+    assert.match(page, /BQ-Agent 4\.2/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -96,6 +96,14 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /de\/blog\/unicode-subtitles-morse-text-integrity/);
   assert.match(sitemap, /zh\/blog\/browser-data-delivery-json-csv-http-identifiers/);
   assert.match(sitemap, /blog\/local-design-security-finance-planning/);
+  assert.match(sitemap, /araclar\/talimat-cakisma-denetleyici/);
+  assert.match(sitemap, /en\/tools\/csv-pivot-ozeti/);
+  assert.match(sitemap, /de\/tools\/cors-politikasi-denetleyici/);
+  assert.match(sitemap, /zh\/tools\/kaynak-guncellik-takipcisi/);
+  assert.match(sitemap, /blog\/prompt-yonetisimi-degerlendirme-rehberi/);
+  assert.match(sitemap, /en\/blog\/gizlilik-saklama-anonimlestirme-rehberi/);
+  assert.match(sitemap, /de\/blog\/api-teslim-guvenlik-kontrol-listesi/);
+  assert.match(sitemap, /zh\/blog\/kanit-odakli-arastirma-ve-guncellik-rehberi/);
   assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/workspace\//);
   assert.match(sitemap, /de\/references\/regex-cheat-sheet/);
   assert.match(sitemap, /zh\/references\/cron-cheat-sheet/);
@@ -108,7 +116,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 205);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 234);
   assert.match(home, /Araçlarda anında ara/);
   assert.match(german, /Werkzeuge sofort durchsuchen/);
   assert.match(chinese, /即时搜索工具/);
@@ -155,10 +163,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 211);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 211);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 211);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 211);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 246);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 246);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 246);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 246);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -201,6 +209,14 @@ test("exports all tool and guide routes", async () => {
   await access(new URL("de/blog/browser-tool-handoff-json-csv-base64/index.html", root));
   await access(new URL("zh/blog/open-source-browser-tool-security-audit/index.html", root));
   await access(new URL("zh/blog/core-web-vitals-client-side-tools/index.html", root));
+  for (const slug of ["prompt-yonetisimi-degerlendirme-rehberi", "gizlilik-saklama-anonimlestirme-rehberi", "api-teslim-guvenlik-kontrol-listesi", "csv-json-veri-yeniden-sekillendirme-rehberi", "kanit-odakli-arastirma-ve-guncellik-rehberi"]) {
+    await Promise.all([
+      access(new URL(`blog/${slug}/index.html`, root)),
+      access(new URL(`en/blog/${slug}/index.html`, root)),
+      access(new URL(`de/blog/${slug}/index.html`, root)),
+      access(new URL(`zh/blog/${slug}/index.html`, root)),
+    ]);
+  }
   await access(new URL("topluluk/index.html", root));
   await access(new URL("en/community/index.html", root));
   await access(new URL("referanslar/regex-cheat-sheet/index.html", root));
@@ -251,6 +267,37 @@ test("ships exactly 25 new working tools and seven deep guides in all four local
     }
   }
   for (const post of essentialPosts) {
+    await Promise.all([
+      access(new URL(`blog/${post.slug}/index.html`, root)),
+      access(new URL(`en/blog/${post.slug}/index.html`, root)),
+      access(new URL(`de/blog/${post.slug}/index.html`, root)),
+      access(new URL(`zh/blog/${post.slug}/index.html`, root)),
+    ]);
+  }
+});
+
+test("ships 35 distinct precision tools and five long guides in all four locales", async () => {
+  const [{ precisionToolSlugs }, { precisionPosts, precisionLocalizedGuides }] = await Promise.all([
+    import("../app/lib/precision-tools.ts"),
+    import("../app/lib/precision-guides.ts"),
+  ]);
+  assert.equal(precisionToolSlugs.size, 35);
+  assert.equal(precisionPosts.length, 5);
+  assert.equal(precisionLocalizedGuides.length, 5);
+  for (const slug of precisionToolSlugs) {
+    const pages = await Promise.all([
+      read(`araclar/${slug}/index.html`),
+      read(`en/tools/${slug}/index.html`),
+      read(`de/tools/${slug}/index.html`),
+      read(`zh/tools/${slug}/index.html`),
+    ]);
+    for (const page of pages) {
+      assert.match(page, /HowTo/);
+      assert.match(page, /precision-workbench/);
+      assert.doesNotMatch(page, /noindex, follow/);
+    }
+  }
+  for (const post of precisionPosts) {
     await Promise.all([
       access(new URL(`blog/${post.slug}/index.html`, root)),
       access(new URL(`en/blog/${post.slug}/index.html`, root)),
@@ -467,7 +514,7 @@ test("exports 27 local productivity tools with working handlers and four guides 
     "tempo-hiz-donusturucu",
   ];
   const localeRoots = ["araclar", "en/tools", "de/tools", "zh/tools"];
-  const pages = await Promise.all(localeRoots.flatMap((localeRoot) => slugs.map((slug) => read(`${localeRoot}/${slug}/index.html`))));
+  const pages = await Promise.all(localeRoots.flatMap((localeRoot) => slugs.filter((slug) => !toolAliases.has(slug)).map((slug) => read(`${localeRoot}/${slug}/index.html`))));
   for (const page of pages) {
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
@@ -582,18 +629,26 @@ test("keeps legacy mixed-language guide slugs as noindex canonical aliases", asy
 });
 
 test("consolidates duplicate tools without breaking established URLs", async () => {
-  const [turkish, english, german, chinese, sitemap, llms] = await Promise.all([
+  const [turkish, english, german, chinese, newTurkish, newEnglish, newGerman, newChinese, sitemap, llms] = await Promise.all([
     read("araclar/kredi-taksit-hesaplayici/index.html"),
     read("en/tools/tarih-sure-hesaplayici/index.html"),
     read("de/tools/kelime-sikligi-analizoru/index.html"),
     read("zh/tools/sri-hash-olusturucu/index.html"),
+    read("araclar/yuzde-degisim-hizli-hesaplayici/index.html"),
+    read("en/tools/query-string-olusturucu/index.html"),
+    read("de/tools/http-durum-kodu-rehberi/index.html"),
+    read("zh/tools/mime-turu-bulucu/index.html"),
     read("sitemap.xml"), read("llms.txt"),
   ]);
-  for (const page of [turkish, english, german, chinese]) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+  for (const page of [turkish, english, german, chinese, newTurkish, newEnglish, newGerman, newChinese]) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
   assert.match(turkish, /rel="canonical" href="https:\/\/bytequant\.org\/araclar\/kredi-odeme-hesaplayici\//);
   assert.match(english, /rel="canonical" href="https:\/\/bytequant\.org\/en\/tools\/tarih-farki-hesaplayici\//);
   assert.match(german, /rel="canonical" href="https:\/\/bytequant\.org\/de\/tools\/kelime-sikligi-ngram-analizi\//);
   assert.match(chinese, /rel="canonical" href="https:\/\/bytequant\.org\/zh\/tools\/sri-butunluk-hash-uretici\//);
+  assert.match(newTurkish, /rel="canonical" href="https:\/\/bytequant\.org\/araclar\/yuzde-degisim-hesaplayici\//);
+  assert.match(newEnglish, /rel="canonical" href="https:\/\/bytequant\.org\/en\/tools\/sorgu-dizesi-json-donusturucu\//);
+  assert.match(newGerman, /rel="canonical" href="https:\/\/bytequant\.org\/de\/tools\/http-durum-kodu-gezgini\//);
+  assert.match(newChinese, /rel="canonical" href="https:\/\/bytequant\.org\/zh\/tools\/mime-tipi-inceleyici\//);
   for (const slug of toolAliases) { assert.doesNotMatch(sitemap, new RegExp(`(?:araclar|tools)/${slug}`)); assert.doesNotMatch(llms, new RegExp(`/tools/${slug}`)); }
 });
 
@@ -666,8 +721,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>76<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>76<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>81<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>81<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -712,13 +767,14 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 4\.1/);
+    assert.match(page, /BQ-Agent 4\.2/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
     assert.match(page, /hrefLang="zh-CN"/);
     assert.match(page, /hrefLang="x-default"/);
     assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
+    assert.doesNotMatch(page, /211 (?:araçlık|tools|Werkzeuge|个工具)/);
   }
   assert.match(turkish, /üçüncü taraf model|dış model isteği/i);
   assert.match(english, /not a generative LLM/i);
@@ -753,10 +809,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /205 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 205 tools in a visual workflow/);
-  assert.match(german, /205 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 205 个工具/);
+  assert.match(turkish, /234 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 234 tools in a visual workflow/);
+  assert.match(german, /234 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 234 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
@@ -773,6 +829,7 @@ test("exports the four-language visual workstation and private recipe importer",
     assert.match(page, /hrefLang="x-default"/);
     assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
   }
+  for (const page of [turkish, english, german, chinese]) assert.doesNotMatch(page, /211 (?:araçlık|tools|Werkzeuge|个工具)/);
   assert.match(importer, /name="robots" content="noindex, nofollow, noarchive"|content="noindex, nofollow, noarchive" name="robots"/);
   assert.match(importer, /rel="canonical" href="https:\/\/bytequant\.org\/en\/workstation\//);
   assert.doesNotMatch(importer, /FAQPage|HowTo|WebApplication/);
@@ -807,9 +864,10 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
 });
 
 test("exports finite official-source updates and verified session-only P2P chat", async () => {
-  const [tr, en, de, zh, trCommunity, enCommunity, syncSource] = await Promise.all([
+  const [tr, en, de, zh, trCommunity, enCommunity, syncSource, networkSource, newsClientSource] = await Promise.all([
     read("guncel/index.html"), read("en/updates/index.html"), read("de/updates/index.html"), read("zh/updates/index.html"),
     read("topluluk/index.html"), read("en/community/index.html"), readSource("scripts/sync-news.mjs"),
+    readSource("app/components/CommunityNetwork.tsx"), readSource("app/components/NewsFeedClient.tsx"),
   ]);
   for (const page of [tr, en, de, zh]) {
     assert.doesNotThrow(() => jsonLd(page));
@@ -835,6 +893,13 @@ test("exports finite official-source updates and verified session-only P2P chat"
   assert.match(syncSource, /NCSC/);
   assert.match(syncSource, /NOAA/);
   assert.match(syncSource, /AbortSignal\.timeout\(15_000\)/);
+  assert.match(networkSource, /kinds: \[1, 5\]/);
+  assert.match(networkSource, /async function deletePost/);
+  assert.match(networkSource, /function editPost/);
+  assert.match(networkSource, /publishEvent\(5,/);
+  assert.match(networkSource, /community-source-quote/);
+  assert.match(newsClientSource, /bytequant:community-news-quote:v1/);
+  assert.match(newsClientSource, /Toplulukta alıntıla|Quote in Community/);
 });
 
 test("ships the July 26 depth, local-social, and supply-chain quality pass", async () => {

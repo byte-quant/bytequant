@@ -6,22 +6,22 @@
 [![Build and deploy](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/byte-quant/bytequant/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/license-MIT-3657ff)](LICENSE)
 
-ByteQuant is a privacy-first, installable web application containing 205 distinct browser-native tools plus six backward-compatible canonical aliases. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
+ByteQuant is a privacy-first, installable web application containing 234 distinct browser-native tools plus twelve backward-compatible canonical aliases. It supports Turkish, English, German, and Simplified Chinese, produces a fully static Next.js export, and is designed for GitHub Pages.
 
 **Live site:** [bytequant.org](https://bytequant.org)
 
 ## Product at a glance
 
-- 205 distinct working tools across ten typed categories, with six established duplicate URLs preserved as `noindex, follow` canonical aliases so bookmarks and inbound links keep working
+- 234 distinct working tools across ten typed categories, with twelve established duplicate URLs preserved as `noindex, follow` canonical aliases so bookmarks and inbound links keep working
 - Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
 - 69 long-form editorial guides in Turkish and English, including 41 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
-- Explainable Local Agent 3.0 with follow-up intent detection, contextual replies, three visible specialist checks, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved plans, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
-- Lazy-loaded visual Workstation across all 205 distinct tools, with fifteen starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
+- Explainable Local Agent 4.2 with follow-up intent detection, contextual replies, visible specialist checks, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved local execution, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
+- Lazy-loaded visual Workstation across all 234 distinct tools, with nineteen starter flows, a focus view, complex-flow navigator and health cues, Agent plan import, 40-step undo/redo, zoom/pan/minimap navigation, explicit tool handoff, encrypted IndexedDB projects, compressed recipe URLs, and manual WebRTC DataChannel rooms
 - On-device PDF/image operations, Web Crypto utilities, bounded Worker-based scans, and no remote AI or malware-scanning API
 - Related tools, smart next-tool handoff, before/after review, batch mode for common text/data tasks, consent-gated favorites and usage shortcuts, command palette, responsive layouts, and accessible operation-state UI
-- Account-free, local-first social board with public/private local profiles, public/private/group posts, likes/comments/saves, private groups, discovery filters, spam/secret/personal-data pre-checks, content-carrying share links, privacy-filtered JSON packs, Markdown export, native sharing, optional GitHub Discussions publishing, and a manually verified session-only P2P chat
-- A finite updates feed generated at build time from allowlisted official NASA, NIST, CISA, and openly licensed GOV.UK feeds; short official-feed summaries are retained only where reuse terms allow them, with source links, reading state, and four-language verification guidance
+- Account-free Nostr community with device-encrypted identity, configurable public relays, global posts, replies, reactions, reposts, saves, profiles, source quotes, author-controlled edit/delete requests, local moderation controls, and a separate manually verified session-only P2P chat
+- A finite updates feed generated at build time from allowlisted official NASA, NIST, CISA, GOV.UK, NSF, NIH, ESA, NCSC, and NOAA feeds; short attributed feed descriptions are shown with source links, reading state, and a one-click Community quote flow
 - Static sitemap, robots directives, llms.txt, four-language metadata, RSS feeds, security policy, and GitHub Pages deployment
 
 ## Privacy and security model
@@ -60,7 +60,7 @@ Next.js App Router (static export)
 ├─ Shared typed tool catalogue and localized metadata
 ├─ Local Agent orchestration
 │  ├─ multilingual semantic scorer + versioned plan recipes
-│  ├─ tab-scoped session bridge across all 205 distinct tools
+│  ├─ tab-scoped session bridge across all 234 distinct tools
 │  └─ no remote model, remote speech fallback, or hidden chain-of-thought
 ├─ Visual Workstation (route-level lazy bundle)
 │  ├─ native HTML/SVG nodes + explicit tool bridge
@@ -68,7 +68,7 @@ Next.js App Router (static export)
 │  ├─ gzip/Base64url recipes in a Web Worker
 │  └─ manual WebRTC DataChannel rooms; no signaling/STUN/TURN
 ├─ Source-transparent updates
-│  ├─ build-time allowlisted NASA/NIST/CISA/GOV.UK feed sync
+│  ├─ build-time allowlisted official-source feed sync with validation, deduplication, date sorting, and spam rejection
 │  └─ finite cards + local reading state + reuse-aware official-feed summaries
 ├─ Client-side workbenches
 │  ├─ Web APIs / Web Crypto / Canvas
@@ -82,9 +82,9 @@ No secret belongs in the client bundle. Source code is intentionally maintainabl
 
 ## Repository identity
 
-ByteQuant is an open-source, privacy-first browser workbench: 205 distinct local tools, an explainable workflow Agent, an encrypted visual Workstation, four-language guides, and a source-transparent updates desk. The repository intentionally avoids remote inference, hidden telemetry, fake community metrics, and server-side processing of tool input.
+ByteQuant is an open-source, privacy-first browser workbench: 234 distinct local tools, an explainable workflow Agent, an encrypted visual Workstation, four-language guides, and a source-transparent updates desk. The repository intentionally avoids remote inference, hidden telemetry, fake community metrics, and server-side processing of tool input.
 
-Recommended GitHub About description: `Privacy-first browser workbench with 205 distinct local tools, an explainable Agent, encrypted visual workflows, and four-language guides.`
+Recommended GitHub About description: `Privacy-first browser workbench with 234 distinct local tools, an explainable Agent, encrypted visual workflows, and four-language guides.`
 
 Recommended topics: `privacy-tools`, `browser-tools`, `nextjs`, `typescript`, `pwa`, `local-first`, `web-crypto`, `developer-tools`, `workflow-automation`, `i18n`, `static-site`, `open-source`.
 

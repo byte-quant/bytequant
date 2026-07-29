@@ -140,6 +140,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
 
   return <section className="agent-chat-app" aria-label={t.hello}>
     <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {t.private}</small></div></div><div><span>{turns.length ? t.memory : t.network}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
+    <div className="agent-capability-path" aria-label={locale === "tr" ? "Ajan çalışma biçimi" : locale === "de" ? "Arbeitsweise des Agenten" : locale === "zh" ? "助手工作方式" : "How the Agent works"}><span><b>1</b>{locale === "tr" ? "İsteği anlar" : locale === "de" ? "Ziel verstehen" : locale === "zh" ? "理解目标" : "Understand"}</span><i>→</i><span><b>2</b>{locale === "tr" ? "Veriyi hazırlar" : locale === "de" ? "Daten vorbereiten" : locale === "zh" ? "准备数据" : "Prepare"}</span><i>→</i><span><b>3</b>{locale === "tr" ? "Onayınızla çalışır" : locale === "de" ? "Mit Freigabe ausführen" : locale === "zh" ? "经确认执行" : "Run with approval"}</span></div>
 
     <div className="agent-chat-stream" aria-live="polite">
       <article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><p>{t.helloBody}</p></div></article>

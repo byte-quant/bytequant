@@ -51,17 +51,15 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
             <details className="mobile-menu">
               <summary aria-label={localized("Menüyü aç", "Open menu", "Menü öffnen", "打开菜单")}>☰</summary>
               <div className="mobile-menu-panel">
-                <div className="mobile-menu-heading"><strong>{localized("Nereye gitmek istersiniz?", "Where would you like to go?", "Wohin möchten Sie?", "您想去哪里？")}</strong><span>{localized("Tek iş için Araçlar, yol haritası için Ajan, çok adım için İş İstasyonu", "Tools for one task, Agent for a plan, Workstation for multi-step flows", "Werkzeuge für eine Aufgabe, Agent für den Plan, Workstation für Abläufe", "单项任务用工具，规划用助手，多步骤用工作站")}</span></div>
-                <Link className="mobile-menu-primary" href={pathFor(locale, "tools")}><span>{t.nav.tools}</span><small>{tools.length}</small></Link>
-                <Link className="agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</Link>
-                <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</Link>
-                <Link href={pathFor(locale, "community")}>{localized("Topluluk", "Community", "Community", "社区")}</Link>
-                <Link href={pathFor(locale, "news")}>{localized("Gündem", "Updates", "Aktuell", "动态")}</Link>
-                <Link href={pathFor(locale, "blog")}>{t.nav.blog}</Link>
-                <Link href={pathFor(locale, "about")}>{t.nav.about}</Link>
-                <Link href={pathFor(locale, "faq")}>{t.nav.faq}</Link>
-                <Link href={pathFor(locale, "contact")}>{t.nav.contact}</Link>
-                <PwaInstall locale={locale} compact />
+                <div className="mobile-menu-heading"><strong>{localized("Nereden başlamak istersiniz?", "Where would you like to start?", "Wo möchten Sie beginnen?", "您想从哪里开始？")}</strong><span>{localized("Tek iş, akıllı plan veya çok adımlı akış—size uygun yolu seçin.", "Choose one task, a guided plan, or a multi-step workflow.", "Wählen Sie Einzelaufgabe, geführten Plan oder mehrstufigen Ablauf.", "选择单项任务、引导计划或多步骤工作流。")}</span></div>
+                <div className="mobile-menu-product-grid">
+                  <Link className="mobile-menu-primary" href={pathFor(locale, "tools")}><b>⌕</b><span><strong>{t.nav.tools}</strong><small>{tools.length} · {localized("hemen kullan", "use now", "sofort nutzen", "立即使用")}</small></span></Link>
+                  <Link className="agent-nav-link" href={pathFor(locale, "agent")}><b>✦</b><span><strong>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</strong><small>{localized("Hedefi plana çevir", "Turn a goal into a plan", "Ziel in Plan umwandeln", "把目标变成计划")}</small></span></Link>
+                  <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><b>⌘</b><span><strong>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</strong><small>{localized("Adımları görsel bağla", "Connect steps visually", "Schritte visuell verbinden", "可视化连接步骤")}</small></span></Link>
+                </div>
+                <div className="mobile-menu-section"><strong>{localized("Keşfet", "Explore", "Entdecken", "探索")}</strong><div><Link href={pathFor(locale, "community")}>◎ {localized("Topluluk", "Community", "Community", "社区")}</Link><Link href={pathFor(locale, "news")}>◉ {localized("Gündem", "Updates", "Aktuell", "动态")}</Link><Link href={pathFor(locale, "blog")}>□ {t.nav.blog}</Link><Link href={pathFor(locale, "about")}>↗ {t.nav.about}</Link><Link href={pathFor(locale, "faq")}>? {t.nav.faq}</Link><Link href={pathFor(locale, "contact")}>@ {t.nav.contact}</Link></div></div>
+                <div className="mobile-menu-section mobile-language-section"><strong>{localized("Dil", "Language", "Sprache", "语言")}</strong><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}><span>{localeNames[item]}</span><small>{item === locale ? "✓" : item.toUpperCase()}</small></Link>)}</div></div>
+                <div className="mobile-install-row"><PwaInstall locale={locale} compact /><small>{localized("Tarayıcınız destekliyorsa ana ekrana eklenir.", "Adds to your home screen when supported.", "Wird bei Unterstützung zum Startbildschirm hinzugefügt.", "浏览器支持时可添加到主屏幕。")}</small></div>
               </div>
             </details>
           </div>

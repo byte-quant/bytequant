@@ -94,6 +94,11 @@ const conceptGroups = [
   ["salary", "hourly", "maaş", "ücret", "gehalt", "stundenlohn", "薪资", "时薪"],
   ["date", "duration", "age", "tarih", "süre", "yaş", "datum", "dauer", "alter", "日期", "时长", "年龄"],
   ["deduplicate", "sort lines", "tekilleştir", "satır sırala", "duplikate", "zeilen sortieren", "去重", "行排序"],
+  ["cors", "oauth", "cache-control", "content-disposition", "cookie", "redirect uri", "yönlendirme", "weiterleitung", "重定向", "缓存"],
+  ["pivot", "reshape", "long wide", "uzun geniş", "sabit genişlik", "fixed width", "umformen", "透视", "长表", "宽表"],
+  ["pico", "boolean search", "evidence gap", "kanıt boşluğu", "güncellik", "freshness", "evidenzlücke", "布尔检索", "证据缺口"],
+  ["anonymisation", "anonymization", "anonimleştirme", "retention", "saklama süresi", "aufbewahrung", "匿名化", "保留期限"],
+  ["cagr", "roas", "roi", "growth", "büyüme", "return on ad spend", "wachstum", "增长率", "广告回报"],
 ] as const;
 
 const fileTools = new Set([
@@ -249,6 +254,12 @@ const recipes: Recipe[] = [
   { test: [/(jwt|token)/i, /(decode|çöz|inspect|incele|ablauf|解码|检查)/i], steps: ["jwt-decoder", "unix-zaman-damgasi-donusturucu", "json-bicimlendirici"], signal: { tr: "JWT yapısı ve zaman alanları incelemesi", en: "JWT structure and timestamp inspection", de: "JWT-Struktur- und Zeitstempelprüfung", zh: "JWT 结构与时间戳检查" } },
   { test: [/(code|kod|source|kaynak|quellcode|代码)/i, /(secret|gizli|security|güven|scan|tara|sicherheit|安全|扫描)/i], steps: ["kod-guvenligi-on-taramasi", "dosya-risk-on-taramasi", "dosya-hash-karsilastirici"], signal: { tr: "Kod ve dosya güvenliği ön denetimi", en: "Code and file safety pre-audit", de: "Code- und Dateisicherheits-Vorprüfung", zh: "代码与文件安全预审" } },
   { test: [/(citation|atıf|kaynakça|apa|mla|zitat|引用)/i], steps: ["kaynakca-atif-formatlayici", "unicode-normalizasyon-inceleyici"], signal: { tr: "Kaynakça biçimi ve Unicode tutarlılığı", en: "Citation formatting and Unicode consistency", de: "Zitierformat und Unicode-Konsistenz", zh: "引用格式与 Unicode 一致性" } },
+  { test: [/(cors|oauth|redirect|yönlendirme|weiterleitung|重定向)/i], steps: ["cors-politikasi-denetleyici", "oauth-yonlendirme-uri-denetleyici", "http-cache-control-olusturucu"], signal: { tr: "Origin, kimlik dönüşü ve önbellek sınırlarını birlikte doğrulayan API teslim akışı", en: "API delivery flow covering origins, identity redirects, and cache boundaries", de: "API-Auslieferung mit Origin-, OAuth-Redirect- und Cache-Grenzen", zh: "覆盖来源、身份重定向和缓存边界的 API 交付流程" } },
+  { test: [/(csv|table|tablo|tabelle|表格)/i, /(pivot|reshape|long|wide|uzun|geniş|umform|透视|长表|宽表)/i], steps: ["csv-inceleyici", "csv-pivot-ozeti", "csv-uzun-genis-donusturucu"], signal: { tr: "CSV kalite kontrolü, pivot özeti ve uzun-geniş yeniden şekillendirme", en: "CSV quality check, pivot summary, and long-wide reshaping", de: "CSV-Prüfung, Pivot-Zusammenfassung und Long-Wide-Umformung", zh: "CSV 质量检查、透视汇总与长宽重塑" } },
+  { test: [/(research|araştır|recherche|研究|evidence|kanıt|evidenz|证据)/i], steps: ["pico-arastirma-sorusu-olusturucu", "boolean-arama-stratejisi-olusturucu", "iddia-kanit-boslugu-inceleyici", "kaynak-guncellik-takipcisi"], signal: { tr: "Sorudan arama stratejisine, iddia kanıtına ve güncellik kontrolüne uzanan araştırma zinciri", en: "Research chain from question and search strategy to claim evidence and freshness", de: "Recherchekette von Frage und Suche bis Evidenz und Aktualität", zh: "从问题和检索策略到主张证据与时效核验的研究链" } },
+  { test: [/(retention|saklama|aufbewahrung|保留|anonym|anonim|匿名)/i], steps: ["veri-saklama-suresi-planlayici", "anonimlestirme-risk-on-kontrolu", "kvkk-veri-maskeleyici"], signal: { tr: "Veri saklama gerekçesi, yeniden tanımlama riski ve kontrollü maskeleme", en: "Retention purpose, re-identification risk, and controlled masking", de: "Aufbewahrungszweck, Re-Identifikationsrisiko und kontrollierte Maskierung", zh: "数据保留目的、重新识别风险与受控掩码" } },
+  { test: [/(few-shot|example|örnek|beispiel|示例)/i, /(test|coverage|kapsam|evaluation|değerlendir|bewert|评估)/i], steps: ["few-shot-kapsama-analizoru", "degerlendirme-veri-seti-sablonu", "talimat-cakisma-denetleyici"], signal: { tr: "Örnek kapsamı, değerlendirme vakası ve talimat çakışması için prompt kalite zinciri", en: "Prompt quality chain for example coverage, evaluation cases, and instruction conflicts", de: "Prompt-Qualitätskette für Beispielabdeckung, Evaluation und Konflikte", zh: "用于示例覆盖、评估用例和指令冲突的提示词质量链" } },
+  { test: [/(cagr|roas|roi|growth|büyüme|wachstum|增长|回报)/i], steps: ["cagr-hesaplayici", "roas-roi-hesaplayici"], signal: { tr: "Büyüme ve reklam getirisi varsayımlarını ayrı gösteren hesaplama", en: "Calculation that separates growth and advertising-return assumptions", de: "Berechnung mit getrennten Wachstums- und Werberenditeannahmen", zh: "区分增长与广告回报假设的计算流程" } },
 ];
 
 function stepReason(locale: Locale, tool: Tool, index: number) {

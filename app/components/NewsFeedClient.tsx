@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Locale } from "../lib/site";
+import { useRouter } from "next/navigation";
+import { pathFor, type Locale } from "../lib/site";
 import type { NewsItem } from "../lib/generated-news";
 
 const copy = {
@@ -12,6 +13,7 @@ const copy = {
 } as const;
 
 const resetCopy: Record<Locale, string> = { tr: "Filtreleri temizle", en: "Clear filters", de: "Filter zurücksetzen", zh: "清除筛选" };
+const quoteCopy: Record<Locale, string> = { tr: "Toplulukta alıntıla", en: "Quote in Community", de: "In Community zitieren", zh: "引用到社区" };
 
 const insights = {
   tr: {
@@ -51,6 +53,7 @@ const key = "bytequant:news-favorites:v2";
 const reviewedKey = "bytequant:news-reviewed:v2";
 
 export function NewsFeedClient({ locale, items }: { locale: Locale; items: NewsItem[] }) {
+  const router = useRouter();
   const t = copy[locale];
   const [category, setCategory] = useState<"all" | NewsItem["category"]>("all");
   const [source, setSource] = useState<"all" | NewsItem["source"]>("all");
@@ -70,6 +73,11 @@ export function NewsFeedClient({ locale, items }: { locale: Locale; items: NewsI
   const filters: Array<[typeof category, string]> = [["all", t.all], ["science", t.science], ["technology", t.technology], ["security", t.security], ["standards", t.standards]];
   function toggle(field: "favorites" | "reviewed", id: string) { const setter = field === "favorites" ? setFavorites : setReviewed; const storage = field === "favorites" ? key : reviewedKey; setter((current) => { const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id].slice(-200); try { localStorage.setItem(storage, JSON.stringify(next)); } catch { /* optional preference */ } return next; }); }
   async function share(item: NewsItem) { if (navigator.share) { try { await navigator.share({ title: item.title, url: item.url }); return; } catch { return; } } try { await navigator.clipboard.writeText(`${item.title}\n${item.url}`); } catch { /* source link remains visible */ } }
+  function quoteInCommunity(item: NewsItem) {
+    const sourceSummary = item.sourceSummary?.trim() || insights[locale][item.category].brief;
+    sessionStorage.setItem("bytequant:community-news-quote:v1", JSON.stringify({ title: item.title, body: sourceSummary, url: item.url, source: item.source }));
+    router.push(`${pathFor(locale, "community")}#global-community`);
+  }
   return <section className="news-feed" aria-label={t.view}>
     <div className="news-reader-head"><div><span className="kicker">{t.view}</span><h2>{t.workflow}</h2><small>◉ {t.local}</small></div><label><span aria-hidden="true">⌕</span><input type="search" value={query} placeholder={t.search} onChange={(event) => { setQuery(event.target.value); setLimit(12); }} /></label></div>
     <div className="news-controls"><div>{filters.map(([value, label]) => <button type="button" aria-pressed={category === value && !savedOnly} className={category === value && !savedOnly ? "active" : ""} key={value} onClick={() => { setCategory(value); setSavedOnly(false); setLimit(12); }}>{label}</button>)}<button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setLimit(12); }}>☆ {t.savedOnly} · {favorites.length}</button></div><span>{filtered.length} {t.showing}</span></div>
@@ -80,7 +88,7 @@ export function NewsFeedClient({ locale, items }: { locale: Locale; items: NewsI
       <h3 lang={item.sourceLanguage}>{item.title}</h3>
       <section className="news-source-brief-prominent"><strong>{t.sourceBrief}</strong><p lang={item.sourceLanguage}>{summary}</p><small>{item.summaryOrigin === "feed" ? t.sourceNote : t.metadataNote}</small></section>
       {terms.length > 0 && <details className="news-glossary"><summary>{t.terms}<span>+</span></summary>{terms.map((term) => <p key={term}>{term}</p>)}</details>}
-      <footer><button type="button" className={favorites.includes(item.id) ? "active" : ""} aria-pressed={favorites.includes(item.id)} onClick={() => toggle("favorites", item.id)}>☆ {favorites.includes(item.id) ? t.saved : t.save}</button><button type="button" className={reviewed.includes(item.id) ? "active" : ""} aria-pressed={reviewed.includes(item.id)} onClick={() => toggle("reviewed", item.id)}>✓ {reviewed.includes(item.id) ? t.reviewed : t.markReviewed}</button><button type="button" onClick={() => void share(item)}>↗ {t.share}</button><a href={item.url} target="_blank" rel="noreferrer noopener">{t.open} ↗</a></footer>
+      <footer><button type="button" className={favorites.includes(item.id) ? "active" : ""} aria-pressed={favorites.includes(item.id)} onClick={() => toggle("favorites", item.id)}>☆ {favorites.includes(item.id) ? t.saved : t.save}</button><button type="button" className={reviewed.includes(item.id) ? "active" : ""} aria-pressed={reviewed.includes(item.id)} onClick={() => toggle("reviewed", item.id)}>✓ {reviewed.includes(item.id) ? t.reviewed : t.markReviewed}</button><button type="button" onClick={() => void share(item)}>↗ {t.share}</button><button type="button" onClick={() => quoteInCommunity(item)}>❝ {quoteCopy[locale]}</button><a href={item.url} target="_blank" rel="noreferrer noopener">{t.open} ↗</a></footer>
     </article>; })}{!visible.length && <div className="news-empty"><p>{t.empty}</p><button type="button" onClick={() => { setCategory("all"); setSource("all"); setSavedOnly(false); setQuery(""); setLimit(12); }}>{resetCopy[locale]}</button></div>}</div>
     {visible.length < filtered.length && <button className="news-more" type="button" onClick={() => setLimit((value) => value + 12)}>{t.more} ↓</button>}
   </section>;

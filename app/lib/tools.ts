@@ -3,6 +3,7 @@ import { localizeTool, type BaseTool } from "./tool-locales";
 import { productivityTools } from "./productivity-tools";
 import { expansionTools } from "./expansion-tools";
 import { essentialTools } from "./essential-tools";
+import { precisionTools } from "./precision-tools";
 import { canonicalToolSlug, isToolAlias } from "./tool-aliases";
 
 export type ToolCategory = "prompt" | "text" | "data" | "converter" | "security" | "calculation" | "general" | "ai" | "codeSecurity" | "research";
@@ -807,7 +808,7 @@ const discoveryTools: BaseTool[] = [
   { slug: "semver-karsilastirici", category: "data", mark: "104", title: { tr: "SemVer Karşılaştırıcı", en: "SemVer Comparator" }, short: { tr: "Sürüm numaralarını SemVer ön sürüm kurallarıyla karşılaştırın ve sıralayın.", en: "Compare and sort versions with SemVer prerelease precedence rules." }, description: { tr: "major.minor.patch sürümlerini ve alpha.1 gibi ön sürüm tanımlayıcılarını SemVer önceliğine göre doğrular, karşılaştırır ve sıralar. Build metadata önceliği değiştirmez; araç bağımlılık uyumluluğunu tek başına kanıtlamaz.", en: "Validates, compares, and sorts major.minor.patch versions with prerelease identifiers such as alpha.1 according to SemVer precedence. Build metadata does not affect precedence, and the result alone does not prove dependency compatibility." }, useCases: { tr: ["Sürüm listesi sıralama", "Yayın önceliği kontrolü", "Ön sürüm karşılaştırma"], en: ["Sorting release lists", "Checking release precedence", "Comparing prereleases"] }, steps: { tr: ["Her satıra bir sürüm yazın.", "Doğrulama ve sıralamayı çalıştırın.", "Uyumluluk kararını paket sözleşmesi ve değişiklik günlüğüyle birlikte verin."], en: ["Enter one version per line.", "Run validation and sorting.", "Decide compatibility together with the package contract and changelog."] } },
 ];
 
-export const tools: Tool[] = [...baseTools, ...demandTools, ...discoveryTools, ...productivityTools, ...expansionTools, ...essentialTools].map(localizeTool);
+export const tools: Tool[] = [...baseTools, ...demandTools, ...discoveryTools, ...productivityTools, ...expansionTools, ...essentialTools, ...precisionTools].map(localizeTool);
 export const publicTools: Tool[] = tools.filter((tool) => !isToolAlias(tool.slug));
 
 const relatedBySlug: Record<string, string[]> = {

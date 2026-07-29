@@ -80,6 +80,22 @@ function encodeBase64(input: string) {
   return btoa(binary);
 }
 
+function keyValueToJson(input: string, sections: boolean, locale: Locale) {
+  const root: Record<string, unknown> = {};
+  let target = root;
+  for (const raw of input.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || /^[#!;]/.test(line)) continue;
+    const section = sections ? line.match(/^\[([^\]]+)]$/) : null;
+    if (section) { const name = section[1].trim(); const bucket: Record<string, string> = {}; root[name] = bucket; target = bucket; continue; }
+    const match = line.match(/^([^=:\s][^=:]*?)\s*[=:]\s*(.*)$/);
+    if (!match) continue;
+    target[match[1].trim()] = match[2].trim();
+  }
+  if (!Object.keys(root).length) throw new Error(messages[locale].json);
+  return JSON.stringify(root, null, 2);
+}
+
 function runStep(slug: string, input: string, locale: Locale): { output: string; validated: boolean } {
   switch (slug) {
     case "csv-inceleyici": {
@@ -98,11 +114,16 @@ function runStep(slug: string, input: string, locale: Locale): { output: string;
     case "base64-kodlayici": return { output: encodeBase64(input), validated: false };
     case "url-kodlayici": return { output: encodeURIComponent(input), validated: false };
     case "unicode-normalizasyon-inceleyici": return { output: input.normalize("NFC"), validated: false };
+    case "beyaz-alan-gorunurlestirici": return { output: input.replace(/\t/g, "⇥\t").replace(/ /g, "·").replace(/\r?\n/g, "↵\n"), validated: false };
+    case "satir-sonu-donusturucu": return { output: input.replace(/\r\n?|\n/g, "\n"), validated: false };
+    case "paragraf-ana-hat-cikarici": return { output: input.split(/\n\s*\n/).map((paragraph, index) => `${index + 1}. ${(paragraph.trim().match(/^.*?[.!?。！？](?:\s|$)/u)?.[0] ?? paragraph.trim()).slice(0, 240)}`).filter((line) => line.length > 3).join("\n"), validated: false };
+    case "ini-json-donusturucu": return { output: keyValueToJson(input, true, locale), validated: false };
+    case "properties-json-donusturucu": return { output: keyValueToJson(input, false, locale), validated: false };
     default: throw new Error(messages[locale].unsupported);
   }
 }
 
-const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "unicode-normalizasyon-inceleyici"]);
+const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "unicode-normalizasyon-inceleyici", "beyaz-alan-gorunurlestirici", "satir-sonu-donusturucu", "paragraf-ana-hat-cikarici", "ini-json-donusturucu", "properties-json-donusturucu"]);
 
 export function canAutomatePlan(plan: AgentPlan) {
   return plan.steps.length > 0 && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
