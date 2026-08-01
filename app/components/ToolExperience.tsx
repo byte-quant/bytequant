@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { consentChangeEvent, favoritesStorageKey, hasPreferenceConsent, openPrivacySettings } from "../lib/consent";
 import { toolPath, type Locale } from "../lib/site";
 import { StructuredToolOutput } from "./StructuredToolOutput";
+import { CONTENT_REVIEW_DATE } from "../lib/content-review";
 
 type RelatedTool = { slug: string; title: string };
 type OperationState = "ready" | "processing" | "complete" | "error";
@@ -133,7 +134,7 @@ export function ToolExperience({ slug, locale, related, compare }: { slug: strin
   return <>
     <section className="tool-experience-bar" aria-label={t.status}>
       <div className={`tool-operation-state state-${state}`} role="status" aria-live="polite"><i /><span>{t.status}</span><strong>{stateLabel}</strong></div>
-      <div className="tool-version-badges"><span>✓ {t.local}</span><time dateTime="2026-07-26">{{ tr: "Son güncelleme: 26 Temmuz 2026", en: "Last updated: July 26, 2026", de: "Zuletzt aktualisiert: 26. Juli 2026", zh: "最后更新：2026 年 7 月 26 日" }[locale]}</time></div>
+      <div className="tool-version-badges"><span>✓ {t.local}</span><time dateTime={CONTENT_REVIEW_DATE}>{{ tr: "İçerik ve arayüz incelemesi: 2 Ağustos 2026", en: "Content and interface reviewed: August 2, 2026", de: "Inhalt und Oberfläche geprüft: 2. August 2026", zh: "内容与界面审核：2026 年 8 月 2 日" }[locale]}</time></div>
       <button type="button" className={favorite ? "favorite-button active" : "favorite-button"} aria-pressed={favorite} onClick={toggleFavorite}><span aria-hidden="true">{favorite ? "★" : "☆"}</span>{favorite ? t.unfavorite : t.favorite}</button>
     </section>
     {notice && <p className="tool-experience-notice" role="status">{notice}</p>}

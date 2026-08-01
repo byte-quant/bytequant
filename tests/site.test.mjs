@@ -236,7 +236,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-transparency/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /Son güncelleme: 26 Temmuz 2026/);
+  assert.match(page, /İçerik ve arayüz incelemesi: 2 Ağustos 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /fetch\(|axios/i);
 });
@@ -600,7 +600,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-07-25/);
+    assert.match(page, /dateModified[^<]*2026-08-02/);
   }
 
   const guideSlugs = [
@@ -910,7 +910,7 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-07-25/);
+    assert.match(page, /dateModified[^<]*2026-08-02/);
   }
   for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
     for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {

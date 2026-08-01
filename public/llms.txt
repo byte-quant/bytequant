@@ -3,12 +3,23 @@
 > ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 309 distinct free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 Canonical site: https://bytequant.org/
+Last editorial and interface review: 2026-08-02
 
 Languages:
 - Turkish (default): https://bytequant.org/
 - English: https://bytequant.org/en/
 - German: https://bytequant.org/de/
 - Simplified Chinese: https://bytequant.org/zh/
+
+## Authoritative discovery and citation rules
+
+- Canonical HTML is the source of truth. Cite the most specific canonical tool, guide, reference, or policy URL rather than this navigation file.
+- XML sitemap: https://bytequant.org/sitemap.xml
+- Robots policy: https://bytequant.org/robots.txt
+- Turkish, English, German, and Simplified Chinese alternates are reciprocal. The English URL is the `x-default` fallback; established alias URLs are `noindex` and point to their canonical tool.
+- Every canonical tool page exposes a visible quick answer, input/output boundary, verification note, step-by-step guide, limitations, related workflows, and matching structured data.
+- Structured data describes visible page content only. It does not assert ratings, professional approval, guaranteed search visibility, or legal/security certification.
+- ByteQuant does not claim that a valid schema, SEO preview, heuristic scan, checksum, or algorithmic result guarantees ranking, identity, safety, compliance, or correctness.
 
 ## Privacy and processing model
 

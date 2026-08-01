@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { HomePage } from "./components/HomePage";
-import { localizedAlternates } from "./lib/site";
+import { localizedAlternates, localizedSocialMetadata } from "./lib/site";
+
+const description = "Prompt, metin, hesaplama, PDF, görsel, geliştirici, araştırma, AI ve güvenlik işlemleri için 309 benzersiz ücretsiz araç. Üyelik yok; temel işlemler tarayıcınızda.";
 
 export const metadata: Metadata = {
   title: { absolute: "ByteQuant · Gizlilik Odaklı Tarayıcı İçi Araçlar" },
-  description: "Prompt, metin, hesaplama, PDF, görsel, geliştirici, araştırma, AI ve güvenlik işlemleri için 309 benzersiz ücretsiz araç. Üyelik yok; temel işlemler tarayıcınızda.",
+  description,
   alternates: localizedAlternates("tr", "/", "/en"),
+  ...localizedSocialMetadata("tr", "Gizlilik Odaklı Tarayıcı İçi Araçlar", description, "/"),
 };
 
 export default function Home() { return <HomePage locale="tr" />; }

@@ -11,6 +11,24 @@ type IdleWindow = Window & {
   cancelIdleCallback?: (handle: number) => void;
 };
 
+const scenePalettes = {
+  tools: { primary: 0x36c7bb, secondary: 0x506dff, points: 0x8bded8 },
+  agent: { primary: 0x8f76ff, secondary: 0x45d4c8, points: 0xb8a8ff },
+  workstation: { primary: 0x4f86ff, secondary: 0x30c9bd, points: 0x91b6ff },
+  community: { primary: 0x35c5a5, secondary: 0x6f78ff, points: 0x8ae8d3 },
+  updates: { primary: 0xe99a5d, secondary: 0x4b86d8, points: 0xf2c192 },
+  editorial: { primary: 0x4f9fa5, secondary: 0x7c72d8, points: 0x9fd8d6 },
+} as const;
+
+function sceneMode(pathname: string): keyof typeof scenePalettes {
+  if (/\/(?:ajan|agent)(?:\/|$)/.test(pathname)) return "agent";
+  if (/\/(?:is-istasyonu|workstation|workspace)(?:\/|$)/.test(pathname)) return "workstation";
+  if (/\/(?:topluluk|community)(?:\/|$)/.test(pathname)) return "community";
+  if (/\/(?:guncel|updates)(?:\/|$)/.test(pathname)) return "updates";
+  if (/\/(?:blog|referanslar|references|hakkimizda|about|sss|faq)(?:\/|$)/.test(pathname)) return "editorial";
+  return "tools";
+}
+
 /** A progressive Three.js accent. It never reads or transmits user content. */
 export function AmbientScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,10 +49,14 @@ export function AmbientScene() {
     let cleanupScene: (() => void) | undefined;
     let disposed = false;
     let inViewport = true;
+    let visibilityListener: (() => void) | undefined;
 
     const start = async () => {
       const THREE = await import("three");
       if (disposed) return;
+      const mode = sceneMode(window.location.pathname);
+      const palette = scenePalettes[mode];
+      canvas.dataset.scene = mode;
       let renderer: InstanceType<typeof THREE.WebGLRenderer>;
       try {
         renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, depth: true, stencil: false, preserveDrawingBuffer: false, powerPreference: "low-power" });
@@ -51,13 +73,13 @@ export function AmbientScene() {
       scene.add(constellation);
 
       const tealGeometry = new THREE.IcosahedronGeometry(1.38, 1);
-      const tealMaterial = new THREE.MeshBasicMaterial({ color: 0x36c7bb, wireframe: true, transparent: true, opacity: 0.2 });
+      const tealMaterial = new THREE.MeshBasicMaterial({ color: palette.primary, wireframe: true, transparent: true, opacity: 0.2 });
       const tealShape = new THREE.Mesh(tealGeometry, tealMaterial);
       tealShape.position.set(-2.9, 0.35, -0.7);
       constellation.add(tealShape);
 
       const blueGeometry = new THREE.TorusKnotGeometry(0.92, 0.12, 64, 8, 2, 3);
-      const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x506dff, wireframe: true, transparent: true, opacity: 0.17 });
+      const blueMaterial = new THREE.MeshBasicMaterial({ color: palette.secondary, wireframe: true, transparent: true, opacity: 0.17 });
       const blueShape = new THREE.Mesh(blueGeometry, blueMaterial);
       blueShape.position.set(2.85, 0.12, -1.25);
       constellation.add(blueShape);
@@ -72,7 +94,7 @@ export function AmbientScene() {
         positions[index * 3 + 2] = -2.8 - (index % 11) * 0.18;
       }
       pointGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      const pointMaterial = new THREE.PointsMaterial({ color: 0x8bded8, size: 0.035, transparent: true, opacity: 0.3, sizeAttenuation: true });
+      const pointMaterial = new THREE.PointsMaterial({ color: palette.points, size: 0.035, transparent: true, opacity: 0.3, sizeAttenuation: true });
       const points = new THREE.Points(pointGeometry, pointMaterial);
       constellation.add(points);
 
@@ -87,7 +109,9 @@ export function AmbientScene() {
 
       let lastFrame = 0;
       const render = (now: number) => {
-        if (inViewport && document.visibilityState === "visible" && now - lastFrame >= 40) {
+        animationFrame = 0;
+        if (disposed || document.visibilityState !== "visible") return;
+        if (inViewport && now - lastFrame >= 40) {
           const elapsed = now / 1000;
           lastFrame = now;
           tealShape.rotation.x = elapsed * 0.055;
@@ -100,14 +124,26 @@ export function AmbientScene() {
         animationFrame = window.requestAnimationFrame(render);
       };
 
+      const requestRender = () => {
+        if (!disposed && !animationFrame && document.visibilityState === "visible") animationFrame = window.requestAnimationFrame(render);
+      };
+
       resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(canvas);
-      intersectionObserver = new IntersectionObserver(([entry]) => { inViewport = entry?.isIntersecting ?? false; }, { rootMargin: "120px" });
+      intersectionObserver = new IntersectionObserver(([entry]) => { inViewport = entry?.isIntersecting ?? false; requestRender(); }, { rootMargin: "120px" });
       intersectionObserver.observe(canvas);
+      visibilityListener = () => {
+        if (document.visibilityState === "hidden") {
+          window.cancelAnimationFrame(animationFrame);
+          animationFrame = 0;
+        } else requestRender();
+      };
+      document.addEventListener("visibilitychange", visibilityListener);
       resize();
-      animationFrame = window.requestAnimationFrame(render);
+      requestRender();
       cleanupScene = () => {
         window.cancelAnimationFrame(animationFrame);
+        if (visibilityListener) document.removeEventListener("visibilitychange", visibilityListener);
         resizeObserver?.disconnect();
         intersectionObserver?.disconnect();
         tealGeometry.dispose();
@@ -132,5 +168,5 @@ export function AmbientScene() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="ambient-webgl" data-visual-engine="threejs-progressive" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="ambient-webgl" data-visual-engine="threejs-progressive" aria-hidden="true" role="presentation" />;
 }
