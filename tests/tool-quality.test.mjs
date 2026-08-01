@@ -29,6 +29,9 @@ test("probability calculator validates percentages, dependence, and feasible int
 });
 
 test("text workbench families expose only completed output to the local-agent bridge", async () => {
+  const structuredOutput = await read("app/components/StructuredToolOutput.tsx");
+  assert.match(structuredOutput, /data-agent-output data-ready=\{output \? "true" : "false"\}/);
+  assert.match(structuredOutput, /data-agent-output data-ready="true"/);
   const files = [
     "app/components/AdvancedWorkbenches.tsx",
     "app/components/DemandWorkbenches.tsx",
@@ -41,8 +44,9 @@ test("text workbench families expose only completed output to the local-agent br
   ];
   for (const file of files) {
     const source = await read(file);
-    assert.match(source, /data-agent-output/);
-    assert.match(source, /data-ready=/);
+    assert.match(source, /data-agent-output|<StructuredToolOutput/);
+    if (source.includes("<StructuredToolOutput")) assert.match(source, /import \{ StructuredToolOutput \}/);
+    else assert.match(source, /data-ready=/);
   }
 });
 
@@ -118,10 +122,22 @@ test("responsive quality layer prevents clipped community and localized tool con
   const styles = await read("app/globals.css");
   assert.match(styles, /\.community-social-main\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
   assert.match(styles, /\.community-global-composer[^}]*max-width:100%/);
-  assert.match(styles, /\.tool-notice[^}]*overflow:hidden/);
-  assert.match(styles, /\.tool-status>span[^}]*overflow-wrap:anywhere/);
+  assert.match(styles, /\.tool-notice\{[\s\S]*?grid-template-columns:32px minmax\(0,1fr\)/);
+  assert.match(styles, /\.tool-status>span[^}]*overflow-wrap:break-word[^}]*word-break:normal/);
+  assert.doesNotMatch(styles, /\.site-shell,\.site-shell \*\{min-inline-size:0\}/);
   assert.match(styles, /html\{scrollbar-gutter:stable\}/);
   assert.match(styles, /input,textarea,select\{font-size:16px\}/);
+});
+
+test("community device board uses a readable post preview instead of raw Markdown", async () => {
+  const [composer, styles] = await Promise.all([
+    read("app/components/CommunityComposer.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(composer, /className="community-draft-card"/);
+  assert.match(composer, /className="community-preview-actions"/);
+  assert.doesNotMatch(composer, /<pre>\{markdown\}<\/pre>/);
+  assert.match(styles, /\.community-preview-actions\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 
 test("JSON-LD serialization escapes executable separators and unsafe markup", async () => {

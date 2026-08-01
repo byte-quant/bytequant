@@ -5,7 +5,7 @@ export type ToolNoticeData = {
   text: string;
 };
 
-export function ToolNotice({ notice, locale }: { notice: ToolNoticeData | null; locale: Locale }) {
+export function ToolNotice({ notice, locale, title }: { notice: ToolNoticeData | null; locale: Locale; title?: string }) {
   if (!notice) return null;
   const titles = {
     tr: { error: "İşlem tamamlanamadı", warning: "İnceleme gerekiyor", success: "İşlem tamamlandı", info: "Bilgi" },
@@ -16,7 +16,7 @@ export function ToolNotice({ notice, locale }: { notice: ToolNoticeData | null; 
   return (
     <div className={`tool-notice ${notice.kind}`} role={notice.kind === "error" ? "alert" : "status"} aria-live={notice.kind === "error" ? "assertive" : "polite"}>
       <span aria-hidden="true">{notice.kind === "error" || notice.kind === "warning" ? "!" : notice.kind === "success" ? "✓" : "i"}</span>
-      <div><strong>{titles[notice.kind]}</strong><p>{notice.text}</p></div>
+      <div><strong>{title ?? titles[notice.kind]}</strong><p>{notice.text}</p></div>
     </div>
   );
 }

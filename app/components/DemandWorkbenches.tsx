@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { Locale } from "../lib/site";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
+import { StructuredToolOutput } from "./StructuredToolOutput";
 
 type Copy = Record<Locale, string>;
 type Metric = { label: string; value: string | number };
@@ -451,7 +452,7 @@ export function DemandWorkbench({ slug, locale }: { slug: string; locale: Locale
         {config.options && <label className="field-label compact-field"><span>{l.option}</span><select data-agent-mode value={option} onChange={(event) => { setOption(event.target.value); resetResult(); }}>{config.options.map((item) => <option key={item.value} value={item.value}>{item.label[locale]}</option>)}</select></label>}
         <button type="button" className="primary-button run-button" onClick={() => void run()} disabled={busy}>{busy ? l.running : l.run}<span aria-hidden="true"> →</span></button>
       </div>
-      <div className="result-panel" aria-live="polite"><div className="result-header"><span>{l.output}</span><div className="output-actions"><button type="button" onClick={() => void copyOutput()} disabled={!output}>{l.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{l.download}</button></div></div>{metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}<pre data-agent-output data-ready={output ? "true" : "false"} className={output ? "has-output" : ""}>{output || l.empty}</pre><ToolNotice notice={notice} locale={locale} /></div>
+      <div className="result-panel" aria-live="polite"><div className="result-header"><span>{l.output}</span><div className="output-actions"><button type="button" onClick={() => void copyOutput()} disabled={!output}>{l.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{l.download}</button></div></div>{metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}<StructuredToolOutput output={output} empty={l.empty} /><ToolNotice notice={notice} locale={locale} /></div>
     </div>
   </Frame>;
 }

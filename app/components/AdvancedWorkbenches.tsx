@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import type { Locale } from "../lib/site";
 import { ToolNotice, type ToolNoticeData } from "./ToolNotice";
+import { StructuredToolOutput } from "./StructuredToolOutput";
 
 export const advancedWorkbenchSlugs = new Set([
   "yatirim-getiri-simulatoru",
@@ -66,7 +67,7 @@ function Output({ locale, value, filename, notice, extra }: { locale: Locale; va
     <div className="result-panel" aria-live="polite">
       <div className="result-header"><span>{msg(locale, { tr: "Sonuç", en: "Result", de: "Ergebnis", zh: "结果" })}</span><div className="output-actions"><button type="button" disabled={!value} onClick={copy}>{msg(locale, { tr: "Kopyala", en: "Copy", de: "Kopieren", zh: "复制" })}</button><button type="button" disabled={!value} onClick={() => saveText(value, filename)}>{msg(locale, { tr: "İndir", en: "Download", de: "Herunterladen", zh: "下载" })}</button></div></div>
       {extra}
-      <pre data-agent-output data-ready={value ? "true" : "false"} className={value ? "has-output" : ""}>{value || msg(locale, { tr: "Sonuç burada görünecek.", en: "Your result will appear here.", de: "Das Ergebnis erscheint hier.", zh: "结果将显示在这里。" })}</pre>
+      <StructuredToolOutput output={value} empty={msg(locale, { tr: "Sonuç burada görünecek.", en: "Your result will appear here.", de: "Das Ergebnis erscheint hier.", zh: "结果将显示在这里。" })} />
       <ToolNotice notice={notice ?? copyNotice} locale={locale} />
     </div>
   );

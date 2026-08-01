@@ -17,6 +17,7 @@ import { discoveryToolSlugs } from "../lib/discovery-tool-slugs";
 import { productivityToolSlugs } from "../lib/productivity-tool-slugs";
 import { PrecisionWorkbench } from "./PrecisionWorkbenches";
 import { precisionToolSlugs } from "../lib/precision-tools";
+import { StructuredToolOutput } from "./StructuredToolOutput";
 
 const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
@@ -724,7 +725,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         <div className="result-panel" aria-live="polite">
           <div className="result-header"><span>{labels.output}</span><div className="output-actions"><button type="button" onClick={copyOutput} disabled={!output}>{labels.copy}</button><button type="button" onClick={downloadOutput} disabled={!output}>{labels.download}</button></div></div>
           {metrics.length > 0 && <div className="metric-strip">{metrics.map((metric) => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>}
-          <pre data-agent-output data-ready={output ? "true" : "false"} className={output ? "has-output" : ""}>{output || labels.empty}</pre>
+          <StructuredToolOutput output={output} empty={labels.empty} />
           <ToolNotice notice={notice} locale={locale} />
         </div>
       </div>

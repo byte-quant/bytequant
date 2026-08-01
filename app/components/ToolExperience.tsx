@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { consentChangeEvent, favoritesStorageKey, hasPreferenceConsent, openPrivacySettings } from "../lib/consent";
 import { toolPath, type Locale } from "../lib/site";
+import { StructuredToolOutput } from "./StructuredToolOutput";
 
 type RelatedTool = { slug: string; title: string };
 type OperationState = "ready" | "processing" | "complete" | "error";
@@ -137,7 +138,7 @@ export function ToolExperience({ slug, locale, related, compare }: { slug: strin
     </section>
     {notice && <p className="tool-experience-notice" role="status">{notice}</p>}
     {state === "complete" && <aside className="local-trust-card"><span aria-hidden="true">✓</span><div><strong>{t.privacy}</strong><p>{t.privacyBody}</p></div></aside>}
-    {compare && (before || after) && <section className="before-after-panel"><header><div><span className="kicker">COMPARE</span><h2>{t.compare}</h2></div><button type="button" onClick={refreshComparison}>{t.refresh}</button></header><div><article><strong>{t.before}</strong><pre>{before || "—"}</pre></article><article><strong>{t.after}</strong><pre>{after || "—"}</pre></article></div></section>}
+    {compare && (before || after) && <section className="before-after-panel"><header><div><span className="kicker">COMPARE</span><h2>{t.compare}</h2></div><button type="button" onClick={refreshComparison}>{t.refresh}</button></header><div><article><strong>{t.before}</strong><StructuredToolOutput output={before} empty="—" compact /></article><article><strong>{t.after}</strong><StructuredToolOutput output={after} empty="—" compact /></article></div></section>}
     <section className="tool-next-actions"><div><span className="kicker">SMART NEXT STEP</span><h2>{t.next}</h2><p>{t.bridge}</p></div><div className="tool-transfer-control"><label><span>{t.choose}</span><select value={target} onChange={(event) => setTarget(event.target.value)}>{related.map((item) => <option key={item.slug} value={item.slug}>{item.title}</option>)}</select></label><button type="button" className="primary-button" onClick={transfer}>{t.transfer} →</button></div><nav aria-label={t.frequent}><strong>{t.frequent}</strong>{related.map((item) => <Link key={item.slug} href={toolPath(locale, item.slug)}>{item.title} →</Link>)}</nav></section>
   </>;
 }
