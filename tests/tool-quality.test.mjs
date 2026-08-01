@@ -94,3 +94,54 @@ test("agent actions remain reachable and localized tool feedback cannot overflow
   assert.match(styles, /\.tool-status>span,\.local-trust-card>p/);
   assert.match(styles, /overflow-wrap:anywhere/);
 });
+
+test("the shared visual layer is progressive, low-power, and fully cleaned up", async () => {
+  const [scene, shell, styles] = await Promise.all([
+    read("app/components/AmbientScene.tsx"),
+    read("app/components/SiteShell.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(shell, /<AmbientScene \/>/);
+  assert.match(scene, /prefers-reduced-motion: reduce/);
+  assert.match(scene, /deviceMemory/);
+  assert.match(scene, /powerPreference: "low-power"/);
+  assert.match(scene, /document\.visibilityState === "visible"/);
+  assert.match(scene, /now - lastFrame >= 40/);
+  assert.match(scene, /cancelAnimationFrame/);
+  assert.match(scene, /resizeObserver\?\.disconnect/);
+  assert.match(scene, /deleteBuffer/);
+  assert.match(styles, /\.ambient-webgl\{[^}]*pointer-events:none/);
+  assert.match(styles, /@media\(prefers-reduced-motion:reduce\)/);
+});
+
+test("responsive quality layer prevents clipped community and localized tool controls", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /\.community-social-main\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(styles, /\.community-global-composer[^}]*max-width:100%/);
+  assert.match(styles, /\.tool-notice[^}]*overflow:hidden/);
+  assert.match(styles, /\.tool-status>span[^}]*overflow-wrap:anywhere/);
+  assert.match(styles, /html\{scrollbar-gutter:stable\}/);
+  assert.match(styles, /input,textarea,select\{font-size:16px\}/);
+});
+
+test("JSON-LD serialization escapes executable separators and unsafe markup", async () => {
+  const source = await read("app/components/SchemaScript.tsx");
+  assert.match(source, /replace\(\/<\/g, "\\\\u003c"\)/);
+  assert.match(source, /replace\(\/\\u2028\/g, "\\\\u2028"\)/);
+  assert.match(source, /replace\(\/\\u2029\/g, "\\\\u2029"\)/);
+});
+
+test("download helpers retain object URLs through the browser click task", async () => {
+  const files = [
+    "app/components/SpecializedWorkbench.tsx",
+    "app/components/EssentialWorkbenches.tsx",
+    "app/components/CommunityComposer.tsx",
+    "app/components/CommunityFeed.tsx",
+    "app/components/ToolWorkbench.tsx",
+  ];
+  for (const file of files) {
+    const source = await read(file);
+    assert.doesNotMatch(source, /\.click\(\);\s*URL\.revokeObjectURL/);
+    assert.match(source, /\.click\(\);\s*(?:window\.)?setTimeout\(\(\) => URL\.revokeObjectURL/);
+  }
+});

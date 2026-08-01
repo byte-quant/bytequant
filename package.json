@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
-    "next": "16.2.6",
+    "next": "16.2.12",
     "nostr-tools": "2.24.1",
     "pdf-lib": "1.17.1",
     "qrcode": "1.5.4",

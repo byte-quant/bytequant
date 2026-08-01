@@ -693,7 +693,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
     if (!output) return;
     try {
       const url = URL.createObjectURL(new Blob([output], { type: "text/plain;charset=utf-8" }));
-      const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); URL.revokeObjectURL(url);
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setNotice({ kind: "success", text: labels.downloaded });
     } catch {
       setNotice({ kind: "error", text: isTr ? "Dosya indirilemedi. Tarayıcının indirme iznini kontrol edin." : "The file could not be downloaded. Check the browser's download permission." });

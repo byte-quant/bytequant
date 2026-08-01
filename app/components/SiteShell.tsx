@@ -9,6 +9,7 @@ import { referencePath } from "../lib/references";
 import { publicTools as tools } from "../lib/tools";
 import { SchemaScript } from "./SchemaScript";
 import { PwaInstall } from "./PwaInstall";
+import { AmbientScene } from "./AmbientScene";
 
 const localeNames = { tr: "Türkçe", en: "English", de: "Deutsch", zh: "简体中文" } as const;
 
@@ -23,8 +24,8 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
   const globalSchema = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "Organization", "@id": organizationId, name: "ByteQuant", url: `${siteUrl}/`, logo: { "@type": "ImageObject", url: `${siteUrl}/favicon.png`, width: 512, height: 512 }, email: "bytequant@yahoo.com", sameAs: ["https://github.com/byte-quant/bytequant", "https://x.com/byte_quant", "https://www.instagram.com/byte.quant"] },
-      { "@type": "WebSite", "@id": websiteId, name: "ByteQuant", alternateName: ["Gizlilik odaklı üretkenlik araçları", "Privacy-first productivity tools", "Datenschutzorientierte Produktivitätswerkzeuge", "隐私优先的生产力工具"], url: `${siteUrl}/`, inLanguage: ["tr-TR", "en-US", "de-DE", "zh-CN"], publisher: { "@id": organizationId } },
+      { "@type": "Organization", "@id": organizationId, name: "ByteQuant", url: `${siteUrl}/`, logo: { "@type": "ImageObject", url: `${siteUrl}/favicon.png`, width: 512, height: 512 }, email: "bytequant@yahoo.com", description: "Privacy-first browser tools and local productivity software.", foundingDate: "2026", knowsAbout: ["browser privacy", "local data processing", "developer tools", "document conversion", "prompt engineering"], ethicsPolicy: `${siteUrl}/gizlilik-politikasi`, publishingPrinciples: `${siteUrl}/hakkimizda`, sameAs: ["https://github.com/byte-quant/bytequant", "https://x.com/byte_quant", "https://www.instagram.com/byte.quant"] },
+      { "@type": "WebSite", "@id": websiteId, name: "ByteQuant", alternateName: ["Gizlilik odaklı üretkenlik araçları", "Privacy-first productivity tools", "Datenschutzorientierte Produktivitätswerkzeuge", "隐私优先的生产力工具"], url: `${siteUrl}/`, inLanguage: ["tr-TR", "en-US", "de-DE", "zh-CN"], publisher: { "@id": organizationId }, copyrightYear: 2026, license: "https://github.com/byte-quant/bytequant/blob/main/LICENSE" },
     ],
   };
   return (
@@ -65,7 +66,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
           </div>
         </div>
       </header>
-      <main id="main-content">{children}</main>
+      <main id="main-content"><AmbientScene />{children}</main>
       <footer className="site-footer">
         <div className="container footer-grid">
           <div className="footer-intro">

@@ -157,7 +157,7 @@ function markdownToHtml(markdown: string) {
 
 function downloadText(value: string, filename: string, type = "text/plain;charset=utf-8") {
   const url = URL.createObjectURL(new Blob([value], { type }));
-  const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click(); URL.revokeObjectURL(url);
+  const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function MarkdownWorkbench({ locale }: { locale: Locale }) {

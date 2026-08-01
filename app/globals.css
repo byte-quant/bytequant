@@ -1754,3 +1754,107 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   .essential-workbench .workbench-actions>button,
   .workbench-output>header>div:last-child>button{flex:1 1 min(140px,100%)}
 }
+
+/* Release 4.5: shared readability, responsive and motion quality system. */
+@view-transition{navigation:auto}
+html{scrollbar-gutter:stable}
+body{line-height:1.68}
+main{position:relative;isolation:isolate}
+main>:not(.ambient-webgl){position:relative;z-index:1}
+.ambient-webgl{position:absolute;z-index:0;top:0;left:0;width:100%;height:min(760px,88svh);pointer-events:none;opacity:.72;mask-image:linear-gradient(to bottom,#000 0,#000 52%,transparent 96%)}
+h1,h2,h3{text-wrap:balance}
+p,li{text-wrap:pretty}
+img,video,svg{max-width:100%;height:auto}
+canvas{max-width:100%}
+.site-shell,.site-shell *{min-inline-size:0}
+.container,.narrow-container{contain:inline-size}
+.page-hero,.hero-section,.agent-product-intro,.community-product-intro,.news-product-intro{background-color:color-mix(in srgb,var(--bg) 92%,transparent)}
+.page-hero{background-image:linear-gradient(180deg,color-mix(in srgb,var(--bg) 92%,transparent),color-mix(in srgb,var(--surface-soft) 94%,transparent))}
+.breadcrumbs{font-size:12px;line-height:1.5}
+.page-hero> .container>p,.info-hero> .container>p,.article-header> .container>p{line-height:1.75}
+.article-body p,.info-content article>p{font-size:16px;line-height:1.82}
+.article-body li,.info-content li{font-size:14px;line-height:1.7}
+.article-body h2,.info-content h2{scroll-margin-top:104px}
+.article-toc>a:not(.toc-tool),.info-faq-item summary,.channel-grid p{font-size:12px}
+.article-summary strong,.article-toc>strong,.article-note strong,.info-contact-band span{font-size:11px}
+.blog-topic-strip strong,.blog-topic-strip>.container>a,.blog-topic-strip span,.featured-copy>span,.featured-copy>time,.post-card>span,.guide-card>div>span{font-size:11px}
+.blog-topic-strip .container>div,.news-controls>div,.community-feed-toolbar>div,.agent-tabs,.community-social-nav{scrollbar-width:thin;overscroll-behavior-inline:contain;scroll-snap-type:x proximity}
+.blog-topic-strip .container>div>*,.news-controls>div>*,.community-feed-toolbar>div>*,.agent-tabs>*,.community-social-nav>*{scroll-snap-align:start}
+.tool-title-row>p,.tool-guide p,.tool-faq p,.tool-related p{line-height:1.75}
+.tool-assurances span,.privacy-pill,.local-status,.local-status small,.field-label>span,.field-counter,.field-help,.tool-message,.result-header>span,.result-header button,.tool-notice strong,.tool-notice p,.special-toolbar label,.diff-toolbar-actions>button,.diff-legend span,.privacy-hint,.conversion-card small,.converter-picker>label small,.document-facts span,.metadata-panel dt,.metadata-panel dd,.password-checks li,.password-warnings li,.password-report>p{font-size:11px}
+.workbench-bar-actions button,.output-actions button,.workbench-output button,.essential-workbench button{min-height:42px;font-size:11px}
+.workbench textarea,.workbench input,.workbench select{line-height:1.55}
+.tool-notice,.tool-status,.local-trust-card,.workspace-notice{max-width:100%;overflow:hidden}
+.tool-notice,.tool-status{align-items:flex-start}
+.tool-notice>*{min-width:0}
+.batch-toggle small,.tool-operation-state span,.tool-version-badges span,.tool-version-badges time,.tool-transfer-control>span,.tool-next-actions strong,.tool-next-actions a,.tool-guide-link-grid span{font-size:11px}
+.tool-next-actions a{min-height:40px;display:inline-flex;align-items:center}
+.tool-transparency article>span,.tool-transparency strong,.numbered-list li>span{font-size:11px}
+.tool-transparency p,.tool-guide-link-grid p{font-size:12px;line-height:1.65}
+.tool-card .category-label{font-size:10px;line-height:1.4}
+.tool-card .tool-icon small{font-size:9px}
+.community-social-main{min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr)}
+.community-social-main>*,.community-global-composer,.community-feed-toolbar,.community-global-feed,.community-global-post{width:100%;max-width:100%}
+.community-identity-card small,.community-global-composer small,.community-global-post small,.community-identity-card label,.community-composer-meta label,.community-feed-toolbar button,.community-global-post>footer button,.community-global-comments>p,.community-social-right>section p,.community-moderation-card p,.community-relay-settings p,.community-public-warning,.community-boundary-inline p{font-size:11px}
+.community-global-post>p{font-size:14px;line-height:1.72}
+.community-social-nav button,.community-compose-launch strong,.community-relay-settings summary{font-size:12px}
+.community-global-comments>div{grid-template-columns:minmax(0,1fr) minmax(44px,auto)}
+.community-network-status small,.community-security-strip span,.community-profile-setup small,.community-post-meta>*,.community-relay-settings button,.community-author small,.community-post-badges span,.community-profile-stats dt{font-size:11px}
+.community-network .primary-button,.community-social-layout .primary-button,.community-social-layout .secondary-button{font-size:12px}
+.news-hero>div>small,.news-local-note,.news-controls>span,.news-grid time,.news-grid article>header span,.news-grid article>header small,.news-grid footer button,.news-grid footer>a,.news-grid footer>a small,.news-attribution-note>summary{font-size:11px}
+.news-grid h2{font-size:18px;line-height:1.42}
+.news-source-brief-prominent p{font-size:13px;line-height:1.68}
+.mobile-menu-product-grid small,.mobile-menu-section a,.mobile-install-row small,.mobile-menu-section>strong{font-size:11px}
+.language-menu>summary,.install-trigger{font-size:11px}
+.footer-bottom,.privacy-pill,.footer-grid a,.footer-grid button{font-size:11px}
+.consent-kicker,.consent-button,.consent-banner a,.consent-policy-link a,.inline-privacy-button{font-size:11px}
+
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .tool-card,.post-card,.guide-card,.channel-grid article,.community-global-post,.news-grid>article{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+  .tool-card:hover,.post-card:hover,.guide-card:hover,.channel-grid article:hover,.community-global-post:hover,.news-grid>article:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--teal) 36%,var(--line));box-shadow:0 18px 40px color-mix(in srgb,var(--navy) 10%,transparent)}
+}
+
+@media(max-width:900px){
+  .ambient-webgl{display:none}
+  .section{padding-block:72px}
+  .community-social-left,.community-social-right{position:static}
+  .community-social-main{grid-column:1/-1}
+}
+
+@media(max-width:760px){
+  html{scroll-padding-top:78px}
+  .container,.narrow-container{width:min(100% - 32px,1180px)}
+  .section{padding-block:56px}
+  .page-hero{padding:48px 0 54px}
+  .page-hero .breadcrumbs{margin-bottom:28px}
+  .page-hero h1{font-size:clamp(36px,11vw,46px);line-height:1.08;letter-spacing:-.045em}
+  .article-body p,.info-content article>p{font-size:16px;line-height:1.78}
+  .article-body ul,.info-content ul{padding:18px 18px 18px 36px}
+  input,textarea,select{font-size:16px}
+  .workbench-bar-actions,.output-actions,.result-header{width:100%}
+  .workbench-bar-actions>button,.output-actions>button,.result-header>button{flex:1 1 132px}
+  .workbench-inputs,.workbench-output,.password-workbench>div,.color-workbench{padding:18px}
+  .community-social-layout,.community-social-main,.community-global-composer,.community-feed-toolbar,.community-global-feed,.community-global-post{min-width:0;width:100%;max-width:100%}
+  .community-social-left,.community-social-right{grid-template-columns:minmax(0,1fr)}
+  .community-composer-meta{grid-template-columns:minmax(0,1fr)}
+  .community-global-post>footer{overflow-x:auto;overscroll-behavior-inline:contain}
+  .community-global-post>footer button{flex:0 0 auto;white-space:nowrap}
+  .news-controls>div,.blog-topic-strip .container>div{padding-bottom:8px}
+  .news-controls>div::after,.blog-topic-strip .container>div::after{content:"→";position:sticky;right:0;display:grid;place-items:center;min-width:28px;color:var(--teal-dark);background:linear-gradient(90deg,transparent,var(--bg) 45%);font-weight:900}
+  .header-inner{height:68px;gap:10px}
+  .brand strong{font-size:16px}
+  .mobile-menu-panel{top:68px;max-height:calc(100dvh - 80px)}
+}
+
+@media(max-width:420px){
+  .container,.narrow-container{width:min(100% - 24px,1180px)}
+  .page-hero h1{font-size:clamp(33px,10.5vw,42px)}
+  .tool-title-row h1,.agent-product-intro h1,.community-product-intro h1,.news-product-intro h1{overflow-wrap:anywhere}
+  .workbench-inputs,.workbench-output,.password-workbench>div,.color-workbench{padding:15px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
