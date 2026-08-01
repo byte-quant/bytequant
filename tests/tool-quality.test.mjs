@@ -99,23 +99,40 @@ test("agent actions remain reachable and localized tool feedback cannot overflow
   assert.match(styles, /overflow-wrap:anywhere/);
 });
 
-test("the shared visual layer is progressive, low-power, and fully cleaned up", async () => {
+test("the shared Three.js visual layer is progressive, low-power, and fully cleaned up", async () => {
   const [scene, shell, styles] = await Promise.all([
     read("app/components/AmbientScene.tsx"),
     read("app/components/SiteShell.tsx"),
     read("app/globals.css"),
   ]);
   assert.match(shell, /<AmbientScene \/>/);
+  assert.match(scene, /await import\("three"\)/);
+  assert.match(scene, /data-visual-engine="threejs-progressive"/);
   assert.match(scene, /prefers-reduced-motion: reduce/);
   assert.match(scene, /deviceMemory/);
+  assert.match(scene, /connection\?\.saveData/);
   assert.match(scene, /powerPreference: "low-power"/);
   assert.match(scene, /document\.visibilityState === "visible"/);
   assert.match(scene, /now - lastFrame >= 40/);
   assert.match(scene, /cancelAnimationFrame/);
   assert.match(scene, /resizeObserver\?\.disconnect/);
-  assert.match(scene, /deleteBuffer/);
+  assert.match(scene, /intersectionObserver\?\.disconnect/);
+  assert.match(scene, /renderer\.dispose\(\)/);
+  assert.match(scene, /renderer\.forceContextLoss\(\)/);
   assert.match(styles, /\.ambient-webgl\{[^}]*pointer-events:none/);
   assert.match(styles, /@media\(prefers-reduced-motion:reduce\)/);
+});
+
+test("the weighted grade calculator uses editable rows instead of a delimiter-only textarea", async () => {
+  const [workbench, styles] = await Promise.all([
+    read("app/components/AdvancedWorkbenches.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(workbench, /className="grade-rows"/);
+  assert.match(workbench, /className="grade-add-row"/);
+  assert.match(workbench, /data-agent-contract="grade-rows-v1"/);
+  assert.match(workbench, /className="grade-result-overview"/);
+  assert.match(styles, /\.grade-row-head,\.grade-row\{[^}]*grid-template-columns/);
 });
 
 test("responsive quality layer prevents clipped community and localized tool controls", async () => {

@@ -173,48 +173,77 @@ function UnitWorkbench({ locale }: { locale: Locale }) {
 }
 
 function GradeWorkbench({ locale }: { locale: Locale }) {
-  const demo = msg(locale, {
-    tr: "Ara sınav|78|30\nProje|92|25\nFinal|85|45",
-    en: "Midterm|78|30\nProject|92|25\nFinal|85|45",
-    de: "Klausur|78|30\nProjekt|92|25\nAbschluss|85|45",
-    zh: "期中考试|78|30\n项目|92|25\n期末考试|85|45",
-  });
-  const [input, setInput] = useState(demo);
+  type GradeRow = { id: string; name: string; score: string; weight: string };
+  const demoRows = (): GradeRow[] => [
+    { id: "grade-1", name: msg(locale, { tr: "Ara sınav", en: "Midterm", de: "Klausur", zh: "期中考试" }), score: "78", weight: "30" },
+    { id: "grade-2", name: msg(locale, { tr: "Proje", en: "Project", de: "Projekt", zh: "项目" }), score: "92", weight: "25" },
+    { id: "grade-3", name: msg(locale, { tr: "Final", en: "Final", de: "Abschluss", zh: "期末考试" }), score: "85", weight: "45" },
+  ];
+  const [rows, setRows] = useState<GradeRow[]>(demoRows);
   const [target, setTarget] = useState(80);
+  const labels = {
+    item: msg(locale, { tr: "Değerlendirme", en: "Assessment", de: "Bewertung", zh: "考核项" }),
+    score: msg(locale, { tr: "Not", en: "Score", de: "Note", zh: "分数" }),
+    weight: msg(locale, { tr: "Ağırlık (%)", en: "Weight (%)", de: "Gewicht (%)", zh: "权重（%）" }),
+    remove: msg(locale, { tr: "Satırı kaldır", en: "Remove row", de: "Zeile entfernen", zh: "删除此行" }),
+    add: msg(locale, { tr: "Değerlendirme ekle", en: "Add assessment", de: "Bewertung hinzufügen", zh: "添加考核项" }),
+    live: msg(locale, { tr: "Değerleri değiştirdikçe sonuç anında güncellenir.", en: "The result updates instantly as you edit the values.", de: "Das Ergebnis wird beim Bearbeiten sofort aktualisiert.", zh: "修改数值时结果会即时更新。" }),
+    entered: msg(locale, { tr: "Girilen ağırlık", en: "Weight entered", de: "Erfasstes Gewicht", zh: "已输入权重" }),
+    remaining: msg(locale, { tr: "Kalan ağırlık", en: "Weight remaining", de: "Restgewicht", zh: "剩余权重" }),
+  };
+  const serialized = rows.filter((row) => row.name.trim() || row.score || row.weight).map((row) => `${row.name}|${row.score}|${row.weight}`).join("\n");
+  function parseRows(value: string) {
+    const parsed = value.split(/\r?\n/).slice(0, 30).map((line, index) => {
+      const [name = "", score = "", weight = ""] = line.split(/[|;\t]/);
+      return { id: `grade-import-${index}`, name: name.trim(), score: score.trim(), weight: weight.trim() };
+    }).filter((row) => row.name || row.score || row.weight);
+    setRows(parsed.length ? parsed : [{ id: "grade-empty", name: "", score: "", weight: "" }]);
+  }
+  function updateRow(id: string, field: "name" | "score" | "weight", value: string) {
+    setRows((current) => current.map((row) => row.id === id ? { ...row, [field]: value } : row));
+  }
   const analysis = useMemo(() => {
-    const rows = input.split(/\r?\n/).map((line, index) => {
-      const [name, scoreText, weightText] = line.split("|");
-      return { line: index + 1, name: name?.trim(), score: Number(scoreText), weight: Number(weightText) };
-    }).filter((row) => row.name);
-    const invalid = rows.filter((row) => !Number.isFinite(row.score) || row.score < 0 || row.score > 100 || !Number.isFinite(row.weight) || row.weight <= 0 || row.weight > 100);
-    const valid = rows.filter((row) => !invalid.includes(row));
+    const normalized = rows.map((row, index) => ({ line: index + 1, name: row.name.trim(), score: Number(row.score), weight: Number(row.weight), empty: !row.name.trim() && !row.score && !row.weight })).filter((row) => !row.empty);
+    const invalid = normalized.filter((row) => !row.name || row.score === Infinity || row.score === -Infinity || !Number.isFinite(row.score) || row.score < 0 || row.score > 100 || !Number.isFinite(row.weight) || row.weight <= 0 || row.weight > 100);
+    const valid = normalized.filter((row) => !invalid.includes(row));
     const totalWeight = valid.reduce((sum, row) => sum + row.weight, 0);
     const points = valid.reduce((sum, row) => sum + row.score * row.weight / 100, 0);
     const average = totalWeight ? points / totalWeight * 100 : 0;
     const remaining = 100 - totalWeight;
     const needed = remaining > 0 ? (target - points) / remaining * 100 : null;
-    return { invalid, totalWeight, average, remaining, needed };
-  }, [input, target]);
+    return { invalid, valid, totalWeight, average, remaining, needed };
+  }, [rows, target]);
   const output = lineText(
     msg(locale, { tr: "Ağırlıklı ortalama", en: "Weighted average", de: "Gewichteter Durchschnitt", zh: "加权平均" }) + ": " + analysis.average.toFixed(2) + " / 100",
     msg(locale, { tr: "Toplam ağırlık", en: "Total weight", de: "Gesamtgewicht", zh: "总权重" }) + ": " + analysis.totalWeight.toFixed(2) + "%",
     msg(locale, { tr: "Geçersiz satırlar", en: "Invalid rows", de: "Ungültige Zeilen", zh: "无效行" }) + ": " + (analysis.invalid.length ? analysis.invalid.map((row) => row.line).join(", ") : msg(locale, { tr: "yok", en: "none", de: "keine", zh: "无" })),
     analysis.needed === null ? "" : msg(locale, { tr: "Kalan ağırlıkta hedef için gereken not", en: "Score needed on remaining weight for target", de: "Nötige Note im Restgewicht für das Ziel", zh: "剩余权重达到目标所需分数" }) + ": " + analysis.needed.toFixed(2), "",
-    msg(locale, { tr: "Satır biçimi: ad|not|ağırlık. Kurumun resmî yuvarlama ve geçme kuralını ayrıca doğrulayın.", en: "Line format: name|score|weight. Verify the institution's official rounding and pass rules.", de: "Zeilenformat: Name|Note|Gewicht. Prüfen Sie die offiziellen Rundungs- und Bestehensregeln.", zh: "行格式：名称|分数|权重。请另行核验学校的正式舍入与通过规则。" })
+    msg(locale, { tr: "Bu sonuç bir planlama yardımcısıdır. Kurumun resmî yuvarlama, eksik not ve geçme kuralını ayrıca doğrulayın.", en: "This result is a planning aid. Verify the institution's official rounding, missing-grade, and pass rules.", de: "Dieses Ergebnis dient der Planung. Prüfen Sie die offiziellen Regeln für Rundung, fehlende Noten und Bestehen.", zh: "该结果仅供规划参考。请另行核验学校关于舍入、缺考与通过的正式规则。" })
   );
-  const notice: ToolNoticeData | null = analysis.totalWeight > 100.001
+  const notice: ToolNoticeData | null = analysis.invalid.length
+    ? { kind: "error", text: msg(locale, { tr: `Lütfen ${analysis.invalid.map((row) => row.line).join(", ")} numaralı satırdaki ad, not ve ağırlık değerlerini kontrol edin.`, en: `Review the name, score, and weight in row(s) ${analysis.invalid.map((row) => row.line).join(", ")}.`, de: `Bitte Name, Note und Gewicht in Zeile(n) ${analysis.invalid.map((row) => row.line).join(", ")} prüfen.`, zh: `请检查第 ${analysis.invalid.map((row) => row.line).join("、")} 行的名称、分数和权重。` }) }
+    : analysis.totalWeight > 100.001
     ? { kind: "error", text: msg(locale, { tr: "Toplam ağırlık %100'ü aşıyor.", en: "Total weight exceeds 100%.", de: "Das Gesamtgewicht überschreitet 100 %.", zh: "总权重超过 100%。" }) }
     : analysis.totalWeight < 99.999
       ? { kind: "info", text: msg(locale, { tr: "Ağırlığın bir kısmı henüz girilmedi.", en: "Part of the weight is not entered yet.", de: "Ein Teil des Gewichts fehlt noch.", zh: "仍有部分权重未输入。" }) }
       : null;
   return (
-    <Frame locale={locale} onDemo={() => setInput(demo)} onClear={() => setInput("")}>
-      <div className="workbench-grid">
-        <div className="workbench-inputs">
-          <label className="field-label"><span>{msg(locale, { tr: "Değerlendirmeler — ad|not|ağırlık", en: "Assessments — name|score|weight", de: "Bewertungen — Name|Note|Gewicht", zh: "考核项 — 名称|分数|权重" })}</span><textarea value={input} onChange={(event) => setInput(event.target.value)} rows={11} maxLength={20000} /></label>
+    <Frame locale={locale} onDemo={() => setRows(demoRows())} onClear={() => setRows([{ id: "grade-empty", name: "", score: "", weight: "" }])}>
+      <div className="workbench-grid grade-workbench-grid">
+        <div className="workbench-inputs grade-builder" data-agent-contract="grade-rows-v1">
+          <textarea className="sr-only" tabIndex={-1} aria-hidden="true" data-agent-input data-agent-key="input" value={serialized} onChange={(event) => parseRows(event.target.value)} />
+          <header><div><strong>{msg(locale, { tr: "Not planınızı oluşturun", en: "Build your grade plan", de: "Notenplan erstellen", zh: "创建成绩计划" })}</strong><small>{labels.live}</small></div><span>{rows.length}/30</span></header>
+          <div className="grade-row-head" aria-hidden="true"><span>{labels.item}</span><span>{labels.score}</span><span>{labels.weight}</span><span /></div>
+          <div className="grade-rows">{rows.map((row) => <div className="grade-row" key={row.id}>
+            <label><span>{labels.item}</span><input value={row.name} maxLength={60} placeholder={msg(locale, { tr: "Örn. Final", en: "e.g. Final", de: "z. B. Abschluss", zh: "例如：期末考试" })} onChange={(event) => updateRow(row.id, "name", event.target.value)} /></label>
+            <label><span>{labels.score}</span><input type="number" inputMode="decimal" min="0" max="100" step="0.1" value={row.score} placeholder="0–100" onChange={(event) => updateRow(row.id, "score", event.target.value)} /></label>
+            <label><span>{labels.weight}</span><input type="number" inputMode="decimal" min="0.01" max="100" step="0.1" value={row.weight} placeholder="%" onChange={(event) => updateRow(row.id, "weight", event.target.value)} /></label>
+            <button type="button" aria-label={labels.remove} title={labels.remove} disabled={rows.length === 1} onClick={() => setRows((current) => current.filter((item) => item.id !== row.id))}>×</button>
+          </div>)}</div>
+          <button className="grade-add-row" type="button" disabled={rows.length >= 30} onClick={() => setRows((current) => [...current, { id: `grade-${Date.now()}-${current.length}`, name: "", score: "", weight: "" }])}><span>＋</span>{labels.add}</button>
           <NumberField label={msg(locale, { tr: "Hedef ortalama", en: "Target average", de: "Zieldurchschnitt", zh: "目标平均分" })} value={target} setValue={setTarget} max={100} step={0.1} />
         </div>
-        <Output locale={locale} value={output} filename="bytequant-grade-report.txt" notice={notice} />
+        <Output locale={locale} value={analysis.valid.length ? output : ""} filename="bytequant-grade-report.txt" notice={notice} extra={analysis.valid.length ? <div className="grade-result-overview"><div><strong>{analysis.average.toFixed(2)}</strong><span>{msg(locale, { tr: "Güncel ortalama", en: "Current average", de: "Aktueller Schnitt", zh: "当前平均分" })}</span></div><div><strong>{analysis.totalWeight.toFixed(1)}%</strong><span>{labels.entered}</span></div><div><strong>{Math.max(0, analysis.remaining).toFixed(1)}%</strong><span>{labels.remaining}</span></div><div className="grade-weight-progress" aria-label={`${labels.entered}: ${analysis.totalWeight.toFixed(1)}%`}><i style={{ width: `${Math.min(100, Math.max(0, analysis.totalWeight))}%` }} /></div></div> : undefined} />
       </div>
     </Frame>
   );

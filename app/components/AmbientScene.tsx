@@ -2,159 +2,127 @@
 
 import { useEffect, useRef } from "react";
 
-type MemoryAwareNavigator = Navigator & { deviceMemory?: number };
+type CapabilityNavigator = Navigator & {
+  deviceMemory?: number;
+  connection?: { saveData?: boolean };
+};
 type IdleWindow = Window & {
   requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
   cancelIdleCallback?: (handle: number) => void;
 };
 
-const vertexSource = `
-  attribute vec2 position;
-  void main() {
-    gl_Position = vec4(position, 0.0, 1.0);
-  }
-`;
-
-const fragmentSource = `
-  precision mediump float;
-  uniform vec2 resolution;
-  uniform float time;
-
-  float glow(vec2 uv, vec2 origin, float radius) {
-    float distanceFromOrigin = length(uv - origin);
-    return smoothstep(radius, 0.0, distanceFromOrigin);
-  }
-
-  void main() {
-    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-    float drift = time * 0.14;
-    float a = glow(uv, vec2(-0.72 + sin(drift) * 0.10, 0.38 + cos(drift) * 0.07), 0.78);
-    float b = glow(uv, vec2(0.66 + cos(drift * 0.8) * 0.12, -0.08), 0.68);
-    float c = glow(uv, vec2(sin(drift * 0.55) * 0.28, -0.70), 0.56);
-    vec3 color = vec3(0.08, 0.72, 0.66) * a;
-    color += vec3(0.25, 0.38, 1.0) * b;
-    color += vec3(0.66, 0.34, 0.96) * c;
-    float alpha = min(0.22, (a + b + c) * 0.12);
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
-  const shader = gl.createShader(type);
-  if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
-}
-
-/** A decorative, low-power WebGL layer. It never reads or transmits user data. */
+/** A progressive Three.js accent. It never reads or transmits user content. */
 export function AmbientScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const idleWindow = window as IdleWindow;
-    const memory = (navigator as MemoryAwareNavigator).deviceMemory;
+    const capabilities = navigator as CapabilityNavigator;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const compactViewport = window.matchMedia("(max-width: 899px)");
-
-    if (!canvas || reducedMotion.matches || compactViewport.matches || (memory !== undefined && memory < 4)) return;
+    if (!canvas || reducedMotion.matches || compactViewport.matches || capabilities.connection?.saveData || (capabilities.deviceMemory !== undefined && capabilities.deviceMemory < 4) || navigator.hardwareConcurrency < 4) return;
 
     let animationFrame = 0;
     let idleHandle = 0;
     let timeoutHandle = 0;
     let resizeObserver: ResizeObserver | undefined;
+    let intersectionObserver: IntersectionObserver | undefined;
     let cleanupScene: (() => void) | undefined;
     let disposed = false;
+    let inViewport = true;
 
-    const start = () => {
+    const start = async () => {
+      const THREE = await import("three");
       if (disposed) return;
-      const gl = canvas.getContext("webgl", {
-        alpha: true,
-        antialias: false,
-        depth: false,
-        stencil: false,
-        preserveDrawingBuffer: false,
-        powerPreference: "low-power",
-      });
-      if (!gl) return;
-
-      const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexSource);
-      const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
-      const program = gl.createProgram();
-      const buffer = gl.createBuffer();
-      if (!vertexShader || !fragmentShader || !program || !buffer) {
-        if (vertexShader) gl.deleteShader(vertexShader);
-        if (fragmentShader) gl.deleteShader(fragmentShader);
-        if (program) gl.deleteProgram(program);
-        if (buffer) gl.deleteBuffer(buffer);
+      let renderer: InstanceType<typeof THREE.WebGLRenderer>;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, depth: true, stencil: false, preserveDrawingBuffer: false, powerPreference: "low-power" });
+      } catch {
         return;
       }
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-      gl.attachShader(program, vertexShader);
-      gl.attachShader(program, fragmentShader);
-      gl.linkProgram(program);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        gl.deleteShader(vertexShader);
-        gl.deleteShader(fragmentShader);
-        gl.deleteProgram(program);
-        gl.deleteBuffer(buffer);
-        return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+      camera.position.set(0, 0, 8);
+      const constellation = new THREE.Group();
+      scene.add(constellation);
+
+      const tealGeometry = new THREE.IcosahedronGeometry(1.38, 1);
+      const tealMaterial = new THREE.MeshBasicMaterial({ color: 0x36c7bb, wireframe: true, transparent: true, opacity: 0.2 });
+      const tealShape = new THREE.Mesh(tealGeometry, tealMaterial);
+      tealShape.position.set(-2.9, 0.35, -0.7);
+      constellation.add(tealShape);
+
+      const blueGeometry = new THREE.TorusKnotGeometry(0.92, 0.12, 64, 8, 2, 3);
+      const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x506dff, wireframe: true, transparent: true, opacity: 0.17 });
+      const blueShape = new THREE.Mesh(blueGeometry, blueMaterial);
+      blueShape.position.set(2.85, 0.12, -1.25);
+      constellation.add(blueShape);
+
+      const pointGeometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(150 * 3);
+      for (let index = 0; index < 150; index += 1) {
+        const angle = index * 2.399963;
+        const radius = 1.5 + (index % 17) * 0.24;
+        positions[index * 3] = Math.cos(angle) * radius;
+        positions[index * 3 + 1] = Math.sin(angle * 1.17) * radius * 0.38;
+        positions[index * 3 + 2] = -2.8 - (index % 11) * 0.18;
       }
-
-      gl.useProgram(program);
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-      const position = gl.getAttribLocation(program, "position");
-      gl.enableVertexAttribArray(position);
-      gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-      const resolution = gl.getUniformLocation(program, "resolution");
-      const time = gl.getUniformLocation(program, "time");
+      pointGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const pointMaterial = new THREE.PointsMaterial({ color: 0x8bded8, size: 0.035, transparent: true, opacity: 0.3, sizeAttenuation: true });
+      const points = new THREE.Points(pointGeometry, pointMaterial);
+      constellation.add(points);
 
       const resize = () => {
-        const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-        const width = Math.max(1, Math.round(canvas.clientWidth * ratio));
-        const height = Math.max(1, Math.round(canvas.clientHeight * ratio));
-        if (canvas.width !== width || canvas.height !== height) {
-          canvas.width = width;
-          canvas.height = height;
-          gl.viewport(0, 0, width, height);
-        }
+        const width = Math.max(1, Math.round(canvas.clientWidth));
+        const height = Math.max(1, Math.round(canvas.clientHeight));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
       };
 
       let lastFrame = 0;
       const render = (now: number) => {
-        if (document.visibilityState === "visible" && now - lastFrame >= 40) {
+        if (inViewport && document.visibilityState === "visible" && now - lastFrame >= 40) {
+          const elapsed = now / 1000;
           lastFrame = now;
-          resize();
-          gl.clearColor(0, 0, 0, 0);
-          gl.clear(gl.COLOR_BUFFER_BIT);
-          gl.uniform2f(resolution, canvas.width, canvas.height);
-          gl.uniform1f(time, now / 1000);
-          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          tealShape.rotation.x = elapsed * 0.055;
+          tealShape.rotation.y = elapsed * 0.085;
+          blueShape.rotation.x = -elapsed * 0.035;
+          blueShape.rotation.y = elapsed * 0.065;
+          points.rotation.z = elapsed * 0.012;
+          renderer.render(scene, camera);
         }
         animationFrame = window.requestAnimationFrame(render);
       };
 
       resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(canvas);
+      intersectionObserver = new IntersectionObserver(([entry]) => { inViewport = entry?.isIntersecting ?? false; }, { rootMargin: "120px" });
+      intersectionObserver.observe(canvas);
+      resize();
       animationFrame = window.requestAnimationFrame(render);
       cleanupScene = () => {
         window.cancelAnimationFrame(animationFrame);
         resizeObserver?.disconnect();
-        gl.deleteBuffer(buffer);
-        gl.deleteProgram(program);
-        gl.deleteShader(vertexShader);
-        gl.deleteShader(fragmentShader);
+        intersectionObserver?.disconnect();
+        tealGeometry.dispose();
+        tealMaterial.dispose();
+        blueGeometry.dispose();
+        blueMaterial.dispose();
+        pointGeometry.dispose();
+        pointMaterial.dispose();
+        renderer.dispose();
+        renderer.forceContextLoss();
       };
     };
 
-    if (idleWindow.requestIdleCallback) idleHandle = idleWindow.requestIdleCallback(start, { timeout: 1400 });
-    else timeoutHandle = window.setTimeout(start, 650);
+    if (idleWindow.requestIdleCallback) idleHandle = idleWindow.requestIdleCallback(() => { void start(); }, { timeout: 1800 });
+    else timeoutHandle = window.setTimeout(() => { void start(); }, 900);
 
     return () => {
       disposed = true;
@@ -164,5 +132,5 @@ export function AmbientScene() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="ambient-webgl" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="ambient-webgl" data-visual-engine="threejs-progressive" aria-hidden="true" />;
 }
