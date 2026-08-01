@@ -1,6 +1,6 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 234 distinct free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 309 distinct free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 Canonical site: https://bytequant.org/
 
@@ -43,7 +43,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 234 distinct tools.
+- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 309 distinct tools.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -54,7 +54,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 234 distinct tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any of the 309 distinct tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 
@@ -348,6 +348,81 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [Boolean Search Strategy Builder](https://bytequant.org/en/tools/boolean-arama-stratejisi-olusturucu): produces documented AND/OR search blocks without querying a database.
 - [Claim-Evidence Gap Inspector](https://bytequant.org/en/tools/iddia-kanit-boslugu-inceleyici): links claims to sources and highlights missing or weak support.
 - [Source Freshness Tracker](https://bytequant.org/en/tools/kaynak-guncellik-takipcisi): schedules review dates from publication, verification, and risk context.
+- [Prompt Negative-Constraint Auditor](https://bytequant.org/en/tools/prompt-negatif-kisit-denetleyici)
+- [Prompt Variable Type Checker](https://bytequant.org/en/tools/prompt-degisken-tip-denetleyici)
+- [Prompt Output Determinism Checker](https://bytequant.org/en/tools/prompt-cikti-belirlilik-denetleyici)
+- [Prompt Example Balance Analyzer](https://bytequant.org/en/tools/prompt-ornek-denge-analizoru)
+- [Prompt Localisation Checklist](https://bytequant.org/en/tools/prompt-yerellestirme-kontrol-listesi)
+- [Prompt Dependency Graph Builder](https://bytequant.org/en/tools/prompt-bagimlilik-grafi-cikarici)
+- [Prompt Rubric Scorer](https://bytequant.org/en/tools/prompt-rubrik-puanlayici)
+- [Prompt Consistency Scenario Test](https://bytequant.org/en/tools/prompt-tutarlilik-senaryo-testi)
+- [Sentence Length Distribution](https://bytequant.org/en/tools/cumle-uzunluk-dagilimi)
+- [Repeated Phrase Finder](https://bytequant.org/en/tools/tekrar-eden-ifade-bulucu)
+- [List Consistency Checker](https://bytequant.org/en/tools/liste-tutarlilik-denetleyici)
+- [Punctuation & Quote Normalizer](https://bytequant.org/en/tools/noktalama-tirnak-normalizasyonu)
+- [Acronym Glossary Extractor](https://bytequant.org/en/tools/kisaltma-sozluk-cikarici)
+- [Plain-Language Checker](https://bytequant.org/en/tools/sade-dil-kontrolu)
+- [Heading Hierarchy Auditor](https://bytequant.org/en/tools/baslik-hiyerarsisi-denetleyici)
+- [Terminology Consistency Checker](https://bytequant.org/en/tools/terim-tutarlilik-denetleyici)
+- [Paragraph Transition Analyzer](https://bytequant.org/en/tools/paragraf-gecis-analizoru)
+- [JSON Path Value Extractor](https://bytequant.org/en/tools/json-yol-degeri-cikarici)
+- [JSON Schema Sample Builder](https://bytequant.org/en/tools/json-ornek-veri-uretici)
+- [CSV Column Renamer](https://bytequant.org/en/tools/csv-sutun-yeniden-adlandirici)
+- [CSV Delimiter Detector](https://bytequant.org/en/tools/csv-ayirac-tespit-araci)
+- [NDJSON Batch Validator](https://bytequant.org/en/tools/ndjson-toplu-dogrulayici)
+- [SQL Parameter Inventory](https://bytequant.org/en/tools/sql-parametre-listesi-olusturucu)
+- [URL Path Segment Analyzer](https://bytequant.org/en/tools/url-yol-segmenti-analizoru)
+- [Accept-Language Parser](https://bytequant.org/en/tools/accept-language-ayristirici)
+- [ETag Comparator](https://bytequant.org/en/tools/etag-karsilastirici)
+- [JSON Object Merge Planner](https://bytequant.org/en/tools/json-nesne-birlestirme-stratejisi)
+- [JSON Array Pagination Planner](https://bytequant.org/en/tools/json-dizi-sayfalama-planlayici)
+- [GraphQL Operation Inventory](https://bytequant.org/en/tools/graphql-islem-envanteri)
+- [HTTP Link Header Parser](https://bytequant.org/en/tools/http-link-basligi-ayristirici)
+- [TOML ↔ JSON Converter](https://bytequant.org/en/tools/toml-json-donusturucu)
+- [Base32 Encoder / Decoder](https://bytequant.org/en/tools/base32-kodlayici)
+- [HEX ↔ Text Converter](https://bytequant.org/en/tools/hex-metin-donusturucu)
+- [Roman Numeral Converter](https://bytequant.org/en/tools/roma-rakami-donusturucu)
+- [Large-Integer Base Converter](https://bytequant.org/en/tools/buyuk-tamsayi-taban-donusturucu)
+- [iCalendar Event Builder](https://bytequant.org/en/tools/ical-etkinlik-olusturucu)
+- [vCard Contact Builder](https://bytequant.org/en/tools/vcard-kisi-karti-olusturucu)
+- [Multi-value Query ↔ JSON Converter](https://bytequant.org/en/tools/cok-degerli-sorgu-json-donusturucu)
+- [CSV → Safe HTML Table](https://bytequant.org/en/tools/csv-html-tablo-donusturucu)
+- [Privacy Risk Register Builder](https://bytequant.org/en/tools/gizlilik-risk-kaydi-olusturucu)
+- [Data Minimisation Decision Matrix](https://bytequant.org/en/tools/veri-minimizasyonu-karar-matrisi)
+- [Consent Record Template](https://bytequant.org/en/tools/riza-kaydi-sablonu)
+- [DPIA Screening Wizard](https://bytequant.org/en/tools/dpia-on-eleme-sihirbazi)
+- [Retention Expiry Calculator](https://bytequant.org/en/tools/saklama-suresi-son-tarih-hesaplayici)
+- [Redaction Consistency Checker](https://bytequant.org/en/tools/redaksiyon-tutarlilik-denetleyici)
+- [Data Classification Labeler](https://bytequant.org/en/tools/veri-siniflandirma-etiketleyici)
+- [Breach Notification Timeline](https://bytequant.org/en/tools/ihlal-bildirim-zaman-cizelgesi)
+- [Cookie Inventory Risk Classifier](https://bytequant.org/en/tools/cerez-envanteri-risk-siniflandirici)
+- [CSP Source Expression Tester](https://bytequant.org/en/tools/csp-kaynak-ifadesi-tester)
+- [SRI Value Verifier](https://bytequant.org/en/tools/sri-degeri-dogrulayici)
+- [Package Name Similarity Scanner](https://bytequant.org/en/tools/paket-adi-benzerlik-tarayicisi)
+- [Punycode Domain Inspector](https://bytequant.org/en/tools/punycode-domain-inceleyici)
+- [JWT Claim Policy Checker](https://bytequant.org/en/tools/jwt-claim-politikasi-denetleyici)
+- [SSH Authorized Key Inspector](https://bytequant.org/en/tools/ssh-yetkili-anahtar-inceleyici)
+- [PEM Block Inspector](https://bytequant.org/en/tools/pem-blok-inceleyici)
+- [Git Diff Secret Scanner](https://bytequant.org/en/tools/git-diff-sir-tarayicisi)
+- [API Key Format Pre-check](https://bytequant.org/en/tools/api-anahtari-format-on-kontrolu)
+- [HTML Safe Attribute Checker](https://bytequant.org/en/tools/html-guvenli-atribut-denetleyici)
+- [Percentage Allocation Balancer](https://bytequant.org/en/tools/yuzde-dagilim-dengeleyici)
+- [Package Unit-Cost Comparator](https://bytequant.org/en/tools/paket-birim-maliyet-karsilastirici)
+- [Work-Pay Equivalence Calculator](https://bytequant.org/en/tools/calisma-ucreti-esdegerlik-hesaplayici)
+- [Cash Runway Calculator](https://bytequant.org/en/tools/nakit-pisti-hesaplayici)
+- [Stock Reorder Point Calculator](https://bytequant.org/en/tools/stok-yeniden-siparis-hesaplayici)
+- [Proportion Study Sample Planner](https://bytequant.org/en/tools/oran-arastirmasi-orneklem-planlayici)
+- [Confidence Interval Calculator](https://bytequant.org/en/tools/guven-araligi-hesaplayici)
+- [Meeting Cost Calculator](https://bytequant.org/en/tools/toplanti-maliyeti-hesaplayici)
+- [Shift Coverage Calculator](https://bytequant.org/en/tools/vardiya-kapsama-hesaplayici)
+- [Time-Blocking Planner](https://bytequant.org/en/tools/zaman-bloklama-plani)
+- [Pomodoro Session Planner](https://bytequant.org/en/tools/pomodoro-oturum-planlayici)
+- [Event Checklist Builder](https://bytequant.org/en/tools/etkinlik-kontrol-listesi-olusturucu)
+- [Embedding Chunk & Overlap Planner](https://bytequant.org/en/tools/embedding-parca-ortusme-planlayici)
+- [Tool-Call JSON Validator](https://bytequant.org/en/tools/arac-cagrisi-json-dogrulayici)
+- [DOI Batch Validator](https://bytequant.org/en/tools/doi-toplu-dogrulayici)
+- [Literature Screening Decision Log](https://bytequant.org/en/tools/literatur-eleme-karar-gunlugu)
+- [Evidence Table Deduplicator](https://bytequant.org/en/tools/kanit-tablosu-tekillestirici)
 
 ## Editorial guides and site resources
 

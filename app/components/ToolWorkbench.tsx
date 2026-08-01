@@ -17,11 +17,15 @@ import { discoveryToolSlugs } from "../lib/discovery-tool-slugs";
 import { productivityToolSlugs } from "../lib/productivity-tool-slugs";
 import { PrecisionWorkbench } from "./PrecisionWorkbenches";
 import { precisionToolSlugs } from "../lib/precision-tools";
+import { frontierToolSlugs } from "../lib/frontier-tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 
 const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
+});
+const FrontierWorkbench = dynamic(() => import("./FrontierWorkbenches").then((module) => module.FrontierWorkbench), {
+  loading: () => <div className="workbench frontier-workbench" aria-busy="true" />,
 });
 const DemandWorkbench = dynamic(() => import("./DemandWorkbenches").then((module) => module.DemandWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
@@ -48,7 +52,7 @@ const samples: Record<string, Record<"tr" | "en", string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":234}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":234}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":309}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":309}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
@@ -354,6 +358,7 @@ function explainCron(expression: string, isTr: boolean) {
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
+  if (frontierToolSlugs.has(slug)) return <FrontierWorkbench slug={slug} locale={locale} />;
   if (precisionToolSlugs.has(slug)) return <PrecisionWorkbench slug={slug} locale={locale} />;
   if (essentialToolSlugs.has(slug) || guidedLegacyToolSlugs.has(slug)) return <EssentialWorkbench slug={slug} locale={locale} />;
   if (expansionToolSlugs.has(slug)) return <ExpansionWorkbench slug={slug} locale={locale} />;

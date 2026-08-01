@@ -38,6 +38,7 @@ test("text workbench families expose only completed output to the local-agent br
     "app/components/DiscoveryWorkbenches.tsx",
     "app/components/ExpansionWorkbenches.tsx",
     "app/components/GrowthWorkbenches.tsx",
+    "app/components/FrontierWorkbenches.tsx",
     "app/components/PrecisionWorkbenches.tsx",
     "app/components/ProductivityWorkbenches.tsx",
     "app/components/SpecializedWorkbench.tsx",

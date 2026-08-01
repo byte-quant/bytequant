@@ -4,7 +4,7 @@ import { localizedAlternates } from "./lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: "ByteQuant · Gizlilik Odaklı Tarayıcı İçi Araçlar" },
-  description: "Prompt, metin, hesaplama, PDF, görsel, geliştirici, araştırma, AI ve güvenlik işlemleri için 234 benzersiz ücretsiz araç. Üyelik yok; temel işlemler tarayıcınızda.",
+  description: "Prompt, metin, hesaplama, PDF, görsel, geliştirici, araştırma, AI ve güvenlik işlemleri için 309 benzersiz ücretsiz araç. Üyelik yok; temel işlemler tarayıcınızda.",
   alternates: localizedAlternates("tr", "/", "/en"),
 };
 

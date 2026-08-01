@@ -116,7 +116,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 234);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 309);
   assert.match(home, /Araçlarda anında ara/);
   assert.match(german, /Werkzeuge sofort durchsuchen/);
   assert.match(chinese, /即时搜索工具/);
@@ -163,10 +163,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 246);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 246);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 246);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 246);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 321);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 321);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 321);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 321);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -305,6 +305,51 @@ test("ships 35 distinct precision tools and five long guides in all four locales
       access(new URL(`zh/blog/${post.slug}/index.html`, root)),
     ]);
   }
+});
+
+test("ships 75 distinct frontier tools and 15 detailed guides in all four locales", async () => {
+  const [{ frontierTools, frontierToolSlugs, frontierToolCount }, { frontierPosts, frontierLocalizedGuides, frontierGuideCount }] = await Promise.all([
+    import("../app/lib/frontier-tools.ts"),
+    import("../app/lib/frontier-guides.ts"),
+  ]);
+  assert.equal(frontierToolCount, 75);
+  assert.equal(frontierToolSlugs.size, 75);
+  assert.equal(frontierTools.length, 75);
+  assert.equal(frontierGuideCount, 15);
+  assert.equal(frontierPosts.length, 15);
+  assert.equal(frontierLocalizedGuides.length, 15);
+  assert.deepEqual(frontierTools.map((tool) => Number(tool.mark)), Array.from({ length: 75 }, (_, index) => 247 + index));
+  for (const tool of frontierTools) {
+    for (const locale of ["tr", "en", "de", "zh"]) {
+      assert.ok(tool.title[locale].length > 4, `${tool.slug} missing ${locale} title`);
+      assert.ok(tool.description[locale].length > 80, `${tool.slug} shallow ${locale} description`);
+      assert.equal(tool.steps[locale].length, 3);
+    }
+    const pages = await Promise.all([
+      read(`araclar/${tool.slug}/index.html`),
+      read(`en/tools/${tool.slug}/index.html`),
+      read(`de/tools/${tool.slug}/index.html`),
+      read(`zh/tools/${tool.slug}/index.html`),
+    ]);
+    for (const page of pages) {
+      assert.match(page, /HowTo/);
+      assert.match(page, /frontier-workbench/);
+      assert.match(page, /data-agent-input/);
+      assert.doesNotMatch(page, /noindex, follow/);
+    }
+  }
+  for (const post of frontierPosts) {
+    assert.equal(post.sections.tr.length, 6);
+    assert.equal(post.sections.en.length, 6);
+    await Promise.all([
+      access(new URL(`blog/${post.slug}/index.html`, root)),
+      access(new URL(`en/blog/${post.slug}/index.html`, root)),
+      access(new URL(`de/blog/${post.slug}/index.html`, root)),
+      access(new URL(`zh/blog/${post.slug}/index.html`, root)),
+    ]);
+  }
+  const workbench = await readFile(new URL("../app/components/FrontierWorkbenches.tsx", import.meta.url), "utf8");
+  for (const slug of frontierToolSlugs) assert.match(workbench, new RegExp(`"${slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`), `${slug} has no dedicated demo/processor registration`);
 });
 
 test("exports the new bilingual tool package", async () => {
@@ -721,8 +766,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>81<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>81<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>96<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>96<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -822,10 +867,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /234 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 234 tools in a visual workflow/);
-  assert.match(german, /234 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 234 个工具/);
+  assert.match(turkish, /309 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 309 tools in a visual workflow/);
+  assert.match(german, /309 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 309 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
