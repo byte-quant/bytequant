@@ -2166,14 +2166,35 @@ main::before{
 .tool-answer-card dd{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.58;overflow-wrap:break-word}
 .tool-answer-card nav{grid-column:1/-1;padding-top:16px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-top:1px solid var(--line)}
 .tool-answer-card nav>a:not(.primary-button){min-height:44px;padding:9px 13px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;color:var(--teal-dark);background:var(--surface);font-size:12px;font-weight:800}
-#tool-workbench{scroll-margin-top:92px}
+#tool-workbench{scroll-margin-top:124px}
 
 .workbench{border-radius:24px;box-shadow:0 22px 62px color-mix(in srgb,var(--navy) 11%,transparent)}
 .workbench-bar,.workbench-toolbar{min-height:66px}
-.workbench-grid{min-height:clamp(430px,56vh,620px)}
+.workbench-grid{min-height:0}
 .workbench-inputs,.result-panel{padding:clamp(20px,3vw,32px)}
 .result-panel{background:linear-gradient(145deg,color-mix(in srgb,var(--surface-soft) 62%,var(--surface)),var(--surface))}
-.result-panel pre{min-height:clamp(240px,38vh,410px);border-style:solid;background:color-mix(in srgb,var(--bg) 92%,var(--surface))}
+.result-panel pre{min-height:clamp(180px,26vh,300px);border-style:solid;background:color-mix(in srgb,var(--bg) 92%,var(--surface))}
+.frontier-workbench .workbench-grid{min-height:0;align-items:stretch}
+.frontier-workbench .workbench-inputs,.frontier-workbench .result-panel{gap:16px}
+.frontier-workbench .field-label{min-width:0}
+.frontier-workbench .field-label textarea{min-height:clamp(180px,28vh,330px);resize:vertical}
+.frontier-workbench .field-label + .field-label textarea{min-height:150px}
+.frontier-workbench .result-panel>pre{min-height:180px;max-height:min(58vh,560px);flex:0 1 auto}
+.frontier-workbench .structured-tool-output{margin-top:4px}
+.frontier-workbench .structured-table-scroll{max-height:min(58vh,560px)}
+.frontier-workbench .structured-tool-output table{min-width:520px}
+.frontier-purpose{padding:14px 15px;display:grid;gap:5px;border:1px solid color-mix(in srgb,var(--teal) 26%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--teal-soft) 38%,var(--surface))}
+.frontier-purpose strong{color:var(--teal-dark);font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.frontier-purpose p{margin:0;color:var(--text);font-size:13px;line-height:1.62}
+.frontier-format{margin-top:8px;padding:9px 11px;display:block;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--surface-soft);font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.frontier-format b{color:var(--text)}
+.frontier-format code{color:var(--teal-dark);font:700 10px/1.55 var(--font-mono);white-space:normal}
+.frontier-workbench .result-header>span{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.frontier-state{padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--surface-soft);font-size:10px;font-weight:800;letter-spacing:0;text-transform:none}
+.frontier-state[data-state="busy"]{color:var(--teal-dark);border-color:color-mix(in srgb,var(--teal) 45%,var(--line));background:var(--teal-soft)}
+.frontier-state[data-state="success"]{color:var(--green);border-color:color-mix(in srgb,var(--green) 42%,var(--line));background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.frontier-state[data-state="error"]{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 42%,var(--line));background:color-mix(in srgb,var(--danger) 7%,var(--surface))}
+.structured-output-intro{border-top:0!important;border-bottom:1px solid var(--line)!important}
 .tool-experience-bar{box-shadow:0 10px 28px color-mix(in srgb,var(--navy) 5%,transparent)}
 .tool-next-actions,.before-after-panel{box-shadow:0 13px 34px color-mix(in srgb,var(--navy) 6%,transparent)}
 
@@ -2202,6 +2223,10 @@ main::before{
   .workbench{border-radius:18px}
   .workbench-grid{min-height:0}
   .result-panel pre{min-height:220px}
+  .frontier-workbench .field-label textarea{min-height:190px}
+  .frontier-workbench .field-label + .field-label textarea{min-height:140px}
+  .frontier-workbench .result-panel>pre{min-height:160px;max-height:440px}
+  .frontier-workbench .structured-tool-output table{min-width:460px}
 }
 
 @media(prefers-reduced-motion:reduce){
