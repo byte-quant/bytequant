@@ -68,8 +68,51 @@ const paragraphs: Record<Locale, Array<(g: Guide) => string>> = {
   ],
 };
 
+const sectionDetail: Record<Locale, string[]> = {
+  tr: [
+    "Kararı tek cümleyle yazın; başarı ölçütünü, sorumluyu ve otomatikleştirilmeyecek son onayı daha veri girmeden belirleyin.",
+    "Girdi sözlüğünde alan, tür, birim, dil, zaman dilimi, boş değer ve hassasiyet sınıfını ayrı ayrı kaydedin.",
+    "Her adım için beklenen çıktı şemasını ve bir sonraki araca aktarılabilecek en küçük veri kümesini tanımlayın.",
+    "Normal örneğin yanında boş, bozuk, aşırı büyük, çelişkili ve kötü niyetli girdileri ayrı test vakaları olarak saklayın.",
+    "Kaynak ve sonuç arasında satır, toplam, boş değer, benzersiz anahtar ve değişen alan uzlaştırması yapın.",
+    "Teslim kaydına tarih, sürüm, varsayım, hata yolu, bilinen sınır, insan onayı ve sonraki inceleme tarihini ekleyin.",
+  ],
+  en: [
+    "State the decision in one sentence, then define success, ownership, and the final approval that must not be automated before entering data.",
+    "Document field, type, unit, language, time zone, missing-value rule, and sensitivity class separately in the input dictionary.",
+    "For every step, define the expected output schema and the smallest data set that may move to the next tool.",
+    "Keep empty, malformed, oversized, contradictory, and adversarial input as named test cases beside the happy path.",
+    "Reconcile rows, totals, missing values, unique keys, and changed fields between source and result.",
+    "Add date, version, assumptions, failure path, known limits, human approval, and next-review date to the handoff record.",
+  ],
+  de: [
+    "Formulieren Sie die Entscheidung in einem Satz und legen Sie Erfolg, Verantwortung sowie die nicht automatisierbare Endfreigabe vor der Dateneingabe fest.",
+    "Dokumentieren Sie Feld, Typ, Einheit, Sprache, Zeitzone, Leerwertregel und Schutzklasse getrennt im Eingabeverzeichnis.",
+    "Definieren Sie für jeden Schritt das erwartete Ausgabeschema und die kleinste Datenmenge, die weitergegeben werden darf.",
+    "Bewahren Sie leere, fehlerhafte, übergroße, widersprüchliche und missbräuchliche Eingaben als benannte Testfälle neben dem Normalfall auf.",
+    "Gleichen Sie Zeilen, Summen, Leerwerte, eindeutige Schlüssel und geänderte Felder zwischen Quelle und Ergebnis ab.",
+    "Ergänzen Sie Datum, Version, Annahmen, Fehlerpfad, bekannte Grenzen, menschliche Freigabe und nächste Prüfung im Übergabeprotokoll.",
+  ],
+  zh: [
+    "先用一句话写明要作出的决定，并在输入数据前定义成功标准、负责人以及不得自动化的最终批准。",
+    "在输入字典中分别记录字段、类型、单位、语言、时区、缺失值规则与敏感等级。",
+    "为每一步定义预期输出结构，以及允许传递到下一工具的最小数据集合。",
+    "除正常路径外，把空值、格式错误、超大、矛盾与恶意输入保存为命名测试案例。",
+    "在来源与结果之间核对行数、总计、缺失值、唯一键与变更字段。",
+    "在交付记录中加入日期、版本、假设、失败路径、已知边界、人工批准与下次复核日期。",
+  ],
+};
+
 function sections(locale: Locale, guide: Guide): ArticleSection[] {
-  return headings[locale].map((heading, index) => ({ heading, paragraphs: [paragraphs[locale][index](guide), index % 2 ? guide.boundary[locale] : guide.excerpt[locale]], bullets: [guide.outcome[locale], guide.boundary[locale], txt(locale, { tr: "Girdi, çıktı ve karar sahibini kaydedin.", en: "Record input, output, and decision owner.", de: "Eingabe, Ausgabe und Verantwortung protokollieren.", zh: "记录输入、输出与决策责任人。" })] }));
+  return headings[locale].map((heading, index) => ({
+    heading,
+    paragraphs: [paragraphs[locale][index](guide), sectionDetail[locale][index]],
+    bullets: index === 0
+      ? [guide.outcome[locale]]
+      : index === headings[locale].length - 1
+        ? [guide.boundary[locale]]
+        : [txt(locale, { tr: "Girdi, çıktı ve karar sahibini kaydedin.", en: "Record input, output, and decision owner.", de: "Eingabe, Ausgabe und Verantwortung protokollieren.", zh: "记录输入、输出与决策责任人。" })],
+  }));
 }
 function txt(locale: Locale, value: L) { return value[locale]; }
 

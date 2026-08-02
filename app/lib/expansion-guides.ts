@@ -245,7 +245,7 @@ const specs: Spec[] = [
 function sections(locale: Locale, points: [Point, Point, Point]): ArticleSection[] {
   const depth = depthCopy[locale];
   return [
-    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], method[locale][index], depth.evidence], bullets: bullets[locale] })),
+    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], method[locale][index], depth.evidence], bullets: [bullets[locale][index]] })),
     { heading: depth.walkthrough, paragraphs: [depth.walkthroughBody, `${points[0].heading[locale]} → ${points[1].heading[locale]} → ${points[2].heading[locale]}`], bullets: depth.walkthroughBullets },
     { heading: depth.quality, paragraphs: [depth.qualityBody], bullets: depth.qualityBullets },
   ];

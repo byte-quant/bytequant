@@ -9,6 +9,7 @@ const htmlFiles = files.filter((file) => file.endsWith(".html"));
 const brokenLinks = new Set();
 const invalidSchemas = new Set();
 const localeCanonicalErrors = new Set();
+const documentQualityErrors = new Set();
 let schemaBlocks = 0;
 
 function localTargetExists(href) {
@@ -21,6 +22,17 @@ function localTargetExists(href) {
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
   const relativeFile = path.relative(root, file).replaceAll("\\", "/");
+  const expectedLang = relativeFile === "offline.html" ? "en" : relativeFile.startsWith("de/") ? "de" : relativeFile.startsWith("zh/") ? "zh-CN" : relativeFile.startsWith("en/") ? "en" : "tr";
+  const htmlLang = /<html[^>]+lang="([^"]+)"/i.exec(html)?.[1];
+  if (htmlLang !== expectedLang) documentQualityErrors.add(`${relativeFile}: lang=${htmlLang ?? "missing"}, expected ${expectedLang}`);
+  if (!/<title>[^<]{8,}<\/title>/i.test(html)) documentQualityErrors.add(`${relativeFile}: missing or empty title`);
+  const description = /<meta[^>]+name="description"[^>]+content="([^"<>]+)"|<meta[^>]+content="([^"<>]+)"[^>]+name="description"/i.exec(html);
+  const descriptionText = description?.[1] ?? description?.[2] ?? "";
+  const minimumDescriptionLength = expectedLang === "zh-CN" ? 14 : 40;
+  if (descriptionText.trim().length < minimumDescriptionLength) documentQualityErrors.add(`${relativeFile}: missing or shallow description`);
+  if (!/<meta[^>]+name="viewport"[^>]+content="[^"]*width=device-width|<meta[^>]+content="[^"]*width=device-width[^>]+name="viewport"/i.test(html)) documentQualityErrors.add(`${relativeFile}: missing responsive viewport`);
+  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+  if (new Set(ids).size !== ids.length) documentQualityErrors.add(`${relativeFile}: duplicate element id`);
   for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     schemaBlocks += 1;
     try {
@@ -44,6 +56,7 @@ const sitemapUrls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => m
 assert.equal(invalidSchemas.size, 0, `Invalid JSON-LD: ${[...invalidSchemas].join(", ")}`);
 assert.equal(brokenLinks.size, 0, `Broken internal links:\n${[...brokenLinks].slice(0, 20).join("\n")}`);
 assert.equal(localeCanonicalErrors.size, 0, `Locale/canonical errors:\n${[...localeCanonicalErrors].slice(0, 20).join("\n")}`);
+assert.equal(documentQualityErrors.size, 0, `Document quality errors:\n${[...documentQualityErrors].slice(0, 30).join("\n")}`);
 assert.equal(new Set(sitemapUrls).size, sitemapUrls.length, "Sitemap contains duplicate canonical URLs.");
 assert.ok(sitemap.includes('hreflang="x-default"'), "Sitemap is missing x-default alternates.");
 assert.ok(sitemapUrls.every((url) => {

@@ -136,7 +136,7 @@ function sections(locale: Locale, guide: Guide): ArticleSection[] {
   return headings.map((heading, index) => ({
     heading,
     paragraphs: [common[index], index === 0 ? guide.excerpt[locale] : index === 4 ? guide.boundary[locale] : guide.outcome[locale]],
-    bullets: guide.checks[locale],
+    bullets: [guide.checks[locale][index % guide.checks[locale].length]],
   }));
 }
 
