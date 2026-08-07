@@ -12,13 +12,13 @@ test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
   assert.match(home, /İşinizi kolaylaştırın; hassas veriniz sizde kalsın/);
   assert.match(english, /Make the task easier while sensitive data stays with you/);
-  assert.match(home, /işlevsel araç/);
+  assert.match(home, /editoryal incelenmiş araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
   assert.match(german, /<html lang="de"/);
   assert.match(chinese, /<html lang="zh-CN"/);
-  assert.match(german, /funktionierende Werkzeuge/);
-  assert.match(chinese, /个可用工具/);
+  assert.match(german, /redaktionell geprüfte Werkzeuge/);
+  assert.match(chinese, /个已编辑审核工具/);
   assert.match(home, /Sabitlenenler ve sık kullanılanlar/);
   assert.match(english, /Pinned and frequently used tools/);
   assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
@@ -85,8 +85,10 @@ test("exports the complete four-language site", async () => {
   assert.match(sitemap, /https:\/\/bytequant\.org\/en\/workstation\//);
   assert.match(sitemap, /de\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
   assert.match(sitemap, /zh\/blog\/visual-workflow-indexeddb-webrtc-workstation/);
-  assert.match(sitemap, /https:\/\/bytequant\.org\/topluluk\//);
-  assert.match(sitemap, /https:\/\/bytequant\.org\/en\/community\//);
+  assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/topluluk\//);
+  assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/en\/community\//);
+  assert.doesNotMatch(sitemap, /https:\/\/bytequant\.org\/(?:guncel|en\/updates|de\/updates|zh\/updates)\//);
+  assert.doesNotMatch(sitemap, /prompt-negatif-kisit-denetleyici/);
   assert.match(sitemap, /de\/blog\/private-agent-workstation-pipeline/);
   assert.match(sitemap, /zh\/blog\/core-web-vitals-client-side-tools/);
   assert.match(sitemap, /en\/blog\/ndjson-openapi-semver-api-delivery/);
@@ -257,7 +259,7 @@ test("ships exactly 25 new working tools and seven deep guides in all four local
       read(`zh/tools/${slug}/index.html`),
     ]);
     if (toolAliases.has(slug)) {
-      for (const page of pages) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+      for (const page of pages) assert.match(page, /name="robots" content="noindex, follow(?:, noarchive)?"|content="noindex, follow(?:, noarchive)?" name="robots"/);
       continue;
     }
     for (const page of pages) {
@@ -335,7 +337,8 @@ test("ships 75 distinct frontier tools and 15 detailed guides in all four locale
       assert.match(page, /HowTo/);
       assert.match(page, /frontier-workbench/);
       assert.match(page, /data-agent-input/);
-      assert.doesNotMatch(page, /noindex, follow/);
+      assert.match(page, /noindex, follow, noarchive/);
+      assert.match(page, /data-editorial-status="laboratory"/);
     }
   }
   for (const post of frontierPosts) {
@@ -600,7 +603,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-02/);
+    assert.match(page, /dateModified[^<]*2026-08-07/);
   }
 
   const guideSlugs = [
@@ -667,7 +670,7 @@ test("keeps legacy mixed-language guide slugs as noindex canonical aliases", asy
     read("zh/blog/json-schema-bild-hash-integritaet-workflow/index.html"),
     read("en/blog/kredit-ai-bewertung-csp-entscheidungsworkflow/index.html"),
   ]);
-  assert.match(aliases[0], /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+  assert.match(aliases[0], /name="robots" content="noindex, follow(?:, noarchive)?"|content="noindex, follow(?:, noarchive)?" name="robots"/);
   assert.match(aliases[0], /rel="canonical" href="https:\/\/bytequant\.org\/de\/blog\/local-prompt-text-date-workflow\//);
   assert.match(aliases[1], /rel="canonical" href="https:\/\/bytequant\.org\/zh\/blog\/json-schema-image-hash-workflow\//);
   assert.match(aliases[2], /rel="canonical" href="https:\/\/bytequant\.org\/en\/blog\/loan-ai-rubric-csp-workflow\//);
@@ -685,7 +688,7 @@ test("consolidates duplicate tools without breaking established URLs", async () 
     read("zh/tools/mime-turu-bulucu/index.html"),
     read("sitemap.xml"), read("llms.txt"),
   ]);
-  for (const page of [turkish, english, german, chinese, newTurkish, newEnglish, newGerman, newChinese]) assert.match(page, /name="robots" content="noindex, follow"|content="noindex, follow" name="robots"/);
+  for (const page of [turkish, english, german, chinese, newTurkish, newEnglish, newGerman, newChinese]) assert.match(page, /name="robots" content="noindex, follow(?:, noarchive)?"|content="noindex, follow(?:, noarchive)?" name="robots"/);
   assert.match(turkish, /rel="canonical" href="https:\/\/bytequant\.org\/araclar\/kredi-odeme-hesaplayici\//);
   assert.match(english, /rel="canonical" href="https:\/\/bytequant\.org\/en\/tools\/tarih-farki-hesaplayici\//);
   assert.match(german, /rel="canonical" href="https:\/\/bytequant\.org\/de\/tools\/kelime-sikligi-ngram-analizi\//);
@@ -910,7 +913,7 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-02/);
+    assert.match(page, /dateModified[^<]*2026-08-07/);
   }
   for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
     for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {

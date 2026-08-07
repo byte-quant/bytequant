@@ -39,11 +39,11 @@ export function NewsPage({ locale }: { locale: Locale }) {
   const schema = { "@context": "https://schema.org", "@type": "CollectionPage", name: t.title, description: t.intro, url, inLanguage: languageTag(locale), isPartOf: { "@id": `${absoluteUrl(pathFor(locale, "home"))}#website` }, publisher: { "@id": organizationId }, mainEntity: { "@type": "ItemList", itemListElement: newsItems.slice(0, 20).map((item, index) => ({ "@type": "ListItem", position: index + 1, url: item.url, name: item.title })) } };
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "news")} languageHrefs={{ tr: pathFor("tr", "news"), en: pathFor("en", "news"), de: pathFor("de", "news"), zh: pathFor("zh", "news") }}>
     <SchemaScript data={schema} />
-    <main className="news-page">
+    <div className="news-page">
       <section className="news-product-intro"><div className="container"><div><span className="eyebrow"><i />{t.eyebrow}</span><h1>{t.title}</h1><p>{t.intro}</p></div><aside><strong>{sourceCount}</strong><span>{t.sources}</span><strong>{newsItems.length}</strong><span>{t.records}</span><small>{t.direct}</small><time dateTime={newsGeneratedAt}>{t.update}: {new Date(newsGeneratedAt).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" })}</time></aside></div></section>
       <section className="section news-feed-section"><div className="container"><NewsFeedClient locale={locale} items={newsItems} /></div></section>
       <section className="section news-regional"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">OFFICIAL SOURCES</span><h2>{t.desk}</h2></div><p>{t.deskIntro}</p></div><div className="news-regional-grid">{regionalSources.map((source) => <a key={source.code} href={source.url} target="_blank" rel="noreferrer noopener"><span>{source.code}</span><div><strong>{source.name}</strong><p>{source.descriptions[locale]}</p></div><b>↗</b></a>)}</div></div></section>
       <section className="section news-method"><div className="container"><div><span className="kicker">SOURCE TRANSPARENCY</span><h2>{t.method}</h2></div><ul>{t.notes.map((note) => <li key={note}>✓ <span>{note}</span></li>)}</ul></div></section>
-    </main>
+    </div>
   </SiteShell>;
 }

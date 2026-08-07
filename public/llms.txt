@@ -1,9 +1,16 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 309 distinct free browser-based tools across ten categories: prompt engineering, text and NLP, data and development, conversion, privacy and security, calculations, everyday work, AI quality, code and file security, and research and evidence. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 234 editorially reviewed browser tools plus 75 clearly labelled laboratory tools across ten categories. Laboratory pages remain usable but are excluded from search indexes and the sitemap until individual review is complete. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+
+## Editorial quality model
+
+- Reviewed tools have version-controlled descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests.
+- Laboratory tools remain available for evaluation and do not claim the same editorial status; their pages carry `noindex` until individual review is complete.
+- High-impact legal, financial, medical, academic, identity, and security decisions always require an authoritative source or qualified human review.
+- Community and official-source update feeds are intentionally excluded from the search index and from Auto Ads placement recommendations because they contain dynamic or externally sourced material.
 
 Canonical site: https://bytequant.org/
-Last editorial and interface review: 2026-08-02
+Last editorial and interface review: 2026-08-07
 
 Languages:
 - Turkish (default): https://bytequant.org/
@@ -54,7 +61,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner uses multilingual semantic scoring, versioned workflow recipes, bounded parameter extraction, goal framing, plan self-review, and local error-pattern translation across all 309 distinct tools.
+- The planner can search all 309 available tools, while clearly distinguishing the reviewed library from laboratory items.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -65,7 +72,7 @@ Languages:
 - German Workstation: https://bytequant.org/de/workstation
 - Simplified Chinese Workstation: https://bytequant.org/zh/workstation
 - Recipe importer: https://bytequant.org/workspace?recipe=... (noindex; canonical documentation is the English Workstation page)
-- Users can arrange any of the 309 distinct tools as bounded visual nodes, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
+- Users can arrange any available tool as a bounded visual node, connect output to input, and open each real tool through an explicit handoff. The visual plan never executes a tool automatically.
 - Projects support multiple local documents, encrypted IndexedDB persistence, compressed URL recipes, undo/redo, auto-layout, full-catalog filters, starter flows, explainable Agent plan previews, and optional manually verified WebRTC peer sessions. There is no cloud workspace database or remote collaboration service.
 - Workstation architecture guide: https://bytequant.org/en/blog/visual-workflow-indexeddb-webrtc-workstation
 

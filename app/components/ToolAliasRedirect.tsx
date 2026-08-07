@@ -15,5 +15,5 @@ export function ToolAliasRedirect({ locale, canonicalSlug, toolTitle }: { locale
   const target = toolPath(locale, canonicalSlug);
   const text = copy[locale];
   useEffect(() => { window.location.replace(target); }, [target]);
-  return <main className="tool-alias-main"><section className="tool-alias-card" role="status"><span className="kicker">{text.eyebrow}</span><h1>{text.title}</h1><p>{text.body}</p><Link className="primary-button" href={target}>{text.action}: {toolTitle} →</Link></section></main>;
+  return <div className="tool-alias-main"><section className="tool-alias-card" role="status"><span className="kicker">{text.eyebrow}</span><h1>{text.title}</h1><p>{text.body}</p><Link className="primary-button" href={target}>{text.action}: {toolTitle} →</Link></section></div>;
 }

@@ -15,6 +15,7 @@
     "sync:news": "node scripts/sync-news.mjs",
     "audit:static": "node scripts/audit-static.mjs",
     "audit:adsense": "node scripts/audit-adsense.mjs",
+    "audit:content": "node scripts/audit-content-value.mjs",
     "audit:licenses": "node scripts/audit-licenses.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"

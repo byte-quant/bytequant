@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
-const [layout, shell, home, tool, article, blog, agent, workstation, community, privacy, localizedInfo, cookies, adsTxt, robots, worker, headers, sitemap, infoPage] = await Promise.all([
+const [layout, shell, home, tool, article, blog, agent, workstation, community, privacy, localizedInfo, cookies, adsTxt, robots, worker, headers, sitemap, infoPage, contentQuality, newsPage] = await Promise.all([
   read("app/layout.tsx"), read("app/components/SiteShell.tsx"), read("app/components/HomePage.tsx"), read("app/components/ToolPage.tsx"),
   read("app/components/ArticlePage.tsx"), read("app/components/BlogIndex.tsx"), read("app/components/AgenticAssistant.tsx"),
   read("app/components/WorkstationClient.tsx"), read("app/components/CommunityPage.tsx"), read("app/lib/info.ts"), read("app/lib/localized-info.ts"), read("app/components/ConsentManager.tsx"),
   read("public/ads.txt"), read("app/robots.ts"), read("worker/index.ts"), read("public/_headers"), read("app/sitemap.ts"),
-  read("app/components/InfoPage.tsx"),
+  read("app/components/InfoPage.tsx"), read("app/lib/content-quality.ts"), read("app/components/NewsPage.tsx"),
 ]);
 
 const publisherId = "ca-pub-4158794981134847";
@@ -43,6 +43,11 @@ assert.match(shell, /pathFor\(locale, "contact"\)/);
 assert.match(shell, /pathFor\(locale, "about"\)/);
 assert.match(shell, /PrivacySettingsButton/);
 assert.match(sitemap, /"privacy", "cookies", "terms", "contact", "faq"/);
+assert.match(sitemap, /isEditoriallyReviewedTool/);
+assert.doesNotMatch(sitemap, /"community"|"news"/);
+assert.match(contentQuality, /nonIndexableRobots/);
+assert.match(contentQuality, /adsenseAccountExclusionPaths/);
+assert.doesNotMatch(newsPage, /<main className="news-page"/);
 assert.match(infoPage, /pageKey === "about" \? "AboutPage"/);
 assert.match(infoPage, /pageKey === "contact" \? "ContactPage"/);
 assert.match(infoPage, /pageKey === "faq" \? "FAQPage"/);
