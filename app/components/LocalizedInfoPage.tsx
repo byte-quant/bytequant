@@ -4,6 +4,7 @@ import type { InfoKey } from "../lib/info";
 import { absoluteUrl, languageTag, organizationId, pathFor, websiteId } from "../lib/site";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
+import { PublisherTrustBand } from "./PublisherTrustBand";
 
 export function LocalizedInfoPage({ pageKey, locale }: { pageKey: InfoKey; locale: ExtendedLocale }) {
   const content = localizedInfo[locale][pageKey];
@@ -17,6 +18,7 @@ export function LocalizedInfoPage({ pageKey, locale }: { pageKey: InfoKey; local
     <SiteShell locale={locale} alternateHref="/en" languageHrefs={{ de: pathFor("de", pageKey), zh: pathFor("zh", pageKey), tr: pathFor("tr", pageKey), en: pathFor("en", pageKey) }}>
       <SchemaScript data={schema} />
       <section className="page-hero info-hero"><div className="container narrow-container"><nav className="breadcrumbs" aria-label={locale === "de" ? "Brotkrumen" : "面包屑导航"}><Link href={pathFor(locale, "home")}>{locale === "de" ? "Startseite" : "首页"}</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow.toLocaleLowerCase(locale === "de" ? "de-DE" : "zh-CN")}</span></nav><span className="kicker">{content.eyebrow}</span><h1>{content.title}</h1><p>{content.intro}</p>{content.updated && <time>{content.updated}</time>}</div></section>
+      {(pageKey === "about" || pageKey === "privacy" || pageKey === "contact") && <PublisherTrustBand locale={locale} />}
       <section className={"section info-content " + (pageKey === "faq" ? "faq-info" : "")}><div className="container narrow-container">{content.sections.map((section, index) => pageKey === "faq" ? <details className="info-faq-item" key={section.heading} open={index === 0}><summary><span>{String(index + 1).padStart(2, "0")}</span>{section.heading}<b>+</b></summary><div>{section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></details> : <article key={section.heading}><span className="section-index">{String(index + 1).padStart(2, "0")}</span><h2>{section.heading}</h2>{section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}{section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}</article>)}</div></section>
       <section className="info-contact-band"><div className="container narrow-container"><div><span>{locale === "de" ? "Noch eine Frage?" : "还有问题？"}</span><h2>{locale === "de" ? "Schreiben Sie uns und helfen Sie, Produkt und Erklärungen zu verbessern." : "欢迎联系我们，帮助改进产品与说明。"}</h2></div><a className="primary-button" href="mailto:bytequant@yahoo.com">{locale === "de" ? "E-Mail senden" : "发送邮件"} →</a></div></section>
     </SiteShell>

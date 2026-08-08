@@ -18,6 +18,7 @@ This document separates repository checks from account-side controls. Passing th
 - [x] Every tool page discloses its method, acceptance check, limitations, local-processing behavior, and publication status.
 - [x] Community and official-source update landing pages are indexable editorial entry points; their dynamic surfaces remain listed for account-level Auto Ads exclusion.
 - [x] About, contact, privacy, cookies, terms, FAQ, guides, and editorial ownership remain visible in navigation and the sitemap.
+- [x] A four-language Publishing & Trust Standards center makes ownership, review method, corrections, advertising independence, data boundaries, sourcing, and AI assistance directly auditable.
 - [x] No placeholder, “under construction”, scraped article body, or ad-click encouragement is published.
 
 ## Required AdSense account actions

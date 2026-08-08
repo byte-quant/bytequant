@@ -13,7 +13,7 @@ ByteQuant is a privacy-first, installable web application containing 309 distinc
 ## Product at a glance
 
 - 309 distinct working tools across ten typed categories, with twelve established duplicate URLs preserved as `noindex, follow` canonical aliases so bookmarks and inbound links keep working
-- Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, metadata, hreflang declarations, and JSON-LD
+- Four localized home pages, tool catalogues, tool pages, legal/trust pages, FAQs, publishing standards, metadata, hreflang declarations, and JSON-LD
 - 96 long-form editorial guides in Turkish and English, including 68 editorially localized German and Simplified Chinese workflow editions
 - Installable Progressive Web App with same-origin application-shell caching and an explicit no-input-caching boundary
 - Explainable Local Agent 4.2 with follow-up intent detection, contextual replies, visible specialist checks, outcome framing, multilingual semantic search, 20-turn same-tab context, low-confidence clarification, spoken responses, user-approved local execution, visible mini-flow diagrams, alternatives, plan self-review, and one-click Workstation handoff
@@ -111,6 +111,11 @@ pnpm build
 pnpm test
 pnpm audit:static
 pnpm audit:adsense
+pnpm audit:content
+pnpm audit:editorial
+pnpm audit:trust
+pnpm audit:inventory
+pnpm build:sites
 ~~~
 
 The deployable static site is written to out/.
@@ -128,7 +133,7 @@ The deployable static site is written to out/.
 | Agent interface and tool bridge | app/components/AgenticAssistant.tsx, app/components/AgentToolBridge.tsx |
 | Visual Workstation, storage, recipes, and P2P | app/components/WorkstationClient.tsx, app/lib/workspace-storage.ts, app/lib/workspace-recipe.ts, app/lib/workspace-p2p.ts |
 | Locale and hreflang routing | app/lib/site.ts |
-| Legal and trust content | app/lib/info.ts, app/lib/localized-info.ts |
+| Legal, trust, and publishing standards | app/lib/info.ts, app/lib/localized-info.ts, app/lib/publishing-standards.ts |
 | Editorial guides | app/lib/posts.ts |
 | Official-source update feed | scripts/sync-news.mjs, app/lib/generated-news.ts, app/components/NewsPage.tsx |
 | Design system | app/globals.css |

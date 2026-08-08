@@ -1,55 +1,75 @@
 # ByteQuant AdSense approval checklist
 
-Audit date: 2026-07-28
-Scope: four-language static export, 211 tools, localized guides, Local Agent, Workstation, Community, and the finite Updates feed.
+Last verified: 2026-08-08
+Scope: four-language static site, 309 canonical tools, localized guides, legal/trust pages, Local Agent, Workstation, Community, and the finite Updates feed.
 
-This checklist is a readiness audit, not a promise of Google approval. Google makes the final account and site decision.
+This checklist documents readiness; it is not a promise of approval. Google alone evaluates the account, site, traffic, live consent message, and policy status.
 
-## Automated checks — PASS
+## Repository and live-site checks — PASS
 
-- [x] Advertising areas are labelled only as “Advertisement / Reklam / Werbung / 广告”.
-- [x] Ad areas are visually separated from editorial content and do not resemble buttons, downloads, navigation, or tool output.
-- [x] Reserved areas have stable dimensions to reduce layout shift.
-- [x] Tool ads appear after the tool and its substantive usage guide, away from run/copy/download actions.
-- [x] Guide ads appear only after substantial publisher content.
-- [x] Home has two content-separated placements; the page still contains substantially more publisher content than advertising space.
-- [x] No ad placement exists in Local Agent, Workstation, P2P, or Community composition/comment surfaces.
-- [x] The Updates feed republishes no article body or image, links visibly to official sources, uses a finite list, and contains no advertising placement beside save/share controls.
-- [x] No auto-refresh, sticky overlay, pop-up, animation, arrow, or attention-forcing treatment is used.
-- [x] The exact Google site tag and meta identifier use publisher `ca-pub-4158794981134847` once per rendered page.
-- [x] `public/ads.txt` contains `google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0`.
-- [x] CSP permits the documented Google advertising origins while retaining same-origin defaults, blocked objects, denied framing, and restricted form actions.
-- [x] No analytics SDK is active; privacy and storage disclosures explain Google advertising separately from local personalization.
-- [x] Content, contact, privacy, terms, cookie/storage, security, About, and editorial-method pages are present.
-- [x] Static SEO, hreflang, canonical, sitemap, robots, structured-data, accessibility, build, and dependency-license audits are part of release verification.
+- [x] The owner-supplied Auto Ads tag uses publisher `ca-pub-4158794981134847` once per page.
+- [x] `/ads.txt` contains `google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0`.
+- [x] Automated checks fail if the publisher identity or seller record changes.
+- [x] The site contains no manual empty ad boxes or controls that imitate advertisements.
+- [x] All 309 distinct tools remain indexable; 12 legacy aliases preserve old links and are excluded only to prevent duplicate indexing.
+- [x] Every canonical tool has a working interface, example, error state, method, acceptance check, limits, FAQ, HowTo data, and an editorial guide route.
+- [x] About, Contact, Privacy, Cookies, Terms, FAQ, Guides, and Publishing & Trust Standards are localized and reachable from the footer.
+- [x] Publishing standards disclose ownership, production method, corrections, advertising independence, privacy boundaries, source selection, copyright, and AI assistance.
+- [x] No placeholder, “under construction”, scraped article body, paid-ranking claim, or ad-click encouragement is published.
+- [x] Community and third-party-source update surfaces contain no manual ad placement and remain listed for account-level Auto Ads exclusion.
+- [x] Canonical, hreflang, sitemap, robots, JSON-LD, internal links, licenses, accessibility, and static output are release-gated.
 
-Run: `pnpm audit:adsense`
+## Required AdSense account actions — OWNER
 
-## External account and live-site checks — REQUIRED
+- [ ] Read the rejection email and **Policy center** entry; record the exact reason before requesting another review.
+- [ ] Confirm `bytequant.org` shows the expected ownership/readiness state in **AdSense → Sites**.
+- [ ] In **Privacy & messaging**, publish a Google-certified CMP using the current IAB TCF requirement for the EEA, UK, and Switzerland.
+- [ ] Test accept, reject, withdraw, and regional behavior on the live domain. ByteQuant’s local-personalization dialog is not advertising consent.
+- [ ] In **Ads → By site → ByteQuant**, exclude Local Agent, Workstation, Community, P2P, and Updates routes from Auto Ads.
+- [ ] Review Auto Ads previews at 320, 375, 768, 1024, and 1440 CSS pixels. Block any placement that covers navigation, inputs, results, notices, or downloads.
+- [ ] Check the Ad Experience Report, accidental-click distance, content-to-ad balance, Core Web Vitals, crawler access, and `/ads.txt` before resubmission.
+- [ ] Request review only after every account-side item above is complete.
 
-- [x] Add the user-supplied AdSense site code for publisher `ca-pub-4158794981134847`.
-- [x] Add the matching authorized-seller record to `public/ads.txt`.
-- [ ] Confirm `bytequant.org` shows **Ready** in the owner's AdSense Sites page.
-- [ ] Publish a Google-certified CMP integrated with the current IAB TCF requirement for the EEA, UK, and Switzerland from **AdSense → Privacy & messaging**.
-- [ ] Test accept, reject, withdraw, and regional behavior with Google's live consent message; the ByteQuant local-personalization control is not a substitute for this CMP.
-- [ ] Configure Auto ads page exclusions for Local Agent, Workstation, Community, P2P, and other private or high-interaction routes.
-- [ ] Choose responsive units in AdSense and verify real creatives at 320, 375, 768, 1024, and 1440 CSS pixels.
-- [ ] Re-check accidental-click distance, content-to-ad balance, Core Web Vitals, policy center, and crawler access on the live domain.
-- [ ] Submit the live domain to AdSense and resolve any account-specific policy findings.
+## Recommended Auto Ads page exclusions
 
-## Dört dilde durum / four-language status
+`/ajan/`, `/en/agent/`, `/de/agent/`, `/zh/agent/`
 
-- TR: Kod, yayıncı kimliği, `ads.txt` ve yerleşim denetimi geçti. Sertifikalı CMP, sayfa hariç tutmaları ve canlı hesap durumu AdSense panelinde doğrulanmalıdır.
-- EN: Code, publisher ID, `ads.txt`, and placement audits pass. The certified CMP, page exclusions, and live account state must be verified in AdSense.
-- DE: Code, Publisher-ID, `ads.txt` und Platzierungen bestehen die Prüfung. Zertifizierte CMP, Seitenausschlüsse und Live-Kontostatus müssen in AdSense geprüft werden.
-- ZH: 代码、发布商 ID、`ads.txt` 与广告位审计已通过；仍须在 AdSense 中确认认证 CMP、页面排除规则和线上账户状态。
+`/is-istasyonu/`, `/en/workstation/`, `/de/workstation/`, `/zh/workstation/`
 
-## Placement inventory
+`/topluluk/`, `/en/community/`, `/de/community/`, `/zh/community/`
 
-| Surface | Placement | Maximum | Reason |
-| --- | --- | ---: | --- |
-| Home | after tool library; after editorial guides | 2 | Long, crawlable publisher-content page |
-| Tool detail | after tool UI + method/use-case guide | 1 | Keeps ads away from actions and errors |
-| Guide index | after complete guide list | 1 | Clear separation from navigation |
-| Guide article | after second substantive section | 1 | In-content placement on editorial pages |
-| Agent / Workstation / Community / P2P / Updates | none | 0 | Interactive/private-context, third-party-source, and accidental-click risk |
+`/guncel/`, `/en/updates/`, `/de/updates/`, `/zh/updates/`
+
+Also exclude any transient workspace or peer-connection URL shown in the account preview.
+
+## Release commands
+
+`pnpm lint`
+
+`pnpm test`
+
+`pnpm build`
+
+`pnpm audit:static`
+
+`pnpm audit:adsense`
+
+`pnpm audit:content`
+
+`pnpm audit:editorial`
+
+`pnpm audit:trust`
+
+`pnpm audit:inventory`
+
+`pnpm audit:licenses`
+
+`pnpm build:sites`
+
+## Primary references
+
+- https://support.google.com/publisherpolicies/answer/10502938
+- https://support.google.com/adsense/answer/81904
+- https://support.google.com/publisherpolicies/answer/10437795
+- https://developers.google.com/search/docs/fundamentals/creating-helpful-content
+- https://policies.google.com/technologies/partner-sites

@@ -42,7 +42,7 @@ assert.match(shell, /pathFor\(locale, "terms"\)/);
 assert.match(shell, /pathFor\(locale, "contact"\)/);
 assert.match(shell, /pathFor\(locale, "about"\)/);
 assert.match(shell, /PrivacySettingsButton/);
-assert.match(sitemap, /"community", "news", "blog", "about", "privacy", "cookies", "terms", "contact", "faq"/);
+assert.match(sitemap, /"community", "news", "blog", "about", "standards", "privacy", "cookies", "terms", "contact", "faq"/);
 assert.match(sitemap, /const toolRoutes = tools\.flatMap/);
 assert.doesNotMatch(sitemap, /isEditoriallyReviewedTool/);
 assert.match(contentQuality, /nonIndexableRobots/);
