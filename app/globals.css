@@ -2313,6 +2313,33 @@ main::before{
   .grade-row>button{grid-column:2;grid-row:2/4;height:100%}
 }
 
+/* Release 4.9: applied editorial depth and guide verification worksheets. */
+.tool-editorial-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tool-editorial-grid ol{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.65}
+.tool-editorial-grid li+li{margin-top:6px}
+.guide-validation-lab{padding:clamp(22px,4vw,32px);border:1px solid color-mix(in srgb,var(--teal) 36%,var(--line));border-radius:20px;background:linear-gradient(145deg,color-mix(in srgb,var(--teal-soft) 44%,var(--surface)),var(--surface));box-shadow:var(--shadow-sm)}
+.guide-validation-lab>.kicker{display:block;margin:4px 0 8px}
+.guide-validation-lab>h2{margin-bottom:14px}
+.guide-validation-lab>p{max-width:74ch}
+.guide-validation-tools{display:grid;gap:12px;margin-top:26px}
+.guide-validation-tools>article{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:15px;background:var(--surface)}
+.guide-validation-tools header{padding:13px 16px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line);background:var(--surface-soft)}
+.guide-validation-tools header>span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;color:var(--teal-dark);background:var(--teal-soft);font:850 10px/1 var(--font-mono)}
+.guide-validation-tools h3{margin:0;color:var(--navy);font-size:16px;line-height:1.35}
+.guide-validation-tools dl{margin:0;padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.guide-validation-tools dl>div{min-width:0;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--bg)}
+.guide-validation-tools dt{color:var(--teal-dark);font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.guide-validation-tools dd{margin:6px 0 0;color:var(--text);font-size:12px;line-height:1.6;overflow-wrap:break-word}
+.guide-validation-notes{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.guide-validation-notes article{padding:16px;border:1px solid var(--line);border-radius:13px;background:color-mix(in srgb,var(--surface) 82%,transparent)}
+.guide-validation-notes strong{display:block;margin-bottom:7px;color:var(--navy);font-size:13px}
+.guide-validation-notes p{margin:0!important;color:var(--muted)!important;font-size:12px!important;line-height:1.7!important}
+@media(max-width:900px){.tool-editorial-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:680px){
+  .guide-validation-lab{padding:18px;border-radius:16px}
+  .guide-validation-tools dl,.guide-validation-notes{grid-template-columns:minmax(0,1fr)}
+}
+
 /* Release 4.7: coherent four-language editorial pages and resilient static layouts. */
 .localized-guide-page{overflow:clip}
 .localized-guide-page .article-header-inner{width:min(960px,calc(100% - 40px))}

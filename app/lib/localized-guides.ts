@@ -3,6 +3,7 @@ import { expansionLocalizedGuides } from "./expansion-guides";
 import { essentialLocalizedGuides } from "./essential-guides";
 import { precisionLocalizedGuides } from "./precision-guides";
 import { frontierLocalizedGuides } from "./frontier-guides";
+import { canonicalGuideToolSlugs } from "./guide-tool-links";
 
 export type LocalizedGuideLocale = "de" | "zh";
 type GuideCopy = { title: string; excerpt: string; description: string; category: string; readTime: string; sections: ArticleSection[] };
@@ -314,7 +315,7 @@ export const localizedGuides: LocalizedGuide[] = [
     },
   },
   {
-    slug: "batch-masking-before-after-quality-control", date: "2026-07-21", relatedTools: ["kvkk-veri-maskeleyici", "metin-temizleyici", "metin-farki"],
+    slug: "batch-masking-before-after-quality-control", date: "2026-07-21", relatedTools: ["kvkk-veri-maskeleyici", "metin-temizleyici", "metin-farki-diff"],
     copy: {
       de: { title: "Vorher-/Nachher-Qualitätskontrolle bei Stapelmaskierung", excerpt: "Trennzeichen, Fehlalarme, Kontextverlust und Stichproben bei lokaler Stapelverarbeitung systematisch kontrollieren.", description: "Methode zur Prüfung von Stapelmaskierung mit Vergleichsansicht und menschlicher Kontrolle für DSGVO/KVKK-Vorbereitung.", category: "Datenschutz", readTime: "11 Min.", sections: [
         { heading: "Stapelgrenzen ausdrücklich definieren", paragraphs: ["Datensätze werden mit einer eigenen `---`-Zeile statt mit mehrdeutigen Leerzeilen getrennt. Jeder Teil wird unabhängig und mit einer Höchstzahl pro Lauf verarbeitet, damit der Hauptthread nicht lange blockiert.", "Kommt das Trennzeichen im Datensatz vor, ist ein sichereres Exportformat oder eine kleinere Gruppe nötig. Mehrzeilige Felder dürfen nicht versehentlich als neue Datensätze gelten."], bullets: ["Trennregel dokumentieren.", "Kleine repräsentative Gruppe testen.", "Datensatz- und Zeichengrenzen beachten."] },
@@ -344,7 +345,7 @@ export const localizedGuides: LocalizedGuide[] = [
     },
   },
   {
-    slug: "open-source-browser-tool-security-audit", date: "2026-07-21", relatedTools: ["sha256-ozet-uretici", "kod-guvenlik-on-taramasi", "http-guvenlik-basliklari-denetleyici"],
+    slug: "open-source-browser-tool-security-audit", date: "2026-07-21", relatedTools: ["sha256-ozet-uretici", "kod-guvenligi-on-taramasi", "http-guvenlik-basliklari-denetleyici"],
     copy: {
       de: { title: "Open-Source-Browserwerkzeuge sicherheitstechnisch prüfen", excerpt: "Datenschutzangaben anhand von Quelle, Abhängigkeiten, Netzwerk, CSP und Änderungshistorie prüfen.", description: "Leitfaden zur Überprüfung von Lizenz, lokalem Verhalten, Netzgrenzen und Testnachweisen eines Browserwerkzeugs.", category: "Open-Source-Vertrauen", readTime: "12 Min.", sections: [
         { heading: "Lizenz und Verhalten getrennt prüfen", paragraphs: ["Eine Open-Source-Lizenz regelt Nutzung und Prüfung, beweist aber weder Sicherheit noch Datenschutz. Repository-Lizenz, Produktionsabhängigkeiten, Versionen und Lockdatei müssen zusammen betrachtet werden.", "Nachgeladene CDN-Skripte, geschlossene APIs oder nicht erklärte Telemetrie begrenzen jede Aussage zur lokalen Verarbeitung."], bullets: ["LICENSE und Manifest lesen.", "Produktionspakete mit Lockdatei abgleichen.", "Dynamische Skripte und Endpunkte suchen."] },
@@ -359,7 +360,7 @@ export const localizedGuides: LocalizedGuide[] = [
     },
   },
   {
-    slug: "core-web-vitals-client-side-tools", date: "2026-07-21", relatedTools: ["metin-sikistirma-orani-hesaplayici", "gorsel-sikistirici", "meta-etiket-favicon-uretici"],
+    slug: "core-web-vitals-client-side-tools", date: "2026-07-21", relatedTools: ["kelime-sayaci", "gorsel-sikistirici", "meta-etiket-favicon-uretici"],
     copy: {
       de: { title: "Core Web Vitals für clientseitige Werkzeuge", excerpt: "Schwere Editoren verzögert laden, Hauptthread-Arbeit begrenzen und visuelle Stabilität in echten Abläufen erhalten.", description: "Leitfaden zu LCP, INP und CLS für Browserwerkzeuge und Workstations mit Komponenten-, Worker-, Datei- und Mobilstrategien.", category: "Webleistung", readTime: "11 Min.", sections: [
         { heading: "Beim Start nur das Notwendige ausliefern", paragraphs: ["Knoteneditor, PDF-Engine oder aufwendiger Parser gehören nicht in das erste Homepage-Bundle. Dynamisches Laden auf der jeweiligen Route verschiebt Download und Parsing bis zur Nutzerabsicht.", "Serverseitig erzeugte Überschriften und Navigation bleiben sofort sichtbar. Ein Platzhalter mit fester Größe verhindert Layoutsprünge und unnötiges CLS."], bullets: ["Schwere Funktionen routenbezogen laden.", "Platzhaltergröße reservieren.", "Ersten CTA nicht von JavaScript abhängig machen."] },
@@ -502,6 +503,7 @@ localizedGuides.push(
 );
 
 localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides, ...frontierLocalizedGuides);
+for (const guide of localizedGuides) guide.relatedTools = canonicalGuideToolSlugs(guide.relatedTools);
 
 export const legacyLocalizedGuideSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",

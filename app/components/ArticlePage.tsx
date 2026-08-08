@@ -7,6 +7,7 @@ import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { getLocalizedGuide } from "../lib/localized-guides";
 import { BrandLogo } from "./BrandLogo";
+import { GuideValidationLab } from "./GuideValidationLab";
 
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
@@ -105,6 +106,8 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
             ))}
 
             {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{isTr ? "Kaynaklar ve doğrulama" : "Sources and verification"}</h2><p>{isTr ? "Bu rehber hazırlanırken aşağıdaki birincil ve resmî belgeler kontrol edildi. Bağlantıların güncel sürüm ve değişiklik tarihlerini ayrıca inceleyin." : "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well."}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
+
+            <GuideValidationLab guideTitle={post.title[locale]} locale={locale} tools={relatedTools} />
 
             <section className="article-related-tools" aria-labelledby="article-related-tools-title">
               <span className="kicker">{isTr ? "İLGİLİ ARAÇLAR" : "RELATED TOOLS"}</span>

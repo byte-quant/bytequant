@@ -2,6 +2,7 @@ import { expansionPosts } from "./expansion-guides";
 import { essentialPosts } from "./essential-guides";
 import { precisionPosts } from "./precision-guides";
 import { frontierPosts } from "./frontier-guides";
+import { canonicalGuideToolSlugs } from "./guide-tool-links";
 
 export type EditorialLocale = "tr" | "en";
 
@@ -1015,7 +1016,7 @@ export const posts: Post[] = [
   },
   {
     slug: "batch-masking-before-after-quality-control",
-    relatedTools: ["kvkk-veri-maskeleyici", "metin-temizleyici", "metin-farki"],
+    relatedTools: ["kvkk-veri-maskeleyici", "metin-temizleyici", "metin-farki-diff"],
     date: "2026-07-21", readTime: { tr: "11 dk", en: "11 min" },
     title: { tr: "Toplu Veri Maskelemede Önce/Sonra Kalite Kontrolü", en: "Before-and-After Quality Control for Batch Data Masking" },
     excerpt: { tr: "Birden çok kaydı cihazda işlerken ayraç, yanlış pozitif, bağlam kaybı ve örneklem kontrolünü sistematik yönetin.", en: "Manage delimiters, false positives, context loss, and sampling when processing multiple records on-device." },
@@ -1057,7 +1058,7 @@ export const posts: Post[] = [
   },
   {
     slug: "open-source-browser-tool-security-audit",
-    relatedTools: ["sha256-ozet-uretici", "kod-guvenlik-on-taramasi", "http-guvenlik-basliklari-denetleyici"],
+    relatedTools: ["sha256-ozet-uretici", "kod-guvenligi-on-taramasi", "http-guvenlik-basliklari-denetleyici"],
     date: "2026-07-21", readTime: { tr: "12 dk", en: "12 min" },
     title: { tr: "Açık Kaynak Tarayıcı Araçlarını Güvenlik Açısından Denetleme", en: "How to Security-Audit Open-Source Browser Tools" },
     excerpt: { tr: "Kaynak, bağımlılık, ağ isteği, CSP ve sürüm geçmişi üzerinden gizlilik iddialarını doğrulayan pratik bir kontrol listesi.", en: "A practical checklist for validating privacy claims through source, dependencies, network requests, CSP, and history." },
@@ -1078,7 +1079,7 @@ export const posts: Post[] = [
   },
   {
     slug: "core-web-vitals-client-side-tools",
-    relatedTools: ["metin-sikistirma-orani-hesaplayici", "gorsel-sikistirici", "meta-etiket-favicon-uretici"],
+    relatedTools: ["kelime-sayaci", "gorsel-sikistirici", "meta-etiket-favicon-uretici"],
     date: "2026-07-21", readTime: { tr: "11 dk", en: "11 min" },
     title: { tr: "Client-Side Araçlarda Core Web Vitals ve Performans Tasarımı", en: "Core Web Vitals and Performance Design for Client-Side Tools" },
     excerpt: { tr: "Ağır editörleri gecikmeli yükleyin, ana iş parçacığını bölün ve gerçek kullanıcı akışını bozmadan görsel kararlılığı koruyun.", en: "Lazy-load heavy editors, split main-thread work, and preserve visual stability without degrading real workflows." },
@@ -1266,6 +1267,7 @@ posts.push(
 );
 
 posts.push(...expansionPosts, ...essentialPosts, ...precisionPosts, ...frontierPosts);
+for (const post of posts) post.relatedTools = canonicalGuideToolSlugs(post.relatedTools);
 
 export const legacyPostSlugs = {
   "lokale-produktivitaet-prompt-text-datum-workflow": "local-prompt-text-date-workflow",

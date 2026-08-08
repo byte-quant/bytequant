@@ -6,6 +6,7 @@ import { BrandLogo } from "./BrandLogo";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
+import { GuideValidationLab } from "./GuideValidationLab";
 
 function articleWordCount(text: string, locale: LocalizedGuideLocale) {
   const segmenter = new Intl.Segmenter(languageTag(locale), { granularity: "word" });
@@ -75,6 +76,7 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
                 {section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : null}
               </section>
             ))}
+            <GuideValidationLab guideTitle={copy.title} locale={locale} tools={tools} />
           </div>
         </div>
       </article>

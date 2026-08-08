@@ -38,6 +38,13 @@ One concrete defect was found and corrected during this audit: the tool-call JSO
 - Error state is connected to the input with `aria-invalid` and `aria-errormessage`.
 - Mobile layouts collapse result cards to one column and retain scroll access for genuinely wide tables.
 
-## What continues after Stage 2
+## Stage 3 — applied editorial depth
 
-Runtime-family coverage is broader than exhaustive combinatorial testing. Less frequently used legacy tools remain in continuous review, and professional/legal/security decisions still require verification in their real context. Later programme stages cover editorial depth, trust/policy presentation, and final crawl/performance validation.
+- All 309 canonical tool pages now expose a tool-specific acceptance path, a successful-use definition, and a fourth FAQ answer tied to that tool's own scenario and steps.
+- Every tool category has at least one directly relevant TR/EN guide and one editorially localized DE/ZH guide. Tools without a one-to-one article receive a category-relevant guide path instead of an unrelated or empty panel.
+- All 96 TR/EN guides and all 68 DE/ZH localized guides now include a visible, related-tool verification worksheet: preparation, action, acceptance check, expected output, stop conditions, and a privacy-safe audit record.
+- `pnpm run audit:editorial` verifies unique four-language tool copy, minimum article structure, valid tool references, guide coverage, visible worksheets, and matching FAQ/HowTo structured data in the static export.
+
+## What continues after Stage 3
+
+Runtime-family coverage is broader than exhaustive combinatorial testing. Less frequently used legacy tools remain in continuous review, and professional/legal/security decisions still require verification in their real context. Later programme stages cover trust/policy presentation and final crawl/performance validation.

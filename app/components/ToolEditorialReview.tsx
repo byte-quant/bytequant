@@ -66,16 +66,16 @@ const methodology = {
 } as const;
 
 const copy = {
-  tr: { eyebrow: "YÖNTEM VE KALİTE PASAPORTU", title: "Bu araç benzersiz kanonik adresiyle yayımlanır", body: "Açıklama, örnek girdi, hata sınırı ve cihaz içi çalışma akışı sürüm kontrollüdür. Otomatik paket; sayfa çıktısını, ortak hata davranışını ve temsilî sonuçları denetler.", method: "Uygulanan yöntem", acceptance: "Kabul ölçütü", acceptanceBody: "Örnek girdiyi çalıştırın, beklenen sonucu gözleyin, bozuk veya sınır değeri deneyin ve önemli kararlarda bağımsız doğrulama yapın.", date: "Son içerik ve yöntem incelemesi", badge: "YAYINDA" },
-  en: { eyebrow: "METHOD AND QUALITY PASSPORT", title: "This tool is published at its unique canonical URL", body: "The description, demo input, error boundary, and on-device flow are version controlled. The automated suite checks page output, shared error behavior, and representative results.", method: "Method applied", acceptance: "Acceptance check", acceptanceBody: "Run the sample, observe the expected result, try malformed or boundary input, and independently verify any consequential decision.", date: "Latest content and method review", badge: "PUBLISHED" },
-  de: { eyebrow: "METHODEN- UND QUALITÄTSPASS", title: "Dieses Werkzeug wird unter seiner eindeutigen kanonischen URL veröffentlicht", body: "Beschreibung, Beispieleingabe, Fehlergrenze und lokale Verarbeitung sind versionskontrolliert. Die Testsuite prüft Seitenausgabe, gemeinsames Fehlerverhalten und repräsentative Ergebnisse.", method: "Angewandte Methode", acceptance: "Abnahmekriterium", acceptanceBody: "Beispiel ausführen, Sollergebnis beobachten, fehlerhafte oder grenzwertige Eingaben testen und folgenreiche Entscheidungen unabhängig prüfen.", date: "Letzte Inhalts- und Methodenprüfung", badge: "VERÖFFENTLICHT" },
-  zh: { eyebrow: "方法与质量说明", title: "该工具通过唯一的规范网址发布", body: "工具说明、示例输入、错误边界与设备内流程均受版本控制。自动化测试会检查页面输出、共用错误行为与代表性结果。", method: "采用的方法", acceptance: "验收检查", acceptanceBody: "运行示例、观察预期结果、测试错误或边界输入，并对可能产生重要后果的决定进行独立核验。", date: "最近内容与方法审核", badge: "已发布" },
+  tr: { eyebrow: "YÖNTEM VE KALİTE PASAPORTU", title: "Bu araç benzersiz kanonik adresiyle yayımlanır", body: "Açıklama, örnek girdi, hata sınırı ve cihaz içi çalışma akışı sürüm kontrollüdür. Otomatik paket; sayfa çıktısını, ortak hata davranışını ve temsilî sonuçları denetler.", method: "Uygulanan yöntem", acceptance: "Bu araç için kabul akışı", outcome: "Başarılı kullanım ne demektir?", outcomeBody: (useCase: string, result: string) => `${useCase} senaryosunda çıktı “${result}” amacını karşılamalıdır. Sonucu hedef ortamda kontrol edin; uyarı veya belirsizlik varsa dışa aktarmadan önce düzeltin.`, date: "Son içerik ve yöntem incelemesi", badge: "YAYINDA" },
+  en: { eyebrow: "METHOD AND QUALITY PASSPORT", title: "This tool is published at its unique canonical URL", body: "The description, demo input, error boundary, and on-device flow are version controlled. The automated suite checks page output, shared error behavior, and representative results.", method: "Method applied", acceptance: "Acceptance path for this tool", outcome: "What does successful use mean?", outcomeBody: (useCase: string, result: string) => `For “${useCase}”, the output should fulfil this stated purpose: “${result}”. Check it in the target environment and resolve any warning or uncertainty before export.`, date: "Latest content and method review", badge: "PUBLISHED" },
+  de: { eyebrow: "METHODEN- UND QUALITÄTSPASS", title: "Dieses Werkzeug wird unter seiner eindeutigen kanonischen URL veröffentlicht", body: "Beschreibung, Beispieleingabe, Fehlergrenze und lokale Verarbeitung sind versionskontrolliert. Die Testsuite prüft Seitenausgabe, gemeinsames Fehlerverhalten und repräsentative Ergebnisse.", method: "Angewandte Methode", acceptance: "Abnahmeweg für dieses Werkzeug", outcome: "Was bedeutet eine erfolgreiche Nutzung?", outcomeBody: (useCase: string, result: string) => `Für „${useCase}“ muss die Ausgabe den beschriebenen Zweck „${result}“ erfüllen. Prüfen Sie das Ergebnis im Zielsystem und beheben Sie Warnungen oder Unklarheiten vor dem Export.`, date: "Letzte Inhalts- und Methodenprüfung", badge: "VERÖFFENTLICHT" },
+  zh: { eyebrow: "方法与质量说明", title: "该工具通过唯一的规范网址发布", body: "工具说明、示例输入、错误边界与设备内流程均受版本控制。自动化测试会检查页面输出、共用错误行为与代表性结果。", method: "采用的方法", acceptance: "该工具的验收路径", outcome: "怎样才算成功使用？", outcomeBody: (useCase: string, result: string) => `在“${useCase}”场景中，输出应满足“${result}”这一公开目的。请在目标环境中复核，并在导出前处理所有警告或不确定性。`, date: "最近内容与方法审核", badge: "已发布" },
 } as const;
 
 export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
   const t = copy[locale];
   return (
-    <section className="container tool-editorial-review is-published" data-editorial-status="published" aria-labelledby={`editorial-${tool.slug}`}>
+    <section className="container tool-editorial-review is-published" data-editorial-status="published" data-editorial-depth="applied" aria-labelledby={`editorial-${tool.slug}`}>
       <div className="tool-editorial-heading">
         <div><span className="kicker">{t.eyebrow}</span><h2 id={`editorial-${tool.slug}`}>{t.title}</h2></div>
         <span className="tool-editorial-badge">✓ {t.badge}</span>
@@ -83,7 +83,8 @@ export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Loca
       <p>{t.body}</p>
       <div className="tool-editorial-grid">
         <article><strong>{t.method}</strong><p>{methodology[tool.category][locale]}</p></article>
-        <article><strong>{t.acceptance}</strong><p>{t.acceptanceBody}</p></article>
+        <article><strong>{t.acceptance}</strong><ol>{tool.steps[locale].map((step) => <li key={step}>{step}</li>)}</ol></article>
+        <article><strong>{t.outcome}</strong><p>{t.outcomeBody(tool.useCases[locale][0], tool.short[locale])}</p></article>
       </div>
       <small>{t.date}: <time dateTime={CONTENT_REVIEW_DATE}>{CONTENT_REVIEW_DATE}</time></small>
     </section>

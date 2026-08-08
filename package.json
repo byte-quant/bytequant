@@ -16,6 +16,7 @@
     "audit:static": "node scripts/audit-static.mjs",
     "audit:adsense": "node scripts/audit-adsense.mjs",
     "audit:content": "node scripts/audit-content-value.mjs",
+    "audit:editorial": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-editorial-depth.mjs",
     "inventory:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/generate-tool-quality-inventory.mjs",
     "audit:inventory": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/generate-tool-quality-inventory.mjs --check",
     "audit:licenses": "node scripts/audit-licenses.mjs",
