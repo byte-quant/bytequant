@@ -44,6 +44,7 @@ const home = readOutput("index.html");
 assert.equal(adsTxtSource.trim(), sellerRecord, "Protected ads.txt seller record changed.");
 assert.equal((layout.match(new RegExp(publisherId, "g")) ?? []).length, 3, "Protected AdSense publisher integration changed.");
 assert.equal((layout.match(/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js/g) ?? []).length, 1, "Auto Ads must load exactly once.");
+assert.doesNotMatch(layout, /234 (?:benzersiz|Tarayıcı|Araç)/, "Root metadata contains a stale tool count.");
 assert.doesNotMatch(home, /<ins[^>]+adsbygoogle|data-ad-slot=/i, "Manual ad units must not appear in generated HTML.");
 
 assert.match(robots, /User-Agent: \*[\s\S]*?Allow: \//i, "The public crawl policy must allow standards-compliant search crawlers, including Googlebot.");
@@ -84,6 +85,7 @@ for (const standardsPath of standardsPaths) {
 }
 assert.ok(!sitemapUrls.some((url) => new URL(url).pathname === "/workspace/"), "Private recipe importer must remain outside the sitemap.");
 assert.match(llms, /(?:does not|neither[^.]+) guarantee(?:s)? indexing, citation, ranking, AdSense approval/i);
+assert.match(llms, /Local Agent 4\.3/);
 
 for (const source of [headers, worker]) {
   assert.match(source, /Content-Security-Policy/i);

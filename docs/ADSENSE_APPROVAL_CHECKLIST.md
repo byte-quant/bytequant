@@ -50,6 +50,10 @@ Prepare this packet before clicking **Request review**. It makes the decision re
 
 Repository checks establish technical readiness only. They cannot see the AdSense Policy center, consent configuration, Auto Ads preview, Search Console selection, traffic quality, or Google's final review decision.
 
+## Hosting security-header boundary
+
+The live GitHub Pages response supplies HTTPS and HSTS but does not apply repository-specific `_headers` rules. ByteQuant therefore also publishes an enforcing CSP meta policy and a referrer-policy meta fallback in the document head. Response-only protections such as `frame-ancestors`, `X-Content-Type-Options`, COOP, and Permissions Policy require a hosting edge that supports custom response headers; the checked-in `_headers` file and worker policy are ready for such a deployment. Revalidate AdSense, PWA, WebRTC, and all four locales before moving the public custom domain. This infrastructure limitation is not represented as an AdSense approval failure, but it must not be described as a live response-header pass.
+
 ## Recommended Auto Ads page exclusions
 
 `/ajan/`, `/en/agent/`, `/de/agent/`, `/zh/agent/`
