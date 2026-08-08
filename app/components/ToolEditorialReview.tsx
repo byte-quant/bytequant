@@ -1,6 +1,7 @@
 import type { Tool } from "../lib/tools";
 import { CONTENT_REVIEW_DATE } from "../lib/content-review";
 import type { Locale } from "../lib/site";
+import { getToolGuidanceDetails } from "../lib/tool-guidance";
 
 const methodology = {
   prompt: {
@@ -74,6 +75,7 @@ const copy = {
 
 export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
   const t = copy[locale];
+  const guidance = getToolGuidanceDetails(tool);
   return (
     <section className="container tool-editorial-review is-published" data-editorial-status="published" data-editorial-depth="applied" aria-labelledby={`editorial-${tool.slug}`}>
       <div className="tool-editorial-heading">
@@ -82,7 +84,7 @@ export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Loca
       </div>
       <p>{t.body}</p>
       <div className="tool-editorial-grid">
-        <article><strong>{t.method}</strong><p>{methodology[tool.category][locale]}</p></article>
+        <article><strong>{t.method}</strong><p>{guidance.method[locale]} {methodology[tool.category][locale]}</p></article>
         <article><strong>{t.acceptance}</strong><ol>{tool.steps[locale].map((step) => <li key={step}>{step}</li>)}</ol></article>
         <article><strong>{t.outcome}</strong><p>{t.outcomeBody(tool.useCases[locale][0], tool.short[locale])}</p></article>
       </div>

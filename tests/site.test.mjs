@@ -244,7 +244,7 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-transparency/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /İçerik ve arayüz incelemesi: 2 Ağustos 2026/);
+  assert.match(page, /İçerik ve arayüz incelemesi: 9 Ağustos 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /fetch\(|axios/i);
 });
@@ -609,7 +609,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-08/);
+    assert.match(page, /dateModified[^<]*2026-08-09/);
   }
 
   const guideSlugs = [
@@ -919,7 +919,7 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-08/);
+    assert.match(page, /dateModified[^<]*2026-08-09/);
   }
   for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
     for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {
@@ -1021,7 +1021,7 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
   assert.match(workflow, /pnpm audit:licenses/);
   assert.match(workflow, /pnpm audit:static/);
   assert.match(workflow, /pnpm audit:adsense/);
-  for (const audit of ["content", "editorial", "trust", "inventory", "stage1", "release"]) assert.match(workflow, new RegExp(`pnpm audit:${audit}`));
+  for (const audit of ["content", "editorial", "trust", "inventory", "stage1", "stage2", "release"]) assert.match(workflow, new RegExp(`pnpm audit:${audit}`));
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
   for (const sha of workflow.matchAll(/uses:\s+[^\s]+@([a-f0-9]{40})/g)) assert.equal(sha[1].length, 40);
   const licenseAudit = await readSource("scripts/audit-licenses.mjs");

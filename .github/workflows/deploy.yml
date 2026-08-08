@@ -56,6 +56,8 @@ jobs:
         run: pnpm audit:inventory
       - name: Audit AdSense remediation Stage 1
         run: pnpm audit:stage1
+      - name: Audit AdSense remediation Stage 2
+        run: pnpm audit:stage2
       - name: Audit final release readiness
         run: pnpm audit:release
       - name: Upload verified Pages artifact

@@ -32,7 +32,7 @@ test("review dates are synchronized across sitemap, visible tools, and schema", 
     read("app/components/ToolPage.tsx"),
     read("app/components/ToolExperience.tsx"),
   ]);
-  assert.match(review, /CONTENT_REVIEW_DATE = "2026-08-08"/);
+  assert.match(review, /CONTENT_REVIEW_DATE = "2026-08-09"/);
   assert.match(sitemap, /CONTENT_REVIEW_DATE_TIME/);
   assert.match(toolPage, /schemaDate\(CONTENT_REVIEW_DATE\)/);
   assert.match(experience, /dateTime=\{CONTENT_REVIEW_DATE\}/);

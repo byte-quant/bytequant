@@ -1,5 +1,6 @@
 import type { Locale } from "./site";
 import type { Tool, ToolCategory } from "./tools";
+import { buildToolGuidance } from "./tool-guidance";
 
 type BaseLocale = "tr" | "en";
 type ExtendedLocale = Exclude<Locale, BaseLocale>;
@@ -424,7 +425,7 @@ export function localizeTool(base: BaseTool): Tool {
   const pair = translations[base.slug] ?? inlinePair;
   if (!pair) throw new Error(`Missing German/Chinese translation for tool: ${base.slug}`);
   const category = base.category;
-  return {
+  const localized = {
     ...base,
     title: { ...base.title, de: pair.de.title, zh: pair.zh.title },
     short: { ...base.short, de: pair.de.short, zh: pair.zh.short },
@@ -432,6 +433,8 @@ export function localizeTool(base: BaseTool): Tool {
     useCases: { ...base.useCases, de: categoryUseCases[category].de, zh: categoryUseCases[category].zh },
     steps: { ...base.steps, de: categorySteps[category].de, zh: categorySteps[category].zh },
   } satisfies Record<keyof Tool, unknown> as Tool;
+  const guidance = buildToolGuidance(localized);
+  return { ...localized, useCases: guidance.useCases, steps: guidance.steps };
 }
 
 export function localeName(locale: Locale) {

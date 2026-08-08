@@ -98,6 +98,9 @@ for (const tool of publicTools) {
 }
 const repeatedUseCaseTools = [...repeatedUseCaseSets.values()].filter((slugs) => slugs.length > 1).reduce((sum, slugs) => sum + slugs.length, 0);
 const repeatedStepTools = [...repeatedStepSets.values()].filter((slugs) => slugs.length > 1).reduce((sum, slugs) => sum + slugs.length, 0);
+const stageTwoStatus = repeatedUseCaseTools || repeatedStepTools
+  ? `Stage 1 deliberately records rather than conceals template repetition. ${repeatedUseCaseTools} tools currently share at least one identical English use-case set and ${repeatedStepTools} tools share at least one identical English three-step set. Their titles, summaries, descriptions, runnable processors, outputs, and canonical pages are distinct, but Stage 2 must replace repeated instructional copy with tool-specific input, method, acceptance, failure, and verification guidance.`
+  : "Stage 2 follow-through is present: no canonical tools share an identical English use-case set or three-step set. The separate Stage 2 gate verifies all four locales and visible intent-specific page content.";
 
 const report = `# AdSense remediation — Stage 1 quality report
 
@@ -139,7 +142,7 @@ The audit fails immediately if the seller record, hash, publisher ID, or exact A
 
 ## Measured Stage 2 editorial backlog
 
-Stage 1 deliberately records rather than conceals template repetition. ${repeatedUseCaseTools} tools currently share at least one identical English use-case set and ${repeatedStepTools} tools share at least one identical English three-step set. Their titles, summaries, descriptions, runnable processors, outputs, and canonical pages are distinct, but Stage 2 must replace repeated instructional copy with tool-specific input, method, acceptance, failure, and verification guidance.
+${stageTwoStatus}
 
 ## Gate result
 
