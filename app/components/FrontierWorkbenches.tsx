@@ -389,7 +389,9 @@ function exampleLine(value: string) {
 function inputGuide(value: string, t: Record<string, string>) {
   const trimmed = value.trim();
   const first = exampleLine(value);
-  if (/^[\[{]/u.test(trimmed)) return { text: t.jsonGuide, kind: "JSON", example: first };
+  let json = false;
+  if (/^[\[{]/u.test(trimmed)) try { JSON.parse(trimmed); json = true; } catch { json = false; }
+  if (json) return { text: t.jsonGuide, kind: "JSON", example: first };
   const firstLines = lines(value).slice(0, 8);
   if (firstLines.length && firstLines.every((line) => /^[^=\s][^=]*=/.test(line))) {
     const keys = firstLines.map((line) => line.slice(0, line.indexOf("=")).trim()).filter(Boolean);

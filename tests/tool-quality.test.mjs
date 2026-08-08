@@ -147,6 +147,32 @@ test("responsive quality layer prevents clipped community and localized tool con
   assert.match(styles, /input,textarea,select\{font-size:16px\}/);
 });
 
+test("precision tools expose input contracts, localized recovery, and measurable converter output", async () => {
+  const source = await read("app/components/PrecisionWorkbenches.tsx");
+  assert.match(source, /data-agent-contract=\{dualSlugs\.has\(slug\) \? "dual-text-v1" : "single-text-v1"\}/);
+  assert.match(source, /data-agent-input data-agent-key="input"/);
+  assert.match(source, /data-agent-run/);
+  assert.match(source, /className="frontier-format"/);
+  assert.match(source, /className="frontier-state" data-state=\{state\}/);
+  assert.match(source, /export function localizePrecisionError/);
+  assert.match(source, /slug === "ini-json-donusturucu"[\s\S]*?metrics: \[\["sections"/);
+  assert.match(source, /slug === "properties-json-donusturucu"[\s\S]*?metrics: \[\["keys"/);
+});
+
+test("Stage 1 AdSense gate preserves publisher identity and audits all canonical tool contracts", async () => {
+  const [audit, packageJson, workflow] = await Promise.all([
+    read("scripts/audit-adsense-stage-one.mjs"),
+    read("package.json"),
+    read(".github/workflows/deploy.yml"),
+  ]);
+  assert.match(audit, /expectedAdsHash = "615d7aea69afeecc9d6cbdbd5692db5329ead488c685cfd6e73f5a67f5eebc61"/);
+  assert.match(audit, /assert\.equal\(publicTools\.length, 309/);
+  assert.match(audit, /assert\.equal\(runtimeRuns, 440/);
+  assert.match(audit, /assert\.equal\(indexedPages, 1236/);
+  assert.match(packageJson, /"audit:stage1"/);
+  assert.match(workflow, /pnpm audit:stage1/);
+});
+
 test("community device board uses a readable post preview instead of raw Markdown", async () => {
   const [composer, styles] = await Promise.all([
     read("app/components/CommunityComposer.tsx"),

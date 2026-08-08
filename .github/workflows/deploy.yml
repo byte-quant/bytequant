@@ -54,6 +54,8 @@ jobs:
         run: pnpm audit:trust
       - name: Audit tool quality inventory
         run: pnpm audit:inventory
+      - name: Audit AdSense remediation Stage 1
+        run: pnpm audit:stage1
       - name: Audit final release readiness
         run: pnpm audit:release
       - name: Upload verified Pages artifact

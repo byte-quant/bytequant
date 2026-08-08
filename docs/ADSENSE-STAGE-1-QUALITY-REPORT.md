@@ -1,0 +1,45 @@
+# AdSense remediation — Stage 1 quality report
+
+Generated: 2026-08-09
+
+## Decision boundary
+
+This report does not invent an AdSense rejection reason. The exact Policy Center message is account-only evidence and must be copied verbatim into `docs/ADSENSE-REJECTION-EVIDENCE.md` by the site owner. Stage 1 therefore verifies every condition that can be proven from the repository and production export, while leaving account-side evidence explicitly unresolved.
+
+## Protected advertising identity
+
+| Check | Result |
+| --- | --- |
+| Seller record | `google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0` |
+| ads.txt SHA-256 | `615D7AEA69AFEECC9D6CBDBD5692DB5329EAD488C685CFD6E73F5A67F5EEBC61` |
+| Auto Ads publisher | `ca-pub-4158794981134847` |
+| Script strategy | asynchronous, `afterInteractive` |
+
+The audit fails immediately if the seller record, hash, publisher ID, or exact Auto Ads script changes.
+
+## Evidence matrix
+
+| Measure | Verified |
+| --- | ---: |
+| Canonical public tools | 309 |
+| Canonical localized tool pages kept indexable | 1236 |
+| Unique localized titles, summaries, and descriptions | 309 × 4 |
+| High-risk tools with executable demos | 110 |
+| Successful four-locale runtime demo runs | 440 |
+| Duplicate high-risk demo outputs | 0 |
+| Tool pages with WebApplication + HowTo + FAQ structured data | 1236 |
+
+## Repairs completed in Stage 1
+
+- INI ↔ JSON and Properties ↔ JSON now publish measurable key/section/character results instead of an unmeasured text block.
+- All 35 precision workbenches now explain the expected input structure beside the field, show a localized example signature, expose a visible ready/processing/completed/error state, and publish a Local Agent input/run contract.
+- Precision errors now return actionable, fully localized JSON, table, numeric, date, key-value, or generic recovery guidance without mixing raw English into German, Chinese, or Turkish UI.
+- All 309 canonical tools remain publicly indexable in four languages; Stage 1 introduces no blanket noindex or tool removal.
+
+## Measured Stage 2 editorial backlog
+
+Stage 1 deliberately records rather than conceals template repetition. 179 tools currently share at least one identical English use-case set and 179 tools share at least one identical English three-step set. Their titles, summaries, descriptions, runnable processors, outputs, and canonical pages are distinct, but Stage 2 must replace repeated instructional copy with tool-specific input, method, acceptance, failure, and verification guidance.
+
+## Gate result
+
+Repository-verifiable Stage 1 checks: **PASS**. Account-side rejection wording: **OWNER EVIDENCE REQUIRED**. Passing this gate is not a promise of AdSense approval; Google alone decides approval after reviewing the live site and account.
