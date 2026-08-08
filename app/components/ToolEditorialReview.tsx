@@ -1,11 +1,10 @@
 import type { Tool } from "../lib/tools";
-import { isEditoriallyReviewedTool } from "../lib/content-quality";
 import { CONTENT_REVIEW_DATE } from "../lib/content-review";
 import type { Locale } from "../lib/site";
 
 const methodology = {
   prompt: {
-    tr: "Açık hedef, bağlam, çıktı sözleşmesi ve çelişen kısıtlar ayrı ayrı incelenir. Araç bir dil modeli çalıştırmaz; yalnızca görünür kuralları uygular.",
+    tr: "Hedef, bağlam, çıktı sözleşmesi ve çelişen kısıtlar ayrı ayrı incelenir. Araç bir dil modeli çalıştırmaz; yalnızca görünür kuralları uygular.",
     en: "Goal, context, output contract, and conflicting constraints are inspected separately. The tool runs no language model and applies only visible rules.",
     de: "Ziel, Kontext, Ausgabevertrag und widersprüchliche Bedingungen werden getrennt geprüft. Das Werkzeug nutzt kein Sprachmodell und wendet nur sichtbare Regeln an.",
     zh: "分别检查目标、上下文、输出约定与冲突约束。该工具不运行语言模型，只应用页面公开的规则。",
@@ -66,22 +65,22 @@ const methodology = {
   },
 } as const;
 
-export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
-  const reviewed = isEditoriallyReviewedTool(tool.slug);
-  const t = {
-    tr: { eyebrow: "YÖNTEM VE EDİTORYAL DURUM", title: reviewed ? "Bu sayfa gözden geçirilmiş araç kitaplığındadır" : "Bu araç laboratuvar sürümündedir", reviewed: "Araç açıklaması, örnek girdisi, hata sınırı ve cihaz içi çalışma akışı sürüm kontrollüdür. Otomatik paket; sayfa dışa aktarımını, ortak hata davranışını ve temsilî araç sonuçlarını denetler.", lab: "Araç çalışır ve mevcut özellikleri korunur; ancak bireysel editoryal incelemesi tamamlanana kadar arama dizinine ve sitemap'e dahil edilmez. Sonucu gerçek bağlamda ayrıca doğrulayın.", method: "Uygulanan yöntem", acceptance: "Kabul ölçütü", acceptanceBody: "Örnek girdiyi çalıştırın, beklenen sonucu gözleyin, bozuk veya sınır değeri deneyin ve önemli kararlarda bağımsız doğrulama yapın.", date: "Son içerik ve yöntem incelemesi" },
-    en: { eyebrow: "METHOD AND EDITORIAL STATUS", title: reviewed ? "This page belongs to the reviewed tool library" : "This tool is in the laboratory collection", reviewed: "The description, demo input, error boundary, and on-device flow are version controlled. The automated suite checks page export, shared error behavior, and representative tool results.", lab: "The tool remains functional and available, but it is excluded from search indexes and the sitemap until individual editorial review is complete. Verify its result in the real context.", method: "Method applied", acceptance: "Acceptance check", acceptanceBody: "Run the sample, observe the expected result, try malformed or boundary input, and independently verify any consequential decision.", date: "Latest content and method review" },
-    de: { eyebrow: "METHODE UND REDAKTIONELLER STATUS", title: reviewed ? "Diese Seite gehört zur geprüften Werkzeugbibliothek" : "Dieses Werkzeug gehört zur Labor-Sammlung", reviewed: "Beschreibung, Beispieleingabe, Fehlergrenze und lokale Verarbeitung sind versionskontrolliert. Die Testsuite prüft Seitenexport, gemeinsames Fehlerverhalten und repräsentative Werkzeugergebnisse.", lab: "Das Werkzeug bleibt funktionsfähig, wird aber bis zur individuellen redaktionellen Prüfung nicht in Suchindex und Sitemap aufgenommen. Das Ergebnis ist im realen Kontext zu prüfen.", method: "Angewandte Methode", acceptance: "Abnahmekriterium", acceptanceBody: "Beispiel ausführen, Sollergebnis beobachten, fehlerhafte oder grenzwertige Eingaben testen und folgenreiche Entscheidungen unabhängig prüfen.", date: "Letzte Inhalts- und Methodenprüfung" },
-    zh: { eyebrow: "方法与编辑状态", title: reviewed ? "本页面属于已审核工具库" : "本工具属于实验室集合", reviewed: "工具说明、示例输入、错误边界与设备内流程均受版本控制。自动化套件检查页面导出、共用错误行为与代表性工具结果。", lab: "工具保持可用，但在完成单项编辑审核前不会进入搜索索引或站点地图。请在实际语境中另行核验结果。", method: "采用的方法", acceptance: "验收检查", acceptanceBody: "运行示例、观察预期结果、测试错误或边界输入，并对可能产生重要后果的决定进行独立核验。", date: "最近内容与方法审核" },
-  }[locale];
+const copy = {
+  tr: { eyebrow: "YÖNTEM VE KALİTE PASAPORTU", title: "Bu araç benzersiz kanonik adresiyle yayımlanır", body: "Açıklama, örnek girdi, hata sınırı ve cihaz içi çalışma akışı sürüm kontrollüdür. Otomatik paket; sayfa çıktısını, ortak hata davranışını ve temsilî sonuçları denetler.", method: "Uygulanan yöntem", acceptance: "Kabul ölçütü", acceptanceBody: "Örnek girdiyi çalıştırın, beklenen sonucu gözleyin, bozuk veya sınır değeri deneyin ve önemli kararlarda bağımsız doğrulama yapın.", date: "Son içerik ve yöntem incelemesi", badge: "YAYINDA" },
+  en: { eyebrow: "METHOD AND QUALITY PASSPORT", title: "This tool is published at its unique canonical URL", body: "The description, demo input, error boundary, and on-device flow are version controlled. The automated suite checks page output, shared error behavior, and representative results.", method: "Method applied", acceptance: "Acceptance check", acceptanceBody: "Run the sample, observe the expected result, try malformed or boundary input, and independently verify any consequential decision.", date: "Latest content and method review", badge: "PUBLISHED" },
+  de: { eyebrow: "METHODEN- UND QUALITÄTSPASS", title: "Dieses Werkzeug wird unter seiner eindeutigen kanonischen URL veröffentlicht", body: "Beschreibung, Beispieleingabe, Fehlergrenze und lokale Verarbeitung sind versionskontrolliert. Die Testsuite prüft Seitenausgabe, gemeinsames Fehlerverhalten und repräsentative Ergebnisse.", method: "Angewandte Methode", acceptance: "Abnahmekriterium", acceptanceBody: "Beispiel ausführen, Sollergebnis beobachten, fehlerhafte oder grenzwertige Eingaben testen und folgenreiche Entscheidungen unabhängig prüfen.", date: "Letzte Inhalts- und Methodenprüfung", badge: "VERÖFFENTLICHT" },
+  zh: { eyebrow: "方法与质量说明", title: "该工具通过唯一的规范网址发布", body: "工具说明、示例输入、错误边界与设备内流程均受版本控制。自动化测试会检查页面输出、共用错误行为与代表性结果。", method: "采用的方法", acceptance: "验收检查", acceptanceBody: "运行示例、观察预期结果、测试错误或边界输入，并对可能产生重要后果的决定进行独立核验。", date: "最近内容与方法审核", badge: "已发布" },
+} as const;
 
+export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
+  const t = copy[locale];
   return (
-    <section className={`container tool-editorial-review ${reviewed ? "is-reviewed" : "is-lab"}`} data-editorial-status={reviewed ? "reviewed" : "laboratory"} aria-labelledby={`editorial-${tool.slug}`}>
+    <section className="container tool-editorial-review is-published" data-editorial-status="published" aria-labelledby={`editorial-${tool.slug}`}>
       <div className="tool-editorial-heading">
         <div><span className="kicker">{t.eyebrow}</span><h2 id={`editorial-${tool.slug}`}>{t.title}</h2></div>
-        <span className="tool-editorial-badge">{reviewed ? "✓ REVIEWED" : "◇ LAB"}</span>
+        <span className="tool-editorial-badge">✓ {t.badge}</span>
       </div>
-      <p>{reviewed ? t.reviewed : t.lab}</p>
+      <p>{t.body}</p>
       <div className="tool-editorial-grid">
         <article><strong>{t.method}</strong><p>{methodology[tool.category][locale]}</p></article>
         <article><strong>{t.acceptance}</strong><p>{t.acceptanceBody}</p></article>

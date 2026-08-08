@@ -1,16 +1,16 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 234 editorially reviewed browser tools plus 75 clearly labelled laboratory tools across ten categories. Laboratory pages remain usable but are excluded from search indexes and the sitemap until individual review is complete. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 309 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 ## Editorial quality model
 
-- Reviewed tools have version-controlled descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests.
-- Laboratory tools remain available for evaluation and do not claim the same editorial status; their pages carry `noindex` until individual review is complete.
+- All 309 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
+- Canonical aliases remain `noindex` and point to the matching unique tool; private or query-driven workspace URLs remain outside the search index.
 - High-impact legal, financial, medical, academic, identity, and security decisions always require an authoritative source or qualified human review.
-- Community and official-source update feeds are intentionally excluded from the search index and from Auto Ads placement recommendations because they contain dynamic or externally sourced material.
+- Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
 
 Canonical site: https://bytequant.org/
-Last editorial and interface review: 2026-08-07
+Last editorial and interface review: 2026-08-08
 
 Languages:
 - Turkish (default): https://bytequant.org/
@@ -61,7 +61,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner can search all 309 available tools, while clearly distinguishing the reviewed library from laboratory items.
+- The planner can search all 309 distinct public tools and explain the method and limitations of the selected tool.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 

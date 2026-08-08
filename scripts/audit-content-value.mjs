@@ -14,23 +14,29 @@ const walkHtml = async (directory) => {
   return nested.flat();
 };
 
-const [frontierSource, sitemapSource, qualitySource, layout, adsTxt, llms, sitemapXml] = await Promise.all([
-  read("app/lib/frontier-tools.ts"), read("app/sitemap.ts"), read("app/lib/content-quality.ts"),
-  read("app/layout.tsx"), read("public/ads.txt"), read("public/llms.txt"), read("out/sitemap.xml"),
+const [frontierSource, aliasSource, sitemapSource, qualitySource, layout, adsTxt, llms, sitemapXml, inventory] = await Promise.all([
+  read("app/lib/frontier-tools.ts"), read("app/lib/tool-aliases.ts"), read("app/sitemap.ts"), read("app/lib/content-quality.ts"),
+  read("app/layout.tsx"), read("public/ads.txt"), read("public/llms.txt"), read("out/sitemap.xml"), read("docs/TOOL-QUALITY-INVENTORY.md"),
 ]);
-const laboratorySlugs = [...frontierSource.matchAll(/\{ slug: "([^"]+)"/g)].map((match) => match[1]);
-assert.equal(laboratorySlugs.length, 75, "laboratory collection must contain exactly 75 explicit tools");
-assert.equal(new Set(laboratorySlugs).size, laboratorySlugs.length, "laboratory slugs must be unique");
-assert.match(sitemapSource, /filter\(\(tool\) => isEditoriallyReviewedTool\(tool\.slug\)\)/);
-assert.match(qualitySource, /follow: true/);
-assert.match(llms, /234 editorially reviewed browser tools plus 75 clearly labelled laboratory tools/);
+const frontierSlugs = [...frontierSource.matchAll(/\{ slug: "([^"]+)"/g)].map((match) => match[1]);
+const aliasSlugs = [...aliasSource.matchAll(/^\s*"([^"]+)":/gm)].map((match) => match[1]);
+assert.equal(frontierSlugs.length, 75, "frontier collection must contain exactly 75 explicit tools");
+assert.equal(aliasSlugs.length, 12, "canonical alias register must contain exactly 12 URLs");
+assert.match(sitemapSource, /const toolRoutes = tools\.flatMap/);
+assert.doesNotMatch(sitemapSource, /isEditoriallyReviewedTool|tools\.filter/);
+assert.match(qualitySource, /Search indexing and ad serving are separate controls/);
+assert.match(llms, /309 distinct browser tools/);
+assert.match(inventory, /Public canonical tools \| 309/);
 assert.equal(adsTxt.trim(), "google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0");
 assert.match(layout, /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847/);
 
-for (const slug of laboratorySlugs) assert.doesNotMatch(sitemapXml, new RegExp(`/(?:araclar|tools)/${slug}/`), `${slug} must stay out of the sitemap until review`);
-for (const route of ["topluluk", "en/community", "de/community", "zh/community", "guncel", "en/updates", "de/updates", "zh/updates", "workspace"]) {
-  assert.doesNotMatch(sitemapXml, new RegExp(`https://bytequant\\.org/${route}/`), `${route} must not be advertised as indexed publisher content`);
+const toolUrls = [...sitemapXml.matchAll(/<loc>https:\/\/bytequant\.org\/(?:araclar|en\/tools|de\/tools|zh\/tools)\/[^<]+<\/loc>/g)];
+assert.equal(toolUrls.length, 309 * 4, "sitemap must contain every canonical tool in all four locales");
+for (const slug of frontierSlugs) assert.match(sitemapXml, new RegExp(`/(?:araclar|en/tools|de/tools|zh/tools)/${slug}/`), `${slug} must be discoverable`);
+for (const route of ["topluluk", "en/community", "de/community", "zh/community", "guncel", "en/updates", "de/updates", "zh/updates"]) {
+  assert.match(sitemapXml, new RegExp(`https://bytequant\\.org/${route}/`), `${route} editorial landing page must be discoverable`);
 }
+assert.doesNotMatch(sitemapXml, /https:\/\/bytequant\.org\/workspace\//);
 for (const route of ["hakkimizda", "gizlilik-politikasi", "kullanim-kosullari", "iletisim", "sss", "en/about", "en/privacy", "en/terms", "en/contact", "en/faq"]) {
   assert.match(sitemapXml, new RegExp(`https://bytequant\\.org/${route}/`), `${route} trust route must remain discoverable`);
 }
@@ -44,22 +50,23 @@ for (const file of htmlFiles) {
   if (/name="robots" content="[^"]*noindex/i.test(html)) noindexCount += 1;
 }
 for (const localePrefix of ["araclar", "en/tools", "de/tools", "zh/tools"]) {
-  for (const slug of laboratorySlugs) {
+  for (const slug of frontierSlugs) {
     const html = await read(path.join("out", localePrefix, slug, "index.html"));
-    assert.match(html, /name="robots" content="[^"]*noindex/i, `${localePrefix}/${slug} must disclose noindex`);
-    assert.match(html, /data-editorial-status="laboratory"/, `${localePrefix}/${slug} must disclose laboratory status`);
+    assert.doesNotMatch(html, /name="robots" content="[^"]*noindex/i, `${localePrefix}/${slug} must be indexable`);
+    assert.match(html, /data-editorial-status="published"/, `${localePrefix}/${slug} must disclose publication status`);
+  }
+  for (const slug of aliasSlugs) {
+    const html = await read(path.join("out", localePrefix, slug, "index.html"));
+    assert.match(html, /name="robots" content="[^"]*noindex/i, `${localePrefix}/${slug} alias must remain noindex`);
   }
 }
 for (const route of ["topluluk", "en/community", "de/community", "zh/community", "guncel", "en/updates", "de/updates", "zh/updates"]) {
   const html = await read(path.join("out", route, "index.html"));
-  assert.match(html, /name="robots" content="[^"]*noindex/i, `${route} must be noindex`);
+  assert.doesNotMatch(html, /name="robots" content="[^"]*noindex/i, `${route} must be indexable`);
 }
-for (const route of ["araclar/json-bicimlendirici", "en/tools/json-bicimlendirici", "de/tools/json-bicimlendirici", "zh/tools/json-bicimlendirici"]) {
-  const html = await read(path.join("out", route, "index.html"));
-  assert.doesNotMatch(html, /name="robots" content="[^"]*noindex/i, `${route} reviewed tool must remain indexable`);
-  assert.match(html, /data-editorial-status="reviewed"/);
-}
+const workspace = await read(path.join("out", "workspace", "index.html"));
+assert.match(workspace, /name="robots" content="[^"]*noindex/i, "query-driven workspace must remain noindex");
 
-console.log(`Content value audit: PASS (${htmlFiles.length} HTML pages, ${noindexCount} noindex pages)`);
-console.log("Editorial index: 234 reviewed tools; 75 laboratory tools available but excluded from sitemap/indexing.");
-console.log("Dynamic UGC and official-source feeds: accessible, noindex, and listed for AdSense account-level URL exclusion.");
+console.log(`Content value audit: PASS (${htmlFiles.length} HTML pages, ${noindexCount} intentional noindex pages)`);
+console.log("Editorial index: 309 distinct tools and all localized community/news landing pages are discoverable.");
+console.log("Duplicate aliases and the query-driven workspace remain noindex; Auto Ads exclusions remain account-side controls.");

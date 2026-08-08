@@ -1,6 +1,6 @@
 # ByteQuant AdSense review checklist
 
-Last verified: 2026-08-07
+Last verified: 2026-08-08
 
 This document separates repository checks from account-side controls. Passing the repository checks improves readiness but cannot guarantee Google approval.
 
@@ -13,10 +13,10 @@ This document separates repository checks from account-side controls. Passing th
 
 ## Publisher-content quality
 
-- [x] 234 individually reviewed tools remain indexable.
-- [x] 75 laboratory tools remain usable but carry `noindex` and are absent from the sitemap until individual review.
-- [x] Every tool page discloses its method, acceptance check, limitations, local-processing behavior, and editorial status.
-- [x] Community UGC and the official-source update reader are accessible but excluded from the search index.
+- [x] All 309 distinct public tools remain indexable and are included in the sitemap.
+- [x] Twelve legacy alias URLs preserve old links, point to the canonical tool, and remain `noindex` to prevent duplicate indexing.
+- [x] Every tool page discloses its method, acceptance check, limitations, local-processing behavior, and publication status.
+- [x] Community and official-source update landing pages are indexable editorial entry points; their dynamic surfaces remain listed for account-level Auto Ads exclusion.
 - [x] About, contact, privacy, cookies, terms, FAQ, guides, and editorial ownership remain visible in navigation and the sitemap.
 - [x] No placeholder, “under construction”, scraped article body, or ad-click encouragement is published.
 

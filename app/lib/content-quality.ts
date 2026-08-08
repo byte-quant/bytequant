@@ -1,17 +1,10 @@
-import { frontierToolSlugs } from "./frontier-tools";
-
 /**
- * Search and advertising review must reflect editorial reality. The original
- * 234-tool library has individual product QA. The 75-tool laboratory remains
- * available to visitors, Agent, and Workstation, but stays out of search
- * indexes until every item receives the same manual review depth.
+ * Search indexing and ad serving are separate controls. Unique public tools
+ * remain discoverable; only canonical duplicates and private/technical routes
+ * receive noindex at their route level. Community and news landing pages are
+ * indexable, while the paths below remain recommended Auto Ads exclusions in
+ * the AdSense account until their dynamic surfaces have separate ad review.
  */
-export function isEditoriallyReviewedTool(slug: string) {
-  return !frontierToolSlugs.has(slug);
-}
-
-export const laboratoryToolCount = frontierToolSlugs.size;
-
 export const nonIndexableRobots = {
   index: false,
   follow: true,
