@@ -194,6 +194,7 @@ assert.ok(jsGzip <= 390_000, `Initial home JavaScript gzip budget exceeded: ${js
 assert.ok(cssGzip <= 100_000, `Initial home CSS gzip budget exceeded: ${cssGzip}.`);
 
 assert.match(workflow, /pnpm audit:stage4/);
+assert.match(workflow, /actions\/upload-pages-artifact@[\w]+[\s\S]*include-hidden-files:\s*true/, "Pages upload must include the audited .well-known and .nojekyll files.");
 const report = `# AdSense remediation — Stage 4 final acceptance report
 
 Generated: 2026-08-09
@@ -229,6 +230,7 @@ The audit measures the current production export on every run. The report record
 - Security policy sources now agree on HSTS, COOP, CORP, permissions, content-type, framing, origin isolation, and cross-domain policy headers.
 - The service-worker cache rule now targets the real /sw.js path. Fingerprinted assets receive immutable cache policy while HTML remains revalidated.
 - A standards-based /.well-known/security.txt publishes the security contact, canonical record, languages, expiry, and policy location.
+- The Pages artifact explicitly includes audited hidden paths, so /.well-known/security.txt and .nojekyll reach the deployed origin.
 - Auto Ads remains a single owner-supplied bootstrap with no manual slots. The protected seller record and publisher identity are unchanged.
 
 ## Decision boundary

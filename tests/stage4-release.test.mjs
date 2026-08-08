@@ -37,9 +37,10 @@ test("keeps security and cache policies aligned for deployable hosting", async (
 });
 
 test("publishes a current RFC 9116 security contact", async () => {
-  const security = await read("public/.well-known/security.txt");
+  const [security, workflow] = await Promise.all([read("public/.well-known/security.txt"), read(".github/workflows/deploy.yml")]);
   assert.match(security, /^Contact: mailto:bytequant@yahoo\.com$/m);
   assert.match(security, /^Canonical: https:\/\/bytequant\.org\/\.well-known\/security\.txt$/m);
   assert.match(security, /^Preferred-Languages: tr, en, de, zh$/m);
   assert.ok(new Date(/^Expires: (.+)$/m.exec(security)?.[1] ?? 0) > new Date("2026-08-09"));
+  assert.match(workflow, /include-hidden-files:\s*true/, "GitHub Pages must deploy the audited .well-known path");
 });

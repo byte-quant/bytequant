@@ -99,6 +99,7 @@ for (const source of [headers, worker]) {
 for (const audit of ["static", "adsense", "content", "editorial", "trust", "inventory", "stage1", "stage2", "stage3", "stage4", "release"]) {
   assert.match(workflow, new RegExp(`pnpm audit:${audit}`), `CI does not run audit:${audit}.`);
 }
+assert.match(workflow, /actions\/upload-pages-artifact@[\w]+[\s\S]*include-hidden-files:\s*true/, "Pages upload omits audited hidden paths such as .well-known/security.txt.");
 
 const homeFile = path.join(root, "index.html");
 const assetUrls = [...new Set([...home.matchAll(/(?:src|href)="([^"]+\.(?:js|css)(?:\?[^\"]*)?)"/g)].map((match) => match[1].split("?")[0]))];
