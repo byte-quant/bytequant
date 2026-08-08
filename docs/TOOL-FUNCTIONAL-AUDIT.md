@@ -54,6 +54,14 @@ One concrete defect was found and corrected during this audit: the tool-call JSO
 - Generic and frontier workbenches expose consistent busy, success, and error states; output controls cannot be triggered while processing; input errors are connected through `aria-invalid` and `aria-errormessage`.
 - `pnpm run audit:stage3` verifies the protected AdSense integration, guided-input coverage, responsive controls, localized runtime execution, and the static export contract.
 
-## What continues after Stage 3
+## Stage 4 — final crawl, policy, and release validation
 
-Runtime-family coverage is broader than exhaustive combinatorial testing. Less frequently used legacy tools remain in continuous review, and professional/legal/security decisions still require verification in their real context. Later programme stages cover trust/policy presentation and final crawl/performance validation.
+- The final audit traverses every canonical URL in the production sitemap and validates canonical/indexing directives, locale and hreflang reciprocity, page titles and descriptions, JSON-LD parsing, visible FAQ/HowTo evidence, and heading/main landmarks.
+- Organization/WebSite identity schema is intentionally scoped to home and About pages, while tool-specific WebApplication, FAQPage, and HowTo data stays on matching visible tool content.
+- Worker and static-hosting policies now agree on service-worker revalidation, immutable framework assets, HTML revalidation, security headers, and the public RFC 9116 security contact.
+- Compressed JavaScript and representative HTML budgets guard the first-load experience. Four localized RSS feeds, the PWA manifest, service worker, sitemap, robots directives, and `llms.txt` are part of the release gate.
+- `pnpm run audit:stage4` is executed by CI before deployment and writes the final evidence report used during owner review.
+
+## Continuing limitations and owner checks
+
+Runtime-family coverage is broader than exhaustive combinatorial testing. Less frequently used legacy tools remain in continuous review, and professional, legal, financial, medical, and security decisions still require verification in their real context. AdSense account status, consent-platform configuration, Search Console coverage, field Core Web Vitals, and Google's final editorial decision cannot be proven from repository code and must be checked by the owner before resubmission.

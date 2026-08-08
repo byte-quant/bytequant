@@ -1,6 +1,6 @@
 # ByteQuant AdSense approval checklist
 
-Last verified: 2026-08-08
+Last verified: 2026-08-09
 Scope: four-language static site, 309 canonical tools, localized guides, legal/trust pages, Local Agent, Workstation, Community, and the finite Updates feed.
 
 This checklist documents readiness; it is not a promise of approval. Google alone evaluates the account, site, traffic, live consent message, and policy status.
@@ -21,6 +21,18 @@ This checklist documents readiness; it is not a promise of approval. Google alon
 - [x] The final release gate verifies every sitemap URL resolves to an indexable canonical page with `x-default`, a description, and valid JSON-LD.
 - [x] The CI workflow runs content-value, editorial-depth, publisher-trust, tool-inventory, and final release-readiness audits before deployment.
 - [x] Home HTML, referenced JavaScript, and CSS have compressed-size budgets to catch material performance regressions before deployment.
+- [x] Stage 4 validates all 1,624 canonical URLs for unique localized metadata, exact canonical ownership, one main landmark and H1, self-referencing and reciprocal hreflang, x-default, page-visible FAQ/HowTo data, valid JSON-LD, and crawlable output.
+- [x] Global Organization and WebSite identity markup is restricted to the four home and four About pages; each remaining canonical URL retains only schema that describes its visible page content.
+- [x] The deployable hosting policy aligns CSP, HSTS, COOP, CORP, Permissions Policy, framing, MIME, origin isolation, service-worker revalidation, and immutable fingerprinted-asset caching.
+- [x] `/.well-known/security.txt` publishes a canonical, expiring security contact record without adding a new indexable marketing page.
+
+## 9 August 2026 official-policy cross-check
+
+- Google’s current AdSense readiness guidance requires a live, crawler-accessible HTTPS site with enough unique content, useful navigation, and no policy violations. Repository audits verify the parts observable in source and generated HTML; the AdSense account remains the authority for review state.
+- Google’s publisher guidance forbids ads that obscure content or sit so close to navigation, download, chat, or other action controls that accidental interaction becomes likely. Auto Ads preview and page exclusions therefore remain mandatory owner checks.
+- Google Search requires each localized page to list itself and its alternates with return links. Stage 4 verifies these relationships across the full sitemap instead of checking only representative pages.
+- Google’s structured-data policy requires markup to describe visible, relevant content and does not promise rich results. Stage 4 checks visible FAQ and HowTo correspondence and avoids invented reviews or ratings.
+- Core Web Vitals remain field metrics evaluated at the 75th percentile. The good thresholds remain LCP at or below 2.5 seconds, INP at or below 200 milliseconds, and CLS at or below 0.1; repository byte budgets cannot replace real-user data.
 
 ## Required AdSense account actions — OWNER
 
@@ -85,6 +97,8 @@ Also exclude any transient workspace or peer-connection URL shown in the account
 `pnpm audit:trust`
 
 `pnpm audit:inventory`
+
+`pnpm audit:stage4`
 
 `pnpm audit:release`
 

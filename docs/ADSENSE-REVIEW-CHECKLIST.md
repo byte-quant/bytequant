@@ -1,6 +1,6 @@
 # ByteQuant AdSense review checklist
 
-Last verified: 2026-08-08
+Last verified: 2026-08-09
 
 This document separates repository checks from account-side controls. Passing the repository checks improves readiness but cannot guarantee Google approval.
 
@@ -20,6 +20,9 @@ This document separates repository checks from account-side controls. Passing th
 - [x] About, contact, privacy, cookies, terms, FAQ, guides, and editorial ownership remain visible in navigation and the sitemap.
 - [x] A four-language Publishing & Trust Standards center makes ownership, review method, corrections, advertising independence, data boundaries, sourcing, and AI assistance directly auditable.
 - [x] No placeholder, “under construction”, scraped article body, or ad-click encouragement is published.
+- [x] The final Stage 4 gate checks every canonical URL for a unique localized title and description, one main landmark and H1, reciprocal hreflang, visible FAQ/HowTo claims, and valid page-specific JSON-LD.
+- [x] Organization and WebSite identity schema is limited to the home and About surfaces instead of being repeated throughout the tool catalog.
+- [x] The real `/sw.js` path is protected from stale caching, fingerprinted assets receive immutable caching where the host supports `_headers`, and a current `/.well-known/security.txt` publishes the security contact.
 
 ## Required AdSense account actions
 
@@ -31,7 +34,7 @@ This document separates repository checks from account-side controls. Passing th
 
 ## Release gate
 
-Run `pnpm run lint`, `pnpm run test`, `pnpm run build`, `pnpm run audit:static`, `pnpm run audit:adsense`, `pnpm run audit:content`, `pnpm run audit:licenses`, and `pnpm run build:sites`. A release is not ready if any command fails.
+Run `pnpm run lint`, `pnpm run test`, `pnpm run build`, `pnpm run audit:static`, `pnpm run audit:adsense`, `pnpm run audit:content`, `pnpm run audit:stage4`, `pnpm run audit:licenses`, and `pnpm run build:sites`. A release is not ready if any command fails.
 
 Official references:
 

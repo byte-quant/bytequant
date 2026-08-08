@@ -15,7 +15,7 @@ export function LocalizedInfoPage({ pageKey, locale }: { pageKey: InfoKey; local
     { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: locale === "de" ? "Startseite" : "首页", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: content.title, item: url }] },
   ];
   return (
-    <SiteShell locale={locale} alternateHref="/en" languageHrefs={{ de: pathFor("de", pageKey), zh: pathFor("zh", pageKey), tr: pathFor("tr", pageKey), en: pathFor("en", pageKey) }}>
+    <SiteShell locale={locale} alternateHref="/en" languageHrefs={{ de: pathFor("de", pageKey), zh: pathFor("zh", pageKey), tr: pathFor("tr", pageKey), en: pathFor("en", pageKey) }} includeGlobalSchema={pageKey === "about"}>
       <SchemaScript data={schema} />
       <section className="page-hero info-hero"><div className="container narrow-container"><nav className="breadcrumbs" aria-label={locale === "de" ? "Brotkrumen" : "面包屑导航"}><Link href={pathFor(locale, "home")}>{locale === "de" ? "Startseite" : "首页"}</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow.toLocaleLowerCase(locale === "de" ? "de-DE" : "zh-CN")}</span></nav><span className="kicker">{content.eyebrow}</span><h1>{content.title}</h1><p>{content.intro}</p>{content.updated && <time>{content.updated}</time>}</div></section>
       {(pageKey === "about" || pageKey === "privacy" || pageKey === "contact") && <PublisherTrustBand locale={locale} />}

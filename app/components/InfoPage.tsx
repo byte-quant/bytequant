@@ -20,7 +20,7 @@ export function InfoPage({ pageKey, locale }: { pageKey: InfoKey; locale: InfoLo
     { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: content.title[locale], item: pageUrl }] },
   ];
   return (
-    <SiteShell locale={locale} alternateHref={alternateHref}>
+    <SiteShell locale={locale} alternateHref={alternateHref} includeGlobalSchema={pageKey === "about"}>
       <SchemaScript data={schema} />
       <section className="page-hero info-hero"><div className="container narrow-container"><nav className="breadcrumbs" aria-label={isTr ? "Sayfa yolu" : "Breadcrumb"}><Link href={pathFor(locale, "home")}>{isTr ? "Ana sayfa" : "Home"}</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow[locale].toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US")}</span></nav><span className="kicker">{content.eyebrow[locale]}</span><h1>{content.title[locale]}</h1><p>{content.intro[locale]}</p>{content.updated && <time>{content.updated[locale]}</time>}</div></section>
       {(pageKey === "about" || pageKey === "privacy" || pageKey === "contact") && <PublisherTrustBand locale={locale} />}

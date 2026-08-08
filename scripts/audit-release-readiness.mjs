@@ -96,7 +96,7 @@ for (const source of [headers, worker]) {
   assert.match(source, /googlesyndication\.com/i);
   assert.match(source, /doubleclick\.net/i);
 }
-for (const audit of ["static", "adsense", "content", "editorial", "trust", "inventory", "stage1", "stage2", "stage3", "release"]) {
+for (const audit of ["static", "adsense", "content", "editorial", "trust", "inventory", "stage1", "stage2", "stage3", "stage4", "release"]) {
   assert.match(workflow, new RegExp(`pnpm audit:${audit}`), `CI does not run audit:${audit}.`);
 }
 

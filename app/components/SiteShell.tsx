@@ -13,7 +13,7 @@ import { AmbientScene } from "./AmbientScene";
 
 const localeNames = { tr: "Türkçe", en: "English", de: "Deutsch", zh: "简体中文" } as const;
 
-export function SiteShell({ children, locale, alternateHref, languageHrefs }: { children: ReactNode; locale: Locale; alternateHref: string; languageHrefs?: Partial<Record<Locale, string>> }) {
+export function SiteShell({ children, locale, alternateHref, languageHrefs, includeGlobalSchema = false }: { children: ReactNode; locale: Locale; alternateHref: string; languageHrefs?: Partial<Record<Locale, string>>; includeGlobalSchema?: boolean }) {
   const t = copy[locale];
   const localized = (tr: string, en: string, de: string, zh: string) => ({ tr, en, de, zh })[locale];
   const hrefs: Record<Locale, string> = { tr: pathFor("tr", "home"), en: pathFor("en", "home"), de: pathFor("de", "home"), zh: pathFor("zh", "home"), ...languageHrefs };
@@ -30,7 +30,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs }: { 
   };
   return (
     <div className="site-shell">
-      <SchemaScript data={globalSchema} />
+      {includeGlobalSchema ? <SchemaScript data={globalSchema} /> : null}
       <a className="skip-link" href="#main-content">{localized("İçeriğe geç", "Skip to content", "Zum Inhalt", "跳到内容")}</a>
       <header className="site-header">
         <div className="container header-inner">

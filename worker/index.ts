@@ -38,14 +38,28 @@ const contentSecurityPolicy = [
   "upgrade-insecure-requests",
 ].join("; ");
 
-function withSecurityHeaders(response: Response) {
+function cachePolicy(pathname: string, contentType: string) {
+  if (pathname.startsWith("/_next/static/")) return "public, max-age=31536000, immutable";
+  if (pathname === "/sw.js") return "no-cache, no-store, must-revalidate";
+  if (pathname === "/manifest.webmanifest") return "public, max-age=3600, must-revalidate";
+  if (/\.(?:png|svg|ico|webp|woff2?)$/i.test(pathname)) return "public, max-age=604800, stale-while-revalidate=86400";
+  if (contentType.includes("text/html") || pathname.endsWith("/")) return "public, max-age=0, must-revalidate";
+  return "public, max-age=3600, must-revalidate";
+}
+
+function withSecurityHeaders(response: Response, pathname: string) {
   const headers = new Headers(response.headers);
   headers.set("Content-Security-Policy", contentSecurityPolicy);
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=(self), payment=(), usb=()");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  headers.set("Permissions-Policy", "camera=(), geolocation=(), payment=(), usb=(), microphone=(self), on-device-speech-recognition=(self)");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
+  headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  headers.set("Origin-Agent-Cluster", "?1");
+  headers.set("Cache-Control", cachePolicy(pathname, headers.get("content-type") ?? ""));
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
@@ -68,10 +82,10 @@ const worker = {
           return result.response();
         },
       }, allowedWidths);
-      return withSecurityHeaders(imageResponse);
+      return withSecurityHeaders(imageResponse, url.pathname);
     }
 
-    return withSecurityHeaders(await handler.fetch(request, env, ctx));
+    return withSecurityHeaders(await handler.fetch(request, env, ctx), url.pathname);
   },
 };
 

@@ -77,7 +77,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <SiteShell locale={locale} alternateHref={alternateHref} languageHrefs={{ tr: "/", en: "/en", de: "/de", zh: "/zh" }}>
+    <SiteShell locale={locale} alternateHref={alternateHref} languageHrefs={{ tr: "/", en: "/en", de: "/de", zh: "/zh" }} includeGlobalSchema>
       <SchemaScript data={schema} />
       <section className="hero-section">
         <div className="container hero-grid">
