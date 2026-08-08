@@ -213,12 +213,14 @@ Generated: 2026-08-09
 
 ## Performance budgets (gzip)
 
-| Surface | Bytes |
+The audit measures the current production export on every run. The report records stable acceptance thresholds so an allowlisted RSS refresh cannot make the checked-in evidence stale while the build remains within budget.
+
+| Surface | Acceptance threshold |
 | --- | ---: |
-| Home HTML | ${homeGzip} |
-| Representative tool HTML | ${sampleToolGzip} |
-| Initial home JavaScript | ${jsGzip} |
-| Initial home CSS | ${cssGzip} |
+| Home HTML | <= 150,000 bytes |
+| Representative tool HTML | <= 135,000 bytes |
+| Initial home JavaScript | <= 390,000 bytes |
+| Initial home CSS | <= 100,000 bytes |
 
 ## Applied final repairs
 
