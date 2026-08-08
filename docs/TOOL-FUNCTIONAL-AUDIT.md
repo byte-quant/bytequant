@@ -1,0 +1,43 @@
+# ByteQuant functional tool audit
+
+Audit date: 2026-08-08
+Scope: AdSense remediation programme, Stage 2
+
+This report records automated evidence and targeted regression work. It is not a professional certification, a security guarantee, or a claim that every possible real-world input has been tested.
+
+## Catalog-wide controls
+
+- All 309 public canonical tools map to an implemented workbench family. The test suite fails if a canonical slug loses its runtime route.
+- Every tool has a unique canonical identity, four localized titles and substantive descriptions, at least three localized use cases, and three localized HowTo steps.
+- Every tool page provides an example-data action, explicit processing state, copy/download controls where output exists, a visible local-processing statement, and related-tool handoff.
+- Legacy aliases remain separate from canonical pages so duplicate URLs do not compete in search results.
+
+## Deep runtime lane
+
+Catalog marks 234–321 (88 tools) receive executable demo checks in Turkish, English, German, and Simplified Chinese. The automated checks assert:
+
+- the demo is meaningful and produces non-empty, measurable output;
+- the processor never falls through to a placeholder implementation;
+- Markdown tables contain a valid divider and can be rendered as accessible HTML tables;
+- review boundaries and result metrics are localized;
+- previously reported tools return purpose-specific results rather than a shared generic report.
+
+The 75 frontier tools additionally receive localized input-format guidance, localized mode labels, actionable error messages, and structured key/value result cards where the output shape permits them.
+
+## Edge-case regression set
+
+The current suite deliberately covers malformed JSON, a non-array pagination input, invalid Base32, invalid numeric configuration, invalid iCalendar dates, a non-object tool-call payload, and malformed NDJSON. These inputs must either stop with an actionable error or report the invalid row explicitly; they must not produce a plausible-looking success result.
+
+One concrete defect was found and corrected during this audit: the tool-call JSON validator accepted an array as a root value and returned an issues report. It now rejects every non-object root before validating the declared local tool contract.
+
+## Presentation and accessibility
+
+- Pipe-delimited result tables render as semantic HTML tables inside a keyboard-focusable, horizontally scrollable region.
+- Label/value reports render as definition-list cards instead of one large monospace block.
+- Machine formats such as JSON, vCard, and iCalendar remain verbatim so copy/download output is not corrupted.
+- Error state is connected to the input with `aria-invalid` and `aria-errormessage`.
+- Mobile layouts collapse result cards to one column and retain scroll access for genuinely wide tables.
+
+## What continues after Stage 2
+
+Runtime-family coverage is broader than exhaustive combinatorial testing. Less frequently used legacy tools remain in continuous review, and professional/legal/security decisions still require verification in their real context. Later programme stages cover editorial depth, trust/policy presentation, and final crawl/performance validation.

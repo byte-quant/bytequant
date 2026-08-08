@@ -4,11 +4,35 @@ import test from "node:test";
 import { frontierToolSlugs } from "../app/lib/frontier-tools.ts";
 import { precisionTools } from "../app/lib/precision-tools.ts";
 import { toolAliases } from "../app/lib/tool-aliases.ts";
-import { tools } from "../app/lib/tools.ts";
-import { frontierDemos, runFrontierTool } from "../app/components/FrontierWorkbenches.tsx";
+import { publicTools, tools } from "../app/lib/tools.ts";
+import { essentialToolSlugs, guidedLegacyToolSlugs } from "../app/lib/essential-tool-slugs.ts";
+import { expansionToolSlugs } from "../app/lib/expansion-tools.ts";
+import { productivityToolSlugs } from "../app/lib/productivity-tool-slugs.ts";
+import { demandToolSlugs } from "../app/lib/demand-tool-slugs.ts";
+import { discoveryToolSlugs } from "../app/lib/discovery-tool-slugs.ts";
+import { specializedSlugs } from "../app/components/SpecializedWorkbench.tsx";
+import { advancedWorkbenchSlugs } from "../app/components/AdvancedWorkbenches.tsx";
+import { growthWorkbenchSlugs } from "../app/components/GrowthWorkbenches.tsx";
+import { newWorkbenchSlugs } from "../app/components/NewToolWorkbenches.tsx";
+import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
+import { frontierDemos, localizeFrontierError, runFrontierTool } from "../app/components/FrontierWorkbenches.tsx";
 import { precisionDemos, runPrecisionTool } from "../app/components/PrecisionWorkbenches.tsx";
 
 const locales = ["tr", "en", "de", "zh"];
+
+test("all 309 canonical tools route to an implemented workbench family", () => {
+  const coreAndConverters = new Set([
+    "prompt-kalite-denetimi", "meta-prompt-olusturucu", "token-sayaci", "okunabilirlik-analizi", "metin-benzerlik-analizi", "metin-temizleyici", "buyuk-kucuk-harf-donusturucu", "kelime-sayaci", "json-bicimlendirici", "json-csv-donusturucu", "regex-test-araci", "csv-inceleyici", "base64-kodlayici", "url-kodlayici", "kvkk-veri-maskeleyici", "guclu-parola-uretici", "uuid-uretici", "sha256-ozet-uretici", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu", "jwt-decoder", "cron-ifadesi-aciklayici", "gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme",
+  ]);
+  const implemented = new Set([
+    ...coreAndConverters, ...specializedSlugs, ...advancedWorkbenchSlugs, ...growthWorkbenchSlugs, ...newWorkbenchSlugs,
+    ...demandToolSlugs, ...discoveryToolSlugs, ...essentialToolSlugs, ...guidedLegacyToolSlugs, ...expansionToolSlugs,
+    ...productivityToolSlugs, ...precisionToolSlugs, ...frontierToolSlugs,
+  ]);
+  assert.equal(publicTools.length, 309);
+  const missing = publicTools.filter((tool) => !implemented.has(tool.slug)).map((tool) => tool.slug);
+  assert.deepEqual(missing, [], `tools without a runtime family: ${missing.join(", ")}`);
+});
 
 test("the complete 321-tool catalog has unique identities and four-language guidance", () => {
   assert.equal(tools.length, 321);
@@ -87,6 +111,48 @@ test("sentence, plain-language, and paragraph tools no longer share one generic 
   assert.match(outputs[0], /Average sentence/);
   assert.match(outputs[1], /heavy expression|heavy-language signal/);
   assert.match(outputs[2], /opening transition/i);
+});
+
+test("priority frontier results localize explanatory prose instead of mixing interface languages", async () => {
+  const cases = [
+    ["calisma-ucreti-esdegerlik-hesaplayici", /Annual:|Monthly:|Assumptions:/],
+    ["nakit-pisti-hesaplayici", /Usable cash after buffer:|Net monthly burn:|Model excludes/],
+    ["csp-kaynak-ifadesi-tester", /Selected source list:|Approximate match:|This helper/],
+    ["ssh-yetkili-anahtar-inceleyici", /Encoded bytes:|No private-key material/],
+    ["embedding-parca-ortusme-planlayici", /Effective step:|Repeated overlap:|Expansion vs source:/],
+  ];
+  for (const [slug, englishLeak] of cases) {
+    const demo = frontierDemos[slug];
+    for (const locale of ["tr", "de", "zh"]) {
+      const result = await runFrontierTool(slug, demo.input, demo.secondary ?? "", demo.mode ?? "default", locale);
+      assert.doesNotMatch(result.output, englishLeak, `${slug}/${locale} leaked English explanatory copy`);
+    }
+  }
+});
+
+test("frontier validation errors give actionable guidance in every interface language", () => {
+  const invalidJson = new Error("Invalid JSON: Unexpected end of JSON input");
+  assert.match(localizeFrontierError(invalidJson, "tr"), /JSON okunamadı/);
+  assert.match(localizeFrontierError(invalidJson, "de"), /JSON konnte nicht gelesen werden/);
+  assert.match(localizeFrontierError(invalidJson, "zh"), /无法读取 JSON/);
+  assert.match(localizeFrontierError(invalidJson, "en"), /JSON could not be read/);
+
+  const keyValue = new Error("Expected key=value: bad line");
+  assert.match(localizeFrontierError(keyValue, "tr"), /anahtar=değer/);
+  assert.match(localizeFrontierError(keyValue, "de"), /Schlüssel=Wert/);
+  assert.match(localizeFrontierError(keyValue, "zh"), /键=值/);
+});
+
+test("representative frontier families reject malformed input instead of returning plausible output", async () => {
+  await assert.rejects(() => runFrontierTool("json-yol-degeri-cikarici", "{broken", "user.name", "default", "tr"), /Invalid JSON/);
+  await assert.rejects(() => runFrontierTool("json-dizi-sayfalama-planlayici", "{}", "page=1\nsize=10", "default", "tr"), /JSON array/);
+  await assert.rejects(() => runFrontierTool("base32-kodlayici", "%%%", "", "decode", "tr"), /Base32/);
+  await assert.rejects(() => runFrontierTool("buyuk-tamsayi-taban-donusturucu", "value=12\nfrom=x\nto=10", "", "default", "tr"), /number/);
+  await assert.rejects(() => runFrontierTool("ical-etkinlik-olusturucu", "title=Test\nstart=tomorrow\nend=later", "", "default", "tr"), /YYYYMMDD/);
+  await assert.rejects(() => runFrontierTool("arac-cagrisi-json-dogrulayici", "[]", "name=test\nrequired=input", "default", "tr"), /JSON object/);
+  const ndjson = await runFrontierTool("ndjson-toplu-dogrulayici", '{"broken":}', "", "default", "tr");
+  assert.equal(ndjson.metrics?.find(([label]) => label === "Hata")?.[1], 1);
+  assert.match(ndjson.output, /\| Satır \| Tür \| Sonuç \|/);
 });
 
 test("tools 234–246 run real demos with localized results in all four languages", () => {

@@ -1944,6 +1944,10 @@ canvas{max-width:100%}
 .structured-tool-output th{position:sticky;top:0;color:var(--navy);background:var(--surface-soft);font-size:11px;font-weight:900;letter-spacing:.02em}
 .structured-tool-output tbody tr:last-child td{border-bottom:0}
 .structured-tool-output tbody tr:nth-child(even){background:color-mix(in srgb,var(--surface-soft) 62%,transparent)}
+.structured-kv-output dl{margin:0;padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.structured-kv-output dl>div{min-width:0;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--surface) 78%,var(--surface-soft))}
+.structured-kv-output dt{color:var(--muted);font-size:10px;font-weight:850;letter-spacing:.045em;text-transform:uppercase;overflow-wrap:break-word}
+.structured-kv-output dd{margin:6px 0 0;color:var(--text);font:750 13px/1.55 var(--font-mono);overflow-wrap:anywhere}
 .result-panel .structured-output-notes{
   min-height:0;
   margin:0;
@@ -2193,9 +2197,11 @@ main::before{
 .frontier-purpose{padding:14px 15px;display:grid;gap:5px;border:1px solid color-mix(in srgb,var(--teal) 26%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--teal-soft) 38%,var(--surface))}
 .frontier-purpose strong{color:var(--teal-dark);font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
 .frontier-purpose p{margin:0;color:var(--text);font-size:13px;line-height:1.62}
-.frontier-format{margin-top:8px;padding:9px 11px;display:block;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--surface-soft);font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.frontier-format{margin-top:8px;padding:11px 12px;display:grid;gap:7px;border:1px solid var(--line);border-radius:11px;color:var(--muted);background:var(--surface-soft);font-size:11px;line-height:1.55;overflow-wrap:anywhere}
+.frontier-format-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.frontier-format-head i{padding:4px 7px;border-radius:999px;color:var(--teal-dark);background:var(--teal-soft);font:800 9px/1.2 var(--font-mono);font-style:normal;letter-spacing:.025em}
 .frontier-format b{color:var(--text)}
-.frontier-format code{color:var(--teal-dark);font:700 10px/1.55 var(--font-mono);white-space:normal}
+.frontier-format code{padding-top:7px;border-top:1px solid var(--line);color:var(--teal-dark);font:700 10px/1.55 var(--font-mono);white-space:normal}
 .frontier-workbench .result-header>span{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .frontier-state{padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--surface-soft);font-size:10px;font-weight:800;letter-spacing:0;text-transform:none}
 .frontier-state[data-state="busy"]{color:var(--teal-dark);border-color:color-mix(in srgb,var(--teal) 45%,var(--line));background:var(--teal-soft)}
@@ -2234,6 +2240,8 @@ main::before{
   .frontier-workbench .field-label + .field-label textarea{min-height:140px}
   .frontier-workbench .result-panel>pre{min-height:160px;max-height:440px}
   .frontier-workbench .structured-tool-output table{min-width:460px}
+  .structured-kv-output dl{grid-template-columns:minmax(0,1fr);padding:10px}
+  .frontier-format-head{align-items:flex-start;flex-direction:column}
 }
 
 @media(prefers-reduced-motion:reduce){

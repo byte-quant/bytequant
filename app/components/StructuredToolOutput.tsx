@@ -5,6 +5,12 @@ type MarkdownTable = {
   remainder: string;
 };
 
+type KeyValueOutput = {
+  intro: string;
+  pairs: Array<[string, string]>;
+  remainder: string;
+};
+
 function splitRow(line: string) {
   const value = line.trim().replace(/^\|/, "").replace(/\|$/, "");
   const cells: string[] = [];
@@ -48,11 +54,39 @@ function parseMarkdownTable(output: string): MarkdownTable | null {
   };
 }
 
+function parseKeyValueOutput(output: string): KeyValueOutput | null {
+  const trimmed = output.trim();
+  if (!trimmed || /^[\[{]/u.test(trimmed) || /^(?:BEGIN|END|VERSION|UID|DT|FN|EMAIL|TEL|ORG|PRODID|SUMMARY|LOCATION|DESCRIPTION):/m.test(trimmed)) return null;
+  const source = trimmed.split(/\r?\n/u);
+  const pairs: Array<[string, string]> = [];
+  const remainder: string[] = [];
+  const labelPattern = /^([\p{L}][\p{L}\p{N} ()/%²×'’._-]{1,62}):\s+(.+)$/u;
+  for (const line of source) {
+    const match = labelPattern.exec(line.trim());
+    if (match) pairs.push([match[1], match[2]]);
+    else if (line.trim()) remainder.push(line);
+  }
+  if (pairs.length < 2 || pairs.length < Math.ceil(source.filter((line) => line.trim()).length / 2)) return null;
+  return { intro: "", pairs, remainder: remainder.join("\n").trim() };
+}
+
 export function StructuredToolOutput({ output, empty, compact = false }: { output: string; empty: string; compact?: boolean }) {
   const table = output ? parseMarkdownTable(output) : null;
-  if (!table) {
+  const keyValue = !table && output ? parseKeyValueOutput(output) : null;
+  if (!table && !keyValue) {
     return <pre data-agent-output data-ready={output ? "true" : "false"} className={output ? "has-output" : ""}>{output || empty}</pre>;
   }
+
+  if (keyValue) {
+    return (
+      <div className={`structured-tool-output structured-kv-output${compact ? " compact" : ""}`} data-agent-output data-ready="true">
+        <dl>{keyValue.pairs.map(([label, value], index) => <div key={`${label}-${index}`}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        {keyValue.remainder && <pre className="structured-output-notes">{keyValue.remainder}</pre>}
+      </div>
+    );
+  }
+
+  if (!table) return <pre data-agent-output data-ready="false">{empty}</pre>;
 
   return (
     <div className={`structured-tool-output${compact ? " compact" : ""}`} data-agent-output data-ready="true">

@@ -3,6 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { publicTools, categories } from "../app/lib/tools.ts";
 import { toolAliases } from "../app/lib/tool-aliases.ts";
 import { frontierToolSlugs } from "../app/lib/frontier-tools.ts";
+import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
 
 const locales = ["tr", "en", "de", "zh"];
 const reportUrl = new URL("../docs/TOOL-QUALITY-INVENTORY.md", import.meta.url);
@@ -13,6 +14,7 @@ assert.equal(Object.keys(categories).length, 10, "catalog must contain ten categ
 assert.equal(new Set(publicTools.map((tool) => tool.slug)).size, publicTools.length, "canonical slugs must be unique");
 assert.equal(new Set(publicTools.map((tool) => tool.mark)).size, publicTools.length, "public tool marks must be unique");
 
+const deepRuntimeAudited = new Set([...precisionToolSlugs, ...frontierToolSlugs]);
 const rows = publicTools.map((tool) => {
   assert.match(tool.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/, `${tool.slug}: invalid slug`);
   assert.ok(Object.hasOwn(categories, tool.category), `${tool.slug}: unknown category`);
@@ -27,7 +29,7 @@ const rows = publicTools.map((tool) => {
   }
   return {
     tool,
-    priority: frontierToolSlugs.has(tool.slug) ? "Phase 2 priority" : "Continuous review",
+    priority: deepRuntimeAudited.has(tool.slug) ? "4-locale runtime demo" : "Runtime family + content audit",
   };
 });
 
@@ -41,7 +43,7 @@ const report = `# ByteQuant tool quality inventory
 
 Generated: 2026-08-08
 
-This is an automated catalog and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. Phase 1 verifies discoverability, canonical identity, four-language content presence, HowTo coverage, and catalog uniqueness. Detailed per-tool interaction and edge-case review continues in Phase 2.
+This is an automated catalog, runtime-routing, and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. Phase 1 verified discoverability, canonical identity, four-language content presence, HowTo coverage, and catalog uniqueness. Phase 2 adds an implemented-workbench-family assertion for every canonical tool and four-locale runnable-demo checks for the 88 highest-risk tools (catalog marks 234–321).
 
 ## Inventory scope
 
@@ -51,7 +53,8 @@ This is an automated catalog and content-integrity inventory, not a claim of pro
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |
-| Phase 2 priority tools | ${frontierToolSlugs.size} |
+| Canonical tools mapped to an implemented runtime family | ${publicTools.length} |
+| Deep four-locale runtime-demo tools | ${deepRuntimeAudited.size} |
 
 ## Category distribution
 
@@ -66,10 +69,14 @@ ${categorySummary}
 - at least three localized use cases and exactly three localized HowTo steps;
 - inclusion in the four-locale sitemap and publication-status disclosure (validated after production export);
 - alias separation so legacy URLs do not compete with canonical tool pages.
+- an implemented workbench-family route for every canonical tool, enforced by the test suite;
+- executable, non-placeholder demo output, measurable results, renderable tables, and localized review boundaries for marks 234–321;
+- purpose-specific regression checks for previously reported GraphQL, shift, cookie, terminology, tool-call, and evidence-table tools;
+- localized explanatory output and actionable input-error guidance for the 75 frontier tools.
 
 ## Per-tool register
 
-| Mark | Canonical slug | Category | Locales | HowTo | Review lane |
+| Mark | Canonical slug | Category | Locales | HowTo | Automated review lane |
 | ---: | --- | --- | --- | --- | --- |
 ${table}
 `;
