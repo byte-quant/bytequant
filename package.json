@@ -20,6 +20,7 @@
     "audit:trust": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-publisher-trust.mjs",
     "inventory:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/generate-tool-quality-inventory.mjs",
     "audit:inventory": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/generate-tool-quality-inventory.mjs --check",
+    "audit:release": "node scripts/audit-release-readiness.mjs",
     "audit:licenses": "node scripts/audit-licenses.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"

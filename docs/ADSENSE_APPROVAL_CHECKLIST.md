@@ -18,6 +18,9 @@ This checklist documents readiness; it is not a promise of approval. Google alon
 - [x] No placeholder, “under construction”, scraped article body, paid-ranking claim, or ad-click encouragement is published.
 - [x] Community and third-party-source update surfaces contain no manual ad placement and remain listed for account-level Auto Ads exclusion.
 - [x] Canonical, hreflang, sitemap, robots, JSON-LD, internal links, licenses, accessibility, and static output are release-gated.
+- [x] The final release gate verifies every sitemap URL resolves to an indexable canonical page with `x-default`, a description, and valid JSON-LD.
+- [x] The CI workflow runs content-value, editorial-depth, publisher-trust, tool-inventory, and final release-readiness audits before deployment.
+- [x] Home HTML, referenced JavaScript, and CSS have compressed-size budgets to catch material performance regressions before deployment.
 
 ## Required AdSense account actions — OWNER
 
@@ -28,7 +31,24 @@ This checklist documents readiness; it is not a promise of approval. Google alon
 - [ ] In **Ads → By site → ByteQuant**, exclude Local Agent, Workstation, Community, P2P, and Updates routes from Auto Ads.
 - [ ] Review Auto Ads previews at 320, 375, 768, 1024, and 1440 CSS pixels. Block any placement that covers navigation, inputs, results, notices, or downloads.
 - [ ] Check the Ad Experience Report, accidental-click distance, content-to-ad balance, Core Web Vitals, crawler access, and `/ads.txt` before resubmission.
+- [ ] In Search Console, inspect the live homepage, one representative tool, one guide, and one Publishing Standards page; request indexing only if Google reports the selected canonical correctly.
+- [ ] Record field Core Web Vitals at the 75th percentile. Target LCP at or below 2.5 seconds, INP at or below 200 milliseconds, and CLS at or below 0.1 on both mobile and desktop.
 - [ ] Request review only after every account-side item above is complete.
+
+## Resubmission evidence packet
+
+Prepare this packet before clicking **Request review**. It makes the decision reproducible and prevents a second submission based only on visual impressions.
+
+- The exact rejection reason copied from the AdSense email or Policy center, with the date and the remediation mapped to it.
+- Screenshots showing the live Google-certified consent message in accept, reject, and withdrawal states for an EEA/UK/Switzerland test region.
+- Auto Ads preview screenshots at 320, 375, 768, 1024, and 1440 CSS pixels, plus the account-level exclusions listed below.
+- Live URLs and Search Console inspection results for the homepage, a tool, a guide, and a Publishing Standards page.
+- A live `/ads.txt` response containing the expected seller record and a page-source check showing the expected publisher tag.
+- The successful GitHub Actions run that executed every repository audit, together with the final release-readiness audit output.
+- Field Core Web Vitals evidence when enough traffic exists. Laboratory measurements are useful for diagnosis but do not replace field data.
+- A manual navigation pass confirming that legal/trust pages, contact and corrections, examples, tool limitations, and source links are readable without interacting with an advertisement.
+
+Repository checks establish technical readiness only. They cannot see the AdSense Policy center, consent configuration, Auto Ads preview, Search Console selection, traffic quality, or Google's final review decision.
 
 ## Recommended Auto Ads page exclusions
 
@@ -61,6 +81,8 @@ Also exclude any transient workspace or peer-connection URL shown in the account
 `pnpm audit:trust`
 
 `pnpm audit:inventory`
+
+`pnpm audit:release`
 
 `pnpm audit:licenses`
 

@@ -46,6 +46,16 @@ jobs:
         run: pnpm audit:static
       - name: Audit AdSense policy surfaces
         run: pnpm audit:adsense
+      - name: Audit canonical content value
+        run: pnpm audit:content
+      - name: Audit editorial depth
+        run: pnpm audit:editorial
+      - name: Audit publisher trust
+        run: pnpm audit:trust
+      - name: Audit tool quality inventory
+        run: pnpm audit:inventory
+      - name: Audit final release readiness
+        run: pnpm audit:release
       - name: Upload verified Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:

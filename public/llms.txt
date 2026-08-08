@@ -34,7 +34,7 @@ Languages:
 - Tool input is not intentionally uploaded to ByteQuant application servers.
 - Local storage outside Workstation is limited to a user-selected theme, a consent record, and optional non-sensitive tool-visit counts plus pinned tool IDs used for local personalization.
 - Optional tool-visit counting is off until the user gives explicit consent. Refusing consent does not limit any tool, and consent can be withdrawn at any time from the site footer.
-- ByteQuant uses no analytics SDK. The Google AdSense site tag for publisher ca-pub-4158794981134847 is active; tool input is not sent to advertising systems, ad areas are labelled and separated, and required regional choices must be provided through a Google-certified CMP.
+- ByteQuant uses no analytics SDK. The Google AdSense Auto Ads site tag for publisher ca-pub-4158794981134847 is active; tool input is not sent to advertising systems, ByteQuant publishes no manual or imitation ad boxes, and required regional choices must be provided through a Google-certified CMP.
 - Local Agent 4.2 is an explainable, browser-only semantic search, bounded automation, and workflow planner with follow-up intent detection and contextual replies. It is not a generative LLM and makes no remote model request. Goal framing, plan self-review, plans, up to twenty conversation summaries, spoken responses, and Workstation handoff are bounded to the current tab's sessionStorage.
 - Community uses the open Nostr protocol for optional global publishing through user-configurable public relays. Identity keys are encrypted on-device with a user passphrase; feed reading needs no profile. Profiles, posts, replies, reactions, reposts, source quotes, edit replacements, and signed deletion requests are supported. Relay operators and other clients may retain already-published events, so deletion is a signed request rather than a guaranteed erasure. Saves, blocks, drafts, and private archive content remain local; verified P2P chat is session-only.
 - Updates retain title, date, source, original language, original link, and a short attributed feed description from allowlisted official NASA, NIST, CISA, GOV.UK, NSF, NIH, ESA, NCSC, and NOAA feeds. Article bodies and images are not republished.
@@ -455,6 +455,10 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - Regex quick reference: https://bytequant.org/referanslar/regex-cheat-sheet
 - Cron quick reference: https://bytequant.org/referanslar/cron-cheat-sheet
 - About and editorial principles: https://bytequant.org/hakkimizda
+- Turkish publishing standards: https://bytequant.org/yayin-ilkeleri
+- English publishing standards: https://bytequant.org/en/publishing-standards
+- German publishing standards: https://bytequant.org/de/publishing-standards
+- Simplified Chinese publishing standards: https://bytequant.org/zh/publishing-standards
 - Frequently asked questions: https://bytequant.org/sss
 - Terms of use: https://bytequant.org/kullanim-kosullari
 - Contact and corrections: https://bytequant.org/iletisim
@@ -480,7 +484,7 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 16. CSV and JSON reshaping workflow: https://bytequant.org/en/blog/csv-json-veri-yeniden-sekillendirme-rehberi
 17. Evidence-led research and source freshness: https://bytequant.org/en/blog/kanit-odakli-arastirma-ve-guncellik-rehberi
 
-This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources.
+This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources. Neither this file nor structured data guarantees indexing, citation, ranking, AdSense approval, or inclusion in an AI-generated answer.
 
 ## Attribution and limitations
 

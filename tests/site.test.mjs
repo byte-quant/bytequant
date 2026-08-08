@@ -119,6 +119,12 @@ test("exports the complete four-language site", async () => {
   }
   assert.match(llms, /^# ByteQuant/m);
   assert.equal((llms.match(/^- \[/gm) ?? []).length, 309);
+  for (const standardsUrl of [
+    "https://bytequant.org/yayin-ilkeleri",
+    "https://bytequant.org/en/publishing-standards",
+    "https://bytequant.org/de/publishing-standards",
+    "https://bytequant.org/zh/publishing-standards",
+  ]) assert.match(llms, new RegExp(standardsUrl.replaceAll("/", "\\/")));
   assert.match(home, /Araçlarda anında ara/);
   assert.match(german, /Werkzeuge sofort durchsuchen/);
   assert.match(chinese, /即时搜索工具/);
@@ -1015,6 +1021,7 @@ test("ships the July 26 depth, local-social, and supply-chain quality pass", asy
   assert.match(workflow, /pnpm audit:licenses/);
   assert.match(workflow, /pnpm audit:static/);
   assert.match(workflow, /pnpm audit:adsense/);
+  for (const audit of ["content", "editorial", "trust", "inventory", "release"]) assert.match(workflow, new RegExp(`pnpm audit:${audit}`));
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
   for (const sha of workflow.matchAll(/uses:\s+[^\s]+@([a-f0-9]{40})/g)) assert.equal(sha[1].length, 40);
   const licenseAudit = await readSource("scripts/audit-licenses.mjs");

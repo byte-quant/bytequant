@@ -88,7 +88,7 @@ Recommended GitHub About description: `Privacy-first browser workbench with 309 
 
 Recommended topics: `privacy-tools`, `browser-tools`, `nextjs`, `typescript`, `pwa`, `local-first`, `web-crypto`, `developer-tools`, `workflow-automation`, `i18n`, `static-site`, `open-source`.
 
-The build badge above maps directly to the pinned, least-privilege Pages workflow in `.github/workflows/deploy.yml`. A passing badge means lint, license audit, production build, application tests, static-output audit, and AdSense-surface audit all completed before deployment.
+The build badge above maps directly to the pinned, least-privilege Pages workflow in `.github/workflows/deploy.yml`. A passing badge means lint, license audit, production build, application tests, static-output, AdSense, canonical-content, editorial-depth, publisher-trust, tool-inventory, and final release-readiness audits all completed before deployment.
 
 ## Local development
 
@@ -115,6 +115,7 @@ pnpm audit:content
 pnpm audit:editorial
 pnpm audit:trust
 pnpm audit:inventory
+pnpm audit:release
 pnpm build:sites
 ~~~
 
