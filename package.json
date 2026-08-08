@@ -24,6 +24,8 @@
     "audit:stage1": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-adsense-stage-one.mjs",
     "stage2:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-adsense-stage-two.mjs --write",
     "audit:stage2": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-adsense-stage-two.mjs",
+    "stage3:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-adsense-stage-three.mjs --write",
+    "audit:stage3": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-adsense-stage-three.mjs",
     "audit:release": "node scripts/audit-release-readiness.mjs",
     "audit:licenses": "node scripts/audit-licenses.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",

@@ -1,7 +1,7 @@
 # ByteQuant functional tool audit
 
-Audit date: 2026-08-08
-Scope: AdSense remediation programme, Stage 2
+Audit date: 2026-08-09
+Scope: AdSense remediation programme, Stage 3
 
 This report records automated evidence and targeted regression work. It is not a professional certification, a security guarantee, or a claim that every possible real-world input has been tested.
 
@@ -38,12 +38,21 @@ One concrete defect was found and corrected during this audit: the tool-call JSO
 - Error state is connected to the input with `aria-invalid` and `aria-errormessage`.
 - Mobile layouts collapse result cards to one column and retain scroll access for genuinely wide tables.
 
-## Stage 3 — applied editorial depth
+## Stage 2 — applied editorial depth
 
 - All 309 canonical tool pages now expose a tool-specific acceptance path, a successful-use definition, and a fourth FAQ answer tied to that tool's own scenario and steps.
 - Every tool category has at least one directly relevant TR/EN guide and one editorially localized DE/ZH guide. Tools without a one-to-one article receive a category-relevant guide path instead of an unrelated or empty panel.
 - All 96 TR/EN guides and all 68 DE/ZH localized guides now include a visible, related-tool verification worksheet: preparation, action, acceptance check, expected output, stop conditions, and a privacy-safe audit record.
 - `pnpm run audit:editorial` verifies unique four-language tool copy, minimum article structure, valid tool references, guide coverage, visible worksheets, and matching FAQ/HowTo structured data in the static export.
+
+## Stage 3 — guided input and runtime usability
+
+- All 309 canonical tools now carry a verifiable Stage 3 workbench contract across 1,236 localized pages, including a visible example action, localized input profile, processing state, recovery path, and on-device privacy confirmation.
+- Twenty configuration-heavy tools now expose labeled guided fields instead of requiring users to understand raw `key=value` syntax. The original text contract remains available for advanced use and Local Agent handoff.
+- Twelve row-oriented tools now expose responsive row editors with localized column labels, add/remove controls, and a raw-data view for bulk editing.
+- The 75 frontier processors are executed against their demonstrations in all four locales (300 runtime checks). Error paths must produce actionable localized feedback instead of silent failure.
+- Generic and frontier workbenches expose consistent busy, success, and error states; output controls cannot be triggered while processing; input errors are connected through `aria-invalid` and `aria-errormessage`.
+- `pnpm run audit:stage3` verifies the protected AdSense integration, guided-input coverage, responsive controls, localized runtime execution, and the static export contract.
 
 ## What continues after Stage 3
 
