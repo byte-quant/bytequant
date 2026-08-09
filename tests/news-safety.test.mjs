@@ -26,6 +26,7 @@ test("checked-in news stays finite, diverse, chronological, and spam resistant",
     assert.ok(item.sourceSummary.split(/\s+/).length <= 24);
     assert.doesNotMatch(`${item.title} ${item.sourceSummary}`, spam);
     assert.doesNotMatch(item.sourceSummary, /https?:\/\//i);
+    if (item.summaryOrigin === "feed") assert.doesNotMatch(item.sourceSummary, /today[’']?s\s+apod|archive\s+submissions\s+index\s+search\s+calendar\s+rss|skip\s+to\s+main\s+content/i);
     assert.ok(Date.parse(item.date) <= Date.now() + 36 * 60 * 60 * 1000);
     if (index > 0) assert.ok(newsItems[index - 1].date.localeCompare(item.date) >= 0);
   }

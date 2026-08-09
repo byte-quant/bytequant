@@ -1,18 +1,366 @@
 export type NewsItem = { id: string; title: string; url: string; date: string; source: "NASA" | "NIST" | "CISA" | "GOV.UK" | "NSF" | "NIH" | "ESA" | "NCSC" | "NOAA"; category: "science" | "technology" | "security" | "standards"; region: "global" | "uk"; sourceLanguage: "en"; sourceSummary: string; summaryOrigin: "feed" | "metadata" };
 
 // Generated at build time from official, allowlisted RSS endpoints. Feed descriptions are attribution-linked and intentionally limited to a short excerpt.
-export const newsGeneratedAt = "2026-07-28T20:34:19.380Z";
+export const newsGeneratedAt = "2026-08-09T00:32:21.607Z";
 export const newsItems: NewsItem[] = [
   {
-    "id": "nasa-p1c61s",
-    "title": "Smoke Blankets Oregon",
-    "url": "https://science.nasa.gov/earth/natural-disasters/wildfires/smoke-blankets-oregon/",
-    "date": "2026-07-28",
+    "id": "nasa-iiqr5e",
+    "title": "APOD: 2026 August 8 – A Messier Moment for Tempel 2",
+    "url": "https://science.nasa.gov/image-article/apod/apod-2026-august-8-a-messier-moment-for-tempel-2/",
+    "date": "2026-08-08",
     "source": "NASA",
     "category": "science",
     "region": "global",
     "sourceLanguage": "en",
-    "sourceSummary": "Lightning storms have ignited dozens of fires in central and eastern Oregon.",
+    "sourceSummary": "NASA published this official science update under the headline “APOD: 2026 August 8 – A Messier Moment for Tempel 2”. Open the source for…",
+    "summaryOrigin": "metadata"
+  },
+  {
+    "id": "noaa-michee",
+    "title": "NOAA to hold public meetings on California Coastal Management Program",
+    "url": "https://oceanservice.noaa.gov/news/aug26/czma-public-meetings.html",
+    "date": "2026-08-08",
+    "source": "NOAA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Public invited to provide input on the state’s coastal management program and performance evaluation",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-6uvvox",
+    "title": "2026 IGARSS Hyperwall Schedule",
+    "url": "https://science.nasa.gov/earth/2026-igarss-hyperwall-schedule/",
+    "date": "2026-08-07",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "IGARSS 2026 Join NASA in the Exhibit Hall (Booth #100) for Hyperwall Storytelling by NASA experts. Full Hyperwall Agenda below. MONDAY, AUGUST 10 3:00…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-1hqizfc",
+    "title": "NASA’s IXPE Studies Magnetar",
+    "url": "https://www.nasa.gov/image-article/nasas-ixpe-studies-magnetar/",
+    "date": "2026-08-07",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Scientists using NASA’s IXPE (Imaging X-ray Polarimetry Explorer) conducted more than 140 hours of observations of the magnetar 1E 1547-5408, shown in this Aug.…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-104eio1",
+    "title": "NASA’s Lunar Development and Test Facility Prepares Artemis Hardware for Moon",
+    "url": "https://www.nasa.gov/centers-and-facilities/johnson/nasas-lunar-development-and-test-facility-prepares-artemis-hardware-for-moon/",
+    "date": "2026-08-07",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Before astronauts return to the Moon’s surface through NASA’s Artemis program, the hardware they depend on must first prove it can survive the unforgiving…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-16nfsi3",
+    "title": "APOD: 2026 August 7 – Rubin’s Cosmos Field",
+    "url": "https://science.nasa.gov/image-article/apod/apod-2026-august-6-rubins-cosmos-field/",
+    "date": "2026-08-07",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "NASA published this official science update under the headline “APOD: 2026 August 7 – Rubin’s Cosmos Field”. Open the source for full context.",
+    "summaryOrigin": "metadata"
+  },
+  {
+    "id": "nasa-ly3ewr",
+    "title": "Sensing the Poles’ Hidden Heat",
+    "url": "https://science.nasa.gov/earth/earth-observatory/sensing-the-poles-hidden-heat/",
+    "date": "2026-08-07",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "New animations from NASA’s PREFIRE mission reveal two years of seasonal temperature swings at the Arctic and Antarctic.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nsf-4yx1e4",
+    "title": "Podcast: New telescope to transform study of universe",
+    "url": "https://www.nsf.gov/news/podcast-new-telescope-transform-study-universe",
+    "date": "2026-08-07",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "As the 10-year Legacy Survey of Space and Time officially starts, Edward Ajhar discusses the NSF-DOE Vera C. Rubin Observatory and how it will…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-qrq62u",
+    "title": "Join us live and enjoy the total solar eclipse!",
+    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/08/Join_us_live_and_enjoy_the_total_solar_eclipse",
+    "date": "2026-08-07",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Video: 00:01:44 [English] On 12 August 2026, Europe will witness one of nature’s most spectacular events: a total solar eclipse starting at 19:30 CEST.…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-e329a7",
+    "title": "Week in images: 03-07 August 2026",
+    "url": "https://www.esa.int/About_Us/Week_in_images/Week_in_images_03-07_August_2026",
+    "date": "2026-08-07",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Week in images: 03-07 August 2026 Discover our week through the lens",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-1usjh4l",
+    "title": "Danube’s waters fall to record lows",
+    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/08/Danube_s_waters_fall_to_record_lows",
+    "date": "2026-08-07",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Image: These Copernicus Sentinel-2 images over the Danube north of Budapest show how the river’s level has fallen to a record low in Hungary…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-nz1hx7",
+    "title": "IRIS² reinforced and accelerated as implementation advances",
+    "url": "https://www.esa.int/Applications/Connectivity_and_Secure_Communications/IRIS2_reinforced_and_accelerated_as_implementation_advances",
+    "date": "2026-08-07",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "On 7 August, the European Commission and the SpaceRISE consortium concluded negotiations and signed an implementation agreement to roll out IRIS² , the European…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nist-3bn656",
+    "title": "NIST Researchers Correct Common Error Confounding Nanotech Measurements",
+    "url": "https://www.nist.gov/news-events/news/2026/08/nist-researchers-correct-common-error-confounding-nanotech-measurements",
+    "date": "2026-08-06",
+    "source": "NIST",
+    "category": "standards",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The scientists offer a practical solution that relies on accounting for measurement errors before testing materials or developing products.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-1sf0hxd",
+    "title": "Educators & Teens Get Hands-On With TEMPO Data to Help Investigate Local Air Quality",
+    "url": "https://science.nasa.gov/learning-resources/science-activation/educators-teens-get-hands-on-with-tempo-data-to-help-investigate-local-air-quality/",
+    "date": "2026-08-06",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The NASA Science Activation Program’s Cosmic Storytelling with NASA Data (CosmicDS) project, led by Harvard University in Cambridge, Massachusetts, works to bring authentic NASA…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-1nd06u7",
+    "title": "NASA’s SkyFall Helicopters at Work (Artist’s Concept)",
+    "url": "https://science.nasa.gov/photojournal/nasas-skyfall-helicopters-at-work-artists-concept/",
+    "date": "2026-08-06",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Description This artist’s concept depicts NASA’s three SkyFall Mars helicopters collecting data while flying over the surface of the Red Planet. The green frequency…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-156ywek",
+    "title": "Antenna Testing for NASA’s SkyFall Mission",
+    "url": "https://science.nasa.gov/photojournal/antenna-testing-for-nasas-skyfall-mission/",
+    "date": "2026-08-06",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Description SkyFall ground-penetrating radar engineer Maya Román connects a coaxial cable to a test antenna in the Environmental Test Lab’s electromagnetic interference testing chamber…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-18lu9mi",
+    "title": "I Am Artemis: Tom Percy",
+    "url": "https://www.nasa.gov/missions/artemis/i-am-artemis/i-am-artemis-tom-percy/",
+    "date": "2026-08-06",
+    "source": "NASA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "As NASA sets its sights on long-term exploration of the Moon and Mars, the agency is increasing the cadence of its Artemis missions. Helping…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-1msaby4",
+    "title": "ExoMars stretches out its legs",
+    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/08/ExoMars_stretches_out_its_legs",
+    "date": "2026-08-06",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Video: 00:00:06 The footage shows the simultaneous deployment of two landing legs from the ExoMars landing platform, in two sequential pairs. The legs travel…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-g2f20p",
+    "title": "Webb opens a Treasure Chest filled with stars",
+    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/08/Webb_opens_a_Treasure_Chest_filled_with_stars",
+    "date": "2026-08-06",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "Image: This NASA/ESA/CSA James Webb Space Telescope Picture of the Month takes us to a fantastical realm within our home galaxy , where piercing…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nist-9ai57k",
+    "title": "‘Spooky’ Particles Transit DC Suburbs, a Step Toward a Quantum Network",
+    "url": "https://www.nist.gov/news-events/news/2026/08/spooky-particles-transit-dc-suburbs-step-toward-quantum-network",
+    "date": "2026-08-05",
+    "source": "NIST",
+    "category": "standards",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The achievement shows that fragile quantum entanglement can survive even in tough, real-world conditions.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-kta2py",
+    "title": "Total solar eclipse: how to watch live from home",
+    "url": "https://www.esa.int/Science_Exploration/Space_Science/Total_solar_eclipse_how_to_watch_live_from_home",
+    "date": "2026-08-05",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "A total solar eclipse is coming to Europe. The European Space Agency (ESA) will broadcast live from 19:30 CEST on 12 August, allowing you…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "esa-r3ae6q",
+    "title": "Your chance to run software in deep space on ESA's asteroid mission",
+    "url": "https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Your_chance_to_run_software_in_deep_space_on_ESA_s_asteroid_mission",
+    "date": "2026-08-05",
+    "source": "ESA",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The European Space Agency is offering European researchers and companies a rare and exciting opportunity to run their innovative software directly in deep space…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nist-18jr3vy",
+    "title": "NIST Joins National Genesis Mission to Accelerate AI Innovation",
+    "url": "https://www.nist.gov/news-events/news/2026/08/nist-joins-national-genesis-mission-accelerate-ai-innovation",
+    "date": "2026-08-04",
+    "source": "NIST",
+    "category": "standards",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "NIST will execute two of its efforts through its Centers for AI in Manufacturing and Critical Infrastructure.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nsf-1aohd17",
+    "title": "New NSF State and Regional AI Infrastructure Hubs will power AI-enabled scientific research across the country",
+    "url": "https://www.nsf.gov/news/new-nsf-state-regional-ai-infrastructure-hubs-will-power-ai",
+    "date": "2026-08-04",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "New initiative will accelerate AI-enabled scientific discovery by expanding access to compute for researchers, students and educators through regional partnerships among state and local…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-vlazfq",
+    "title": "NCSC statement in response to recent incidents resulting from frontier AI evaluations",
+    "url": "https://www.ncsc.gov.uk/news/ncsc-statement-in-response-to-recent-incidents-resulting-from-frontier-ai-evaluations",
+    "date": "2026-08-04",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "A statement from Ollie Whitehouse, Chief Technology Officer at the NCSC, on AI security following recent incidents.",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-1eenvhb",
+    "title": "NASA Delivers Navigation System for Commercial Lunar Relay",
+    "url": "https://www.nasa.gov/technology/space-comms/nasa-delivers-navigation-system-for-commercial-lunar-relay/",
+    "date": "2026-08-03",
+    "source": "NASA",
+    "category": "technology",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "NASA delivered the NavCube3-mini payload on July 13 to Intuitive Machines for integration into Altus-1, the company’s first lunar relay satellite, marking an important…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nsf-be95t0",
+    "title": "NSF stands up 2 Materials Innovation Platforms with $50M investment",
+    "url": "https://www.nsf.gov/news/nsf-stands-2-materials-innovation-platforms-50m-investment",
+    "date": "2026-08-03",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation is investing $50 million in research infrastructure to enable the discovery and development of materials that can withstand extreme…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nsf-1poo2n9",
+    "title": "Building the future, atom by atom — NSF deploys $108M for materials science at 6 research centers",
+    "url": "https://www.nsf.gov/news/building-future-atom-atom-nsf-deploys-108m-materials-science",
+    "date": "2026-07-30",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation is pushing materials science beyond the state-of-the-art with an investment of $108 million in six advanced research centers. The…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nasa-1xseic1",
+    "title": "NASA’s Curiosity Mars Rover Discovers Field of Honeycomb Textures",
+    "url": "https://www.nasa.gov/missions/mars-science-laboratory/curiosity-rover/nasas-curiosity-mars-rover-discovers-field-of-honeycomb-textures/",
+    "date": "2026-07-29",
+    "source": "NASA",
+    "category": "technology",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "As NASA’s Curiosity rover recently began climbing up a Martian valley nicknamed “Valle Grande,” it sent back images that were a familiar sight to…",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "nsf-1tzy9r3",
+    "title": "NSF partners with universities and industry on pilot initiative for four-year Ph.D. programs with real-world research placements",
+    "url": "https://www.nsf.gov/news/nsf-partners-universities-industry-pilot-initiative-four",
+    "date": "2026-07-29",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
+    "sourceLanguage": "en",
+    "sourceSummary": "The U.S. National Science Foundation announced a $47 million investment over ﬁve years, along with additional ﬁnancial commitments from nearly three dozen universities and…",
     "summaryOrigin": "feed"
   },
   {
@@ -40,102 +388,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "esa-xou3m5",
-    "title": "How Sentinel-1 measured movement of Venezuela quakes",
-    "url": "https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1/How_Sentinel-1_measured_movement_of_Venezuela_quakes",
-    "date": "2026-07-28",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "More than one month on from the catastrophic twin earthquakes in northern Venezuela on 24 June 2026, satellite data show the ground displacement was…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-ymmvn1",
-    "title": "Vertical liftoff as Ariane 6 takes flight for the first time",
-    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/07/Vertical_liftoff_as_Ariane_6_takes_flight_for_the_first_time",
-    "date": "2026-07-28",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Image: Vertical liftoff as Ariane 6 takes flight for the first time",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-18ayluk",
-    "title": "NASA Astronaut Chris Williams to Discuss Space Station Mission",
-    "url": "https://www.nasa.gov/news-release/nasa-astronaut-chris-williams-to-discuss-space-station-mission/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "NASA astronaut Chris Williams will recap his recent eight-month mission aboard the International Space Station during a news conference at 2:45 p.m. EDT Tuesday,…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1lw3zoh",
-    "title": "NASA Science Soars During August Total Solar Eclipse",
-    "url": "https://science.nasa.gov/science-research/heliophysics/nasa-science-soars-during-august-total-solar-eclipse/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Each time the Moon covers the Sun during a total solar eclipse — darkening daytime skies and briefly revealing the Sun’s ethereal outer atmosphere,…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-9yogsg",
-    "title": "NASA Astronaut Chris Williams Returns to Earth",
-    "url": "https://www.nasa.gov/image-article/nasa-astronaut-chris-williams-returns-to-earth/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "NASA astronaut Chris Williams is all smiles in this July 26, 2026, photo taken shortly after he landed with Expedition 74 Roscosmos cosmonauts Sergey…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1y6b4i4",
-    "title": "NASA’s Swift Sees ‘Wandering’ Mega Black Hole Shredding Star",
-    "url": "https://science.nasa.gov/missions/swift/nasas-swift-sees-wandering-mega-black-hole-shredding-star/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "NASA’s Neil Gehrels Swift Observatory captured an “orphan” black hole lighting up as it devoured a star on the outskirts of a faraway galaxy.…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1lpbuhh",
-    "title": "NASA to Cover Three US Spacewalks, Host Preview News Conference",
-    "url": "https://www.nasa.gov/news-release/nasa-to-cover-three-us-spacewalks-host-preview-news-conference/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Editor’s note: This media advisory was updated July 27, 2026 to reflect an updated start time for the spacewalk on Thursday, Aug. 6. NASA…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1ye9hls",
-    "title": "NASA’s Hubble Shows Star Formation in Andromeda Galaxy Winding Down",
-    "url": "https://science.nasa.gov/missions/hubble/nasas-hubble-shows-star-formation-in-andromeda-galaxy-winding-down/",
-    "date": "2026-07-27",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "NASA’s Hubble finds that star formation in the Andromeda galaxy has undergone a 500-million-year decline.",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "gov-uk-140eqmj",
     "title": "Developing drone technology for future warfare",
     "url": "https://www.gov.uk/government/case-studies/developing-drone-technology-for-future-warfare",
@@ -160,66 +412,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "esa-p5tfsz",
-    "title": "Raging wildfires near Madrid, Spain",
-    "url": "https://www.esa.int/ESA_Multimedia/Images/2026/07/Raging_wildfires_near_Madrid_Spain",
-    "date": "2026-07-27",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Image: Raging wildfires near Madrid, Spain",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-nzgiqe",
-    "title": "Meet space startups at ESA’s Industry Space Days",
-    "url": "https://www.esa.int/About_Us/Business_with_ESA/Meet_space_startups_at_ESA_s_Industry_Space_Days",
-    "date": "2026-07-27",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Startup companies which have come up with brilliant ideas for using space will join the European Space Agency’s (ESA) Industry Space Days (ISD) event…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-519d5g",
-    "title": "NASA Astronaut Chris Williams, Crewmates Return from Space Station",
-    "url": "https://www.nasa.gov/news-release/nasa-astronaut-chris-williams-crewmates-return-from-space-station/",
-    "date": "2026-07-26",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Concluding an eight-month science mission aboard the International Space Station, NASA astronaut Chris Williams returned to Earth on Sunday alongside Roscosmos cosmonauts Sergey Kud-Sverchkov…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1l8pc5u",
-    "title": "NASA’s ESCAPADE Snaps Family Portrait of Earth, Moon",
-    "url": "https://science.nasa.gov/image-article/centers-and-facilities/goddard/nasas-escapade-snaps-family-portrait-of-earth-moon/",
-    "date": "2026-07-24",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "On July 3, one of NASA’s two Mars-destined ESCAPADE (Escape and Plasma Acceleration and Dynamics Explorers) spacecraft captured photos of Earth and the Moon…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1nf052z",
-    "title": "New Crew Members Welcomed to International Space Station",
-    "url": "https://www.nasa.gov/image-article/new-crew-members-welcomed-to-international-space-station/",
-    "date": "2026-07-24",
-    "source": "NASA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "From left, Expedition 74 flight engineers Anna Kikina and Pyotr Dubrov of Roscosmos, and Anil Menon of NASA pose for a July 18, 2026,…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nasa-1b60hfw",
     "title": "NASA Announces New Spacecraft Technology Demonstration Mission at Moon",
     "url": "https://www.nasa.gov/directorates/rtmd/nasa-announces-new-spacecraft-technology-demonstration-mission-at-moon/",
@@ -241,42 +433,6 @@ export const newsItems: NewsItem[] = [
     "region": "uk",
     "sourceLanguage": "en",
     "sourceSummary": "For the first time, AI will be positioned at the very centre of government, thanks to the launch of the PM’s new AI Taskforce…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-1j8899q",
-    "title": "Why total solar eclipses are so special",
-    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/07/Why_total_solar_eclipses_are_so_special",
-    "date": "2026-07-24",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Video: 00:07:07 More than 2500 years ago, a total solar eclipse is said to have ended a war between the Lydians and the Medes.…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-w3ihfg",
-    "title": "Two new Galileo satellites enter service",
-    "url": "https://www.esa.int/Applications/Satellite_navigation/Two_new_Galileo_satellites_enter_service",
-    "date": "2026-07-24",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Two new satellites have now officially joined Europe’s Galileo satellite navigation constellation, strengthening its capabilities, resilience and autonomy. Four Galileo First Generation satellites remain…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-1fw6z6n",
-    "title": "Watch the total solar eclipse with ESA in León",
-    "url": "https://www.esa.int/Science_Exploration/Space_Science/Watch_the_total_solar_eclipse_with_ESA_in_Leon",
-    "date": "2026-07-23",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Discover the science behind one of nature's most extraordinary phenomena and experience a total solar eclipse with the European Space Agency (ESA), the City…",
     "summaryOrigin": "feed"
   },
   {
@@ -328,15 +484,15 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "gov-uk-1lr9ig5",
-    "title": "£708 million to accelerate UK next-generation air combat technology",
-    "url": "https://www.gov.uk/government/news/708-million-to-accelerate-uk-next-generation-air-combat-technology",
+    "id": "nsf-147qwfm",
+    "title": "New NSF initiative aims to unlock dataset value for AI-enabled scientific discovery",
+    "url": "https://www.nsf.gov/news/new-nsf-initiative-aims-unlock-dataset-value-ai-enabled",
     "date": "2026-07-22",
-    "source": "GOV.UK",
-    "category": "technology",
-    "region": "uk",
+    "source": "NSF",
+    "category": "science",
+    "region": "global",
     "sourceLanguage": "en",
-    "sourceSummary": "Thousands of British workers will accelerate development of advanced technologies for use by the Royal Air Force, following a £708 million investment announced today.",
+    "sourceSummary": "The U.S. National Science Foundation announced the NSF Unlocking Dataset Value for AI-Enabled Scientific Discovery program, a new investment to advance scientific community datasets…",
     "summaryOrigin": "feed"
   },
   {
@@ -364,42 +520,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nsf-147qwfm",
-    "title": "New NSF initiative aims to unlock dataset value for AI-enabled scientific discovery",
-    "url": "https://www.nsf.gov/news/new-nsf-initiative-aims-unlock-dataset-value-ai-enabled",
-    "date": "2026-07-22",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The U.S. National Science Foundation announced the NSF Unlocking Dataset Value for AI-Enabled Scientific Discovery program, a new investment to advance scientific community datasets…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-1834srb",
-    "title": "Coilable Stacked Solar Sails for Very High delta-V Missions",
-    "url": "https://www.nasa.gov/directorates/stmd/niac/niac-studies/coilable-stacked-solar-sails-for-very-high-delta-v-missions/",
-    "date": "2026-07-21",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Artur Davoyan University of California, Los Angeles The goal of the proposed program is to enable the next generation of solar sails featuring very…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nasa-7a76r5",
-    "title": "A New Compact Instrument Enables High-Fidelity Measurements of Energetic Particles on CubeSats",
-    "url": "https://science.nasa.gov/science-research/science-enabling-technology/technology-highlights/a-new-compact-instrument-enables-high-fidelity-measurements-of-energetic-particles-on-cubesats/",
-    "date": "2026-07-21",
-    "source": "NASA",
-    "category": "technology",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "A team of NASA-sponsored scientists and engineers has developed a novel approach to observing high-energy particles in the near-Earth space environment, incorporating miniaturized sensors…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nsf-11m8cn3",
     "title": "Podcast: New treatment to fight deadliest cancer",
     "url": "https://www.nsf.gov/news/podcast-new-treatment-fight-deadliest-cancer",
@@ -409,18 +529,6 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "U.S. National Science Foundation-supported professor Neil Forbes discusses how the bacteria salmonella can be modified for treatment against some of the deadliest cancers...",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "esa-1idbbyv",
-    "title": "Artemis II crew at ESTEC",
-    "url": "https://www.esa.int/ESA_Multimedia/Videos/2026/07/Artemis_II_crew_at_ESTEC",
-    "date": "2026-07-20",
-    "source": "ESA",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Video: 00:19:14 The four Artemis II astronauts visited ESTEC, ESA’s technical centre in the Netherlands, on 13 July as the first stop in a…",
     "summaryOrigin": "feed"
   },
   {
@@ -468,8 +576,8 @@ export const newsItems: NewsItem[] = [
     "category": "science",
     "region": "global",
     "sourceLanguage": "en",
-    "sourceSummary": "How Removing Lost Crab Traps Is Helping Map the Chesapeake Bay",
-    "summaryOrigin": "feed"
+    "sourceSummary": "NOAA published this official science update under the headline “How Removing Lost Crab Traps Is Helping Map the Chesapeake Bay”. Open the source for…",
+    "summaryOrigin": "metadata"
   },
   {
     "id": "ncsc-1dfjuxd",
@@ -508,18 +616,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nsf-9mnjp7",
-    "title": "Podcast: The fight against high blood pressure [hypertension]",
-    "url": "https://www.nsf.gov/news/podcast-fight-against-high-blood-pressure-hypertension",
-    "date": "2026-07-07",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "U.S. National Science Foundation-supported professor Tao Zhou discusses the development of a new 3D-printed hydrogel-based bioelectronic device for hypertension treatment...",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "noaa-qufz44",
     "title": "Transforming Chesapeake Bay Water Forecasting",
     "url": "https://oceanservice.noaa.gov/news/july26/transforming-chesapeake.html",
@@ -544,30 +640,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nsf-11h5wpk",
-    "title": "NSF Discovering Our Universe' gallery to open July 1",
-    "url": "https://www.nsf.gov/news/nsf-discovering-our-universe-gallery-open-july-1",
-    "date": "2026-07-01",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The new \"U.S. National Science Foundation Discovering Our Universe\" gallery is opening to the public July 1 at the Smithsonian's National Air and Space…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nsf-1stt2ne",
-    "title": "Action! NSF-DOE Vera C. Rubin Observatory begins capturing the greatest cosmic movie ever made",
-    "url": "https://www.nsf.gov/news/action-nsf-doe-vera-c-rubin-observatory-begins-capturing",
-    "date": "2026-06-30",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "The wait is over: NSF–DOE Rubin Observatory, funded by the U.S. National Science Foundation and the U.S. Department of Energy&#039;s (DOE) Office of Science…",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "nist-rgo50e",
     "title": "NIST Launches Center to Drive the Manufacture of Quantum Technologies",
     "url": "https://www.nist.gov/news-events/news/2026/06/nist-launches-center-drive-manufacture-quantum-technologies",
@@ -577,30 +649,6 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "NIST has announced an agreement with SRI International to establish the Quantum Manufacturing Engineering Center (QMEC).",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nsf-1noulz2",
-    "title": "Podcast: The future of quantum cryptography",
-    "url": "https://www.nsf.gov/news/podcast-future-quantum-cryptography",
-    "date": "2026-06-29",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Secure information is essential in the digital exchanges of modern life. NSF-supported professor Vinod Vaikuntanathan discusses quantum cryptography and the future of encryption...",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nsf-17ch6lb",
-    "title": "Podcast: Brain-computer interface controls exoskeleton",
-    "url": "https://www.nsf.gov/news/podcast-brain-computer-interface-controls-exoskeleton",
-    "date": "2026-06-26",
-    "source": "NSF",
-    "category": "science",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Payam Heydari discusses a breakthrough brain-computer interface that controls a robotic exoskeleton, technology that could transform the lives of people living with spinal cord…",
     "summaryOrigin": "feed"
   },
   {
@@ -736,18 +784,6 @@ export const newsItems: NewsItem[] = [
     "summaryOrigin": "feed"
   },
   {
-    "id": "nist-172v4l1",
-    "title": "Shooting for the Moon: Ultrastable Lasers in Dark Craters Could Enable Lunar Navigation, Precision Timekeeping, New Science",
-    "url": "https://www.nist.gov/news-events/news/2026/05/shooting-moon-ultrastable-lasers-dark-craters-could-enable-lunar-navigation",
-    "date": "2026-05-18",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "Lunar craters in permanent shadow could be ideal locations for building the most stable optical lasers ever made.",
-    "summaryOrigin": "feed"
-  },
-  {
     "id": "noaa-21v7if",
     "title": "El Niño and high tide flooding, a possible double whammy for some coastal communities in 2026",
     "url": "https://oceanservice.noaa.gov/news/may26/el-nino-flooding.html",
@@ -757,18 +793,6 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "The predicted El Niño could mean more high tide flooding for many locations.",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "nist-1wwu3sn",
-    "title": "Wear and Tear Changes Measurable PFAS Levels in Firefighter Hoods, Gloves and Wildland Gear",
-    "url": "https://www.nist.gov/news-events/news/2026/05/wear-and-tear-changes-measurable-pfas-levels-firefighter-hoods-gloves-and",
-    "date": "2026-05-13",
-    "source": "NIST",
-    "category": "standards",
-    "region": "global",
-    "sourceLanguage": "en",
-    "sourceSummary": "In the fourth of an ongoing series of reports, NIST shows that wear and tear increased the levels of PFAS found in hoods and…",
     "summaryOrigin": "feed"
   },
   {
@@ -793,6 +817,18 @@ export const newsItems: NewsItem[] = [
     "region": "global",
     "sourceLanguage": "en",
     "sourceSummary": "Marine sectors show increases in jobs and wages",
+    "summaryOrigin": "feed"
+  },
+  {
+    "id": "ncsc-mc5szq",
+    "title": "Executive Summary: Defending against China-nexus covert networks of compromised devices",
+    "url": "https://www.ncsc.gov.uk/news/executive-summary-defending-against-china-nexus-covert-networks-of-compromised-devices",
+    "date": "2026-04-23",
+    "source": "NCSC",
+    "category": "security",
+    "region": "uk",
+    "sourceLanguage": "en",
+    "sourceSummary": "Organisations should map and baseline their edge device traffic, especially VPN and remote access connections, and adopt dynamic threat feed filtering that includes known…",
     "summaryOrigin": "feed"
   },
   {
@@ -829,42 +865,6 @@ export const newsItems: NewsItem[] = [
     "region": "uk",
     "sourceLanguage": "en",
     "sourceSummary": "New advisory highlights how to defend against attacker tactics believed to be used by China-linked actors to hide malicious cyber activity.",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "ncsc-mc5szq",
-    "title": "Executive Summary: Defending against China-nexus covert networks of compromised devices",
-    "url": "https://www.ncsc.gov.uk/news/executive-summary-defending-against-china-nexus-covert-networks-of-compromised-devices",
-    "date": "2026-04-23",
-    "source": "NCSC",
-    "category": "security",
-    "region": "uk",
-    "sourceLanguage": "en",
-    "sourceSummary": "Organisations should map and baseline their edge device traffic, especially VPN and remote access connections, and adopt dynamic threat feed filtering that includes known…",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "ncsc-1o4x745",
-    "title": "World-first NCSC-engineered device secures vulnerable display links",
-    "url": "https://www.ncsc.gov.uk/news/world-first-ncsc-engineered-device-secures-vulnerable-display-links",
-    "date": "2026-04-22",
-    "source": "NCSC",
-    "category": "security",
-    "region": "uk",
-    "sourceLanguage": "en",
-    "sourceSummary": "SilentGlass, a plug-and-play device, actively blocks any unexpected or malicious HDMI and Display Port connections.",
-    "summaryOrigin": "feed"
-  },
-  {
-    "id": "ncsc-7g15h7",
-    "title": "Cyber chief: UK faces \"perfect storm\" for cyber security",
-    "url": "https://www.ncsc.gov.uk/news/cyber-chief-uk-faces-perfect-storm-for-cyber-security",
-    "date": "2026-04-21",
-    "source": "NCSC",
-    "category": "security",
-    "region": "uk",
-    "sourceLanguage": "en",
-    "sourceSummary": "As the technology landscape develops, the definition of cyber security is expanding with it.",
     "summaryOrigin": "feed"
   }
 ];

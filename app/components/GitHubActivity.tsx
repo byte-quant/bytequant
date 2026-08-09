@@ -5,7 +5,7 @@ const copy = {
   tr: {
     eyebrow: "Doğrulanabilir proje sağlığı",
     title: "Her ana dal güncellemesi derlenir ve test edilir",
-    snapshot: "Son doğrulama: 2 Ağustos 2026",
+    snapshot: "Doğrulama: her ana dal güncellemesinde",
     through: "kanıtlar GitHub'da açık",
     items: ["Kilitli bağımlılıklarla yeniden üretilebilir kurulum", "Üretim derlemesi ve otomatik testler", "Başarılı kontrolden sonra statik dağıtım"],
     workflow: "CI iş akışını incele",
@@ -15,7 +15,7 @@ const copy = {
   en: {
     eyebrow: "Verifiable project health",
     title: "Every main-branch update is built and tested",
-    snapshot: "Last verified: August 2, 2026",
+    snapshot: "Verification: on every main-branch update",
     through: "evidence is public on GitHub",
     items: ["Reproducible install from a locked dependency graph", "Production build and automated tests", "Static deployment only after successful checks"],
     workflow: "Inspect the CI workflow",
@@ -25,7 +25,7 @@ const copy = {
   de: {
     eyebrow: "Überprüfbarer Projektstatus",
     title: "Jede Aktualisierung des Hauptzweigs wird gebaut und getestet",
-    snapshot: "Zuletzt geprüft: 2. August 2026",
+    snapshot: "Prüfung: bei jeder Aktualisierung des Hauptzweigs",
     through: "Nachweise öffentlich auf GitHub",
     items: ["Reproduzierbare Installation mit gesperrten Abhängigkeiten", "Produktions-Build und automatisierte Tests", "Statische Bereitstellung erst nach erfolgreichen Prüfungen"],
     workflow: "CI-Ablauf prüfen",
@@ -35,7 +35,7 @@ const copy = {
   zh: {
     eyebrow: "可验证的项目状态",
     title: "主分支的每次更新都会经过构建和测试",
-    snapshot: "最近核验：2026 年 8 月 2 日",
+    snapshot: "核验：每次主分支更新时执行",
     through: "证据在 GitHub 公开",
     items: ["基于锁定依赖图的可重复安装", "生产构建与自动化测试", "仅在检查通过后进行静态部署"],
     workflow: "查看 CI 工作流",

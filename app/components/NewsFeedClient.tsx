@@ -49,6 +49,16 @@ const glossary = [
   { pattern: /standard|measurement|framework/i, terms: { tr: "Standart · ortak test veya uygulama ölçütü", en: "Standard · a shared test or implementation reference", de: "Standard · gemeinsame Prüf- oder Umsetzungsgrundlage", zh: "标准 · 共同的测试或实施依据" } },
 ] as const;
 
+const feedNavigationBoilerplate = /\b(?:today[’']?s\s+apod|archive\s+submissions\s+index\s+search\s+calendar\s+rss|skip\s+to\s+main\s+content|open\s+navigation|subscribe\s+to\s+our\s+newsletter|follow\s+us\s+on)\b/i;
+
+function readableSummary(item: NewsItem, locale: Locale) {
+  const summary = item.sourceSummary.trim();
+  const titleKey = item.title.toLocaleLowerCase("en").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const summaryKey = summary.toLocaleLowerCase("en").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const feedCopyIsUseful = item.summaryOrigin === "feed" && !feedNavigationBoilerplate.test(summary) && summaryKey !== titleKey && !summaryKey.startsWith(`${titleKey} ${titleKey}`);
+  return feedCopyIsUseful ? { text: summary, origin: "feed" as const } : { text: insights[locale][item.category].brief, origin: "metadata" as const };
+}
+
 const key = "bytequant:news-favorites:v2";
 const reviewedKey = "bytequant:news-reviewed:v2";
 const newsSourceHosts: Record<NewsItem["source"], ReadonlySet<string>> = {
@@ -100,13 +110,13 @@ export function NewsFeedClient({ locale, items }: { locale: Locale; items: NewsI
     .filter((item) => category === "all" || item.category === category)
     .filter((item) => source === "all" || item.source === source)
     .filter((item) => !savedOnly || validFavorites.includes(item.id))
-    .filter((item) => `${item.title} ${item.source} ${item.sourceSummary ?? ""}`.toLocaleLowerCase().includes(deferredQuery.trim().toLocaleLowerCase())), [category, deferredQuery, safeItems, savedOnly, source, validFavorites]);
+    .filter((item) => `${item.title} ${item.source} ${readableSummary(item, locale).text}`.toLocaleLowerCase().includes(deferredQuery.trim().toLocaleLowerCase())), [category, deferredQuery, locale, safeItems, savedOnly, source, validFavorites]);
   const visible = filtered.slice(0, limit);
   const filters: Array<[typeof category, string]> = [["all", t.all], ["science", t.science], ["technology", t.technology], ["security", t.security], ["standards", t.standards]];
   function toggle(field: "favorites" | "reviewed", id: string) { const setter = field === "favorites" ? setFavorites : setReviewed; const storage = field === "favorites" ? key : reviewedKey; setter((current) => { const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id].slice(-200); try { localStorage.setItem(storage, JSON.stringify(next)); } catch { /* optional preference */ } return next; }); }
-  async function share(item: NewsItem) { setStatus(""); if (navigator.share) { try { await navigator.share({ title: item.title, text: item.sourceSummary, url: item.url }); setStatus(t.shared); return; } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; } } try { await navigator.clipboard.writeText(`${item.title}\n${item.sourceSummary}\n${item.url}`); setStatus(t.copied); } catch { setStatus(t.quoteError); } }
+  async function share(item: NewsItem) { const summary = readableSummary(item, locale).text; setStatus(""); if (navigator.share) { try { await navigator.share({ title: item.title, text: summary, url: item.url }); setStatus(t.shared); return; } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; } } try { await navigator.clipboard.writeText(`${item.title}\n${summary}\n${item.url}`); setStatus(t.copied); } catch { setStatus(t.quoteError); } }
   function quoteInCommunity(item: NewsItem) {
-    const sourceSummary = item.sourceSummary?.trim() || insights[locale][item.category].brief;
+    const sourceSummary = readableSummary(item, locale).text;
     try { sessionStorage.setItem("bytequant:community-news-quote:v1", JSON.stringify({ title: item.title, body: sourceSummary, url: item.url, source: item.source })); setStatus(t.quoteReady); router.push(`${pathFor(locale, "community")}#global-community`); }
     catch { setStatus(t.quoteError); }
   }
@@ -115,11 +125,11 @@ export function NewsFeedClient({ locale, items }: { locale: Locale; items: NewsI
     <div className="news-controls"><div>{filters.map(([value, label]) => <button type="button" aria-pressed={category === value && !savedOnly} className={category === value && !savedOnly ? "active" : ""} key={value} onClick={() => { setCategory(value); setSavedOnly(false); setLimit(12); }}>{label}{value === "all" ? ` · ${safeItems.length}` : ` · ${safeItems.filter((item) => item.category === value).length}`}</button>)}<button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setLimit(12); }}>☆ {t.savedOnly} · {validFavorites.length}</button></div><span>{filtered.length} {t.showing}</span></div>
     <div className="news-source-row"><span>{t.sourceFilter}</span><button type="button" aria-pressed={source === "all"} className={source === "all" ? "active" : ""} onClick={() => { setSource("all"); setLimit(12); }}>{t.allSources}</button>{sources.map((item) => <button type="button" aria-pressed={source === item} className={source === item ? "active" : ""} key={item} onClick={() => { setSource(item); setLimit(12); }}>{item}</button>)}</div>
     {status && <p className="news-action-status" role="status" aria-live="polite">{status}</p>}
-    <div className="news-grid">{visible.map((item, index) => { const lens = insights[locale][item.category]; const terms = glossary.filter((entry) => entry.pattern.test(item.title)).map((entry) => entry.terms[locale]); const summary = item.sourceSummary || lens.brief; return <article className={`${reviewed.includes(item.id) ? "reviewed" : ""}${index === 0 ? " featured" : ""}`} key={item.id}>
+    <div className="news-grid">{visible.map((item, index) => { const terms = glossary.filter((entry) => entry.pattern.test(item.title)).map((entry) => entry.terms[locale]); const summary = readableSummary(item, locale); return <article className={`${reviewed.includes(item.id) ? "reviewed" : ""}${index === 0 ? " featured" : ""}`} key={item.id}>
       <header><span>{t[item.category]}</span><small>{item.source} · {item.region === "uk" ? "UK" : "GLOBAL"}</small></header>
       <time className="news-original-label" dateTime={item.date}>{item.source} · {new Date(`${item.date}T12:00:00Z`).toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" })}</time>
       <h3 lang={item.sourceLanguage}>{item.title}</h3>
-      <section className="news-source-brief-prominent"><strong>{t.sourceBrief}</strong><p lang={item.sourceLanguage}>{summary}</p><details className="news-attribution-note"><summary>{t.summaryAbout} <span>+</span></summary><small>{item.summaryOrigin === "feed" ? t.sourceNote : t.metadataNote}</small></details></section>
+      <section className="news-source-brief-prominent"><strong>{t.sourceBrief}</strong><p lang={summary.origin === "feed" ? item.sourceLanguage : locale}>{summary.text}</p><details className="news-attribution-note"><summary>{t.summaryAbout} <span>+</span></summary><small>{summary.origin === "feed" ? t.sourceNote : t.metadataNote}</small></details></section>
       {terms.length > 0 && <details className="news-glossary"><summary>{t.terms}<span>+</span></summary>{terms.map((term) => <p key={term}>{term}</p>)}</details>}
       <footer><a className="news-source-action" href={item.url} target="_blank" rel="noreferrer noopener">{t.open} ↗</a><button type="button" className="news-quote-action" onClick={() => quoteInCommunity(item)}>❝ {quoteCopy[locale]}</button><button type="button" className={validFavorites.includes(item.id) ? "active" : ""} aria-pressed={validFavorites.includes(item.id)} onClick={() => toggle("favorites", item.id)}>☆ {validFavorites.includes(item.id) ? t.saved : t.save}</button><button type="button" className={reviewed.includes(item.id) ? "active" : ""} aria-pressed={reviewed.includes(item.id)} onClick={() => toggle("reviewed", item.id)}>✓ {reviewed.includes(item.id) ? t.reviewed : t.markReviewed}</button><button type="button" onClick={() => void share(item)}>↗ {t.share}</button></footer>
     </article>; })}{!visible.length && <div className="news-empty"><p>{t.empty}</p><button type="button" onClick={() => { setCategory("all"); setSource("all"); setSavedOnly(false); setQuery(""); setLimit(12); }}>{resetCopy[locale]}</button></div>}</div>
