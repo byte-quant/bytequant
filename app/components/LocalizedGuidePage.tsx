@@ -6,7 +6,7 @@ import { BrandLogo } from "./BrandLogo";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
-import { GuideValidationLab } from "./GuideValidationLab";
+import { GuideValidationLab, guideValidationText } from "./GuideValidationLab";
 
 function articleWordCount(text: string, locale: LocalizedGuideLocale) {
   const segmenter = new Intl.Segmenter(languageTag(locale), { granularity: "word" });
@@ -19,7 +19,7 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
   const localized = <T,>(de: T, zh: T) => (isDe ? de : zh);
   const pageUrl = absoluteUrl(postPath(locale, guide.slug));
   const tools = guide.relatedTools.map(getTool).filter((tool): tool is Tool => Boolean(tool));
-  const articleText = [copy.title, copy.description, ...copy.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])])].join(" ");
+  const articleText = [copy.title, copy.description, copy.excerpt, ...copy.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(copy.title, copy.description, locale, tools)].join(" ");
   const wordCount = articleWordCount(articleText, locale);
   const published = new Intl.DateTimeFormat(languageTag(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${guide.date}T00:00:00Z`));
   const updated = new Intl.DateTimeFormat(languageTag(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${guide.updated ?? guide.date}T00:00:00Z`));
@@ -76,7 +76,7 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
                 {section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : null}
               </section>
             ))}
-            <GuideValidationLab guideTitle={copy.title} locale={locale} tools={tools} />
+            <GuideValidationLab guideTitle={copy.title} guideSummary={copy.description} locale={locale} tools={tools} />
           </div>
         </div>
       </article>

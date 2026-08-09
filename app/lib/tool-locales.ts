@@ -434,7 +434,35 @@ export function localizeTool(base: BaseTool): Tool {
     steps: { ...base.steps, de: categorySteps[category].de, zh: categorySteps[category].zh },
   } satisfies Record<keyof Tool, unknown> as Tool;
   const guidance = buildToolGuidance(localized);
-  return { ...localized, useCases: guidance.useCases, steps: guidance.steps };
+  const useCases = {
+    tr: base.useCases.tr.map((item, index) => [
+      `${item}: ${base.title.tr} ile yerel analiz`,
+      `${item}: ${base.title.tr} çıktısını doğrulama`,
+      `${item}: ${base.title.tr} sınırlarını kontrol etme`,
+    ][index]),
+    en: base.useCases.en.map((item, index) => [
+      `${item}: local analysis with ${base.title.en}`,
+      `${item}: validating the ${base.title.en} output`,
+      `${item}: checking the limits of ${base.title.en}`,
+    ][index]),
+    de: guidance.useCases.de,
+    zh: guidance.useCases.zh,
+  };
+  const steps = {
+    tr: [
+      `${base.steps.tr[0]} ${base.title.tr} için beklenen biçim: ${guidance.details.input.tr}.`,
+      `${base.steps.tr[1]} ${base.title.tr}, şu yöntemi uygular: ${guidance.details.method.tr}`,
+      `${base.steps.tr[2]} ${base.title.tr} kabul ölçütü: ${guidance.details.verification.tr}.`,
+    ],
+    en: [
+      `${base.steps.en[0]} Expected format for ${base.title.en}: ${guidance.details.input.en}.`,
+      `${base.steps.en[1]} ${base.title.en} applies this method: ${guidance.details.method.en}`,
+      `${base.steps.en[2]} Acceptance check for ${base.title.en}: ${guidance.details.verification.en}.`,
+    ],
+    de: guidance.steps.de,
+    zh: guidance.steps.zh,
+  };
+  return { ...localized, useCases, steps };
 }
 
 export function localeName(locale: Locale) {

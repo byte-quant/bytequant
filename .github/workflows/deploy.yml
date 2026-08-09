@@ -66,6 +66,8 @@ jobs:
         run: pnpm audit:closure1
       - name: Audit AdSense closure Stage 2
         run: pnpm audit:closure2
+      - name: Audit AdSense closure Stage 3
+        run: pnpm audit:closure3
       - name: Audit final release readiness
         run: pnpm audit:release
       - name: Upload verified Pages artifact

@@ -150,8 +150,32 @@ function choose(tool: GuidanceSource): Profile {
 const clean = (value: string) => value.trim().replace(/[.!?。！？]+$/u, "");
 const lowerFirst = (value: string, locale: Locale) => value.charAt(0).toLocaleLowerCase(locale === "tr" ? "tr-TR" : locale) + value.slice(1);
 
+function formatSpecificInput(tool: GuidanceSource, fallback: L): L {
+  const slug = tool.slug;
+  if (/(jsonl|ndjson|json-lines)/.test(slug)) return l(
+    "Her satırında tek ve geçerli bir JSON değeri bulunan JSON Lines / NDJSON metni",
+    "JSON Lines or NDJSON text with one valid JSON value on each line",
+    "JSON-Lines- oder NDJSON-Text mit genau einem gültigen JSON-Wert pro Zeile",
+    "每行仅包含一个有效 JSON 值的 JSON Lines / NDJSON 文本",
+  );
+  if (/json/.test(slug)) return l(
+    "Araç açıklamasında belirtilen nesne, dizi veya alanları içeren sözdizimi geçerli JSON",
+    "Syntactically valid JSON containing the object, array, or fields named by the tool",
+    "Syntaktisch gültiges JSON mit den vom Werkzeug genannten Objekten, Arrays oder Feldern",
+    "语法有效、并包含工具所述对象、数组或字段的 JSON",
+  );
+  if (/yaml/.test(slug)) return l("Girintisi ve belge yapısı geçerli YAML", "YAML with valid indentation and document structure", "YAML mit gültiger Einrückung und Dokumentstruktur", "缩进与文档结构有效的 YAML");
+  if (/xml/.test(slug)) return l("Tek köklü ve iyi biçimlendirilmiş XML", "Well-formed XML with a single root element", "Wohlgeformtes XML mit genau einem Wurzelelement", "具有单一根元素且格式良好的 XML");
+  if (/(ini|properties)/.test(slug)) return l("Bölüm, anahtar ve değer yapısı geçerli INI / properties metni", "INI or properties text with valid sections, keys, and values", "INI-/Properties-Text mit gültigen Abschnitten, Schlüsseln und Werten", "节、键和值结构有效的 INI / properties 文本");
+  if (/toml/.test(slug)) return l("Tablo, anahtar ve değer yapısı geçerli TOML", "TOML with valid tables, keys, and values", "TOML mit gültigen Tabellen, Schlüsseln und Werten", "表、键和值结构有效的 TOML");
+  if (/graphql/.test(slug)) return l("Araçta istenen GraphQL işlem, değişken veya şema metni", "The GraphQL operation, variables, or schema text requested by the tool", "Die vom Werkzeug verlangte GraphQL-Operation, Variablen- oder Schemaeingabe", "工具要求的 GraphQL 操作、变量或 Schema 文本");
+  if (/sql/.test(slug)) return l("Hedef lehçesi ve amaçlanan işlem türü bilinen SQL metni", "SQL text with a known target dialect and intended operation type", "SQL-Text mit bekannter Zieldialekt- und Operationseinstellung", "已知目标方言和预期操作类型的 SQL 文本");
+  return fallback;
+}
+
 export function buildToolGuidance(tool: GuidanceSource) {
   const p = choose(tool);
+  const input = formatSpecificInput(tool, p.input);
   const goal = { tr: clean(tool.short.tr), en: lowerFirst(clean(tool.short.en), "en"), de: clean(tool.short.de), zh: clean(tool.short.zh) } satisfies L;
   const boundary = specificBoundaries[tool.slug] ?? boundaries[tool.category];
   const useCases: Record<Locale, string[]> = {
@@ -161,12 +185,12 @@ export function buildToolGuidance(tool: GuidanceSource) {
     zh: [`使用${tool.title.zh}完成：${goal.zh}`, `在${p.workflow.zh}前准备${p.output.zh}`, `依据${p.verification.zh}核验${tool.title.zh}的结果`],
   };
   const steps: Record<Locale, string[]> = {
-    tr: [`Girdiyi hazırlayın: ${p.input.tr}. Hassas gerçek veri yerine önce sentetik bir örnekle biçimi doğrulayın.`, `Cihaz içi işlemi çalıştırın. Hedef: ${goal.tr}. ${p.method.tr}`, `Kabul kontrolü: ${p.verification.tr}. ${boundary.tr}`],
-    en: [`Prepare the input: ${p.input.en}. Confirm the format with a synthetic example before using sensitive real data.`, `Run the on-device operation. Goal: ${goal.en}. ${p.method.en}`, `Acceptance check: ${p.verification.en}. ${boundary.en}`],
-    de: [`Eingabe vorbereiten: ${p.input.de}. Prüfen Sie das Format zuerst mit einem synthetischen Beispiel statt mit sensiblen Echtdaten.`, `Lokale Verarbeitung starten. Ziel: ${goal.de}. ${p.method.de}`, `Abnahmekriterium: ${p.verification.de}. ${boundary.de}`],
-    zh: [`准备输入：${p.input.zh}。处理敏感真实数据前，请先用合成示例确认格式。`, `运行设备端处理。目标：${goal.zh}。${p.method.zh}`, `验收检查：${p.verification.zh}。${boundary.zh}`],
+    tr: [`Girdiyi hazırlayın: ${input.tr}. Hassas gerçek veri yerine önce sentetik bir örnekle biçimi doğrulayın.`, `Cihaz içi işlemi çalıştırın. Hedef: ${goal.tr}. ${p.method.tr}`, `Kabul kontrolü: ${p.verification.tr}. ${boundary.tr}`],
+    en: [`Prepare the input: ${input.en}. Confirm the format with a synthetic example before using sensitive real data.`, `Run the on-device operation. Goal: ${goal.en}. ${p.method.en}`, `Acceptance check: ${p.verification.en}. ${boundary.en}`],
+    de: [`Eingabe vorbereiten: ${input.de}. Prüfen Sie das Format zuerst mit einem synthetischen Beispiel statt mit sensiblen Echtdaten.`, `Lokale Verarbeitung starten. Ziel: ${goal.de}. ${p.method.de}`, `Abnahmekriterium: ${p.verification.de}. ${boundary.de}`],
+    zh: [`准备输入：${input.zh}。处理敏感真实数据前，请先用合成示例确认格式。`, `运行设备端处理。目标：${goal.zh}。${p.method.zh}`, `验收检查：${p.verification.zh}。${boundary.zh}`],
   };
-  return { useCases, steps, details: { input: p.input, method: p.method, output: p.output, verification: p.verification, boundary } satisfies ToolGuidanceDetails };
+  return { useCases, steps, details: { input, method: p.method, output: p.output, verification: p.verification, boundary } satisfies ToolGuidanceDetails };
 }
 
 export function getToolGuidanceDetails(tool: GuidanceSource) {

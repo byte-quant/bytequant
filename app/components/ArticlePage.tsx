@@ -7,7 +7,7 @@ import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { getLocalizedGuide } from "../lib/localized-guides";
 import { BrandLogo } from "./BrandLogo";
-import { GuideValidationLab } from "./GuideValidationLab";
+import { GuideValidationLab, guideValidationText } from "./GuideValidationLab";
 
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
@@ -36,7 +36,8 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
   }).format(new Date(`${post.date}T00:00:00.000Z`));
   const modifiedDate = post.updated ?? post.date;
   const formattedModifiedDate = new Intl.DateTimeFormat(currentLanguage, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${modifiedDate}T00:00:00.000Z`));
-  const wordCount = post.sections[locale].flatMap((section) => [...section.paragraphs, ...(section.bullets ?? [])]).join(" ").trim().split(/\s+/).length;
+  const visibleArticleText = [post.title[locale], post.description[locale], post.excerpt[locale], ...post.sections[locale].flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(post.title[locale], post.description[locale], locale, relatedTools)].join(" ");
+  const wordCount = visibleArticleText.trim().split(/\s+/).length;
   const schema = [
     {
       "@context": "https://schema.org", "@type": "BlogPosting", "@id": `${pageUrl}#article`, headline: post.title[locale], description: post.description[locale], url: pageUrl,
@@ -107,7 +108,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
 
             {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{isTr ? "Kaynaklar ve doğrulama" : "Sources and verification"}</h2><p>{isTr ? "Bu rehber hazırlanırken aşağıdaki birincil ve resmî belgeler kontrol edildi. Bağlantıların güncel sürüm ve değişiklik tarihlerini ayrıca inceleyin." : "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well."}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
 
-            <GuideValidationLab guideTitle={post.title[locale]} locale={locale} tools={relatedTools} />
+            <GuideValidationLab guideTitle={post.title[locale]} guideSummary={post.description[locale]} locale={locale} tools={relatedTools} />
 
             <section className="article-related-tools" aria-labelledby="article-related-tools-title">
               <span className="kicker">{isTr ? "İLGİLİ ARAÇLAR" : "RELATED TOOLS"}</span>

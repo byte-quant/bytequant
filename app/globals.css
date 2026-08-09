@@ -2352,6 +2352,11 @@ main::before{
 .tool-editorial-grid ol{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.65}
 .tool-editorial-grid li+li{margin-top:6px}
 .tool-editorial-grid li b{color:var(--text);font-weight:850}
+.tool-editorial-scenarios{margin:24px 0}.tool-editorial-scenarios>h3{margin:0 0 12px;color:var(--navy);font-size:clamp(1.05rem,2vw,1.3rem)}
+.tool-editorial-scenarios>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.tool-editorial-scenarios article{min-width:0;padding:17px;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--surface) 86%,var(--bg))}
+.tool-editorial-scenarios article>span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;color:var(--teal-dark);background:var(--teal-soft);font:850 10px/1 var(--font-mono)}
+.tool-editorial-scenarios h4{margin:12px 0 9px;color:var(--navy);font-size:15px;line-height:1.4}.tool-editorial-scenarios p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.65}.tool-editorial-scenarios b{color:var(--text)}
+.tool-editorial-decision{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 20px}.tool-editorial-decision article{padding:17px;border-left:3px solid var(--teal);border-radius:0 13px 13px 0;background:var(--surface)}.tool-editorial-decision strong{display:block;margin-bottom:7px;color:var(--navy);font-size:13px}.tool-editorial-decision p{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
 .guide-validation-lab{padding:clamp(22px,4vw,32px);border:1px solid color-mix(in srgb,var(--teal) 36%,var(--line));border-radius:20px;background:linear-gradient(145deg,color-mix(in srgb,var(--teal-soft) 44%,var(--surface)),var(--surface));box-shadow:var(--shadow-sm)}
 .guide-validation-lab>.kicker{display:block;margin:4px 0 8px}
 .guide-validation-lab>h2{margin-bottom:14px}
@@ -2369,10 +2374,11 @@ main::before{
 .guide-validation-notes article{padding:16px;border:1px solid var(--line);border-radius:13px;background:color-mix(in srgb,var(--surface) 82%,transparent)}
 .guide-validation-notes strong{display:block;margin-bottom:7px;color:var(--navy);font-size:13px}
 .guide-validation-notes p{margin:0!important;color:var(--muted)!important;font-size:12px!important;line-height:1.7!important}
-@media(max-width:900px){.tool-editorial-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:900px){.tool-editorial-grid,.tool-editorial-scenarios>div{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:680px){
   .guide-validation-lab{padding:18px;border-radius:16px}
   .guide-validation-tools dl,.guide-validation-notes{grid-template-columns:minmax(0,1fr)}
+  .tool-editorial-decision{grid-template-columns:minmax(0,1fr)}
 }
 
 /* Release 4.7: coherent four-language editorial pages and resilient static layouts. */

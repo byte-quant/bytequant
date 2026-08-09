@@ -67,26 +67,50 @@ const methodology = {
 } as const;
 
 const copy = {
-  tr: { eyebrow: "YÖNTEM VE KALİTE PASAPORTU", title: "Bu araç benzersiz kanonik adresiyle yayımlanır", body: "Açıklama, örnek girdi, hata sınırı ve cihaz içi çalışma akışı sürüm kontrollüdür. Otomatik paket sayfa bütünlüğünü ve araç ailelerine ait temsilî çalışma sonuçlarını denetler; aşağıdaki üç kontrol ise bu aracın kendi girdinizle kabul ölçütüdür.", method: "Uygulanan yöntem", acceptance: "Yayımlamadan önce üçlü kontrol", normal: "Normal örnek", malformed: "Hatalı veya eksik girdi", boundary: "Sınır ve gerçek kullanım", outcome: "Başarılı kullanım ne demektir?", outcomeBody: (useCase: string, result: string) => `${useCase} senaryosunda çıktı “${result}” amacını karşılamalıdır. Sonucu hedef ortamda kontrol edin; uyarı veya belirsizlik varsa dışa aktarmadan önce düzeltin.`, date: "Son içerik ve yöntem incelemesi", badge: "YAYINDA" },
-  en: { eyebrow: "METHOD AND QUALITY PASSPORT", title: "This tool is published at its unique canonical URL", body: "The description, demo input, failure boundary, and on-device flow are version controlled. Automation checks page integrity and representative results for each tool family; the three checks below are the acceptance criteria for your own input.", method: "Method applied", acceptance: "Three checks before you publish", normal: "Normal example", malformed: "Malformed or missing input", boundary: "Boundary and real use", outcome: "What does successful use mean?", outcomeBody: (useCase: string, result: string) => `For “${useCase}”, the output should fulfil this stated purpose: “${result}”. Check it in the target environment and resolve any warning or uncertainty before export.`, date: "Latest content and method review", badge: "PUBLISHED" },
-  de: { eyebrow: "METHODEN- UND QUALITÄTSPASS", title: "Dieses Werkzeug wird unter seiner eindeutigen kanonischen URL veröffentlicht", body: "Beschreibung, Beispieleingabe, Fehlergrenze und lokale Verarbeitung sind versionskontrolliert. Automatisierung prüft Seitenintegrität und repräsentative Ergebnisse je Werkzeugfamilie; die drei folgenden Prüfungen sind die Abnahmekriterien für Ihre eigene Eingabe.", method: "Angewandte Methode", acceptance: "Drei Prüfungen vor der Veröffentlichung", normal: "Normales Beispiel", malformed: "Fehlerhafte oder fehlende Eingabe", boundary: "Grenze und reale Nutzung", outcome: "Was bedeutet eine erfolgreiche Nutzung?", outcomeBody: (useCase: string, result: string) => `Für „${useCase}“ muss die Ausgabe den beschriebenen Zweck „${result}“ erfüllen. Prüfen Sie das Ergebnis im Zielsystem und beheben Sie Warnungen oder Unklarheiten vor dem Export.`, date: "Letzte Inhalts- und Methodenprüfung", badge: "VERÖFFENTLICHT" },
-  zh: { eyebrow: "方法与质量说明", title: "该工具通过唯一的规范网址发布", body: "工具说明、示例输入、错误边界与设备内流程均受版本控制。自动化会检查页面完整性和各工具系列的代表性结果；以下三项则是您自己的输入应满足的验收标准。", method: "采用的方法", acceptance: "发布前完成三项检查", normal: "正常示例", malformed: "错误或缺失输入", boundary: "边界与实际使用", outcome: "怎样才算成功使用？", outcomeBody: (useCase: string, result: string) => `在“${useCase}”场景中，输出应满足“${result}”这一公开目的。请在目标环境中复核，并在导出前处理所有警告或不确定性。`, date: "最近内容与方法审核", badge: "已发布" },
+  tr: {
+    eyebrow: "UYGULAMA VE KARAR REHBERİ", title: (name: string) => `${name} için doğru girdi, doğru kontrol ve güvenli sonraki adım`,
+    body: (name: string, description: string) => `${description} Aşağıdaki notlar ${name} sonucunu yalnızca üretmek için değil, amacına uygunluğunu sınamak ve hatalı bir çıktıyı erken durdurmak için hazırlanmıştır.`,
+    method: "Araç gerçekte nasıl çalışır?", input: "Başlamadan önce girdi kontrolü", output: "Çıktıyı nasıl yorumlamalısınız?", scenarios: "Üç gerçek kullanım senaryosu", action: "Uygulama", check: "Kabul işareti", boundary: "Sonucu kullanmadan önce durma koşulu", next: "Güvenli sonraki adım", date: "Son içerik ve yöntem incelemesi", badge: "İNCELENDİ",
+  },
+  en: {
+    eyebrow: "APPLICATION AND DECISION GUIDE", title: (name: string) => `Use ${name} with the right input, acceptance check, and next step`,
+    body: (name: string, description: string) => `${description} The notes below help you do more than produce a result: they show how to test whether ${name} fits the task and when to stop before a weak output travels further.`,
+    method: "How does the tool actually work?", input: "Input check before you begin", output: "How should you interpret the output?", scenarios: "Three practical use cases", action: "Action", check: "Acceptance signal", boundary: "Stop condition before using the result", next: "Safe next step", date: "Latest content and method review", badge: "REVIEWED",
+  },
+  de: {
+    eyebrow: "ANWENDUNGS- UND ENTSCHEIDUNGSHILFE", title: (name: string) => `${name}: passende Eingabe, Abnahmekriterium und nächster Schritt`,
+    body: (name: string, description: string) => `${description} Die folgenden Hinweise helfen nicht nur beim Erzeugen eines Ergebnisses. Sie zeigen, wie Sie die Eignung von ${name} für den konkreten Zweck prüfen und eine schwache Ausgabe rechtzeitig stoppen.`,
+    method: "Wie arbeitet das Werkzeug tatsächlich?", input: "Eingabeprüfung vor dem Start", output: "Wie ist die Ausgabe zu bewerten?", scenarios: "Drei praktische Einsatzfälle", action: "Durchführung", check: "Abnahmesignal", boundary: "Abbruchbedingung vor der Nutzung", next: "Sicherer nächster Schritt", date: "Letzte Inhalts- und Methodenprüfung", badge: "GEPRÜFT",
+  },
+  zh: {
+    eyebrow: "应用与决策指南", title: (name: string) => `${name}：正确输入、验收检查与安全的下一步`,
+    body: (name: string, description: string) => `${description} 以下说明不仅帮助生成结果，还会说明如何判断${name}是否适合当前任务，以及何时应在低质量输出继续流转前停止。`,
+    method: "工具实际如何工作？", input: "开始前的输入检查", output: "如何解读输出？", scenarios: "三个实际使用场景", action: "执行", check: "验收信号", boundary: "使用结果前的停止条件", next: "安全的下一步", date: "最近内容与方法审核", badge: "已审核",
+  },
 } as const;
 
 export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
   const t = copy[locale];
   const guidance = getToolGuidanceDetails(tool);
   return (
-    <section className="container tool-editorial-review is-published" data-editorial-status="published" data-editorial-depth="applied" aria-labelledby={`editorial-${tool.slug}`}>
+    <section className="container tool-editorial-review is-published" data-editorial-status="published" data-editorial-depth="applied" data-content-depth="task-specific" aria-labelledby={`editorial-${tool.slug}`}>
       <div className="tool-editorial-heading">
-        <div><span className="kicker">{t.eyebrow}</span><h2 id={`editorial-${tool.slug}`}>{t.title}</h2></div>
+        <div><span className="kicker">{t.eyebrow}</span><h2 id={`editorial-${tool.slug}`}>{t.title(tool.title[locale])}</h2></div>
         <span className="tool-editorial-badge">✓ {t.badge}</span>
       </div>
-      <p>{t.body}</p>
+      <p>{t.body(tool.title[locale], tool.description[locale])}</p>
       <div className="tool-editorial-grid">
         <article><strong>{t.method}</strong><p>{guidance.method[locale]} {methodology[tool.category][locale]}</p></article>
-        <article data-tool-acceptance="three-scenario"><strong>{t.acceptance}</strong><ol><li><b>{t.normal}:</b> {tool.steps[locale][1]}</li><li><b>{t.malformed}:</b> {guidance.input[locale]}</li><li><b>{t.boundary}:</b> {guidance.verification[locale]} {guidance.boundary[locale]}</li></ol></article>
-        <article><strong>{t.outcome}</strong><p>{t.outcomeBody(tool.useCases[locale][0], tool.short[locale])}</p></article>
+        <article><strong>{t.input}</strong><p>{tool.steps[locale][0]}</p></article>
+        <article><strong>{t.output}</strong><p>{guidance.output[locale]} — {guidance.verification[locale]}</p></article>
+      </div>
+      <div className="tool-editorial-scenarios" data-tool-acceptance="three-scenario">
+        <h3>{t.scenarios}</h3>
+        <div>{tool.useCases[locale].map((useCase, index) => <article key={useCase}><span>{String(index + 1).padStart(2, "0")}</span><h4>{useCase}</h4><p><b>{t.action}:</b> {tool.steps[locale][index] ?? tool.steps[locale][tool.steps[locale].length - 1]}</p><p><b>{t.check}:</b> {index === 0 ? tool.short[locale] : guidance.verification[locale]}</p></article>)}</div>
+      </div>
+      <div className="tool-editorial-decision">
+        <article><strong>{t.boundary}</strong><p>{guidance.boundary[locale]}</p></article>
+        <article><strong>{t.next}</strong><p>{tool.steps[locale][2]}</p></article>
       </div>
       <small>{t.date}: <time dateTime={CONTENT_REVIEW_DATE}>{CONTENT_REVIEW_DATE}</time></small>
     </section>
