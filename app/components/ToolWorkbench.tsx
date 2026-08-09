@@ -42,72 +42,94 @@ type Metric = { label: string; value: string | number };
 const noInputTools = new Set(["guclu-parola-uretici", "uuid-uretici"]);
 const secondInputTools = new Set(["meta-prompt-olusturucu", "metin-benzerlik-analizi", "regex-test-araci", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu"]);
 const batchSlugs = new Set(["metin-temizleyici", "buyuk-kucuk-harf-donusturucu", "json-bicimlendirici", "base64-kodlayici", "url-kodlayici", "kvkk-veri-maskeleyici"]);
+export const legacyGenericToolSlugs = new Set([
+  "prompt-kalite-denetimi", "meta-prompt-olusturucu", "token-sayaci", "okunabilirlik-analizi", "metin-benzerlik-analizi",
+  "metin-temizleyici", "buyuk-kucuk-harf-donusturucu", "kelime-sayaci", "json-bicimlendirici", "json-csv-donusturucu",
+  "regex-test-araci", "csv-inceleyici", "base64-kodlayici", "url-kodlayici", "kvkk-veri-maskeleyici", "guclu-parola-uretici",
+  "uuid-uretici", "sha256-ozet-uretici", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu", "jwt-decoder",
+  "cron-ifadesi-aciklayici",
+]);
 
-const samples: Record<string, Record<"tr" | "en", string>> = {
-  "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points." },
-  "meta-prompt-olusturucu": { tr: "Müşteri geri bildirimlerini temalara ayır ve uygulanabilir öneriler çıkar.", en: "Group customer feedback into themes and produce actionable recommendations." },
-  "token-sayaci": { tr: "Bu alana token ihtiyacını tahmin etmek istediğiniz metni yazın.", en: "Enter the text whose token demand you want to estimate." },
-  "okunabilirlik-analizi": { tr: "Açık ve anlaşılır metin, okuyucunun karar vermesini kolaylaştırır. Uzun cümleleri bölmek ve gereksiz terimleri açıklamak okunabilirliği artırır.", en: "Clear writing helps readers make decisions. Shorter sentences and explained terminology improve readability." },
-  "metin-benzerlik-analizi": { tr: "Tarayıcı içi araçlar veriyi cihazınızda işler.", en: "In-browser tools process data on your device." },
-  "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  " },
-  "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools" },
-  "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device." },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":309}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":309}" },
-  "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]" },
-  "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org" },
-  "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true" },
-  "base64-kodlayici": { tr: "Merhaba ByteQuant", en: "Hello ByteQuant" },
-  "url-kodlayici": { tr: "gizlilik odaklı araçlar", en: "privacy-first tools" },
-  "kvkk-veri-maskeleyici": { tr: "Ayşe'nin e-postası ayse@example.com, telefonu +90 555 123 45 67 ve IP adresi 192.168.1.24.", en: "Ada's email is ada@example.com, phone +1 202 555 0147, and IP address 192.168.1.24." },
-  "sha256-ozet-uretici": { tr: "Bütünlüğü kontrol edilecek metin", en: "Text whose integrity will be checked" },
-  "few-shot-ornek-olusturucu": { tr: "Müşteri mesajını olumlu, nötr veya olumsuz olarak sınıflandır.", en: "Classify a customer message as positive, neutral, or negative." },
-  "sistem-promptu-persona-sablonu": { tr: "Teknik kavramları yeni başlayanlara açıklayan bir ürün eğitim uzmanı", en: "A product education specialist who explains technical concepts to beginners" },
-  "jwt-decoder": { tr: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature", en: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature" },
-  "cron-ifadesi-aciklayici": { tr: "0 3 * * *", en: "0 3 * * *" },
+export const legacyGenericSamples: Record<string, Record<Locale, string>> = {
+  "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points.", de: "Erstellen Sie einen kurzen Leitfaden zu Browser-Datenschutzwerkzeugen für Einsteiger. Erklären Sie Fachbegriffe und geben Sie fünf Stichpunkte aus.", zh: "为新用户编写一份简短的浏览器隐私工具指南，解释技术术语，并用五个要点输出。" },
+  "meta-prompt-olusturucu": { tr: "Müşteri geri bildirimlerini temalara ayır ve uygulanabilir öneriler çıkar.", en: "Group customer feedback into themes and produce actionable recommendations.", de: "Ordnen Sie Kundenfeedback nach Themen und leiten Sie umsetzbare Empfehlungen ab.", zh: "按主题整理客户反馈，并提出可执行建议。" },
+  "token-sayaci": { tr: "Bu alana token ihtiyacını tahmin etmek istediğiniz metni yazın.", en: "Enter the text whose token demand you want to estimate.", de: "Geben Sie den Text ein, dessen Token-Bedarf Sie schätzen möchten.", zh: "输入需要估算 token 数量的文本。" },
+  "okunabilirlik-analizi": { tr: "Açık ve anlaşılır metin, okuyucunun karar vermesini kolaylaştırır. Uzun cümleleri bölmek ve gereksiz terimleri açıklamak okunabilirliği artırır.", en: "Clear writing helps readers make decisions. Shorter sentences and explained terminology improve readability.", de: "Klare Texte erleichtern Entscheidungen. Kürzere Sätze und erklärte Fachbegriffe verbessern die Lesbarkeit.", zh: "清晰的文字有助于读者做出决定。缩短句子并解释术语可以提高可读性。" },
+  "metin-benzerlik-analizi": { tr: "Tarayıcı içi araçlar veriyi cihazınızda işler.", en: "In-browser tools process data on your device.", de: "Browser-Werkzeuge verarbeiten Daten auf Ihrem Gerät.", zh: "浏览器工具会在您的设备上处理数据。" },
+  "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  ", de: "  Hier sind    zusätzliche Leerzeichen.\n\n\nDiese Zeilen   können sauberer sein.  ", zh: "  这里有    多余空格。\n\n\n这些行   可以更整洁。  " },
+  "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools", de: "sicherer arbeiten mit datenschutzorientierten werkzeugen", zh: "使用隐私优先工具更安全地工作" },
+  "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device.", de: "Geben Sie hier den zu messenden Text ein. Das Ergebnis wird auf dem Gerät berechnet.", zh: "在此输入需要统计的文本。结果会在设备上计算。" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":309}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":309}", de: "{\"projekt\":\"ByteQuant\",\"lokal\":true,\"werkzeuge\":309}", zh: "{\"项目\":\"ByteQuant\",\"本地处理\":true,\"工具数量\":309}" },
+  "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]", de: "[{\"name\":\"Ada\",\"rolle\":\"Analyse\"},{\"name\":\"Deniz\",\"rolle\":\"Redaktion\"}]", zh: "[{\"姓名\":\"Ada\",\"角色\":\"分析员\"},{\"姓名\":\"Deniz\",\"角色\":\"编辑\"}]" },
+  "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org", de: "Kontakt: team@example.com und hilfe@example.org", zh: "联系方式：team@example.com 和 support@example.org" },
+  "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true", de: "name,rolle,aktiv\nAda,Analyse,true\nDeniz,Redaktion,true", zh: "姓名,角色,启用\nAda,分析员,true\nDeniz,编辑,true" },
+  "base64-kodlayici": { tr: "Merhaba ByteQuant", en: "Hello ByteQuant", de: "Hallo ByteQuant", zh: "你好 ByteQuant" },
+  "url-kodlayici": { tr: "gizlilik odaklı araçlar", en: "privacy-first tools", de: "datenschutzorientierte werkzeuge", zh: "隐私优先工具" },
+  "kvkk-veri-maskeleyici": { tr: "Ayşe'nin e-postası ayse@example.com, telefonu +90 555 123 45 67 ve IP adresi 192.168.1.24.", en: "Ada's email is ada@example.com, phone +1 202 555 0147, and IP address 192.168.1.24.", de: "Adas E-Mail ist ada@example.com, Telefon +49 30 12345678 und IP-Adresse 192.168.1.24.", zh: "Ada 的邮箱是 ada@example.com，电话是 +86 138 0013 8000，IP 地址是 192.168.1.24。" },
+  "sha256-ozet-uretici": { tr: "Bütünlüğü kontrol edilecek metin", en: "Text whose integrity will be checked", de: "Text, dessen Integrität geprüft wird", zh: "需要检查完整性的文本" },
+  "few-shot-ornek-olusturucu": { tr: "Müşteri mesajını olumlu, nötr veya olumsuz olarak sınıflandır.", en: "Classify a customer message as positive, neutral, or negative.", de: "Klassifizieren Sie eine Kundennachricht als positiv, neutral oder negativ.", zh: "将客户消息分类为正面、中性或负面。" },
+  "sistem-promptu-persona-sablonu": { tr: "Teknik kavramları yeni başlayanlara açıklayan bir ürün eğitim uzmanı", en: "A product education specialist who explains technical concepts to beginners", de: "Eine Produktschulungskraft, die Einsteigern technische Konzepte erklärt", zh: "向初学者解释技术概念的产品培训专家" },
+  "jwt-decoder": { tr: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature", en: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature", de: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature", zh: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXIiLCJyb2xlIjoicmVhZGVyIiwiZXhwIjoyMDAwMDAwMDAwfQ.signature" },
+  "cron-ifadesi-aciklayici": { tr: "0 3 * * *", en: "0 3 * * *", de: "0 3 * * *", zh: "0 3 * * *" },
 };
 
 function secondarySample(slug: string, locale: Locale) {
-  const isTr = locale === "tr";
   if (slug === "regex-test-araci") return "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}";
-  if (slug === "metin-benzerlik-analizi") return isTr ? "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır." : "Local tools work without sending your text to a remote server.";
-  if (slug === "few-shot-ornek-olusturucu") return isTr
-    ? "Ürünü çok sevdim => olumlu\nTeslimat zamanında geldi => olumlu\nArayüz kullanılabilir => nötr\nUygulama sürekli kapanıyor => olumsuz"
-    : "I love the product => positive\nDelivery arrived on time => positive\nThe interface is usable => neutral\nThe app keeps crashing => negative";
-  if (slug === "sistem-promptu-persona-sablonu") return isTr
-    ? "Ton: sakin, açık ve destekleyici\nHedef kitle: teknik olmayan yeni kullanıcılar\nSınırlar: bilinmeyen bilgiyi uydurma; güvenlik iddiası verme"
-    : "Tone: calm, clear, and supportive\nAudience: non-technical beginners\nBoundaries: do not invent missing facts or make security guarantees";
+  if (slug === "metin-benzerlik-analizi") return ui(locale, {
+    tr: "Yerel araçlar metninizi uzak bir sunucuya göndermeden çalışır.",
+    en: "Local tools work without sending your text to a remote server.",
+    de: "Lokale Werkzeuge funktionieren, ohne Ihren Text an einen entfernten Server zu senden.",
+    zh: "本地工具无需将文本发送到远程服务器即可运行。",
+  });
+  if (slug === "few-shot-ornek-olusturucu") return ui(locale, {
+    tr: "Ürünü çok sevdim => olumlu\nTeslimat zamanında geldi => olumlu\nArayüz kullanılabilir => nötr\nUygulama sürekli kapanıyor => olumsuz",
+    en: "I love the product => positive\nDelivery arrived on time => positive\nThe interface is usable => neutral\nThe app keeps crashing => negative",
+    de: "Ich mag das Produkt sehr => positiv\nDie Lieferung kam pünktlich => positiv\nDie Oberfläche ist nutzbar => neutral\nDie Anwendung stürzt ständig ab => negativ",
+    zh: "我很喜欢这个产品 => 正面\n配送准时到达 => 正面\n界面可以使用 => 中性\n应用总是崩溃 => 负面",
+  });
+  if (slug === "sistem-promptu-persona-sablonu") return ui(locale, {
+    tr: "Ton: sakin, açık ve destekleyici\nHedef kitle: teknik olmayan yeni kullanıcılar\nSınırlar: bilinmeyen bilgiyi uydurma; güvenlik iddiası verme",
+    en: "Tone: calm, clear, and supportive\nAudience: non-technical beginners\nBoundaries: do not invent missing facts or make security guarantees",
+    de: "Ton: ruhig, klar und unterstützend\nZielgruppe: nichttechnische Einsteiger\nGrenzen: keine fehlenden Fakten erfinden und keine Sicherheitsgarantien geben",
+    zh: "语气：冷静、清晰并提供支持\n受众：非技术背景的初学者\n边界：不得编造未知事实，也不得作出安全保证",
+  });
   return "";
 }
 
 function friendlyError(slug: string, error: unknown, locale: Locale) {
-  const isTr = locale === "tr";
   const detail = error instanceof Error ? error.message : String(error);
   if (["json-bicimlendirici", "json-csv-donusturucu"].includes(slug) && error instanceof SyntaxError) {
-    return isTr
-      ? `JSON ayrıştırılamadı. Anahtar ve metinlerde çift tırnak, doğru virgül ve kapanan parantez kullandığınızdan emin olun. Teknik ayrıntı: ${detail}`
-      : `The JSON could not be parsed. Check double quotes, commas, and closing brackets. Technical detail: ${detail}`;
+    return ui(locale, {
+      tr: `JSON ayrıştırılamadı. Anahtar ve metinlerde çift tırnak, doğru virgül ve kapanan parantez kullandığınızdan emin olun. Teknik ayrıntı: ${detail}`,
+      en: `The JSON could not be parsed. Check double quotes, commas, and closing brackets. Technical detail: ${detail}`,
+      de: `JSON konnte nicht geparst werden. Prüfen Sie doppelte Anführungszeichen, Kommas und schließende Klammern. Technisches Detail: ${detail}`,
+      zh: `无法解析 JSON。请检查双引号、逗号和闭合括号。技术详情：${detail}`,
+    });
   }
   if (slug === "jwt-decoder") {
-    return isTr
-      ? `JWT okunamadı. Üç nokta ayrımlı bölüm ve geçerli Base64URL JSON içeren bir token girin. İmza doğrulaması bu araçta yapılmaz. Teknik ayrıntı: ${detail}`
-      : `The JWT could not be read. Enter three dot-separated segments containing valid Base64URL JSON. This tool does not verify signatures. Technical detail: ${detail}`;
+    return ui(locale, {
+      tr: `JWT okunamadı. Üç nokta ayrımlı bölüm ve geçerli Base64URL JSON içeren bir token girin. İmza doğrulaması bu araçta yapılmaz. Teknik ayrıntı: ${detail}`,
+      en: `The JWT could not be read. Enter three dot-separated segments containing valid Base64URL JSON. This tool does not verify signatures. Technical detail: ${detail}`,
+      de: `JWT konnte nicht gelesen werden. Geben Sie drei durch Punkte getrennte Segmente mit gültigem Base64URL-JSON ein. Dieses Werkzeug prüft keine Signatur. Technisches Detail: ${detail}`,
+      zh: `无法读取 JWT。请输入由三个点分段且包含有效 Base64URL JSON 的令牌。该工具不验证签名。技术详情：${detail}`,
+    });
   }
   if (slug === "regex-test-araci" && (error instanceof SyntaxError || /invalid regular expression|unterminated|invalid flags/i.test(detail))) {
-    return isTr ? `Regex kalıbı geçerli değil. Parantez, köşeli parantez ve kaçış karakterlerini kontrol edin. Teknik ayrıntı: ${detail}` : `The regular expression is invalid. Check brackets, groups, and escape characters. Technical detail: ${detail}`;
+    return ui(locale, { tr: `Regex kalıbı geçerli değil. Parantez, köşeli parantez ve kaçış karakterlerini kontrol edin. Teknik ayrıntı: ${detail}`, en: `The regular expression is invalid. Check brackets, groups, and escape characters. Technical detail: ${detail}`, de: `Der reguläre Ausdruck ist ungültig. Prüfen Sie Klammern, Gruppen und Escape-Zeichen. Technisches Detail: ${detail}`, zh: `正则表达式无效。请检查括号、分组和转义字符。技术详情：${detail}` });
   }
   if (slug === "regex-test-araci" && detail === "REGEX_TIMEOUT") {
-    return isTr ? "Regex 600 ms güvenlik sınırını aştı. Geri izlemeyi azaltmak için iç içe tekrarları ve belirsiz grupları sadeleştirin." : "The regex exceeded the 600 ms safety limit. Reduce backtracking by simplifying nested repetition and ambiguous groups.";
+    return ui(locale, { tr: "Regex 600 ms güvenlik sınırını aştı. Geri izlemeyi azaltmak için iç içe tekrarları ve belirsiz grupları sadeleştirin.", en: "The regex exceeded the 600 ms safety limit. Reduce backtracking by simplifying nested repetition and ambiguous groups.", de: "Der reguläre Ausdruck hat die Sicherheitsgrenze von 600 ms überschritten. Vereinfachen Sie verschachtelte Wiederholungen und mehrdeutige Gruppen.", zh: "正则表达式超过了 600 毫秒安全限制。请简化嵌套重复和歧义分组以减少回溯。" });
   }
   if (slug === "regex-test-araci" && detail === "REGEX_WORKER") {
-    return isTr ? "Regex güvenli çalışma alanı başlatılamadı. Tarayıcınızın Worker desteğini veya içerik engelleyicisini kontrol edin." : "The safe regex worker could not start. Check browser Worker support or content-blocking settings.";
+    return ui(locale, { tr: "Regex güvenli çalışma alanı başlatılamadı. Tarayıcınızın Worker desteğini veya içerik engelleyicisini kontrol edin.", en: "The safe regex worker could not start. Check browser Worker support or content-blocking settings.", de: "Der sichere Regex-Worker konnte nicht gestartet werden. Prüfen Sie die Worker-Unterstützung und Inhaltsblocker des Browsers.", zh: "无法启动安全正则 Worker。请检查浏览器 Worker 支持或内容拦截设置。" });
   }
   if (slug === "base64-kodlayici") {
-    return isTr ? `Base64 metni çözülemedi. Alfabe, padding (=) ve kopyalama sırasında eklenen boşlukları kontrol edin. Teknik ayrıntı: ${detail}` : `The Base64 text could not be decoded. Check its alphabet, padding (=), and copied whitespace. Technical detail: ${detail}`;
+    return ui(locale, { tr: `Base64 metni çözülemedi. Alfabe, padding (=) ve kopyalama sırasında eklenen boşlukları kontrol edin. Teknik ayrıntı: ${detail}`, en: `The Base64 text could not be decoded. Check its alphabet, padding (=), and copied whitespace. Technical detail: ${detail}`, de: `Der Base64-Text konnte nicht dekodiert werden. Prüfen Sie Alphabet, Padding (=) und kopierte Leerzeichen. Technisches Detail: ${detail}`, zh: `无法解码 Base64 文本。请检查字符集、填充符（=）和复制产生的空白。技术详情：${detail}` });
   }
   if (slug === "url-kodlayici" && error instanceof URIError) {
-    return isTr ? `URL kodlaması çözülemedi. Eksik veya bozuk yüzde kaçışlarını (ör. %20) kontrol edin. Teknik ayrıntı: ${detail}` : `The URL encoding could not be decoded. Check incomplete or malformed percent escapes such as %20. Technical detail: ${detail}`;
+    return ui(locale, { tr: `URL kodlaması çözülemedi. Eksik veya bozuk yüzde kaçışlarını (ör. %20) kontrol edin. Teknik ayrıntı: ${detail}`, en: `The URL encoding could not be decoded. Check incomplete or malformed percent escapes such as %20. Technical detail: ${detail}`, de: `Die URL-Kodierung konnte nicht dekodiert werden. Prüfen Sie unvollständige oder fehlerhafte Prozent-Escapes wie %20. Technisches Detail: ${detail}`, zh: `无法解码 URL 编码。请检查不完整或错误的百分号转义，例如 %20。技术详情：${detail}` });
   }
-  return detail;
+  return locale === "en" || locale === "tr" ? detail : ui(locale, { tr: detail, en: detail, de: `Eingabe prüfen: ${detail}`, zh: `请检查输入：${detail}` });
 }
 
 const localeTags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
@@ -316,15 +338,15 @@ function passesTcknChecksum(value: string) {
   return (tenth + 10) % 10 === digits[9] && digits.slice(0, 10).reduce((sum, digit) => sum + digit, 0) % 10 === digits[10];
 }
 
-function explainCron(expression: string, isTr: boolean) {
+function explainCron(expression: string, locale: Locale) {
   const fields = expression.trim().split(/\s+/);
-  if (fields.length !== 5) throw new Error(isTr ? "Klasik cron ifadesi 5 alan içermelidir." : "A classic cron expression must contain five fields.");
+  if (fields.length !== 5) throw new Error(ui(locale, { tr: "Klasik cron ifadesi 5 alan içermelidir.", en: "A classic cron expression must contain five fields.", de: "Ein klassischer Cron-Ausdruck muss fünf Felder enthalten.", zh: "经典 Cron 表达式必须包含五个字段。" }));
   const definitions = [
-    { name: isTr ? "Dakika" : "Minute", min: 0, max: 59 },
-    { name: isTr ? "Saat" : "Hour", min: 0, max: 23 },
-    { name: isTr ? "Ayın günü" : "Day of month", min: 1, max: 31 },
-    { name: isTr ? "Ay" : "Month", min: 1, max: 12 },
-    { name: isTr ? "Haftanın günü" : "Day of week", min: 0, max: 7 },
+    { name: ui(locale, { tr: "Dakika", en: "Minute", de: "Minute", zh: "分钟" }), min: 0, max: 59 },
+    { name: ui(locale, { tr: "Saat", en: "Hour", de: "Stunde", zh: "小时" }), min: 0, max: 23 },
+    { name: ui(locale, { tr: "Ayın günü", en: "Day of month", de: "Tag des Monats", zh: "月中日期" }), min: 1, max: 31 },
+    { name: ui(locale, { tr: "Ay", en: "Month", de: "Monat", zh: "月份" }), min: 1, max: 12 },
+    { name: ui(locale, { tr: "Haftanın günü", en: "Day of week", de: "Wochentag", zh: "星期" }), min: 0, max: 7 },
   ];
   function validate(field: string, min: number, max: number) {
     const pieces = field.split(",");
@@ -339,22 +361,21 @@ function explainCron(expression: string, isTr: boolean) {
     }
     return true;
   }
-  fields.forEach((field, index) => { if (!validate(field, definitions[index].min, definitions[index].max)) throw new Error(`${definitions[index].name}: ${isTr ? "geçersiz değer" : "invalid value"} (${field})`); });
+  fields.forEach((field, index) => { if (!validate(field, definitions[index].min, definitions[index].max)) throw new Error(`${definitions[index].name}: ${ui(locale, { tr: "geçersiz değer", en: "invalid value", de: "ungültiger Wert", zh: "值无效" })} (${field})`); });
   const [minute, hour, day, month, weekday] = fields;
-  let summary = isTr ? "Özel cron zamanlaması" : "Custom cron schedule";
-  if (minute === "*" && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? "Her dakika çalışır." : "Runs every minute.";
-  else if (/^\*\/\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her ${minute.slice(2)} dakikada bir çalışır.` : `Runs every ${minute.slice(2)} minutes.`;
-  else if (/^\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her saat ${minute.padStart(2, "0")}. dakikada çalışır.` : `Runs at minute ${minute.padStart(2, "0")} of every hour.`;
-  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "*") summary = isTr ? `Her gün saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs every day at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
+  let summary = ui(locale, { tr: "Özel cron zamanlaması", en: "Custom cron schedule", de: "Benutzerdefinierter Cron-Zeitplan", zh: "自定义 Cron 计划" });
+  if (minute === "*" && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = ui(locale, { tr: "Her dakika çalışır.", en: "Runs every minute.", de: "Wird jede Minute ausgeführt.", zh: "每分钟运行一次。" });
+  else if (/^\*\/\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = ui(locale, { tr: `Her ${minute.slice(2)} dakikada bir çalışır.`, en: `Runs every ${minute.slice(2)} minutes.`, de: `Wird alle ${minute.slice(2)} Minuten ausgeführt.`, zh: `每 ${minute.slice(2)} 分钟运行一次。` });
+  else if (/^\d+$/.test(minute) && hour === "*" && day === "*" && month === "*" && weekday === "*") summary = ui(locale, { tr: `Her saat ${minute.padStart(2, "0")}. dakikada çalışır.`, en: `Runs at minute ${minute.padStart(2, "0")} of every hour.`, de: `Wird in jeder Stunde zur Minute ${minute.padStart(2, "0")} ausgeführt.`, zh: `每小时的第 ${minute.padStart(2, "0")} 分钟运行。` });
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "*") summary = ui(locale, { tr: `Her gün saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.`, en: `Runs every day at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`, de: `Wird täglich um ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} Uhr ausgeführt.`, zh: `每天 ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} 运行。` });
   else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && /^\d$/.test(weekday)) {
-    const daysTr = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
-    const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    summary = isTr ? `Her ${daysTr[Number(weekday)]} saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs every ${daysEn[Number(weekday)]} at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
+    const days = ui(locale, { tr: ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"], en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], de: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"], zh: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"] });
+    summary = ui(locale, { tr: `Her ${days[Number(weekday)]} saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.`, en: `Runs every ${days[Number(weekday)]} at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`, de: `Wird jeden ${days[Number(weekday)]} um ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} Uhr ausgeführt.`, zh: `每${days[Number(weekday)]} ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} 运行。` });
   }
-  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "1-5") summary = isTr ? `Pazartesi–cuma saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs Monday–Friday at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
-  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && /^\d+$/.test(day) && month === "*" && weekday === "*") summary = isTr ? `Her ayın ${day}. günü saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.` : `Runs on day ${day} of every month at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`;
-  const details = fields.map((field, index) => `${definitions[index].name}: ${field === "*" ? (isTr ? "her değer" : "every value") : field}`).join("\n");
-  return `${summary}\n\n${details}\n\n${isTr ? "Saat dilimi: Cron çalıştırıcısının/sunucunun saat dilimini ayrıca doğrulayın." : "Time zone: verify the scheduler or server time zone separately."}`;
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && day === "*" && month === "*" && weekday === "1-5") summary = ui(locale, { tr: `Pazartesi–cuma saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.`, en: `Runs Monday–Friday at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`, de: `Wird montags bis freitags um ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} Uhr ausgeführt.`, zh: `周一至周五 ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} 运行。` });
+  else if (/^\d+$/.test(minute) && /^\d+$/.test(hour) && /^\d+$/.test(day) && month === "*" && weekday === "*") summary = ui(locale, { tr: `Her ayın ${day}. günü saat ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}'te çalışır.`, en: `Runs on day ${day} of every month at ${hour.padStart(2, "0")}:${minute.padStart(2, "0")}.`, de: `Wird am ${day}. Tag jedes Monats um ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} Uhr ausgeführt.`, zh: `每月 ${day} 日 ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} 运行。` });
+  const details = fields.map((field, index) => `${definitions[index].name}: ${field === "*" ? ui(locale, { tr: "her değer", en: "every value", de: "jeder Wert", zh: "任意值" }) : field}`).join("\n");
+  return `${summary}\n\n${details}\n\n${ui(locale, { tr: "Saat dilimi: Cron çalıştırıcısının/sunucunun saat dilimini ayrıca doğrulayın.", en: "Time zone: verify the scheduler or server time zone separately.", de: "Zeitzone: Prüfen Sie die Zeitzone des Schedulers oder Servers gesondert.", zh: "时区：请另行确认调度器或服务器的时区。" })}`;
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
@@ -411,7 +432,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   }
 
   function loadDemo() {
-    setInput(samples[slug]?.[locale === "tr" ? "tr" : "en"] ?? "");
+    setInput(legacyGenericSamples[slug]?.[locale] ?? "");
     setSecondary(secondarySample(slug, locale));
     setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setOutput(""); setMetrics([]);
     setNotice({ kind: "info", text: labels.demoLoaded });
@@ -456,32 +477,51 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
       switch (slug) {
         case "prompt-kalite-denetimi": {
           const checks = [
-            { label: isTr ? "Açık hedef" : "Clear goal", ok: /(?:hazırla|oluştur|yaz|analiz|karşılaştır|üret|çıkar|create|write|analy[sz]e|compare|produce|extract)/i.test(input) },
-            { label: isTr ? "Yeterli bağlam" : "Useful context", ok: list.length >= 18 },
-            { label: isTr ? "Çıktı biçimi" : "Output format", ok: /(?:liste|tablo|json|başlık|madde|format|list|table|heading|bullet)/i.test(input) },
-            { label: isTr ? "Kısıt veya sınır" : "Constraint", ok: /(?:en az|en fazla|yalnızca|kaçın|kullanma|zorunlu|at least|at most|only|avoid|must|do not)/i.test(input) },
-            { label: isTr ? "Hedef kitle veya ton" : "Audience or tone", ok: /(?:kullanıcı|okuyucu|müşteri|uzman|başlangıç|ton|audience|reader|customer|expert|beginner|tone)/i.test(input) },
-            { label: isTr ? "Kalite ölçütü" : "Quality criterion", ok: /(?:doğru|kaynak|kanıt|özgün|açık|kontrol|accurate|source|evidence|original|clear|verify)/i.test(input) },
+            { label: ui(locale, { tr: "Açık hedef", en: "Clear goal", de: "Klares Ziel", zh: "明确目标" }), ok: /(?:hazırla|oluştur|yaz|analiz|karşılaştır|üret|çıkar|create|write|analy[sz]e|compare|produce|extract|erstell|schreib|analys|vergleich|生成|编写|分析|比较)/iu.test(input) },
+            { label: ui(locale, { tr: "Yeterli bağlam", en: "Useful context", de: "Nützlicher Kontext", zh: "有效语境" }), ok: list.length >= 18 },
+            { label: ui(locale, { tr: "Çıktı biçimi", en: "Output format", de: "Ausgabeformat", zh: "输出格式" }), ok: /(?:liste|tablo|json|başlık|madde|format|list|table|heading|bullet|tabelle|überschrift|列表|表格|标题|格式)/iu.test(input) },
+            { label: ui(locale, { tr: "Kısıt veya sınır", en: "Constraint", de: "Bedingung", zh: "约束条件" }), ok: /(?:en az|en fazla|yalnızca|kaçın|kullanma|zorunlu|at least|at most|only|avoid|must|do not|mindestens|höchstens|nur|vermeiden|muss|至少|最多|仅|避免|必须)/iu.test(input) },
+            { label: ui(locale, { tr: "Hedef kitle veya ton", en: "Audience or tone", de: "Zielgruppe oder Ton", zh: "受众或语气" }), ok: /(?:kullanıcı|okuyucu|müşteri|uzman|başlangıç|ton|audience|reader|customer|expert|beginner|tone|zielgruppe|leser|kunde|einsteiger|受众|读者|客户|初学者|语气)/iu.test(input) },
+            { label: ui(locale, { tr: "Kalite ölçütü", en: "Quality criterion", de: "Qualitätskriterium", zh: "质量标准" }), ok: /(?:doğru|kaynak|kanıt|özgün|açık|kontrol|accurate|source|evidence|original|clear|verify|korrekt|quelle|beleg|prüf|准确|来源|证据|清晰|核验)/iu.test(input) },
           ];
           const score = Math.round(checks.filter((item) => item.ok).length / checks.length * 100);
-          const report = checks.map((item) => `${item.ok ? "✓" : "○"} ${item.label}${item.ok ? "" : isTr ? " — eklenmesi önerilir" : " — consider adding"}`).join("\n");
-          setResult(`${isTr ? "PROMPT KALİTE RAPORU" : "PROMPT QUALITY REPORT"}\n\n${report}\n\n${isTr ? "Öneri: Eksik bileşenleri doğal bir dille ekleyin; gereksiz uzunluktan kaçının." : "Recommendation: add missing components in natural language and avoid unnecessary length."}`, [{ label: isTr ? "Kalite skoru" : "Quality score", value: `${score}/100` }, { label: isTr ? "Karşılanan ölçüt" : "Checks passed", value: `${checks.filter((item) => item.ok).length}/${checks.length}` }, { label: isTr ? "Kelime" : "Words", value: list.length }]);
+          const report = checks.map((item) => `${item.ok ? "✓" : "○"} ${item.label}${item.ok ? "" : ui(locale, { tr: " — eklenmesi önerilir", en: " — consider adding", de: " — sollte ergänzt werden", zh: " — 建议补充" })}`).join("\n");
+          setResult(`${ui(locale, { tr: "PROMPT KALİTE RAPORU", en: "PROMPT QUALITY REPORT", de: "PROMPT-QUALITÄTSBERICHT", zh: "提示词质量报告" })}\n\n${report}\n\n${ui(locale, { tr: "Öneri: Eksik bileşenleri doğal bir dille ekleyin; gereksiz uzunluktan kaçının.", en: "Recommendation: add missing components in natural language and avoid unnecessary length.", de: "Empfehlung: Ergänzen Sie fehlende Bestandteile in natürlicher Sprache und vermeiden Sie unnötige Länge.", zh: "建议：用自然语言补充缺失部分，并避免不必要的冗长内容。" })}`, [{ label: ui(locale, { tr: "Kalite skoru", en: "Quality score", de: "Qualitätswert", zh: "质量评分" }), value: `${score}/100` }, { label: ui(locale, { tr: "Karşılanan ölçüt", en: "Checks passed", de: "Erfüllte Kriterien", zh: "通过标准" }), value: `${checks.filter((item) => item.ok).length}/${checks.length}` }, { label: ui(locale, { tr: "Kelime", en: "Words", de: "Wörter", zh: "词/分段" }), value: list.length }]);
           break;
         }
         case "meta-prompt-olusturucu": {
-          setResult(`${isTr ? "ROL" : "ROLE"}\n${isTr ? "Görevin amacına uygun, kanıta dayalı ve açık iletişim kuran bir uzman gibi çalış." : "Act as a domain-appropriate specialist who communicates clearly and relies on evidence."}\n\n${isTr ? "HEDEF" : "OBJECTIVE"}\n${input.trim()}\n\n${isTr ? "BAĞLAM VE SINIRLAR" : "CONTEXT AND CONSTRAINTS"}\n${secondary.trim() || (isTr ? "Yalnızca verilen bilgiyi kullan. Bilinmeyen noktaları varsayma; 'yetersiz bilgi' olarak işaretle." : "Use only the supplied information. Do not invent missing facts; mark them as 'insufficient information.'")}\n\n${isTr ? "ÇALIŞMA SÜRECİ" : "PROCESS"}\n1. ${isTr ? "Hedefi ve başarı ölçütünü yeniden ifade et." : "Restate the goal and success criteria."}\n2. ${isTr ? "Girdiyi çelişki, eksik bilgi ve hassas veri açısından kontrol et." : "Check the input for conflicts, missing information, and sensitive data."}\n3. ${isTr ? "Sonucu en açık ve kısa yapıda hazırla." : "Prepare the result in the clearest concise structure."}\n4. ${isTr ? "Son kontrolde iddiaları, kapsamı ve biçimi doğrula." : "Verify claims, scope, and format before finalizing."}\n\n${isTr ? "ÇIKTI SÖZLEŞMESİ" : "OUTPUT CONTRACT"}\n- ${isTr ? "Önce kısa sonuç özeti" : "Start with a short outcome summary"}\n- ${isTr ? "Ardından gerekçeli maddeler" : "Follow with reasoned bullet points"}\n- ${isTr ? "Son bölümde riskler ve sonraki adımlar" : "End with risks and next steps"}`, [{ label: isTr ? "Şablon bölümü" : "Template sections", value: 5 }, { label: isTr ? "Hedef kelimesi" : "Goal words", value: list.length }]);
+          const t = ui(locale, {
+            tr: { role: "ROL", roleText: "Görevin amacına uygun, kanıta dayalı ve açık iletişim kuran bir uzman gibi çalış.", objective: "HEDEF", context: "BAĞLAM VE SINIRLAR", fallback: "Yalnızca verilen bilgiyi kullan. Bilinmeyen noktaları varsayma; 'yetersiz bilgi' olarak işaretle.", process: "ÇALIŞMA SÜRECİ", steps: ["Hedefi ve başarı ölçütünü yeniden ifade et.", "Girdiyi çelişki, eksik bilgi ve hassas veri açısından kontrol et.", "Sonucu en açık ve kısa yapıda hazırla.", "Son kontrolde iddiaları, kapsamı ve biçimi doğrula."], contract: "ÇIKTI SÖZLEŞMESİ", bullets: ["Önce kısa sonuç özeti", "Ardından gerekçeli maddeler", "Son bölümde riskler ve sonraki adımlar"], sections: "Şablon bölümü", words: "Hedef kelimesi" },
+            en: { role: "ROLE", roleText: "Act as a domain-appropriate specialist who communicates clearly and relies on evidence.", objective: "OBJECTIVE", context: "CONTEXT AND CONSTRAINTS", fallback: "Use only the supplied information. Do not invent missing facts; mark them as 'insufficient information.'", process: "PROCESS", steps: ["Restate the goal and success criteria.", "Check the input for conflicts, missing information, and sensitive data.", "Prepare the result in the clearest concise structure.", "Verify claims, scope, and format before finalizing."], contract: "OUTPUT CONTRACT", bullets: ["Start with a short outcome summary", "Follow with reasoned bullet points", "End with risks and next steps"], sections: "Template sections", words: "Goal words" },
+            de: { role: "ROLLE", roleText: "Arbeiten Sie als fachlich passende Person, die klar kommuniziert und sich auf Belege stützt.", objective: "ZIEL", context: "KONTEXT UND GRENZEN", fallback: "Verwenden Sie nur die bereitgestellten Informationen. Erfinden Sie keine fehlenden Fakten; markieren Sie sie als 'unzureichende Information'.", process: "VORGEHEN", steps: ["Formulieren Sie Ziel und Erfolgskriterien neu.", "Prüfen Sie die Eingabe auf Widersprüche, fehlende Angaben und sensible Daten.", "Bereiten Sie das Ergebnis möglichst klar und knapp auf.", "Prüfen Sie abschließend Aussagen, Umfang und Format."], contract: "AUSGABEVERTRAG", bullets: ["Mit einer kurzen Ergebniszusammenfassung beginnen", "Begründete Stichpunkte folgen lassen", "Mit Risiken und nächsten Schritten enden"], sections: "Vorlagenabschnitte", words: "Wörter im Ziel" },
+            zh: { role: "角色", roleText: "以符合任务领域的专家身份工作，清晰沟通并以证据为依据。", objective: "目标", context: "背景与边界", fallback: "仅使用给定信息。不要编造缺失事实；将其标记为“信息不足”。", process: "工作流程", steps: ["重新表述目标与成功标准。", "检查输入中的冲突、缺失信息和敏感数据。", "以最清晰、简洁的结构生成结果。", "完成前核验主张、范围和格式。"], contract: "输出约定", bullets: ["先给出简短结果摘要", "随后列出有依据的要点", "最后说明风险与后续步骤"], sections: "模板部分", words: "目标词/分段" },
+          });
+          setResult(`${t.role}\n${t.roleText}\n\n${t.objective}\n${input.trim()}\n\n${t.context}\n${secondary.trim() || t.fallback}\n\n${t.process}\n${t.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\n${t.contract}\n${t.bullets.map((item) => `- ${item}`).join("\n")}`, [{ label: t.sections, value: 5 }, { label: t.words, value: list.length }]);
           break;
         }
         case "few-shot-ornek-olusturucu": {
-          const examples = secondary.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => { const divider = line.indexOf("=>"); if (divider < 1 || divider >= line.length - 2) throw new Error(isTr ? "Her örneği `girdi => çıktı` biçiminde yazın." : "Write every example as `input => output`."); return { input: line.slice(0, divider).trim(), output: line.slice(divider + 2).trim() }; });
-          if (examples.length < 2) throw new Error(isTr ? "Deseni göstermek için en az iki örnek ekleyin." : "Add at least two examples to demonstrate the pattern.");
-          const exampleBlock = examples.map((example, index) => `${isTr ? "ÖRNEK" : "EXAMPLE"} ${index + 1}\n${isTr ? "Girdi" : "Input"}: ${example.input}\n${isTr ? "Çıktı" : "Output"}: ${example.output}`).join("\n\n");
-          setResult(`${isTr ? "GÖREV" : "TASK"}\n${input.trim()}\n\n${isTr ? "TALİMATLAR" : "INSTRUCTIONS"}\n- ${isTr ? "Aşağıdaki örneklerdeki karar mantığını ve çıktı biçimini izle." : "Follow the decision pattern and output format demonstrated below."}\n- ${isTr ? "Örnekleri ezberlemek yerine yeni girdinin özelliklerini değerlendir." : "Evaluate the new input rather than copying an example."}\n- ${isTr ? "Belirsiz durumda varsayımını kısa biçimde belirt." : "State any assumption briefly when the input is ambiguous."}\n\n${exampleBlock}\n\n${isTr ? "YENİ GİRDİ" : "NEW INPUT"}\n{{input}}\n\n${isTr ? "ÇIKTI" : "OUTPUT"}\n`, [{ label: isTr ? "Örnek" : "Examples", value: examples.length }, { label: isTr ? "Görev kelimesi" : "Task words", value: list.length }]);
+          const t = ui(locale, {
+            tr: { shape: "Her örneği `girdi => çıktı` biçiminde yazın.", minimum: "Deseni göstermek için en az iki örnek ekleyin.", example: "ÖRNEK", input: "Girdi", output: "Çıktı", task: "GÖREV", instructions: "TALİMATLAR", rules: ["Aşağıdaki örneklerdeki karar mantığını ve çıktı biçimini izle.", "Örnekleri ezberlemek yerine yeni girdinin özelliklerini değerlendir.", "Belirsiz durumda varsayımını kısa biçimde belirt."], next: "YENİ GİRDİ", examples: "Örnek", words: "Görev kelimesi" },
+            en: { shape: "Write every example as `input => output`.", minimum: "Add at least two examples to demonstrate the pattern.", example: "EXAMPLE", input: "Input", output: "Output", task: "TASK", instructions: "INSTRUCTIONS", rules: ["Follow the decision pattern and output format demonstrated below.", "Evaluate the new input rather than copying an example.", "State any assumption briefly when the input is ambiguous."], next: "NEW INPUT", examples: "Examples", words: "Task words" },
+            de: { shape: "Schreiben Sie jedes Beispiel als `Eingabe => Ausgabe`.", minimum: "Fügen Sie mindestens zwei Beispiele hinzu, damit das Muster erkennbar ist.", example: "BEISPIEL", input: "Eingabe", output: "Ausgabe", task: "AUFGABE", instructions: "ANWEISUNGEN", rules: ["Folgen Sie der Entscheidungslogik und dem Ausgabeformat der Beispiele.", "Bewerten Sie die neue Eingabe, statt ein Beispiel zu kopieren.", "Nennen Sie bei Mehrdeutigkeit die Annahme kurz."], next: "NEUE EINGABE", examples: "Beispiele", words: "Aufgabenwörter" },
+            zh: { shape: "请将每个示例写成 `输入 => 输出` 格式。", minimum: "至少添加两个示例以说明模式。", example: "示例", input: "输入", output: "输出", task: "任务", instructions: "说明", rules: ["遵循下方示例展示的判断逻辑和输出格式。", "评估新输入的特征，不要机械复制示例。", "输入有歧义时简要说明假设。"], next: "新输入", examples: "示例数量", words: "任务词/分段" },
+          });
+          const examples = secondary.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => { const divider = line.indexOf("=>"); if (divider < 1 || divider >= line.length - 2) throw new Error(t.shape); return { input: line.slice(0, divider).trim(), output: line.slice(divider + 2).trim() }; });
+          if (examples.length < 2) throw new Error(t.minimum);
+          const exampleBlock = examples.map((example, index) => `${t.example} ${index + 1}\n${t.input}: ${example.input}\n${t.output}: ${example.output}`).join("\n\n");
+          setResult(`${t.task}\n${input.trim()}\n\n${t.instructions}\n${t.rules.map((rule) => `- ${rule}`).join("\n")}\n\n${exampleBlock}\n\n${t.next}\n{{input}}\n\n${t.output}\n`, [{ label: t.examples, value: examples.length }, { label: t.words, value: list.length }]);
           break;
         }
         case "sistem-promptu-persona-sablonu": {
           const guidelines = secondary.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-          setResult(`${isTr ? "SİSTEM ROLÜ" : "SYSTEM ROLE"}\n${isTr ? `Sen ${input.trim()}.` : `You are ${input.trim()}.`}\n\n${isTr ? "AMAÇ" : "MISSION"}\n${isTr ? "Kullanıcının hedefini doğru anlayıp açık, yararlı ve doğrulanabilir bir yanıt üret. Başarıyı yalnızca akıcı metinle değil, talimatlara ve sınırlarına uyumla ölç." : "Understand the user's goal and produce a clear, useful, verifiable response. Measure success by adherence to instructions and boundaries, not fluency alone."}\n\n${isTr ? "İLETİŞİM VE DAVRANIŞ" : "COMMUNICATION AND BEHAVIOR"}\n${guidelines.length ? guidelines.map((item) => `- ${item}`).join("\n") : `- ${isTr ? "Sakin, açık ve doğrudan yaz." : "Write calmly, clearly, and directly."}\n- ${isTr ? "Teknik terimleri ilk kullanımda açıkla." : "Explain technical terms on first use."}`}\n\n${isTr ? "DEĞİŞMEZ SINIRLAR" : "NON-NEGOTIABLE BOUNDARIES"}\n- ${isTr ? "Bilinmeyen bilgi, kaynak veya sonucu uydurma." : "Do not invent missing facts, sources, or outcomes."}\n- ${isTr ? "Hassas veriyi gereksiz yere isteme veya tekrar etme." : "Do not request or repeat sensitive data unnecessarily."}\n- ${isTr ? "Hukuki, tıbbi, finansal veya güvenlik açısından kritik konuda kesin garanti verme." : "Do not guarantee legal, medical, financial, or security-critical outcomes."}\n- ${isTr ? "Talimatlar çelişirse çelişkiyi açıkla ve güvenli seçeneği sor." : "If instructions conflict, explain the conflict and ask for the safer choice."}\n\n${isTr ? "ÇIKTI SÖZLEŞMESİ" : "OUTPUT CONTRACT"}\n1. ${isTr ? "Sonuç veya öneriyle başla." : "Lead with the outcome or recommendation."}\n2. ${isTr ? "Gerekçeyi kısa ve denetlenebilir maddelerle açıkla." : "Explain the reasoning with concise, auditable points."}\n3. ${isTr ? "Varsayımları, belirsizliği ve sonraki adımı belirt." : "State assumptions, uncertainty, and the next step."}\n4. ${isTr ? "Yanıtı göndermeden önce rol, sınır ve biçim uyumunu kontrol et." : "Before sending, verify role, boundary, and format compliance."}`, [{ label: isTr ? "Kural" : "Rules", value: guidelines.length + 8 }, { label: isTr ? "Rol kelimesi" : "Role words", value: list.length }]);
+          const t = ui(locale, {
+            tr: { role: "SİSTEM ROLÜ", roleText: `Sen ${input.trim()}.`, mission: "AMAÇ", missionText: "Kullanıcının hedefini doğru anlayıp açık, yararlı ve doğrulanabilir bir yanıt üret. Başarıyı yalnızca akıcı metinle değil, talimatlara ve sınırlarına uyumla ölç.", behavior: "İLETİŞİM VE DAVRANIŞ", defaults: ["Sakin, açık ve doğrudan yaz.", "Teknik terimleri ilk kullanımda açıkla."], boundaries: "DEĞİŞMEZ SINIRLAR", limits: ["Bilinmeyen bilgi, kaynak veya sonucu uydurma.", "Hassas veriyi gereksiz yere isteme veya tekrar etme.", "Hukuki, tıbbi, finansal veya güvenlik açısından kritik konuda kesin garanti verme.", "Talimatlar çelişirse çelişkiyi açıkla ve güvenli seçeneği sor."], contract: "ÇIKTI SÖZLEŞMESİ", steps: ["Sonuç veya öneriyle başla.", "Gerekçeyi kısa ve denetlenebilir maddelerle açıkla.", "Varsayımları, belirsizliği ve sonraki adımı belirt.", "Yanıtı göndermeden önce rol, sınır ve biçim uyumunu kontrol et."], rules: "Kural", words: "Rol kelimesi" },
+            en: { role: "SYSTEM ROLE", roleText: `You are ${input.trim()}.`, mission: "MISSION", missionText: "Understand the user's goal and produce a clear, useful, verifiable response. Measure success by adherence to instructions and boundaries, not fluency alone.", behavior: "COMMUNICATION AND BEHAVIOR", defaults: ["Write calmly, clearly, and directly.", "Explain technical terms on first use."], boundaries: "NON-NEGOTIABLE BOUNDARIES", limits: ["Do not invent missing facts, sources, or outcomes.", "Do not request or repeat sensitive data unnecessarily.", "Do not guarantee legal, medical, financial, or security-critical outcomes.", "If instructions conflict, explain the conflict and ask for the safer choice."], contract: "OUTPUT CONTRACT", steps: ["Lead with the outcome or recommendation.", "Explain the reasoning with concise, auditable points.", "State assumptions, uncertainty, and the next step.", "Before sending, verify role, boundary, and format compliance."], rules: "Rules", words: "Role words" },
+            de: { role: "SYSTEMROLLE", roleText: `Sie sind ${input.trim()}.`, mission: "AUFTRAG", missionText: "Verstehen Sie das Ziel der Person und liefern Sie eine klare, nützliche und überprüfbare Antwort. Messen Sie Erfolg an der Einhaltung von Anweisungen und Grenzen, nicht nur an flüssigem Text.", behavior: "KOMMUNIKATION UND VERHALTEN", defaults: ["Schreiben Sie ruhig, klar und direkt.", "Erklären Sie Fachbegriffe bei der ersten Verwendung."], boundaries: "UNVERHANDELBARE GRENZEN", limits: ["Erfinden Sie keine fehlenden Fakten, Quellen oder Ergebnisse.", "Fordern oder wiederholen Sie sensible Daten nicht unnötig.", "Geben Sie keine Garantien für rechtliche, medizinische, finanzielle oder sicherheitskritische Ergebnisse.", "Erklären Sie widersprüchliche Anweisungen und fragen Sie nach der sichereren Wahl."], contract: "AUSGABEVERTRAG", steps: ["Mit Ergebnis oder Empfehlung beginnen.", "Die Begründung in knappen, prüfbaren Punkten erklären.", "Annahmen, Unsicherheit und nächsten Schritt nennen.", "Vor dem Senden Rolle, Grenzen und Format prüfen."], rules: "Regeln", words: "Wörter der Rolle" },
+            zh: { role: "系统角色", roleText: `你是${input.trim()}。`, mission: "使命", missionText: "准确理解用户目标，并生成清晰、有用、可验证的回答。成功标准是遵守说明与边界，而不只是语言流畅。", behavior: "沟通与行为", defaults: ["保持冷静、清晰和直接。", "技术术语首次出现时加以解释。"], boundaries: "不可突破的边界", limits: ["不得编造未知事实、来源或结果。", "不得无必要地索取或复述敏感数据。", "不得对法律、医疗、金融或安全关键结果作出保证。", "说明冲突的指令，并询问更安全的选择。"], contract: "输出约定", steps: ["先给出结果或建议。", "用简明、可审查的要点解释依据。", "说明假设、不确定性和下一步。", "发送前检查角色、边界和格式是否一致。"], rules: "规则", words: "角色词/分段" },
+          });
+          const behavior = (guidelines.length ? guidelines : t.defaults).map((item) => `- ${item}`).join("\n");
+          setResult(`${t.role}\n${t.roleText}\n\n${t.mission}\n${t.missionText}\n\n${t.behavior}\n${behavior}\n\n${t.boundaries}\n${t.limits.map((item) => `- ${item}`).join("\n")}\n\n${t.contract}\n${t.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}`, [{ label: t.rules, value: guidelines.length + 8 }, { label: t.words, value: list.length }]);
           break;
         }
         case "token-sayaci": {
@@ -527,9 +567,9 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "metin-benzerlik-analizi": {
-          if (!secondary.trim()) throw new Error(isTr ? "İkinci metni de girin." : "Enter the comparison text.");
+          if (!secondary.trim()) throw new Error(ui(locale, { tr: "İkinci metni de girin.", en: "Enter the comparison text.", de: "Geben Sie auch den Vergleichstext ein.", zh: "请输入用于比较的第二段文本。" }));
           const result = similarity(input, secondary, locale);
-          setResult(isTr ? `Sözcük tabanlı kosinüs benzerliği %${Math.round(result.cosine * 100)}, Jaccard örtüşmesi %${Math.round(result.jaccard * 100)}. Bu ölçüm bağlamsal yapay zekâ benzerliği değildir.` : `Word-based cosine similarity is ${Math.round(result.cosine * 100)}%; Jaccard overlap is ${Math.round(result.jaccard * 100)}%. This is not contextual AI similarity.`, [{ label: "Cosine", value: `${Math.round(result.cosine * 100)}%` }, { label: "Jaccard", value: `${Math.round(result.jaccard * 100)}%` }, { label: isTr ? "Ortak sözcük" : "Shared terms", value: result.shared }]);
+          setResult(ui(locale, { tr: `Sözcük tabanlı kosinüs benzerliği %${Math.round(result.cosine * 100)}, Jaccard örtüşmesi %${Math.round(result.jaccard * 100)}. Bu ölçüm bağlamsal yapay zekâ benzerliği değildir.`, en: `Word-based cosine similarity is ${Math.round(result.cosine * 100)}%; Jaccard overlap is ${Math.round(result.jaccard * 100)}%. This is not contextual AI similarity.`, de: `Die wortbasierte Kosinus-Ähnlichkeit beträgt ${Math.round(result.cosine * 100)} %, die Jaccard-Überlappung ${Math.round(result.jaccard * 100)} %. Dies ist keine kontextuelle KI-Ähnlichkeit.`, zh: `基于词项的余弦相似度为 ${Math.round(result.cosine * 100)}%，Jaccard 重合度为 ${Math.round(result.jaccard * 100)}%。该结果不是上下文 AI 相似度。` }), [{ label: "Cosine", value: `${Math.round(result.cosine * 100)}%` }, { label: "Jaccard", value: `${Math.round(result.jaccard * 100)}%` }, { label: ui(locale, { tr: "Ortak sözcük", en: "Shared terms", de: "Gemeinsame Begriffe", zh: "共有词项" }), value: result.shared }]);
           break;
         }
         case "metin-temizleyici": {
@@ -551,12 +591,12 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         case "kelime-sayaci": {
           const paragraphs = input.trim().split(/\n\s*\n/).filter(Boolean).length;
           const readMinutes = Math.max(1, Math.ceil(list.length / 200));
-          setResult(isTr ? `Tahmini okuma süresi ${readMinutes} dakika. Uzunluk tek başına kalite göstergesi değildir; içeriğin amacı ve okuyucunun ihtiyacıyla birlikte değerlendirin.` : `Estimated reading time is ${readMinutes} minute${readMinutes === 1 ? "" : "s"}. Length alone does not indicate quality; evaluate it against purpose and reader needs.`, [{ label: isTr ? "Kelime" : "Words", value: list.length }, { label: isTr ? "Karakter" : "Characters", value: input.length }, { label: isTr ? "Cümle" : "Sentences", value: sentenceCount(input) }, { label: isTr ? "Paragraf" : "Paragraphs", value: paragraphs }]);
+          setResult(ui(locale, { tr: `Tahmini okuma süresi ${readMinutes} dakika. Uzunluk tek başına kalite göstergesi değildir; içeriğin amacı ve okuyucunun ihtiyacıyla birlikte değerlendirin.`, en: `Estimated reading time is ${readMinutes} minute${readMinutes === 1 ? "" : "s"}. Length alone does not indicate quality; evaluate it against purpose and reader needs.`, de: `Geschätzte Lesezeit: ${readMinutes} Minute${readMinutes === 1 ? "" : "n"}. Länge allein ist kein Qualitätsmerkmal; berücksichtigen Sie Zweck und Bedarf der Lesenden.`, zh: `预计阅读时间为 ${readMinutes} 分钟。篇幅本身不代表质量，请结合内容目的和读者需求判断。` }), [{ label: ui(locale, { tr: "Kelime", en: "Words", de: "Wörter", zh: "词/分段" }), value: list.length }, { label: ui(locale, { tr: "Karakter", en: "Characters", de: "Zeichen", zh: "字符" }), value: input.length }, { label: ui(locale, { tr: "Cümle", en: "Sentences", de: "Sätze", zh: "句子" }), value: sentenceCount(input) }, { label: ui(locale, { tr: "Paragraf", en: "Paragraphs", de: "Absätze", zh: "段落" }), value: paragraphs }]);
           break;
         }
         case "json-bicimlendirici": {
           const parsed = JSON.parse(input); const pretty = mode !== "minify"; const stack: Array<{ value: unknown; depth: number }> = [{ value: parsed, depth: 0 }]; let keys = 0; let nodes = 0; let maxDepth = 0;
-          while (stack.length) { const current = stack.pop()!; nodes += 1; maxDepth = Math.max(maxDepth, current.depth); if (current.value && typeof current.value === "object") { if (Array.isArray(current.value)) current.value.forEach((value) => stack.push({ value, depth: current.depth + 1 })); else Object.entries(current.value as Record<string, unknown>).forEach(([, value]) => { keys += 1; stack.push({ value, depth: current.depth + 1 }); }); } if (nodes > 250_000) throw new Error(isTr ? "JSON güvenli inceleme düğümü sınırını aşıyor." : "The JSON exceeds the safe inspection node limit."); }
+          while (stack.length) { const current = stack.pop()!; nodes += 1; maxDepth = Math.max(maxDepth, current.depth); if (current.value && typeof current.value === "object") { if (Array.isArray(current.value)) current.value.forEach((value) => stack.push({ value, depth: current.depth + 1 })); else Object.entries(current.value as Record<string, unknown>).forEach(([, value]) => { keys += 1; stack.push({ value, depth: current.depth + 1 }); }); } if (nodes > 250_000) throw new Error(ui(locale, { tr: "JSON güvenli inceleme düğümü sınırını aşıyor.", en: "The JSON exceeds the safe inspection node limit.", de: "Das JSON überschreitet die sichere Grenze für Prüfobjekte.", zh: "JSON 超出了安全检查节点上限。" })); }
           const output = JSON.stringify(parsed, null, pretty ? 2 : 0);
           setResult(output, [{ label: ui(locale, { tr: "Durum", en: "Status", de: "Status", zh: "状态" }), value: ui(locale, { tr: "Geçerli JSON", en: "Valid JSON", de: "Gültiges JSON", zh: "有效 JSON" }) }, { label: ui(locale, { tr: "Kök tür", en: "Root type", de: "Wurzeltyp", zh: "根类型" }), value: Array.isArray(parsed) ? "Array" : parsed === null ? "null" : typeof parsed }, { label: ui(locale, { tr: "Alan", en: "Keys", de: "Schlüssel", zh: "字段" }), value: keys }, { label: ui(locale, { tr: "En derin seviye", en: "Maximum depth", de: "Maximale Tiefe", zh: "最大深度" }), value: maxDepth }, { label: ui(locale, { tr: "Çıktı baytı", en: "Output bytes", de: "Ausgabe-Bytes", zh: "输出字节" }), value: new Blob([output]).size }]);
           break;
@@ -565,23 +605,23 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           if (mode === "csv-to-json") {
             const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter); const headers = rows[0] ?? [];
             const data = rows.slice(1).filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
-            setResult(JSON.stringify(data, null, 2), [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }, { label: isTr ? "Algılanan ayraç" : "Detected delimiter", value: delimiter === "\t" ? "TAB" : delimiter }]);
+            setResult(JSON.stringify(data, null, 2), [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: data.length }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: headers.length }, { label: ui(locale, { tr: "Algılanan ayraç", en: "Detected delimiter", de: "Erkanntes Trennzeichen", zh: "检测到的分隔符" }), value: delimiter === "\t" ? "TAB" : delimiter }]);
           } else {
-            const data = JSON.parse(input); if (!Array.isArray(data) || !data.every((item) => item && typeof item === "object" && !Array.isArray(item))) throw new Error(isTr ? "Düz nesnelerden oluşan bir JSON dizisi gerekir." : "A JSON array of flat objects is required.");
+            const data = JSON.parse(input); if (!Array.isArray(data) || !data.every((item) => item && typeof item === "object" && !Array.isArray(item))) throw new Error(ui(locale, { tr: "Düz nesnelerden oluşan bir JSON dizisi gerekir.", en: "A JSON array of flat objects is required.", de: "Erforderlich ist ein JSON-Array aus flachen Objekten.", zh: "需要由扁平对象组成的 JSON 数组。" }));
             const headers = [...new Set(data.flatMap((item) => Object.keys(item)))];
             const csv = [headers.map(csvEscape).join(","), ...data.map((item) => headers.map((header) => csvEscape(item[header])).join(","))].join("\n");
-            setResult(csv, [{ label: isTr ? "Kayıt" : "Records", value: data.length }, { label: isTr ? "Sütun" : "Columns", value: headers.length }]);
+            setResult(csv, [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: data.length }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: headers.length }]);
           }
           break;
         }
         case "regex-test-araci": {
-          if (!secondary.trim()) throw new Error(isTr ? "Bir regex kalıbı girin veya örnek veriyi yükleyin." : "Enter a regular expression or load the example.");
-          if (input.length > 50000) throw new Error(isTr ? "Performans için test metni 50.000 karakterle sınırlıdır." : "Sample text is limited to 50,000 characters for performance.");
-          if (secondary.length > 500) throw new Error(isTr ? "Regex kalıbı güvenli inceleme için 500 karakterle sınırlıdır." : "The regex pattern is limited to 500 characters for safe inspection.");
-          if (/(\([^)]*[+*][^)]*\))[+*{]/.test(secondary)) throw new Error(isTr ? "İç içe nicelik belirteci ReDoS riski taşıyabilir; kalıbı sadeleştirin." : "Nested quantifiers may create a ReDoS risk; simplify the pattern.");
+          if (!secondary.trim()) throw new Error(ui(locale, { tr: "Bir regex kalıbı girin veya örnek veriyi yükleyin.", en: "Enter a regular expression or load the example.", de: "Geben Sie einen regulären Ausdruck ein oder laden Sie das Beispiel.", zh: "请输入正则表达式或加载示例。" }));
+          if (input.length > 50000) throw new Error(ui(locale, { tr: "Performans için test metni 50.000 karakterle sınırlıdır.", en: "Sample text is limited to 50,000 characters for performance.", de: "Der Testtext ist aus Leistungsgründen auf 50.000 Zeichen begrenzt.", zh: "为保障性能，测试文本限 50,000 个字符。" }));
+          if (secondary.length > 500) throw new Error(ui(locale, { tr: "Regex kalıbı güvenli inceleme için 500 karakterle sınırlıdır.", en: "The regex pattern is limited to 500 characters for safe inspection.", de: "Das Regex-Muster ist für eine sichere Prüfung auf 500 Zeichen begrenzt.", zh: "为安全检查，正则表达式限 500 个字符。" }));
+          if (/(\([^)]*[+*][^)]*\))[+*{]/.test(secondary)) throw new Error(ui(locale, { tr: "İç içe nicelik belirteci ReDoS riski taşıyabilir; kalıbı sadeleştirin.", en: "Nested quantifiers may create a ReDoS risk; simplify the pattern.", de: "Verschachtelte Quantifizierer können ein ReDoS-Risiko erzeugen; vereinfachen Sie das Muster.", zh: "嵌套量词可能造成 ReDoS 风险，请简化表达式。" }));
           const matches = await runRegexSafely(input, secondary, flags);
-          const report = matches.length ? matches.map((match, index) => `${index + 1}. [${match.index}] ${JSON.stringify(match.text)}${match.groups.length ? ` | ${isTr ? "gruplar" : "groups"}: ${match.groups.map((value) => JSON.stringify(value)).join(", ")}` : ""}`).join("\n") : (isTr ? "Eşleşme bulunamadı." : "No matches found.");
-          setResult(report, [{ label: isTr ? "Eşleşme" : "Matches", value: matches.length }, { label: isTr ? "Metin uzunluğu" : "Text length", value: input.length }]);
+          const report = matches.length ? matches.map((match, index) => `${index + 1}. [${match.index}] ${JSON.stringify(match.text)}${match.groups.length ? ` | ${ui(locale, { tr: "gruplar", en: "groups", de: "Gruppen", zh: "分组" })}: ${match.groups.map((value) => JSON.stringify(value)).join(", ")}` : ""}`).join("\n") : ui(locale, { tr: "Eşleşme bulunamadı.", en: "No matches found.", de: "Keine Treffer gefunden.", zh: "未找到匹配项。" });
+          setResult(report, [{ label: ui(locale, { tr: "Eşleşme", en: "Matches", de: "Treffer", zh: "匹配项" }), value: matches.length }, { label: ui(locale, { tr: "Metin uzunluğu", en: "Text length", de: "Textlänge", zh: "文本长度" }), value: input.length }]);
           break;
         }
         case "csv-inceleyici": {
@@ -597,32 +637,32 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         case "base64-kodlayici": {
           if (mode === "decode") {
             const compact = input.trim().replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
-            if (!/^[A-Za-z0-9+/]*={0,2}$/.test(compact) || compact.length % 4 === 1) throw new Error(isTr ? "Geçerli standart veya URL-safe Base64 girin." : "Enter valid standard or URL-safe Base64.");
+            if (!/^[A-Za-z0-9+/]*={0,2}$/.test(compact) || compact.length % 4 === 1) throw new Error(ui(locale, { tr: "Geçerli standart veya URL-safe Base64 girin.", en: "Enter valid standard or URL-safe Base64.", de: "Geben Sie gültiges Standard- oder URL-sicheres Base64 ein.", zh: "请输入有效的标准 Base64 或 URL-safe Base64。" }));
             const padded = compact.padEnd(Math.ceil(compact.length / 4) * 4, "=");
             const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
-            setResult(new TextDecoder("utf-8", { fatal: true }).decode(bytes), [{ label: isTr ? "Çözülen bayt" : "Decoded bytes", value: bytes.length }]);
+            setResult(new TextDecoder("utf-8", { fatal: true }).decode(bytes), [{ label: ui(locale, { tr: "Çözülen bayt", en: "Decoded bytes", de: "Dekodierte Bytes", zh: "解码字节" }), value: bytes.length }]);
           } else {
             const bytes = new TextEncoder().encode(input); let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-            setResult(btoa(binary), [{ label: isTr ? "Kaynak bayt" : "Source bytes", value: bytes.length }]);
+            setResult(btoa(binary), [{ label: ui(locale, { tr: "Kaynak bayt", en: "Source bytes", de: "Quell-Bytes", zh: "源字节" }), value: bytes.length }]);
           }
           break;
         }
         case "url-kodlayici": {
           const result = mode === "decode" ? decodeURIComponent(input.trim()) : encodeURIComponent(input);
-          setResult(result, [{ label: isTr ? "Çıktı karakteri" : "Output characters", value: result.length }]);
+          setResult(result, [{ label: ui(locale, { tr: "Çıktı karakteri", en: "Output characters", de: "Ausgabezeichen", zh: "输出字符" }), value: result.length }]);
           break;
         }
         case "jwt-decoder": {
-          const segments = input.trim().split("."); if (segments.length !== 3) throw new Error(isTr ? "JWT üç nokta ayrımlı bölüm içermelidir." : "A JWT must contain three dot-separated segments.");
+          const segments = input.trim().split("."); if (segments.length !== 3) throw new Error(ui(locale, { tr: "JWT üç nokta ayrımlı bölüm içermelidir.", en: "A JWT must contain three dot-separated segments.", de: "Ein JWT muss drei durch Punkte getrennte Segmente enthalten.", zh: "JWT 必须包含三个由点分隔的段。" }));
           const header = JSON.parse(decodeBase64Url(segments[0])); const payload = JSON.parse(decodeBase64Url(segments[1]));
           const timeClaims = ["iat", "nbf", "exp"].filter((claim) => typeof payload[claim] === "number").map((claim) => `${claim}: ${new Date(payload[claim] * 1000).toISOString()}`);
           const expired = typeof payload.exp === "number" ? payload.exp * 1000 < Date.now() : null;
-          setResult(`${isTr ? "HEADER" : "HEADER"}\n${JSON.stringify(header, null, 2)}\n\n${isTr ? "PAYLOAD" : "PAYLOAD"}\n${JSON.stringify(payload, null, 2)}${timeClaims.length ? `\n\n${isTr ? "ZAMAN CLAIM'LERİ" : "TIME CLAIMS"}\n${timeClaims.join("\n")}` : ""}\n\n${isTr ? "UYARI: Bu yalnızca decode işlemidir; imza ve token güvenilirliği doğrulanmadı." : "WARNING: This only decodes the token; its signature and trustworthiness were not verified."}`, [{ label: isTr ? "Algoritma iddiası" : "Claimed algorithm", value: typeof header.alg === "string" ? header.alg : "—" }, { label: isTr ? "Payload alanı" : "Payload claims", value: Object.keys(payload).length }, { label: isTr ? "Süre durumu" : "Expiry status", value: expired === null ? (isTr ? "exp yok" : "no exp") : expired ? (isTr ? "Süresi dolmuş" : "Expired") : (isTr ? "Süresi geçerli" : "Not expired") }]);
+          setResult(`HEADER\n${JSON.stringify(header, null, 2)}\n\nPAYLOAD\n${JSON.stringify(payload, null, 2)}${timeClaims.length ? `\n\n${ui(locale, { tr: "ZAMAN CLAIM'LERİ", en: "TIME CLAIMS", de: "ZEIT-CLAIMS", zh: "时间声明" })}\n${timeClaims.join("\n")}` : ""}\n\n${ui(locale, { tr: "UYARI: Bu yalnızca decode işlemidir; imza ve token güvenilirliği doğrulanmadı.", en: "WARNING: This only decodes the token; its signature and trustworthiness were not verified.", de: "WARNUNG: Dies dekodiert nur den Token; Signatur und Vertrauenswürdigkeit wurden nicht geprüft.", zh: "警告：此操作仅解码令牌，未验证签名或令牌可信度。" })}`, [{ label: ui(locale, { tr: "Algoritma iddiası", en: "Claimed algorithm", de: "Angegebener Algorithmus", zh: "声明算法" }), value: typeof header.alg === "string" ? header.alg : "—" }, { label: ui(locale, { tr: "Payload alanı", en: "Payload claims", de: "Payload-Claims", zh: "Payload 字段" }), value: Object.keys(payload).length }, { label: ui(locale, { tr: "Süre durumu", en: "Expiry status", de: "Ablaufstatus", zh: "有效期状态" }), value: expired === null ? ui(locale, { tr: "exp yok", en: "no exp", de: "kein exp", zh: "无 exp" }) : expired ? ui(locale, { tr: "Süresi dolmuş", en: "Expired", de: "Abgelaufen", zh: "已过期" }) : ui(locale, { tr: "Süresi geçerli", en: "Not expired", de: "Nicht abgelaufen", zh: "未过期" }) }]);
           break;
         }
         case "cron-ifadesi-aciklayici": {
-          const explanation = explainCron(input, isTr);
-          setResult(explanation, [{ label: isTr ? "Alan" : "Fields", value: 5 }, { label: isTr ? "Durum" : "Status", value: isTr ? "Geçerli" : "Valid" }]);
+          const explanation = explainCron(input, locale);
+          setResult(explanation, [{ label: ui(locale, { tr: "Alan", en: "Fields", de: "Felder", zh: "字段" }), value: 5 }, { label: ui(locale, { tr: "Durum", en: "Status", de: "Status", zh: "状态" }), value: ui(locale, { tr: "Geçerli", en: "Valid", de: "Gültig", zh: "有效" }) }]);
           break;
         }
         case "kvkk-veri-maskeleyici": {
@@ -650,7 +690,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
             });
             if (count) found.push({ label, value: count });
           });
-          setResult(masked, found.length ? found : [{ label: isTr ? "Bulunan desen" : "Patterns found", value: 0 }]);
+          setResult(masked, found.length ? found : [{ label: ui(locale, { tr: "Bulunan desen", en: "Patterns found", de: "Gefundene Muster", zh: "发现的模式" }), value: 0 }]);
           setNotice({ kind: "warning", text: ui(locale, {
             tr: "Otomatik maskeleme bağlamsal kişisel verilerin tamamını bulamaz. TCKN/kart checksum kontrolü yalnızca aday tespitidir; gerçek kimlik, sahiplik veya hukuki uygunluk doğrulaması değildir. Paylaşmadan önce elle kontrol edin.",
             en: "Automatic masking cannot find all contextual personal data. TCKN/card checksum checks identify candidates only; they do not verify identity, ownership, or legal compliance. Review manually before sharing.",
@@ -661,21 +701,21 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "guclu-parola-uretici": {
           const password = generateSecurePassword(length);
-          setResult(password, [{ label: isTr ? "Uzunluk" : "Length", value: password.length }, { label: isTr ? "Kaynak" : "Source", value: "Web Crypto" }]);
+          setResult(password, [{ label: ui(locale, { tr: "Uzunluk", en: "Length", de: "Länge", zh: "长度" }), value: password.length }, { label: ui(locale, { tr: "Kaynak", en: "Source", de: "Quelle", zh: "来源" }), value: "Web Crypto" }]);
           break;
         }
         case "uuid-uretici": {
           const values = Array.from({ length: Math.min(50, Math.max(1, quantity)) }, generateUuid);
-          setResult(values.join("\n"), [{ label: isTr ? "Üretilen" : "Generated", value: values.length }, { label: isTr ? "Sürüm" : "Version", value: "UUID v4" }, { label: isTr ? "Kaynak" : "Source", value: "Web Crypto" }]);
+          setResult(values.join("\n"), [{ label: ui(locale, { tr: "Üretilen", en: "Generated", de: "Erzeugt", zh: "已生成" }), value: values.length }, { label: ui(locale, { tr: "Sürüm", en: "Version", de: "Version", zh: "版本" }), value: "UUID v4" }, { label: ui(locale, { tr: "Kaynak", en: "Source", de: "Quelle", zh: "来源" }), value: "Web Crypto" }]);
           break;
         }
         case "sha256-ozet-uretici": {
           const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
           const value = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-          setResult(value, [{ label: isTr ? "Özet uzunluğu" : "Digest length", value: "256 bit" }, { label: isTr ? "Algoritma" : "Algorithm", value: "SHA-256" }]);
+          setResult(value, [{ label: ui(locale, { tr: "Özet uzunluğu", en: "Digest length", de: "Hash-Länge", zh: "摘要长度" }), value: "256 bit" }, { label: ui(locale, { tr: "Algoritma", en: "Algorithm", de: "Algorithmus", zh: "算法" }), value: "SHA-256" }]);
           break;
         }
-        default: throw new Error(isTr ? "Araç yapılandırması bulunamadı." : "Tool configuration was not found.");
+        default: throw new Error(ui(locale, { tr: "Araç yapılandırması bulunamadı.", en: "Tool configuration was not found.", de: "Die Werkzeugkonfiguration wurde nicht gefunden.", zh: "未找到工具配置。" }));
       }
     } catch (error) {
       setOutput(""); setMetrics([]);
@@ -691,7 +731,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
       await navigator.clipboard.writeText(output);
       setNotice({ kind: "success", text: labels.copied });
     } catch {
-      setNotice({ kind: "error", text: isTr ? "Tarayıcı pano izni vermedi. Çıktıyı seçip elle kopyalayabilirsiniz." : "The browser denied clipboard access. Select the output and copy it manually." });
+      setNotice({ kind: "error", text: ui(locale, { tr: "Tarayıcı pano izni vermedi. Çıktıyı seçip elle kopyalayabilirsiniz.", en: "The browser denied clipboard access. Select the output and copy it manually.", de: "Der Browser hat den Zugriff auf die Zwischenablage verweigert. Markieren und kopieren Sie die Ausgabe manuell.", zh: "浏览器拒绝访问剪贴板。您可以选中输出并手动复制。" }) });
     }
   }
 
@@ -702,7 +742,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
       const anchor = document.createElement("a"); anchor.href = url; anchor.download = `bytequant-${slug}.txt`; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setNotice({ kind: "success", text: labels.downloaded });
     } catch {
-      setNotice({ kind: "error", text: isTr ? "Dosya indirilemedi. Tarayıcının indirme iznini kontrol edin." : "The file could not be downloaded. Check the browser's download permission." });
+      setNotice({ kind: "error", text: ui(locale, { tr: "Dosya indirilemedi. Tarayıcının indirme iznini kontrol edin.", en: "The file could not be downloaded. Check the browser's download permission.", de: "Die Datei konnte nicht heruntergeladen werden. Prüfen Sie die Download-Berechtigung des Browsers.", zh: "文件无法下载。请检查浏览器的下载权限。" }) });
     }
   }
 
@@ -712,20 +752,20 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const privacyConfirmation = ui(locale, { tr: "Bu işlem tamamen cihazınızda gerçekleşti; girdi ByteQuant sunucusuna gönderilmedi.", en: "This operation happened entirely on your device; input was not sent to ByteQuant servers.", de: "Dieser Vorgang fand vollständig auf Ihrem Gerät statt; Eingaben wurden nicht an ByteQuant gesendet.", zh: "此操作完全在您的设备上完成；输入未发送到 ByteQuant 服务器。" });
 
   return (
-    <section className="workbench" data-workbench-quality="stage-3" aria-label={isTr ? "Araç çalışma alanı" : "Tool workbench"} aria-busy={busy} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); void run(); } }}>
+    <section className="workbench" data-workbench-quality="stage-3" aria-label={ui(locale, { tr: "Araç çalışma alanı", en: "Tool workbench", de: "Werkzeug-Arbeitsbereich", zh: "工具工作区" })} aria-busy={busy} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); void run(); } }}>
       <div className="workbench-bar"><span className="local-status"><i />{labels.local}<small>{labels.shortcut}</small></span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo} disabled={busy}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench} disabled={busy}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
-          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="input" value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / 100.000</small></label>}
-          {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={500} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" /> : <textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={50000} rows={5} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" />}<small className="field-counter">{secondary.length.toLocaleString(isTr ? "tr-TR" : "en-US")} / {slug === "regex-test-araci" ? "500" : "50.000"}</small></label>}
+          {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="input" value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(localeTags[locale])} / 100.000</small></label>}
+          {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={500} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" /> : <textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={50000} rows={5} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" />}<small className="field-counter">{secondary.length.toLocaleString(localeTags[locale])} / {slug === "regex-test-araci" ? "500" : "50.000"}</small></label>}
           {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => { setFlags(event.target.value.replace(/[^dgimsuvy]/g, "")); resetResult(); }} /></label>}
-          {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => { setLength(Number(event.target.value)); resetResult(); }} /><small className="field-help">{isTr ? "Her parola büyük/küçük harf, rakam ve sembol içerir." : "Every password includes upper/lowercase, digits, and symbols."}</small></label>}
-          {slug === "uuid-uretici" && <label className="field-label compact-field"><span>{labels.quantity}</span><input type="number" min="1" max="50" value={quantity} onChange={(event) => { setQuantity(Math.min(50, Math.max(1, Number(event.target.value) || 1))); resetResult(); }} /><small className="field-help">{isTr ? "Tek işlemde 1–50 kriptografik UUID v4." : "Generate 1–50 cryptographic UUID v4 values at once."}</small></label>}
-          {showMode && <label className="field-label compact-field"><span>{isTr ? "İşlem" : "Operation"}</span><select data-agent-mode value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
-            {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{isTr ? "Başlık biçimi" : "Title case"}</option><option value="sentence">{isTr ? "Cümle biçimi" : "Sentence case"}</option><option value="upper">{isTr ? "BÜYÜK HARF" : "UPPERCASE"}</option><option value="lower">{isTr ? "küçük harf" : "lowercase"}</option></>}
-            {slug === "json-bicimlendirici" && <><option value="default">{isTr ? "Biçimlendir" : "Pretty print"}</option><option value="minify">{isTr ? "Küçült" : "Minify"}</option></>}
+          {slug === "guclu-parola-uretici" && <label className="field-label range-field"><span>{labels.length}: {length}</span><input type="range" min="12" max="128" value={length} onChange={(event) => { setLength(Number(event.target.value)); resetResult(); }} /><small className="field-help">{ui(locale, { tr: "Her parola büyük/küçük harf, rakam ve sembol içerir.", en: "Every password includes upper/lowercase, digits, and symbols.", de: "Jedes Passwort enthält Groß- und Kleinbuchstaben, Ziffern und Symbole.", zh: "每个密码都包含大小写字母、数字和符号。" })}</small></label>}
+          {slug === "uuid-uretici" && <label className="field-label compact-field"><span>{labels.quantity}</span><input type="number" min="1" max="50" value={quantity} onChange={(event) => { setQuantity(Math.min(50, Math.max(1, Number(event.target.value) || 1))); resetResult(); }} /><small className="field-help">{ui(locale, { tr: "Tek işlemde 1–50 kriptografik UUID v4.", en: "Generate 1–50 cryptographic UUID v4 values at once.", de: "Erzeugt 1–50 kryptografische UUID-v4-Werte pro Vorgang.", zh: "一次生成 1–50 个加密安全的 UUID v4。" })}</small></label>}
+          {showMode && <label className="field-label compact-field"><span>{ui(locale, { tr: "İşlem", en: "Operation", de: "Vorgang", zh: "操作" })}</span><select data-agent-mode value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
+            {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{ui(locale, { tr: "Başlık biçimi", en: "Title case", de: "Titel-Schreibweise", zh: "标题格式" })}</option><option value="sentence">{ui(locale, { tr: "Cümle biçimi", en: "Sentence case", de: "Satz-Schreibweise", zh: "句子格式" })}</option><option value="upper">{ui(locale, { tr: "BÜYÜK HARF", en: "UPPERCASE", de: "GROSSBUCHSTABEN", zh: "大写" })}</option><option value="lower">{ui(locale, { tr: "küçük harf", en: "lowercase", de: "kleinbuchstaben", zh: "小写" })}</option></>}
+            {slug === "json-bicimlendirici" && <><option value="default">{ui(locale, { tr: "Biçimlendir", en: "Pretty print", de: "Formatieren", zh: "格式化" })}</option><option value="minify">{ui(locale, { tr: "Küçült", en: "Minify", de: "Minifizieren", zh: "压缩" })}</option></>}
             {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
-            {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{isTr ? "Kodla" : "Encode"}</option><option value="decode">{isTr ? "Çöz" : "Decode"}</option></>}
+            {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{ui(locale, { tr: "Kodla", en: "Encode", de: "Kodieren", zh: "编码" })}</option><option value="decode">{ui(locale, { tr: "Çöz", en: "Decode", de: "Dekodieren", zh: "解码" })}</option></>}
           </select></label>}
           {batchSlugs.has(slug) && <label className="batch-toggle"><input type="checkbox" checked={batch} onChange={(event) => { setBatch(event.target.checked); resetResult(); }} /><span><strong>{labels.batch}</strong><small>{labels.batchHelp}</small></span></label>}
           <button type="button" className="primary-button run-button" onClick={run} disabled={busy}>{busy ? labels.running : labels.run}<span aria-hidden="true"> →</span></button>

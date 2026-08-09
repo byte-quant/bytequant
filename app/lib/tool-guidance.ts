@@ -103,6 +103,33 @@ const boundaries: Record<ToolCategory, L> = {
   research: l("Araç kaynağın doğruluğunu kanıtlamaz; güncellik ve birincil kanıt ayrıca kontrol edilmelidir.", "The tool does not prove a source true; recency and primary evidence require separate checks.", "Das Werkzeug beweist keine Quellenwahrheit; Aktualität und Primärbelege sind separat zu prüfen.", "工具不会证明来源真实；时效性和一手证据仍需单独核对。"),
 };
 
+const specificBoundaries: Partial<Record<string, L>> = {
+  "jwt-decoder": l(
+    "JWT başlığı ve yükünü çözmek imzayı, göndereni, sürenin geçerliliğini veya kimliği doğrulamaz; güven kararı için anahtarla sunucu tarafında doğrulama yapın.",
+    "Decoding a JWT header and payload does not verify its signature, issuer, expiry, or identity; validate it server-side with the correct key before making a trust decision.",
+    "Das Dekodieren von JWT-Header und -Payload prüft weder Signatur, Aussteller, Ablauf noch Identität; validieren Sie das Token vor einer Vertrauensentscheidung serverseitig mit dem richtigen Schlüssel.",
+    "解码 JWT 的头部和载荷不会验证签名、签发者、有效期或身份；作出信任决定前，请使用正确密钥在服务端完成验证。",
+  ),
+  "cron-ifadesi-aciklayici": l(
+    "Cron yorumları uygulamaya göre değişebilir; üretimde kullanmadan önce hedef zamanlayıcının alan sayısını, saat dilimini ve yaz/kış saati davranışını doğrulayın.",
+    "Cron semantics vary by scheduler; confirm the target scheduler's field count, time zone, and daylight-saving behavior before production use.",
+    "Cron-Semantik unterscheidet sich je nach Scheduler; prüfen Sie vor dem Produktiveinsatz Feldanzahl, Zeitzone und Sommerzeitverhalten des Zielsystems.",
+    "不同调度器的 Cron 语义可能不同；投入生产前，请确认目标调度器的字段数量、时区以及夏令时处理方式。",
+  ),
+  "regex-test-araci": l(
+    "Tarayıcıdaki eşleşme başka bir çalışma zamanında aynı sonucu garanti etmez; motor uyumluluğunu ve kötü niyetli uzun girdilerde geri izleme maliyetini ayrıca test edin.",
+    "A browser match does not guarantee the same result in another runtime; separately test engine compatibility and backtracking cost on adversarial long input.",
+    "Ein Treffer im Browser garantiert kein identisches Ergebnis in einer anderen Laufzeit; prüfen Sie Engine-Kompatibilität und Backtracking-Kosten mit adversarialen langen Eingaben.",
+    "浏览器中的匹配不保证其他运行时结果相同；请另行测试引擎兼容性，以及恶意长输入下的回溯开销。",
+  ),
+  "kvkk-veri-maskeleyici": l(
+    "Desen tabanlı maskeleme tüm kişisel verileri bulduğunu veya KVKK/GDPR uyumunu kanıtlamaz; alan envanteri, yeniden tanımlama riski ve örnek çıktı insan tarafından incelenmelidir.",
+    "Pattern-based masking does not prove that all personal data was found or that KVKK/GDPR duties are met; a human must review the field inventory, re-identification risk, and sample output.",
+    "Musterbasierte Maskierung beweist weder die Erkennung aller personenbezogenen Daten noch die Erfüllung von KVKK/GDPR; Feldinventar, Reidentifikationsrisiko und Stichprobenausgabe müssen menschlich geprüft werden.",
+    "基于模式的脱敏不能证明已发现全部个人数据，也不能证明满足 KVKK/GDPR；字段清单、重新识别风险和样本输出仍须人工复核。",
+  ),
+};
+
 function choose(tool: GuidanceSource): Profile {
   const slug = tool.slug;
   if (/(pdf|gorsel|resim|image|png|jpe?g|webp|heic|exif|dosya|file|zip|favicon)/.test(slug)) return profiles.file;
@@ -126,7 +153,7 @@ const lowerFirst = (value: string, locale: Locale) => value.charAt(0).toLocaleLo
 export function buildToolGuidance(tool: GuidanceSource) {
   const p = choose(tool);
   const goal = { tr: clean(tool.short.tr), en: lowerFirst(clean(tool.short.en), "en"), de: clean(tool.short.de), zh: clean(tool.short.zh) } satisfies L;
-  const boundary = boundaries[tool.category];
+  const boundary = specificBoundaries[tool.slug] ?? boundaries[tool.category];
   const useCases: Record<Locale, string[]> = {
     tr: [`İhtiyaç: ${goal.tr}`, `${p.workflow.tr} öncesinde ${p.output.tr} hazırlama`, `${tool.title.tr} sonucunu ${p.verification.tr} ile doğrulama`],
     en: [`Use ${tool.title.en} when you need to ${goal.en}`, `Prepare ${p.output.en} before ${p.workflow.en}`, `Verify ${tool.title.en} results through ${p.verification.en}`],
