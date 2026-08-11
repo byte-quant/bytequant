@@ -29,7 +29,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 4\.3/);
+    assert.match(page, /BQ-Agent 5\.0/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -813,15 +813,15 @@ test("exports the four-language local agent, domain integrity, and security head
     read("blog/browser-only-agentic-ai-tool-orchestration/index.html"),
     read("en/blog/browser-only-agentic-ai-tool-orchestration/index.html"),
   ]);
-  assert.match(turkish, /Hedefinizi yazın, uygulanabilir yolu/);
-  assert.match(english, /Describe the outcome and build a practical path/);
-  assert.match(german, /Ziel beschreiben und gemeinsam einen praktischen Weg/);
-  assert.match(chinese, /描述目标，一起生成可执行的路径/);
+  assert.match(turkish, /Sohbet edin; gerektiğinde araçları/);
+  assert.match(english, /Chat naturally, then put the right tools/);
+  assert.match(german, /Natürlich chatten und passende Werkzeuge/);
+  assert.match(chinese, /自然对话，并让合适的工具/);
   for (const page of [turkish, english, german, chinese]) {
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 4\.3/);
+    assert.match(page, /BQ-Agent 5\.0/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -830,8 +830,8 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
     assert.doesNotMatch(page, /211 (?:araçlık|tools|Werkzeuge|个工具)/);
   }
-  assert.match(turkish, /üçüncü taraf model|dış model isteği/i);
-  assert.match(english, /not a generative LLM/i);
+  assert.match(turkish, /uzak AI API'si kullanılmaz|uzak çıkarım yok/i);
+  assert.match(english, /no remote AI API|no remote inference/i);
   assert.match(headers, /Content-Security-Policy:/);
   assert.match(headers, /frame-ancestors 'none'/);
   assert.match(headers, /Strict-Transport-Security:/);
