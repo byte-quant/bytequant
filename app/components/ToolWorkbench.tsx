@@ -18,14 +18,18 @@ import { productivityToolSlugs } from "../lib/productivity-tool-slugs";
 import { PrecisionWorkbench } from "./PrecisionWorkbenches";
 import { precisionToolSlugs } from "../lib/precision-tools";
 import { frontierToolSlugs } from "../lib/frontier-tools";
+import { stageTwoToolSlugs } from "../lib/stage-two-tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 
-const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
+export const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
 });
 const FrontierWorkbench = dynamic(() => import("./FrontierWorkbenches").then((module) => module.FrontierWorkbench), {
   loading: () => <div className="workbench frontier-workbench" aria-busy="true" />,
+});
+const StageTwoWorkbench = dynamic(() => import("./StageTwoWorkbenches").then((module) => module.StageTwoWorkbench), {
+  loading: () => <div className="workbench stage-two-workbench" aria-busy="true" />,
 });
 const DemandWorkbench = dynamic(() => import("./DemandWorkbenches").then((module) => module.DemandWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
@@ -50,6 +54,26 @@ export const legacyGenericToolSlugs = new Set([
   "cron-ifadesi-aciklayici",
 ]);
 
+export type ToolRuntimeFamily = "stageTwo" | "frontier" | "precision" | "essential" | "expansion" | "discovery" | "productivity" | "demand" | "growth" | "converter" | "new" | "specialized" | "advanced" | "generic" | "unsupported";
+
+export function getToolRuntimeFamily(slug: string): ToolRuntimeFamily {
+  if (stageTwoToolSlugs.has(slug)) return "stageTwo";
+  if (frontierToolSlugs.has(slug)) return "frontier";
+  if (precisionToolSlugs.has(slug)) return "precision";
+  if (essentialToolSlugs.has(slug) || guidedLegacyToolSlugs.has(slug)) return "essential";
+  if (expansionToolSlugs.has(slug)) return "expansion";
+  if (discoveryToolSlugs.has(slug)) return "discovery";
+  if ((productivityToolSlugs as readonly string[]).includes(slug)) return "productivity";
+  if (demandToolSlugs.has(slug)) return "demand";
+  if (growthWorkbenchSlugs.has(slug)) return "growth";
+  if (converterSlugs.has(slug)) return "converter";
+  if (newWorkbenchSlugs.has(slug)) return "new";
+  if (specializedSlugs.has(slug)) return "specialized";
+  if (advancedWorkbenchSlugs.has(slug)) return "advanced";
+  if (legacyGenericToolSlugs.has(slug)) return "generic";
+  return "unsupported";
+}
+
 export const legacyGenericSamples: Record<string, Record<Locale, string>> = {
   "prompt-kalite-denetimi": { tr: "Yeni kullanıcılar için tarayıcı içi gizlilik araçlarını anlatan kısa bir rehber hazırla. Teknik terimleri açıkla ve sonucu 5 maddelik liste olarak ver.", en: "Create a short guide to in-browser privacy tools for new users. Explain technical terms and return five bullet points.", de: "Erstellen Sie einen kurzen Leitfaden zu Browser-Datenschutzwerkzeugen für Einsteiger. Erklären Sie Fachbegriffe und geben Sie fünf Stichpunkte aus.", zh: "为新用户编写一份简短的浏览器隐私工具指南，解释技术术语，并用五个要点输出。" },
   "meta-prompt-olusturucu": { tr: "Müşteri geri bildirimlerini temalara ayır ve uygulanabilir öneriler çıkar.", en: "Group customer feedback into themes and produce actionable recommendations.", de: "Ordnen Sie Kundenfeedback nach Themen und leiten Sie umsetzbare Empfehlungen ab.", zh: "按主题整理客户反馈，并提出可执行建议。" },
@@ -59,7 +83,7 @@ export const legacyGenericSamples: Record<string, Record<Locale, string>> = {
   "metin-temizleyici": { tr: "  Fazladan    boşluklar var.\n\n\nBu satırlar   daha düzenli olabilir.  ", en: "  There are    extra spaces.\n\n\nThese lines   can be cleaner.  ", de: "  Hier sind    zusätzliche Leerzeichen.\n\n\nDiese Zeilen   können sauberer sein.  ", zh: "  这里有    多余空格。\n\n\n这些行   可以更整洁。  " },
   "buyuk-kucuk-harf-donusturucu": { tr: "gizlilik odaklı araçlarla daha güvenli çalışma", en: "safer work with privacy-first tools", de: "sicherer arbeiten mit datenschutzorientierten werkzeugen", zh: "使用隐私优先工具更安全地工作" },
   "kelime-sayaci": { tr: "Ölçmek istediğiniz metni buraya yazın. Sonuç cihazınızda hesaplanır.", en: "Write the text you want to measure here. Results are calculated on-device.", de: "Geben Sie hier den zu messenden Text ein. Das Ergebnis wird auf dem Gerät berechnet.", zh: "在此输入需要统计的文本。结果会在设备上计算。" },
-  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":309}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":309}", de: "{\"projekt\":\"ByteQuant\",\"lokal\":true,\"werkzeuge\":309}", zh: "{\"项目\":\"ByteQuant\",\"本地处理\":true,\"工具数量\":309}" },
+  "json-bicimlendirici": { tr: "{\"proje\":\"ByteQuant\",\"yerel\":true,\"aracSayisi\":317}", en: "{\"project\":\"ByteQuant\",\"local\":true,\"toolCount\":317}", de: "{\"projekt\":\"ByteQuant\",\"lokal\":true,\"werkzeuge\":317}", zh: "{\"项目\":\"ByteQuant\",\"本地处理\":true,\"工具数量\":317}" },
   "json-csv-donusturucu": { tr: "[{\"ad\":\"Ada\",\"rol\":\"Analist\"},{\"ad\":\"Deniz\",\"rol\":\"Editör\"}]", en: "[{\"name\":\"Ada\",\"role\":\"Analyst\"},{\"name\":\"Deniz\",\"role\":\"Editor\"}]", de: "[{\"name\":\"Ada\",\"rolle\":\"Analyse\"},{\"name\":\"Deniz\",\"rolle\":\"Redaktion\"}]", zh: "[{\"姓名\":\"Ada\",\"角色\":\"分析员\"},{\"姓名\":\"Deniz\",\"角色\":\"编辑\"}]" },
   "regex-test-araci": { tr: "İletişim: ekip@example.com ve destek@example.org", en: "Contact: team@example.com and support@example.org", de: "Kontakt: team@example.com und hilfe@example.org", zh: "联系方式：team@example.com 和 support@example.org" },
   "csv-inceleyici": { tr: "ad,rol,aktif\nAda,Analist,true\nDeniz,Editör,true", en: "name,role,active\nAda,Analyst,true\nDeniz,Editor,true", de: "name,rolle,aktiv\nAda,Analyse,true\nDeniz,Redaktion,true", zh: "姓名,角色,启用\nAda,分析员,true\nDeniz,编辑,true" },
@@ -379,19 +403,28 @@ function explainCron(expression: string, locale: Locale) {
 }
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
-  if (frontierToolSlugs.has(slug)) return <FrontierWorkbench slug={slug} locale={locale} />;
-  if (precisionToolSlugs.has(slug)) return <PrecisionWorkbench slug={slug} locale={locale} />;
-  if (essentialToolSlugs.has(slug) || guidedLegacyToolSlugs.has(slug)) return <EssentialWorkbench slug={slug} locale={locale} />;
-  if (expansionToolSlugs.has(slug)) return <ExpansionWorkbench slug={slug} locale={locale} />;
-  if (discoveryToolSlugs.has(slug)) return <DiscoveryWorkbench slug={slug} locale={locale} />;
-  if ((productivityToolSlugs as readonly string[]).includes(slug)) return <ProductivityWorkbench slug={slug} locale={locale} />;
-  if (demandToolSlugs.has(slug)) return <DemandWorkbench slug={slug} locale={locale} />;
-  if (growthWorkbenchSlugs.has(slug)) return <GrowthWorkbench slug={slug} locale={locale} />;
-  if (converterSlugs.has(slug)) return <ConverterWorkbench slug={slug} locale={locale} />;
-  if (newWorkbenchSlugs.has(slug)) return <NewToolWorkbench slug={slug} locale={locale} />;
-  if (specializedSlugs.has(slug)) return <SpecializedWorkbench slug={slug} locale={locale} />;
-  if (advancedWorkbenchSlugs.has(slug)) return <AdvancedWorkbench slug={slug} locale={locale} />;
-  return <GenericToolWorkbench slug={slug} locale={locale} />;
+  const family = getToolRuntimeFamily(slug);
+  if (family === "stageTwo") return <StageTwoWorkbench slug={slug} locale={locale} />;
+  if (family === "frontier") return <FrontierWorkbench slug={slug} locale={locale} />;
+  if (family === "precision") return <PrecisionWorkbench slug={slug} locale={locale} />;
+  if (family === "essential") return <EssentialWorkbench slug={slug} locale={locale} />;
+  if (family === "expansion") return <ExpansionWorkbench slug={slug} locale={locale} />;
+  if (family === "discovery") return <DiscoveryWorkbench slug={slug} locale={locale} />;
+  if (family === "productivity") return <ProductivityWorkbench slug={slug} locale={locale} />;
+  if (family === "demand") return <DemandWorkbench slug={slug} locale={locale} />;
+  if (family === "growth") return <GrowthWorkbench slug={slug} locale={locale} />;
+  if (family === "converter") return <ConverterWorkbench slug={slug} locale={locale} />;
+  if (family === "new") return <NewToolWorkbench slug={slug} locale={locale} />;
+  if (family === "specialized") return <SpecializedWorkbench slug={slug} locale={locale} />;
+  if (family === "advanced") return <AdvancedWorkbench slug={slug} locale={locale} />;
+  if (family === "generic") return <GenericToolWorkbench slug={slug} locale={locale} />;
+  const text = ui(locale, {
+    tr: "Bu araç için çalışma motoru bulunamadı. Sayfayı yenileyin; sorun sürerse araç bağlantısını GitHub hata kaydına ekleyin.",
+    en: "No processing engine is registered for this tool. Refresh the page; if the issue remains, include the tool link in a GitHub issue.",
+    de: "Für dieses Werkzeug ist keine Verarbeitungs-Engine registriert. Laden Sie die Seite neu und melden Sie den Werkzeuglink bei fortbestehendem Problem auf GitHub.",
+    zh: "此工具尚未注册处理引擎。请刷新页面；若问题仍然存在，请在 GitHub 问题中附上工具链接。",
+  });
+  return <section className="workbench" data-runtime-family="unsupported"><div className="workbench-body"><ToolNotice notice={{ kind: "error", text }} locale={locale} /></div></section>;
 }
 
 function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {

@@ -24,7 +24,7 @@ assert.equal(adsTxt, expectedAds, "protected ads.txt seller record changed");
 assert.equal(createHash("sha256").update(adsTxt).digest("hex"), expectedAdsHash, "protected ads.txt hash changed");
 assert.ok(layout.includes(expectedScript), "protected AdSense Auto Ads script changed");
 
-assert.equal(publicTools.length, 309, "canonical tool count changed");
+assert.equal(publicTools.length, 317, "canonical tool count changed");
 const slugBlock = workbench.match(/export const legacyGenericToolSlugs = new Set\(\[([\s\S]*?)\]\);/)?.[1] ?? "";
 const sampleBlock = workbench.match(/export const legacyGenericSamples:[\s\S]*?= \{([\s\S]*?)\n\};\n\nfunction secondarySample/)?.[1] ?? "";
 const legacyGenericToolSlugs = [...slugBlock.matchAll(/"([a-z0-9-]+)"/g)].map((match) => match[1]);
@@ -59,7 +59,7 @@ for (const tool of publicTools) {
     generatedPages += 1;
   }
 }
-assert.equal(generatedPages, 1236, "all four-locale canonical tool pages must pass");
+assert.equal(generatedPages, 1268, "all four-locale canonical tool pages must pass");
 
 const report = `# AdSense closure plan — Stage 1 report
 

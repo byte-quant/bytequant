@@ -43,7 +43,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     breadcrumb: "Yayın ilkeleri",
     evidenceLabel: "DOĞRULANABİLİR YAYINCI KANITLARI",
     evidence: [
-      { value: "309", label: "benzersiz araç", detail: "Her biri yöntem, sınır ve kullanım adımlarıyla yayımlanır." },
+      { value: "317", label: "benzersiz araç", detail: "Her biri yöntem, sınır ve kullanım adımlarıyla yayımlanır." },
       { value: "4", label: "tam arayüz dili", detail: "Türkçe, İngilizce, Almanca ve Basitleştirilmiş Çince." },
       { value: "MIT", label: "açık kaynak lisansı", detail: "Kaynak, sürüm geçmişi ve üretim bağımlılıkları denetlenebilir." },
       { value: "0", label: "araç girdisi sunucuya", detail: "Temel araç girdileri etkin tarayıcı sekmesinde işlenir." },
@@ -71,7 +71,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     breadcrumb: "Publishing standards",
     evidenceLabel: "VERIFIABLE PUBLISHER EVIDENCE",
     evidence: [
-      { value: "309", label: "distinct tools", detail: "Each publishes its method, limits, and usage steps." },
+      { value: "317", label: "distinct tools", detail: "Each publishes its method, limits, and usage steps." },
       { value: "4", label: "complete interface languages", detail: "Turkish, English, German, and Simplified Chinese." },
       { value: "MIT", label: "open-source license", detail: "Source, release history, and production dependencies are inspectable." },
       { value: "0", label: "tool inputs sent to ByteQuant", detail: "Core tool inputs run in the active browser tab." },
@@ -99,7 +99,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     breadcrumb: "Publikationsstandards",
     evidenceLabel: "ÜBERPRÜFBARE NACHWEISE",
     evidence: [
-      { value: "309", label: "eigenständige Werkzeuge", detail: "Mit Methode, Grenzen und Nutzungsschritten." },
+      { value: "317", label: "eigenständige Werkzeuge", detail: "Mit Methode, Grenzen und Nutzungsschritten." },
       { value: "4", label: "vollständige Oberflächensprachen", detail: "Türkisch, Englisch, Deutsch und vereinfachtes Chinesisch." },
       { value: "MIT", label: "Open-Source-Lizenz", detail: "Quellcode, Versionen und Abhängigkeiten sind prüfbar." },
       { value: "0", label: "Werkzeugeingaben an ByteQuant", detail: "Kernwerkzeuge arbeiten im aktiven Browser-Tab." },
@@ -127,7 +127,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     breadcrumb: "发布标准",
     evidenceLabel: "可核验的发布者证据",
     evidence: [
-      { value: "309", label: "个独立工具", detail: "每个工具都公开方法、限制和使用步骤。" },
+      { value: "317", label: "个独立工具", detail: "每个工具都公开方法、限制和使用步骤。" },
       { value: "4", label: "种完整界面语言", detail: "土耳其语、英语、德语和简体中文。" },
       { value: "MIT", label: "开源许可证", detail: "源码、版本历史和生产依赖均可检查。" },
       { value: "0", label: "工具输入发送给 ByteQuant", detail: "核心工具在当前浏览器标签页运行。" },

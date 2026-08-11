@@ -25,13 +25,13 @@ assert.equal(aliasSlugs.length, 12, "canonical alias register must contain exact
 assert.match(sitemapSource, /const toolRoutes = tools\.flatMap/);
 assert.doesNotMatch(sitemapSource, /isEditoriallyReviewedTool|tools\.filter/);
 assert.match(qualitySource, /Search indexing and ad serving are separate controls/);
-assert.match(llms, /309 distinct browser tools/);
-assert.match(inventory, /Public canonical tools \| 309/);
+assert.match(llms, /317 distinct browser tools/);
+assert.match(inventory, /Public canonical tools \| 317/);
 assert.equal(adsTxt.trim(), "google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0");
 assert.match(layout, /pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-4158794981134847/);
 
 const toolUrls = [...sitemapXml.matchAll(/<loc>https:\/\/bytequant\.org\/(?:araclar|en\/tools|de\/tools|zh\/tools)\/[^<]+<\/loc>/g)];
-assert.equal(toolUrls.length, 309 * 4, "sitemap must contain every canonical tool in all four locales");
+assert.equal(toolUrls.length, 317 * 4, "sitemap must contain every canonical tool in all four locales");
 for (const slug of frontierSlugs) assert.match(sitemapXml, new RegExp(`/(?:araclar|en/tools|de/tools|zh/tools)/${slug}/`), `${slug} must be discoverable`);
 for (const route of ["topluluk", "en/community", "de/community", "zh/community", "guncel", "en/updates", "de/updates", "zh/updates"]) {
   assert.match(sitemapXml, new RegExp(`https://bytequant\\.org/${route}/`), `${route} editorial landing page must be discoverable`);
@@ -68,5 +68,5 @@ const workspace = await read(path.join("out", "workspace", "index.html"));
 assert.match(workspace, /name="robots" content="[^"]*noindex/i, "query-driven workspace must remain noindex");
 
 console.log(`Content value audit: PASS (${htmlFiles.length} HTML pages, ${noindexCount} intentional noindex pages)`);
-console.log("Editorial index: 309 distinct tools and all localized community/news landing pages are discoverable.");
+console.log("Editorial index: 317 distinct tools and all localized community/news landing pages are discoverable.");
 console.log("Duplicate aliases and the query-driven workspace remain noindex; Auto Ads exclusions remain account-side controls.");

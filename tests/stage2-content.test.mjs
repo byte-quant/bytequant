@@ -6,7 +6,7 @@ import { getToolGuidanceDetails } from "../app/lib/tool-guidance.ts";
 const locales = ["tr", "en", "de", "zh"];
 
 test("publishes tool-specific use cases and acceptance steps in every locale", () => {
-  assert.equal(publicTools.length, 309);
+  assert.equal(publicTools.length, 317);
   for (const locale of locales) {
     assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.useCases[locale]))).size, publicTools.length);
     assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.steps[locale]))).size, publicTools.length);

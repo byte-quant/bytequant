@@ -68,7 +68,7 @@ for (const tool of publicTools) {
     localizedPages += 1;
   }
 }
-assert.equal(localizedPages, 1236);
+assert.equal(localizedPages, 1268);
 
 const report = `# AdSense remediation — Stage 3 usability report
 

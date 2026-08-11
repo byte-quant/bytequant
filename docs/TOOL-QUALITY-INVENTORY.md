@@ -1,18 +1,18 @@
 # ByteQuant tool quality inventory
 
-Generated: 2026-08-08
+Generated: 2026-08-11
 
-This is an automated catalog, runtime-routing, and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. Phase 1 verified discoverability, canonical identity, four-language content presence, HowTo coverage, and catalog uniqueness. Phase 2 adds an implemented-workbench-family assertion for every canonical tool and four-locale runnable-demo checks for the 88 highest-risk tools (catalog marks 234–321).
+This is an automated catalog, runtime-routing, and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. The current quality program verifies discoverability, canonical identity, four-language content presence, HowTo coverage, catalog uniqueness, an implemented workbench family for every canonical tool, and four-locale runnable-demo checks for 110 high-risk precision/frontier tools.
 
 ## Inventory scope
 
 | Measure | Count |
 | --- | ---: |
-| Public canonical tools | 309 |
+| Public canonical tools | 317 |
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |
-| Canonical tools mapped to an implemented runtime family | 309 |
+| Canonical tools mapped to an implemented runtime family | 317 |
 | Deep four-locale runtime-demo tools | 110 |
 
 ## Category distribution
@@ -20,14 +20,14 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | Mark | Category | Tools |
 | --- | --- | ---: |
 | P | Prompt tools | 25 |
-| T | Text & NLP | 41 |
-| D | Data & developer | 72 |
+| T | Text & NLP | 43 |
+| D | Data & developer | 76 |
 | C | Converters | 29 |
 | S | Privacy & security | 29 |
-| N | Calculation tools | 40 |
+| N | Calculation tools | 41 |
 | G | Everyday tools | 16 |
 | AI | AI tools | 19 |
-| CS | Code & file security | 28 |
+| CS | Code & file security | 29 |
 | R | Research & evidence | 10 |
 
 ## Automated checks applied to every public tool
@@ -38,9 +38,11 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 - inclusion in the four-locale sitemap and publication-status disclosure (validated after production export);
 - alias separation so legacy URLs do not compete with canonical tool pages.
 - an implemented workbench-family route for every canonical tool, enforced by the test suite;
-- executable, non-placeholder demo output, measurable results, renderable tables, and localized review boundaries for marks 234–321;
+- executable, non-placeholder demo output, measurable results, renderable tables, and localized review boundaries for marks 234–329;
 - purpose-specific regression checks for previously reported GraphQL, shift, cookie, terminology, tool-call, and evidence-table tools;
 - localized explanatory output and actionable input-error guidance for the 75 frontier tools.
+- an explicit fail-closed runtime resolver so unknown slugs cannot silently receive a plausible but unrelated generic result;
+- a same-category intent-similarity gate that blocks newly introduced near-duplicate tool propositions.
 
 ## Per-tool register
 
@@ -355,3 +357,11 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | 319 | `doi-toplu-dogrulayici` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | 4-locale runtime demo |
 | 320 | `literatur-eleme-karar-gunlugu` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | 4-locale runtime demo |
 | 321 | `kanit-tablosu-tekillestirici` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | 4-locale runtime demo |
+| 322 | `json-schema-geriye-uyumluluk-denetleyici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 323 | `openapi-kirilma-degisikligi-denetleyici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 324 | `markdown-baglanti-butunluk-denetleyici` | Text & NLP | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 325 | `csv-eksik-veri-deseni-analizoru` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 326 | `http-vary-cache-anahtari-denetleyici` | Code & file security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 327 | `html-tablo-erisilebilirlik-denetleyici` | Text & NLP | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 328 | `borc-odeme-stratejisi-karsilastirici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 329 | `veri-alani-sozlugu-olusturucu` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |

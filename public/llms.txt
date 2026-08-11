@@ -1,10 +1,10 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 309 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 317 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 ## Editorial quality model
 
-- All 309 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
+- All 317 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
 - Canonical aliases remain `noindex` and point to the matching unique tool; private or query-driven workspace URLs remain outside the search index.
 - High-impact legal, financial, medical, academic, identity, and security decisions always require an authoritative source or qualified human review.
 - Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
@@ -61,7 +61,7 @@ Languages:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner can search all 309 distinct public tools and explain the method and limitations of the selected tool.
+- The planner can search all 317 distinct public tools and explain the method and limitations of the selected tool.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
 
@@ -441,6 +441,14 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [DOI Batch Validator](https://bytequant.org/en/tools/doi-toplu-dogrulayici)
 - [Literature Screening Decision Log](https://bytequant.org/en/tools/literatur-eleme-karar-gunlugu)
 - [Evidence Table Deduplicator](https://bytequant.org/en/tools/kanit-tablosu-tekillestirici)
+- [JSON Schema Backward Compatibility Checker](https://bytequant.org/en/tools/json-schema-geriye-uyumluluk-denetleyici)
+- [OpenAPI Breaking Change Checker](https://bytequant.org/en/tools/openapi-kirilma-degisikligi-denetleyici)
+- [Markdown Link Integrity Checker](https://bytequant.org/en/tools/markdown-baglanti-butunluk-denetleyici)
+- [CSV Missing-Data Pattern Analyzer](https://bytequant.org/en/tools/csv-eksik-veri-deseni-analizoru)
+- [HTTP Vary & Cache-Key Checker](https://bytequant.org/en/tools/http-vary-cache-anahtari-denetleyici)
+- [HTML Table Accessibility Checker](https://bytequant.org/en/tools/html-tablo-erisilebilirlik-denetleyici)
+- [Debt Payoff Strategy Comparator](https://bytequant.org/en/tools/borc-odeme-stratejisi-karsilastirici)
+- [Data Field Dictionary Builder](https://bytequant.org/en/tools/veri-alani-sozlugu-olusturucu)
 
 ## Editorial guides and site resources
 

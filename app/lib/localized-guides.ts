@@ -3,6 +3,7 @@ import { expansionLocalizedGuides } from "./expansion-guides";
 import { essentialLocalizedGuides } from "./essential-guides";
 import { precisionLocalizedGuides } from "./precision-guides";
 import { frontierLocalizedGuides } from "./frontier-guides";
+import { stageTwoLocalizedGuides } from "./stage-two-guides";
 import { canonicalGuideToolSlugs } from "./guide-tool-links";
 
 export type LocalizedGuideLocale = "de" | "zh";
@@ -502,7 +503,7 @@ localizedGuides.push(
   },
 );
 
-localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides, ...frontierLocalizedGuides);
+localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides, ...frontierLocalizedGuides, ...stageTwoLocalizedGuides);
 for (const guide of localizedGuides) guide.relatedTools = canonicalGuideToolSlugs(guide.relatedTools);
 
 export const legacyLocalizedGuideSlugs = {

@@ -50,7 +50,7 @@ const content = {
 
 export function WorkstationPage({ locale, importer = false }: { locale: Locale; importer?: boolean }) {
   const raw = content[locale];
-  const c = { ...raw, title: raw.title.replace(/\b(?:89|211|234|309)\b/, String(tools.length)), cards: raw.cards.map((card) => [card[0], card[1], card[2].replace(/\b(?:89|211|234|309)\b/, String(tools.length))] as const) };
+  const c = { ...raw, title: raw.title.replace(/\b(?:89|211|234|309|317)\b/, String(tools.length)), cards: raw.cards.map((card) => [card[0], card[1], card[2].replace(/\b(?:89|211|234|309|317)\b/, String(tools.length))] as const) };
   const pagePath = importer ? "/workspace" : pathFor(locale, "workstation");
   const pageUrl = absoluteUrl(pagePath);
   const schema = importer ? [] : [

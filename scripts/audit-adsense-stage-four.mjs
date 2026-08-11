@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { publicTools } from "../app/lib/tools.ts";
+import createSitemap from "../app/sitemap.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const out = join(root, "out");
@@ -165,7 +166,7 @@ for (const [url, alternates] of sitemapEntries) {
     }
   }
 }
-assert.equal(sitemapEntries.size, 1_624, "Unexpected canonical sitemap inventory.");
+assert.equal(sitemapEntries.size, createSitemap().length, "Unexpected canonical sitemap inventory.");
 assert.equal(organizationPages, 8, "Organization schema should appear only on four home and four about pages.");
 
 const manifestJson = JSON.parse(manifest);

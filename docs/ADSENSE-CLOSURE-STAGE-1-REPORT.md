@@ -20,13 +20,13 @@ The gate fails immediately if any protected value changes.
 
 | Measure | Result |
 | --- | ---: |
-| Canonical public tools | 309 |
-| Indexable four-locale tool pages inspected | 1236 |
-| Tool-specific three-scenario acceptance contracts | 1236 |
+| Canonical public tools | 317 |
+| Indexable four-locale tool pages inspected | 1268 |
+| Tool-specific three-scenario acceptance contracts | 1268 |
 | Legacy input-driven tools with native TR/EN/DE/ZH demos | 20 |
 | No-input cryptographic generators | 2 |
 | Localized legacy demo contracts | 80 |
-| Pages with WebApplication + HowTo + FAQ schema | 1236 |
+| Pages with WebApplication + HowTo + FAQ schema | 1268 |
 
 ## Product repairs
 

@@ -17,25 +17,26 @@ import { newWorkbenchSlugs } from "../app/components/NewToolWorkbenches.tsx";
 import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
 import { frontierDemos, localizeFrontierError, runFrontierTool } from "../app/components/FrontierWorkbenches.tsx";
 import { precisionDemos, runPrecisionTool } from "../app/components/PrecisionWorkbenches.tsx";
+import { stageTwoToolSlugs } from "../app/lib/stage-two-tools.ts";
 
 const locales = ["tr", "en", "de", "zh"];
 
-test("all 309 canonical tools route to an implemented workbench family", () => {
+test("all 317 canonical tools route to an implemented workbench family", () => {
   const coreAndConverters = new Set([
     "prompt-kalite-denetimi", "meta-prompt-olusturucu", "token-sayaci", "okunabilirlik-analizi", "metin-benzerlik-analizi", "metin-temizleyici", "buyuk-kucuk-harf-donusturucu", "kelime-sayaci", "json-bicimlendirici", "json-csv-donusturucu", "regex-test-araci", "csv-inceleyici", "base64-kodlayici", "url-kodlayici", "kvkk-veri-maskeleyici", "guclu-parola-uretici", "uuid-uretici", "sha256-ozet-uretici", "few-shot-ornek-olusturucu", "sistem-promptu-persona-sablonu", "jwt-decoder", "cron-ifadesi-aciklayici", "gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme",
   ]);
   const implemented = new Set([
     ...coreAndConverters, ...specializedSlugs, ...advancedWorkbenchSlugs, ...growthWorkbenchSlugs, ...newWorkbenchSlugs,
     ...demandToolSlugs, ...discoveryToolSlugs, ...essentialToolSlugs, ...guidedLegacyToolSlugs, ...expansionToolSlugs,
-    ...productivityToolSlugs, ...precisionToolSlugs, ...frontierToolSlugs,
+    ...productivityToolSlugs, ...precisionToolSlugs, ...frontierToolSlugs, ...stageTwoToolSlugs,
   ]);
-  assert.equal(publicTools.length, 309);
+  assert.equal(publicTools.length, 317);
   const missing = publicTools.filter((tool) => !implemented.has(tool.slug)).map((tool) => tool.slug);
   assert.deepEqual(missing, [], `tools without a runtime family: ${missing.join(", ")}`);
 });
 
-test("the complete 321-tool catalog has unique identities and four-language guidance", () => {
-  assert.equal(tools.length, 321);
+test("the complete 329-tool catalog has unique identities and four-language guidance", () => {
+  assert.equal(tools.length, 329);
   assert.equal(new Set(tools.map((tool) => tool.slug)).size, tools.length);
   assert.equal(new Set(tools.map((tool) => tool.mark)).size, tools.length);
   for (const tool of tools) {

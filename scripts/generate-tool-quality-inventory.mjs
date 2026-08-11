@@ -8,7 +8,7 @@ import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
 const locales = ["tr", "en", "de", "zh"];
 const reportUrl = new URL("../docs/TOOL-QUALITY-INVENTORY.md", import.meta.url);
 
-assert.equal(publicTools.length, 309, "public canonical catalog must contain 309 tools");
+assert.equal(publicTools.length, 317, "public canonical catalog must contain 317 tools");
 assert.equal(Object.keys(toolAliases).length, 12, "legacy alias register must contain 12 entries");
 assert.equal(Object.keys(categories).length, 10, "catalog must contain ten categories");
 assert.equal(new Set(publicTools.map((tool) => tool.slug)).size, publicTools.length, "canonical slugs must be unique");
@@ -41,15 +41,15 @@ const table = rows.map(({ tool, priority }) =>
 ).join("\n");
 const report = `# ByteQuant tool quality inventory
 
-Generated: 2026-08-08
+Generated: 2026-08-11
 
-This is an automated catalog, runtime-routing, and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. Phase 1 verified discoverability, canonical identity, four-language content presence, HowTo coverage, and catalog uniqueness. Phase 2 adds an implemented-workbench-family assertion for every canonical tool and four-locale runnable-demo checks for the 88 highest-risk tools (catalog marks 234–321).
+This is an automated catalog, runtime-routing, and content-integrity inventory, not a claim of professional certification or exhaustive manual functional review. The current quality program verifies discoverability, canonical identity, four-language content presence, HowTo coverage, catalog uniqueness, an implemented workbench family for every canonical tool, and four-locale runnable-demo checks for 110 high-risk precision/frontier tools.
 
 ## Inventory scope
 
 | Measure | Count |
 | --- | ---: |
-| Public canonical tools | 309 |
+| Public canonical tools | 317 |
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |
@@ -70,9 +70,11 @@ ${categorySummary}
 - inclusion in the four-locale sitemap and publication-status disclosure (validated after production export);
 - alias separation so legacy URLs do not compete with canonical tool pages.
 - an implemented workbench-family route for every canonical tool, enforced by the test suite;
-- executable, non-placeholder demo output, measurable results, renderable tables, and localized review boundaries for marks 234–321;
+- executable, non-placeholder demo output, measurable results, renderable tables, and localized review boundaries for marks 234–329;
 - purpose-specific regression checks for previously reported GraphQL, shift, cookie, terminology, tool-call, and evidence-table tools;
 - localized explanatory output and actionable input-error guidance for the 75 frontier tools.
+- an explicit fail-closed runtime resolver so unknown slugs cannot silently receive a plausible but unrelated generic result;
+- a same-category intent-similarity gate that blocks newly introduced near-duplicate tool propositions.
 
 ## Per-tool register
 

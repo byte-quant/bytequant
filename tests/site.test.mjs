@@ -118,7 +118,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 309);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 317);
   for (const standardsUrl of [
     "https://bytequant.org/yayin-ilkeleri",
     "https://bytequant.org/en/publishing-standards",
@@ -171,10 +171,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 321);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 321);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 321);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 321);
+  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 329);
+  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 329);
+  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 329);
+  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 329);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -775,8 +775,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>96<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>96<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>100<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>100<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -876,10 +876,10 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /309 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 309 tools in a visual workflow/);
-  assert.match(german, /309 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 309 个工具/);
+  assert.match(turkish, /317 aracı, takip etmesi kolay bir görsel akışta/);
+  assert.match(english, /Connect 317 tools in a visual workflow/);
+  assert.match(german, /317 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
+  assert.match(chinese, /清晰易懂的可视化流程中连接 317 个工具/);
   assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
   assert.match(english, /Build your first workflow in five controlled steps/);
   assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
