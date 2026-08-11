@@ -40,6 +40,8 @@
     "audit:quality2": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-quality-program-stage-two.mjs",
     "quality3:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-quality-program-stage-three.mjs --write",
     "audit:quality3": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-quality-program-stage-three.mjs",
+    "quality4:generate": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-quality-program-stage-four.mjs --write",
+    "audit:quality4": "node --experimental-strip-types --import ./tests/register-ts-loader.mjs scripts/audit-quality-program-stage-four.mjs",
     "audit:release": "node scripts/audit-release-readiness.mjs",
     "audit:licenses": "node scripts/audit-licenses.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
