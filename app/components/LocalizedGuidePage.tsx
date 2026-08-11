@@ -7,6 +7,7 @@ import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { ToolCard } from "./ToolCard";
 import { GuideValidationLab, guideValidationText } from "./GuideValidationLab";
+import { GuideActionPlan } from "./GuideActionPlan";
 
 function articleWordCount(text: string, locale: LocalizedGuideLocale) {
   const segmenter = new Intl.Segmenter(languageTag(locale), { granularity: "word" });
@@ -68,6 +69,7 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
                 <li>{localized("Eine nachvollziehbare Übergabe an passende lokale Werkzeuge", "可核验地交付到相关本地工具")}</li>
               </ul>
             </aside>
+            <GuideActionPlan guideTitle={copy.title} locale={locale} tools={tools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
             {copy.sections.map((section, index) => (
               <section id={`guide-section-${index + 1}`} key={section.heading}>
                 <span className="section-index">{String(index + 1).padStart(2, "0")}</span>

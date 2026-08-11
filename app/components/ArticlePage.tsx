@@ -8,6 +8,7 @@ import { SiteShell } from "./SiteShell";
 import { getLocalizedGuide } from "../lib/localized-guides";
 import { BrandLogo } from "./BrandLogo";
 import { GuideValidationLab, guideValidationText } from "./GuideValidationLab";
+import { GuideActionPlan } from "./GuideActionPlan";
 
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
@@ -97,6 +98,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
 
           <div className="article-body">
             <div className="article-summary"><strong>{isTr ? "Kısa cevap" : "Short answer"}</strong><p>{post.description[locale]}</p></div>
+            <GuideActionPlan guideTitle={post.title[locale]} locale={locale} tools={relatedTools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
             {post.sections[locale].map((section, index) => (
               <section id={`section-${index + 1}`} key={section.heading}>
                 <span className="section-index">{String(index + 1).padStart(2, "0")}</span>

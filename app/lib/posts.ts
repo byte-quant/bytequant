@@ -3,6 +3,7 @@ import { essentialPosts } from "./essential-guides";
 import { precisionPosts } from "./precision-guides";
 import { frontierPosts } from "./frontier-guides";
 import { stageTwoPosts } from "./stage-two-guides";
+import { stageThreePosts } from "./stage-three-guides";
 import { canonicalGuideToolSlugs } from "./guide-tool-links";
 
 export type EditorialLocale = "tr" | "en";
@@ -1267,7 +1268,7 @@ posts.push(
   },
 );
 
-posts.push(...expansionPosts, ...essentialPosts, ...precisionPosts, ...frontierPosts, ...stageTwoPosts);
+posts.push(...expansionPosts, ...essentialPosts, ...precisionPosts, ...frontierPosts, ...stageTwoPosts, ...stageThreePosts);
 for (const post of posts) post.relatedTools = canonicalGuideToolSlugs(post.relatedTools);
 
 export const legacyPostSlugs = {

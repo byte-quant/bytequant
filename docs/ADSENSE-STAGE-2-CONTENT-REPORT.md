@@ -23,9 +23,9 @@ Stage 2 replaces repeated instructional copy with intent-aware guidance. It does
 | Unique use-case sets in every locale | 317 × 4 |
 | Unique HowTo step sets in every locale | 317 × 4 |
 | Intent-aware input/method/output/verification profiles | 18 |
-| TR/EN guides with multi-section depth | 100 |
-| DE/ZH guides with multi-section depth | 72 |
-| Total editorial guide records | 172 |
+| TR/EN guides with multi-section depth | 104 |
+| DE/ZH guides with multi-section depth | 76 |
+| Total editorial guide records | 180 |
 | Largest intentional input-profile family | 41 tools |
 
 ## Editorial decisions

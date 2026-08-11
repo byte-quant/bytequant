@@ -6,9 +6,9 @@ Generated: 2026-08-09
 
 | Measure | Verified |
 | --- | ---: |
-| Canonical indexable URLs | 1672 |
-| Reciprocal hreflang links checked | 13672 |
-| Valid JSON-LD blocks | 1680 |
+| Canonical indexable URLs | 1688 |
+| Reciprocal hreflang links checked | 13752 |
+| Valid JSON-LD blocks | 1696 |
 | Visible FAQ schema entries | 5198 |
 | Visible HowTo schema steps | 3836 |
 | Canonical tools represented in llms.txt | 317 |
