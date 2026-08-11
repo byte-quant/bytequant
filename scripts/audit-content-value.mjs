@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { findStandalonePlaceholder } from "./lib/placeholder-content.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
@@ -46,7 +47,8 @@ let noindexCount = 0;
 for (const file of htmlFiles) {
   const html = await readFile(file, "utf8");
   assert.doesNotMatch(html, /<main\b[\s\S]*<main\b/i, `${path.relative(root, file)} contains nested main landmarks`);
-  assert.doesNotMatch(html, /lorem ipsum|under construction|coming soon/i, `${path.relative(root, file)} contains placeholder content`);
+  const placeholder = findStandalonePlaceholder(html);
+  assert.equal(placeholder, null, `${path.relative(root, file)} contains standalone placeholder content: ${placeholder}`);
   if (/name="robots" content="[^"]*noindex/i.test(html)) noindexCount += 1;
 }
 for (const localePrefix of ["araclar", "en/tools", "de/tools", "zh/tools"]) {
