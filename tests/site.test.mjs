@@ -609,7 +609,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-09/);
+    assert.match(page, /dateModified[^<]*2026-08-11/);
   }
 
   const guideSlugs = [
@@ -775,8 +775,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>100<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>100<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>104<\/strong>\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>104<\/strong>\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -919,7 +919,7 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-09/);
+    assert.match(page, /dateModified[^<]*2026-08-11/);
   }
   for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
     for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {
