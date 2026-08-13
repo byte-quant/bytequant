@@ -9,7 +9,7 @@ Generated: 2026-08-09
 | Canonical indexable URLs | 1692 |
 | Reciprocal hreflang links checked | 13788 |
 | Valid JSON-LD blocks | 1700 |
-| Visible FAQ schema entries | 5198 |
+| Visible FAQ schema entries | 5202 |
 | Visible HowTo schema steps | 3836 |
 | Canonical tools represented in llms.txt | 317 |
 | Duplicate localized titles | 0 |
