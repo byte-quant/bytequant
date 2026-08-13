@@ -1,7 +1,7 @@
 # ByteQuant AdSense approval checklist
 
 Last verified: 2026-08-09
-Scope: four-language static site, 309 canonical tools, localized guides, legal/trust pages, Local Agent, Workstation, Community, and the finite Updates feed.
+Scope: four-language static site, 317 canonical tools, localized guides, legal/trust pages, Local Agent, Workstation, Community, and the finite Updates feed.
 
 This checklist documents readiness; it is not a promise of approval. Google alone evaluates the account, site, traffic, live consent message, and policy status.
 
@@ -11,7 +11,7 @@ This checklist documents readiness; it is not a promise of approval. Google alon
 - [x] `/ads.txt` contains `google.com, pub-4158794981134847, DIRECT, f08c47fec0942fa0`.
 - [x] Automated checks fail if the publisher identity or seller record changes.
 - [x] The site contains no manual empty ad boxes or controls that imitate advertisements.
-- [x] All 309 distinct tools remain indexable; 12 legacy aliases preserve old links and are excluded only to prevent duplicate indexing.
+- [x] All 317 distinct tools remain indexable; legacy aliases preserve old links and are excluded only to prevent duplicate indexing.
 - [x] Every canonical tool has a working interface, example, error state, method, acceptance check, limits, FAQ, HowTo data, and an editorial guide route.
 - [x] About, Contact, Privacy, Cookies, Terms, FAQ, Guides, and Publishing & Trust Standards are localized and reachable from the footer.
 - [x] Publishing standards disclose ownership, production method, corrections, advertising independence, privacy boundaries, source selection, copyright, and AI assistance.

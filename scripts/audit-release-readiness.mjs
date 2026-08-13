@@ -85,7 +85,7 @@ for (const standardsPath of standardsPaths) {
 }
 assert.ok(!sitemapUrls.some((url) => new URL(url).pathname === "/workspace/"), "Private recipe importer must remain outside the sitemap.");
 assert.match(llms, /(?:does not|neither[^.]+) guarantee(?:s)? indexing, citation, ranking, AdSense approval/i);
-assert.match(llms, /Local Agent 4\.3/);
+assert.match(llms, /Agent 5\.1/);
 
 for (const source of [headers, worker]) {
   assert.match(source, /Content-Security-Policy/i);

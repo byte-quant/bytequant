@@ -4,7 +4,7 @@ import { copy, locales, organizationId, pathFor, siteUrl, websiteId, type Locale
 import { ConsentManager, PrivacySettingsButton } from "./ConsentManager";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandLogo } from "./BrandLogo";
-import { CommandPalette } from "./CommandPalette";
+import { LazyCommandPalette } from "./LazyCommandPalette";
 import { referencePath } from "../lib/references";
 import { publicTools as tools } from "../lib/tools";
 import { SchemaScript } from "./SchemaScript";
@@ -42,10 +42,9 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs, incl
             <Link className="nav-product-link nav-library-link" href={pathFor(locale, "tools")}><span aria-hidden="true">⌕</span><b>{t.nav.tools}</b></Link>
             <Link className="nav-product-link agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span><b>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</b></Link>
             <Link className="nav-product-link workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span><b>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</b></Link>
-            <details className="nav-more-menu"><summary><span aria-hidden="true">＋</span>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><Link href={pathFor(locale, "community")}><span>◎</span><b>{localized("Topluluk", "Community", "Community", "社区")}</b></Link><Link href={pathFor(locale, "news")}><span>◉</span><b>{localized("Gündem", "Updates", "Aktuell", "动态")}</b></Link><Link href={pathFor(locale, "blog")}><span>□</span><b>{t.nav.blog}</b></Link><Link href={pathFor(locale, "about")}><span>↗</span><b>{t.nav.about}</b></Link><Link href={pathFor(locale, "standards")}><span>✓</span><b>{localized("Yayın ilkeleri", "Publishing standards", "Publikationsstandards", "发布标准")}</b></Link><Link href={pathFor(locale, "faq")}><span>?</span><b>{t.nav.faq}</b></Link></div></details>
+            <details className="nav-more-menu"><summary><span aria-hidden="true">＋</span>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><LazyCommandPalette locale={locale} /><Link href={pathFor(locale, "community")}><span>◎</span><b>{localized("Topluluk", "Community", "Community", "社区")}</b></Link><Link href={pathFor(locale, "news")}><span>◉</span><b>{localized("Gündem", "Updates", "Aktuell", "动态")}</b></Link><Link href={pathFor(locale, "blog")}><span>□</span><b>{t.nav.blog}</b></Link><Link href={pathFor(locale, "about")}><span>↗</span><b>{t.nav.about}</b></Link><Link href={pathFor(locale, "standards")}><span>✓</span><b>{localized("Yayın ilkeleri", "Publishing standards", "Publikationsstandards", "发布标准")}</b></Link><Link href={pathFor(locale, "faq")}><span>?</span><b>{t.nav.faq}</b></Link></div></details>
           </nav>
           <div className="header-actions">
-            <CommandPalette locale={locale} showTrigger={false} />
             <PwaInstall locale={locale} compact />
             <details className="language-menu"><summary aria-label={localized("Dili değiştir", "Change language", "Sprache ändern", "切换语言")}><span className="language-menu-code" aria-hidden="true">{locale.toUpperCase()}</span><span className="language-menu-label">{localeNames[locale]}</span><span className="language-menu-chevron" aria-hidden="true">⌄</span></summary><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}><span>{localeNames[item]}</span><small>{item === "zh" ? "ZH-CN" : item.toUpperCase()}</small>{item === locale ? <b aria-hidden="true">✓</b> : null}</Link>)}</div></details>
             <ThemeToggle locale={locale} />

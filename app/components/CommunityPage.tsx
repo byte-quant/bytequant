@@ -49,9 +49,56 @@ const networkHero = {
   zh: { eyebrow: "BYTEQUANT 社区", title: "来自真实用户的工作流、想法与问题", intro: "浏览全球动态；也可创建仅在设备上加密的便携资料，用于发布、回复与点赞。本地私密归档和直接 P2P 工具保持独立、清晰。", global: "打开全球动态", local: "设备归档", live: "直接会话", archiveTitle: "此设备上的私密看板", archiveBody: "管理不希望发送到中继的草稿、私密小组和便携内容包。", records: "打开已保存的本地看板", recordsHelp: "显示存储在此设备上的帖子、评论、小组与导出选项。", p2pTitle: "一次性 P2P 会话", p2pBody: "使用邀请码与指定用户实时交流。此功能与全球动态相互独立。" },
 } as const;
 
+const pageExperienceCopy = {
+  tr: {
+    title: "İş akışlarını keşfedin, soru sorun ve güvenle paylaşın",
+    intro: "Önce herkese açık ByteQuant konu akışını okuyun. Katılmak istediğinizde cihazınızda şifrelenen Nostr profilini açın; özel cihaz panosu ve doğrudan P2P araçları ayrı bir gelişmiş alanda kalır.",
+    read: "Akışı oku",
+    publish: "Paylaşım yap",
+    privateTools: "Gelişmiş ve özel araçlar",
+    advancedTitle: "Gelişmiş / özel topluluk araçları",
+    advancedBody: "Relay’e göndermek istemediğiniz cihaz panosunu veya belirli biriyle geçici P2P görüşmeyi burada açın.",
+    howTitle: "Topluluğa katılmanın 3 adımı",
+    howBody: "Okuma ücretsiz ve profilsizdir; ağ bağlantısı ve paylaşım her zaman sizin açık işleminizle başlar.",
+  },
+  en: {
+    title: "Discover workflows, ask questions, and share with confidence",
+    intro: "Read the public ByteQuant topic feed first. When you want to participate, unlock the Nostr profile encrypted on your device; the private device board and direct P2P tools stay in a separate advanced area.",
+    read: "Read the feed",
+    publish: "Create a post",
+    privateTools: "Advanced and private tools",
+    advancedTitle: "Advanced / private community tools",
+    advancedBody: "Open the device board you do not want to send to a relay, or start a temporary P2P session with one specific person.",
+    howTitle: "Join the community in 3 steps",
+    howBody: "Reading is free and profileless; network access and publishing always begin with your explicit action.",
+  },
+  de: {
+    title: "Abläufe entdecken, Fragen stellen und sicher teilen",
+    intro: "Lesen Sie zuerst den öffentlichen ByteQuant-Themenfeed. Zum Mitmachen öffnen Sie das auf Ihrem Gerät verschlüsselte Nostr-Profil; privates Geräteboard und direkte P2P-Werkzeuge bleiben in einem getrennten erweiterten Bereich.",
+    read: "Feed lesen",
+    publish: "Beitrag erstellen",
+    privateTools: "Erweiterte und private Werkzeuge",
+    advancedTitle: "Erweiterte / private Community-Werkzeuge",
+    advancedBody: "Öffnen Sie das Geräteboard, das nicht an Relays gesendet wird, oder eine temporäre P2P-Sitzung mit einer bestimmten Person.",
+    howTitle: "In 3 Schritten mitmachen",
+    howBody: "Lesen ist kostenlos und ohne Profil möglich; Netzwerkzugriff und Veröffentlichung beginnen immer mit Ihrer ausdrücklichen Aktion.",
+  },
+  zh: {
+    title: "发现工作流、提出问题，并安心分享",
+    intro: "先阅读公开的 ByteQuant 主题动态。需要参与时，再解锁仅在设备上加密的 Nostr 资料；私密设备看板和直接 P2P 工具位于独立的高级区域。",
+    read: "阅读动态",
+    publish: "发布内容",
+    privateTools: "高级与私密工具",
+    advancedTitle: "高级 / 私密社区工具",
+    advancedBody: "在这里打开不会发送到中继的设备看板，或与指定用户建立临时 P2P 会话。",
+    howTitle: "三步参与社区",
+    howBody: "阅读免费且无需资料；网络连接和发布始终由您的明确操作开始。",
+  },
+} as const;
+
 export function CommunityPage({ locale }: { locale: Locale }) {
   const c = copy[locale];
-  const hero = networkHero[locale];
+  const hero = { ...networkHero[locale], ...pageExperienceCopy[locale] };
   const pageUrl = absoluteUrl(pathFor(locale, "community"));
   const schema = [
     { "@context": "https://schema.org", "@type": "CollectionPage", name: hero.title, description: hero.intro, url: pageUrl, inLanguage: languageTag(locale), isPartOf: { "@id": `${absoluteUrl(pathFor(locale, "home"))}#website` }, author: { "@id": organizationId } },
@@ -59,11 +106,14 @@ export function CommunityPage({ locale }: { locale: Locale }) {
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "community")} languageHrefs={{ tr: pathFor("tr", "community"), en: pathFor("en", "community"), de: pathFor("de", "community"), zh: pathFor("zh", "community") }}>
     <SchemaScript data={schema} />
-    <section className="community-product-intro community-product-intro-compact"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#global-community">{hero.global} ↓</a><a className="secondary-button" href="#community-local">{hero.local}</a><a className="secondary-button" href="#community-live">{hero.live}</a></nav><ol aria-label={c.title}>{c.steps.map(([number, name, text]) => <li key={number}><span>{number}</span><div><strong>{name}</strong><small>{text}</small></div></li>)}</ol></div></section>
+    <section className="community-product-intro community-product-intro-compact"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#community-feed">{hero.read} ↓</a><a className="secondary-button" href="#community-compose">{hero.publish}</a><a className="secondary-button" href="#community-private-tools">{hero.privateTools}</a></nav></div></section>
     <section className="section community-network-section" id="global-community"><div className="container wide-container"><CommunityNetwork locale={locale} /></div></section>
     <section className="section community-secondary-tools"><div className="container">
-      <details className="community-secondary-panel" id="community-local"><summary><span>▣</span><div><strong>{hero.archiveTitle}</strong><small>{hero.archiveBody}</small></div><b>+</b></summary><div className="community-secondary-panel-body"><CommunityComposer locale={locale} /><details className="community-local-archive"><summary><span>▤</span><div><strong>{hero.records}</strong><small>{hero.recordsHelp}</small></div><b>+</b></summary><div><CommunityFeed locale={locale} /></div></details></div></details>
-      <details className="community-secondary-panel" id="community-live"><summary><span>◉</span><div><strong>{hero.p2pTitle}</strong><small>{hero.p2pBody}</small></div><b>+</b></summary><div className="community-secondary-panel-body"><CommunityP2PChat locale={locale} /></div></details>
+      <details className="community-secondary-panel" id="community-private-tools"><summary><span>◇</span><div><strong>{hero.advancedTitle}</strong><small>{hero.advancedBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body">
+        <details className="community-secondary-panel" id="community-local"><summary><span>▣</span><div><strong>{hero.archiveTitle}</strong><small>{hero.archiveBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body"><CommunityComposer locale={locale} /><details className="community-local-archive"><summary><span>▤</span><div><strong>{hero.records}</strong><small>{hero.recordsHelp}</small></div><b aria-hidden="true">+</b></summary><div><CommunityFeed locale={locale} /></div></details></div></details>
+        <details className="community-secondary-panel" id="community-live"><summary><span>◉</span><div><strong>{hero.p2pTitle}</strong><small>{hero.p2pBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body"><CommunityP2PChat locale={locale} /></div></details>
+      </div></details>
+      <details className="community-secondary-panel"><summary><span>?</span><div><strong>{hero.howTitle}</strong><small>{hero.howBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body"><ol aria-label={hero.howTitle}>{c.steps.map(([number, name, text]) => <li key={number}><span>{number}</span><div><strong>{name}</strong><small>{text}</small></div></li>)}</ol></div></details>
       <div className="community-boundary-inline"><div><strong>{c.boundaryTitle}</strong><p>{c.boundary}</p></div><Link href="https://github.com/byte-quant/bytequant" target="_blank" rel="noreferrer noopener">{c.repo} ↗</Link></div>
     </div></section>
   </SiteShell>;

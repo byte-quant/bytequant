@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { readWorkspaceAgentGoal, readWorkspaceHandoff } from "../app/lib/workspace-handoff.ts";
+import { WORKSPACE_AGENT_INPUT_KEY, readWorkspaceAgentGoal, readWorkspaceAgentInput, readWorkspaceHandoff } from "../app/lib/workspace-handoff.ts";
 import { COLLABORATION_SIGNAL_LIFETIME_MS, createCollaborationSafetyCode, decodeCollaborationSignal, encodeCollaborationSignal } from "../app/lib/workspace-p2p.ts";
 import { createWorkspaceRecipe, decodeWorkspaceRecipe, encodeWorkspaceRecipe } from "../app/lib/workspace-recipe.ts";
 import { assertWorkspaceQuota, decryptWorkspace, encryptWorkspace } from "../app/lib/workspace-storage.ts";
@@ -87,4 +88,33 @@ test("tool handoff rejects forged paths, password-sized data, and malformed ids"
   assert.equal(readWorkspaceHandoff(JSON.stringify({ ...valid, toolSlug: "../escape" })), null);
   assert.equal(readWorkspaceAgentGoal("  compare two JSON documents  "), "compare two JSON documents");
   assert.equal(readWorkspaceAgentGoal("x"), null);
+  assert.equal(WORKSPACE_AGENT_INPUT_KEY, "bytequant:workstation-agent-input:v1");
+  assert.equal(readWorkspaceAgentInput("  {\"safe\":true}  "), '{"safe":true}');
+  assert.equal(readWorkspaceAgentInput("   "), null);
+  assert.equal(readWorkspaceAgentInput("x".repeat(200_001)), null);
+});
+
+test("workstation keeps Agent input, guided navigation, localized loading, and locale-safe recipe routes", async () => {
+  const [client, loader] = await Promise.all([
+    readFile(new URL("../app/components/WorkstationClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/WorkstationLoader.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.ok(client.includes("readWorkspaceAgentInput(sessionStorage.getItem(WORKSPACE_AGENT_INPUT_KEY))"));
+  assert.ok(client.includes("input: index === 0 ? (inputHandoff ?? planHandoff.goal) : \"\""));
+  assert.ok(client.includes("sessionStorage.removeItem(WORKSPACE_AGENT_INPUT_KEY)"));
+  assert.ok(client.includes('pathFor(locale, "workstation")}?recipe='));
+  assert.ok(client.includes('search.replace("{count}", String(publicTools.length))'));
+  assert.ok(client.includes("Quick workflow planner"));
+  assert.ok(client.includes("Schneller Ablaufplaner"));
+  assert.ok(client.includes("快速流程规划器"));
+  assert.ok(client.includes("workspaceFlowCopy[locale].runNext"));
+  assert.ok(client.includes('guidedMode ? <><a href="#workspace-start"'));
+  assert.ok(client.includes("setOnboardingOpen(!alreadyStarted"));
+  assert.doesNotMatch(client, /\b309\b/u);
+
+  assert.ok(loader.includes("ByteQuant İş İstasyonu cihazınızda hazırlanıyor…"));
+  assert.ok(loader.includes("ByteQuant Workstation is loading on your device…"));
+  assert.ok(loader.includes("ByteQuant Workstation wird auf Ihrem Gerät geladen…"));
+  assert.ok(loader.includes("ByteQuant 工作站正在您的设备上加载…"));
 });

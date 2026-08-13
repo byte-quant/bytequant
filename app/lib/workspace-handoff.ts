@@ -4,6 +4,7 @@ export const WORKSPACE_HANDOFF_KEY = "bytequant:workstation-handoff:v1";
 export const WORKSPACE_ACTIVE_KEY = "bytequant:workstation-active:v1";
 export const WORKSPACE_AGENT_GOAL_KEY = "bytequant:workstation-agent-goal:v1";
 export const WORKSPACE_AGENT_PLAN_KEY = "bytequant:workstation-agent-plan:v1";
+export const WORKSPACE_AGENT_INPUT_KEY = "bytequant:workstation-agent-input:v1";
 
 export type WorkspaceHandoff = {
   version: 1;
@@ -38,4 +39,10 @@ export function readWorkspaceAgentGoal(raw: string | null): string | null {
   if (!raw || raw.length > 20_000) return null;
   const value = raw.trim();
   return value.length >= 3 ? value : null;
+}
+
+export function readWorkspaceAgentInput(raw: string | null): string | null {
+  if (!raw || raw.length > WORKSPACE_MAX_TEXT) return null;
+  const value = raw.trim();
+  return value ? value : null;
 }

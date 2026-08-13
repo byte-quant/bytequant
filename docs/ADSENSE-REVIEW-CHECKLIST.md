@@ -13,7 +13,7 @@ This document separates repository checks from account-side controls. Passing th
 
 ## Publisher-content quality
 
-- [x] All 309 distinct public tools remain indexable and are included in the sitemap.
+- [x] All 317 distinct public tools remain indexable and are included in the sitemap.
 - [x] Twelve legacy alias URLs preserve old links, point to the canonical tool, and remain `noindex` to prevent duplicate indexing.
 - [x] Every tool page discloses its method, acceptance check, limitations, local-processing behavior, and publication status.
 - [x] Community and official-source update landing pages are indexable editorial entry points; their dynamic surfaces remain listed for account-level Auto Ads exclusion.

@@ -11,14 +11,14 @@ function searchable(value: string, locale: Locale) {
   return value.toLocaleLowerCase({ tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" }[locale]).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function CommandPalette({ locale, showTrigger = true }: { locale: Locale; showTrigger?: boolean }) {
+export function CommandPalette({ locale, showTrigger = true, initialOpen = false }: { locale: Locale; showTrigger?: boolean; initialOpen?: boolean }) {
   const labels = {
     tr: { aria: "Araç ve referans ara", placeholder: `${tools.length} araç ve ${references.length} referansta ara…`, close: "Kapat", quick: "Hızlı geçiş", result: "sonuç", empty: "Bu aramayla eşleşen hedef yok.", select: "seç", open: "aç", search: "Ara" },
     en: { aria: "Search tools and references", placeholder: `Search ${tools.length} tools and ${references.length} references…`, close: "Close", quick: "Quick navigation", result: "results", empty: "No destination matches this search.", select: "select", open: "open", search: "Search" },
     de: { aria: "Werkzeuge und Referenzen durchsuchen", placeholder: `${tools.length} Werkzeuge und ${references.length} Referenzen durchsuchen…`, close: "Schließen", quick: "Schnellnavigation", result: "Ergebnisse", empty: "Kein Ziel entspricht dieser Suche.", select: "auswählen", open: "öffnen", search: "Suchen" },
     zh: { aria: "搜索工具和参考资料", placeholder: `搜索 ${tools.length} 个工具和 ${references.length} 个参考资料…`, close: "关闭", quick: "快速导航", result: "个结果", empty: "没有匹配的目标。", select: "选择", open: "打开", search: "搜索" },
   }[locale];
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);

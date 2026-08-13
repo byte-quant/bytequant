@@ -8,6 +8,20 @@ const readSource = (path) => readFile(new URL(`../${path}`, import.meta.url), "u
 const jsonLd = (html) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
 const toolAliases = new Set(["kredi-taksit-hesaplayici", "tarih-sure-hesaplayici", "kelime-sikligi-analizoru", "okunabilirlik-on-analizi", "liste-siralama-temizleme", "sri-hash-olusturucu", "yuzde-degisim-hizli-hesaplayici", "indirim-kdv-hesaplayici", "rastgele-takim-olusturucu", "query-string-olusturucu", "http-durum-kodu-rehberi", "mime-turu-bulucu"]);
 
+test("global command search defers the full tool index until the keyboard shortcut is used", async () => {
+  const [shell, loader, palette] = await Promise.all([
+    readSource("app/components/SiteShell.tsx"),
+    readSource("app/components/LazyCommandPalette.tsx"),
+    readSource("app/components/CommandPalette.tsx"),
+  ]);
+  assert.match(shell, /<LazyCommandPalette locale=\{locale\}/);
+  assert.doesNotMatch(shell, /import \{ CommandPalette \}/);
+  assert.match(loader, /lazy\(\(\) => import\("\.\/CommandPalette"\)/);
+  assert.match(loader, /className="nav-more-search"/);
+  assert.match(loader, /event\.metaKey \|\| event\.ctrlKey/);
+  assert.match(palette, /initialOpen = false/);
+});
+
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
   assert.match(home, /İşinizi kolaylaştırın; hassas veriniz sizde kalsın/);
@@ -29,7 +43,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /BQ-Agent 5\.0/);
+    assert.match(page, /BQ-Agent 5\.1/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -821,7 +835,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /BQ-Agent 5\.0/);
+    assert.match(page, /BQ-Agent 5\.1/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);

@@ -27,7 +27,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.googlesyndication.com https://*.googleusercontent.com https://*.doubleclick.net https://*.adtrafficquality.google",
   "font-src 'self'",
-  "connect-src 'self' wss: https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
+  "connect-src 'self' wss: https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://huggingface.co https://cdn-lfs.hf.co https://cas-bridge.xethub.hf.co https://raw.githubusercontent.com",
   "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google",
   "media-src 'self' blob:",
   "object-src 'none'",

@@ -1,23 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canAutomatePlan, runAgentAutomation, type AgentAutomationResult } from "../lib/agent-automation";
 import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, prepareAgentInput, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
 import { AGENT_AUTO_PREPARE_KEY } from "../lib/agent-session";
-import { buildLocalAIMessages, createFastConversationResponse, createLocalAIEngine, isLikelyWorkflowRequest, LOCAL_AI_MAX_ATTACHMENT, sanitizeLocalAIOutput, streamLocalAI, supportsLocalAI, type LocalAIHandle } from "../lib/local-ai";
+import { acquireLocalAIEngine, buildLocalAIMessages, compactLocalAIConversationHistory, createFastConversationResponse, disposePooledLocalAIEngine, isLikelyWorkflowRequest, LOCAL_AI_MODEL_ID, readLocalAIAttachmentFile, readLocalAIConversationHistory, streamLocalAI, supportsLocalAI, type LocalAIAttachment, type LocalAIConversationTurn, type LocalAILease } from "../lib/local-ai";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 import { publicTools as tools } from "../lib/tools";
-import { WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_AGENT_PLAN_KEY } from "../lib/workspace-handoff";
+import { WORKSPACE_AGENT_GOAL_KEY, WORKSPACE_AGENT_INPUT_KEY, WORKSPACE_AGENT_PLAN_KEY } from "../lib/workspace-handoff";
 
-type Turn = { goal: string; answer: string; tools: string[]; time: number; mode?: "fast" | "ai" };
+type Turn = LocalAIConversationTurn;
 type VoiceState = "idle" | "listening" | "unavailable";
 type AIStatus = "idle" | "unsupported" | "loading" | "ready" | "error";
 type LocalSpeechRecognition = { lang: string; continuous: boolean; interimResults: boolean; processLocally: boolean; start(): void; stop(): void; onresult: ((event: { results: ArrayLike<{ 0: { transcript: string } }> }) => void) | null; onerror: (() => void) | null; onend: (() => void) | null };
 type LocalSpeechRecognitionConstructor = { new(): LocalSpeechRecognition; available?: (options: { langs: string[]; processLocally: boolean }) => Promise<string> };
 
 const tags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
-const historyKey = "bytequant:local-agent-conversation:v5";
+const historyKey = (locale: Locale) => `bytequant:local-agent-conversation:v6:${locale}`;
+const localAIOptInKey = "bytequant:local-agent:ai-opt-in:v1";
 
 const ui = {
   tr: {
@@ -53,10 +54,10 @@ const stateCopy = {
 } as const;
 
 const aiCopy = {
-  tr: { title: "Gerçek yerel AI", intro: "Daha doğal sohbet ve açıklamalar için modeli yalnızca bu cihazda çalıştırın. İlk etkinleştirmede yaklaşık 400–700 MB model dosyası indirilir; yazdıklarınız modele gönderilmez.", enable: "Yerel AI'yı etkinleştir", enabled: "Yerel AI hazır", fast: "Hızlı ajan", loading: "Model cihaza hazırlanıyor", stop: "Durdur", disable: "Modeli kapat", unsupported: "Bu cihaz WebGPU'yu desteklemiyor. Hızlı ve açıklanabilir ajan kullanılabilir.", failed: "Yerel model başlatılamadı; hızlı ajan kesintisiz devam ediyor.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · uzak çıkarım yok", attach: "Dosya ekle", remove: "Dosyayı kaldır", attached: "eklendi", generating: "Yanıt cihazınızda üretiliyor…", mode: "Yerel çıkarım", download: "Yalnızca model indirme sırasında ağ kullanılır; sohbet içeriği isteğe eklenmez." },
-  en: { title: "Real local AI", intro: "Run a model only on this device for more natural conversation and explanations. The first activation downloads roughly 400–700 MB; your messages are not sent with that download.", enable: "Enable local AI", enabled: "Local AI ready", fast: "Fast agent", loading: "Preparing the model on this device", stop: "Stop", disable: "Unload model", unsupported: "This device does not support WebGPU. The fast explainable agent remains available.", failed: "The local model could not start; the fast agent remains fully available.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · no remote inference", attach: "Attach file", remove: "Remove file", attached: "attached", generating: "Generating on your device…", mode: "Local inference", download: "The network is used only to download model assets; chat content is never added to that request." },
-  de: { title: "Echte lokale KI", intro: "Für natürlichere Gespräche läuft das Modell ausschließlich auf diesem Gerät. Beim ersten Aktivieren werden etwa 400–700 MB geladen; Ihre Nachrichten werden dabei nicht übertragen.", enable: "Lokale KI aktivieren", enabled: "Lokale KI bereit", fast: "Schneller Agent", loading: "Modell wird auf dem Gerät vorbereitet", stop: "Stoppen", disable: "Modell entladen", unsupported: "Dieses Gerät unterstützt WebGPU nicht. Der schnelle, nachvollziehbare Agent bleibt verfügbar.", failed: "Das lokale Modell konnte nicht starten; der schnelle Agent bleibt verfügbar.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · keine Remote-Inferenz", attach: "Datei anhängen", remove: "Datei entfernen", attached: "angehängt", generating: "Antwort entsteht auf Ihrem Gerät…", mode: "Lokale Inferenz", download: "Das Netz wird nur zum Laden der Modelldateien verwendet; Gesprächsinhalte werden nicht mitgesendet." },
-  zh: { title: "真正的本地 AI", intro: "模型只在此设备上运行，用于更自然的对话和解释。首次启用约需下载 400–700 MB；您的消息不会随下载请求发送。", enable: "启用本地 AI", enabled: "本地 AI 已就绪", fast: "快速助手", loading: "正在此设备上准备模型", stop: "停止", disable: "卸载模型", unsupported: "此设备不支持 WebGPU。快速、可解释的助手仍可使用。", failed: "本地模型无法启动；快速助手仍可继续使用。", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · 无远程推理", attach: "添加文件", remove: "移除文件", attached: "已添加", generating: "正在您的设备上生成回答…", mode: "本地推理", download: "网络仅用于下载模型文件；对话内容不会加入下载请求。" },
+  tr: { fastTitle: "Hızlı Ajan · Anında", localTitle: "Yerel AI · Daha doğal", intro: "Hızlı Ajan hemen çalışır. Daha doğal sohbet için modeli açık izninizle bu cihazda çalıştırabilirsiniz; ilk kullanımda yaklaşık 400–700 MB indirilir.", switchToLocal: "Yerel AI'ya geç", switchToFast: "Hızlı Ajana geç", enabled: "Yerel AI hazır", loading: "Yerel AI cihaza hazırlanıyor", cancelLoad: "İptal", stop: "Durdur", unsupported: "Bu cihaz WebGPU'yu desteklemiyor. Hızlı ve açıklanabilir ajan kullanılabilir.", failed: "Yerel AI başlatılamadı; Hızlı Ajan kesintisiz devam ediyor.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · uzak çıkarım yok", attach: "Dosya ekle", remove: "Dosyayı kaldır", attached: "eklendi", truncated: "güvenli sınırda kısaltıldı", fileReadFailed: "Dosya okunamadı. Metin tabanlı ve daha küçük bir dosya deneyin.", generating: "Yanıt cihazınızda üretiliyor…", download: "Model dosyaları yalnız izin verilen Hugging Face ve MLC uçlarından HTTPS ile indirilir; sohbet içeriğiniz isteğe eklenmez. İndirmesiz Hızlı Ajan her zaman kullanılabilir." },
+  en: { fastTitle: "Fast Agent · Instant", localTitle: "Local AI · More natural", intro: "Fast Agent works instantly. For more natural conversation, you can explicitly allow a model to run on this device; first use downloads roughly 400–700 MB.", switchToLocal: "Switch to Local AI", switchToFast: "Switch to Fast Agent", enabled: "Local AI ready", loading: "Preparing Local AI on this device", cancelLoad: "Cancel", stop: "Stop", unsupported: "This device does not support WebGPU. The fast explainable agent remains available.", failed: "Local AI could not start; Fast Agent remains fully available.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · no remote inference", attach: "Attach file", remove: "Remove file", attached: "attached", truncated: "shortened at the safe limit", fileReadFailed: "The file could not be read. Try a smaller text-based file.", generating: "Generating on your device…", download: "Model assets download over HTTPS only from allowlisted Hugging Face and MLC endpoints; chat content is never added to that request. Fast Agent remains available without a download." },
+  de: { fastTitle: "Schneller Agent · Sofort", localTitle: "Lokale KI · Natürlicher", intro: "Der schnelle Agent startet sofort. Für natürlichere Gespräche können Sie ausdrücklich erlauben, dass ein Modell auf diesem Gerät läuft; beim ersten Mal werden etwa 400–700 MB geladen.", switchToLocal: "Zur lokalen KI", switchToFast: "Zum schnellen Agenten", enabled: "Lokale KI bereit", loading: "Lokale KI wird vorbereitet", cancelLoad: "Abbrechen", stop: "Stoppen", unsupported: "Dieses Gerät unterstützt WebGPU nicht. Der schnelle, nachvollziehbare Agent bleibt verfügbar.", failed: "Die lokale KI konnte nicht starten; der schnelle Agent bleibt verfügbar.", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · keine Remote-Inferenz", attach: "Datei anhängen", remove: "Datei entfernen", attached: "angehängt", truncated: "am sicheren Limit gekürzt", fileReadFailed: "Die Datei konnte nicht gelesen werden. Versuchen Sie eine kleinere Textdatei.", generating: "Antwort entsteht auf Ihrem Gerät…", download: "Modelldateien werden per HTTPS nur von freigegebenen Hugging-Face- und MLC-Endpunkten geladen; Gesprächsinhalte werden nicht angefügt. Der schnelle Agent funktioniert ohne Download." },
+  zh: { fastTitle: "快速助手 · 即时", localTitle: "本地 AI · 更自然", intro: "快速助手可立即使用。如需更自然的对话，您可以明确允许模型在此设备运行；首次使用约需下载 400–700 MB。", switchToLocal: "切换到本地 AI", switchToFast: "切换到快速助手", enabled: "本地 AI 已就绪", loading: "正在此设备准备本地 AI", cancelLoad: "取消", stop: "停止", unsupported: "此设备不支持 WebGPU。快速、可解释的助手仍可使用。", failed: "本地 AI 无法启动；快速助手仍可继续使用。", disclosure: "Qwen3 0.6B · Apache-2.0 · Web Worker · 无远程推理", attach: "添加文件", remove: "移除文件", attached: "已添加", truncated: "已按安全上限截短", fileReadFailed: "无法读取文件。请尝试更小的文本文件。", generating: "正在您的设备上生成回答…", download: "模型文件仅通过 HTTPS 从允许的 Hugging Face 与 MLC 端点下载；对话内容不会加入请求。快速助手无需下载即可使用。" },
 } as const;
 
 export function AgentConversation({ locale }: { locale: Locale }) {
@@ -83,44 +84,75 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   const [aiError, setAIError] = useState("");
   const [streamingResponse, setStreamingResponse] = useState("");
   const [streamingGoal, setStreamingGoal] = useState("");
-  const [attachment, setAttachment] = useState<{ name: string; text: string } | null>(null);
+  const [attachment, setAttachment] = useState<LocalAIAttachment | null>(null);
+  const [attachmentError, setAttachmentError] = useState("");
   const [showWorkflowPlan, setShowWorkflowPlan] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const primaryActionsRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<LocalSpeechRecognition | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const aiHandleRef = useRef<LocalAIHandle | null>(null);
+  const aiLeaseRef = useRef<LocalAILease | null>(null);
+  const aiInitAbortRef = useRef<AbortController | null>(null);
+  const lastWorkflowPlanRef = useRef<AgentPlan | null>(null);
   const generationRef = useRef(0);
   const activePromptRef = useRef("");
   const utilityResults = useMemo(() => semanticToolSearch(utilityQuery, tools, locale, 4), [locale, utilityQuery]);
   const errorResult = useMemo(() => errorQuery.trim() ? translateAgentError(errorQuery, locale) : null, [errorQuery, locale]);
   const automatable = plan ? canAutomatePlan(plan) : false;
 
+  const enableLocalAI = useCallback(async () => {
+    if (aiLeaseRef.current || aiInitAbortRef.current) return;
+    const capability = supportsLocalAI();
+    if (!capability.supported) { setAIStatus("unsupported"); return; }
+    const controller = new AbortController();
+    aiInitAbortRef.current = controller;
+    setAIStatus("loading"); setAIError(""); setAIProgress({ progress: 0, text: ai.loading });
+    try {
+      const lease = await acquireLocalAIEngine(setAIProgress, controller.signal);
+      if (controller.signal.aborted) { lease.release(); return; }
+      aiLeaseRef.current = lease;
+      setAIStatus("ready"); setAIProgress({ progress: 1, text: ai.enabled });
+      try { sessionStorage.setItem(localAIOptInKey, LOCAL_AI_MODEL_ID); } catch { /* optional warm-up preference */ }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setAIStatus("error"); setAIError(error instanceof Error ? error.message : ai.failed);
+    } finally {
+      if (aiInitAbortRef.current === controller) aiInitAbortRef.current = null;
+    }
+  }, [ai.enabled, ai.failed, ai.loading]);
+
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       try {
         const session = readAgentSession(sessionStorage.getItem(AGENT_SESSION_KEY));
         if (session) {
-          setPlan(session.plan.locale === locale ? session.plan : createAgentPlan(session.plan.goal, tools, locale));
+          const restoredPlan = session.plan.locale === locale ? session.plan : createAgentPlan(session.plan.goal, tools, locale);
+          setPlan(restoredPlan);
+          lastWorkflowPlanRef.current = restoredPlan;
           setPreparedInput(session.preparedInput ?? "");
           setData(session.preparedInput ?? "");
         }
-        const saved: unknown = JSON.parse(sessionStorage.getItem(historyKey) ?? "[]");
-        if (Array.isArray(saved)) setTurns(saved.filter((item): item is Turn => Boolean(item) && typeof item === "object" && typeof (item as Turn).goal === "string" && typeof (item as Turn).answer === "string" && Array.isArray((item as Turn).tools) && Number.isFinite((item as Turn).time)).slice(-12));
+        setTurns(readLocalAIConversationHistory(sessionStorage.getItem(historyKey(locale)), locale));
       } catch { /* memory is optional */ }
     });
     return () => cancelAnimationFrame(frame);
   }, [locale]);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => { if (!supportsLocalAI().supported) setAIStatus("unsupported"); });
-    return () => {
-      cancelAnimationFrame(frame);
-      generationRef.current += 1;
-      const handle = aiHandleRef.current;
-      aiHandleRef.current = null;
-      if (handle) void handle.engine.unload().catch(() => undefined).finally(() => handle.worker.terminate());
-    };
+    const frame = requestAnimationFrame(() => {
+      if (!supportsLocalAI().supported) { setAIStatus("unsupported"); return; }
+      try { if (sessionStorage.getItem(localAIOptInKey) === LOCAL_AI_MODEL_ID) void enableLocalAI(); } catch { /* explicit preference is optional */ }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [enableLocalAI]);
+
+  useEffect(() => () => {
+    generationRef.current += 1;
+    aiInitAbortRef.current?.abort();
+    aiInitAbortRef.current = null;
+    aiLeaseRef.current?.engine.interruptGenerate();
+    aiLeaseRef.current?.release();
+    aiLeaseRef.current = null;
   }, []);
 
   useEffect(() => () => { try { recognitionRef.current?.stop(); } catch { /* already stopped */ } window.speechSynthesis?.cancel(); }, []);
@@ -136,28 +168,18 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     return () => cancelAnimationFrame(frame);
   }, [busy, plan]);
 
-  async function enableLocalAI() {
-    if (aiStatus === "loading" || aiStatus === "ready") return;
-    const capability = supportsLocalAI();
-    if (!capability.supported) { setAIStatus("unsupported"); return; }
-    setAIStatus("loading"); setAIError(""); setAIProgress({ progress: 0, text: ai.loading });
-    try {
-      const handle = await createLocalAIEngine(setAIProgress);
-      aiHandleRef.current = handle; setAIStatus("ready"); setAIProgress({ progress: 1, text: ai.enabled });
-    } catch (error) {
-      setAIStatus("error"); setAIError(error instanceof Error ? error.message : ai.failed);
-    }
-  }
-
   function disableLocalAI() {
     generationRef.current += 1;
-    const handle = aiHandleRef.current; aiHandleRef.current = null;
-    if (handle) { handle.engine.interruptGenerate(); void handle.engine.unload().catch(() => undefined).finally(() => handle.worker.terminate()); }
+    aiInitAbortRef.current?.abort(); aiInitAbortRef.current = null;
+    const lease = aiLeaseRef.current; aiLeaseRef.current = null;
+    lease?.engine.interruptGenerate(); lease?.release();
+    void disposePooledLocalAIEngine();
+    try { sessionStorage.removeItem(localAIOptInKey); } catch { /* preference is optional */ }
     setAIStatus(supportsLocalAI().supported ? "idle" : "unsupported"); setAIProgress({ progress: 0, text: "" }); setStreamingResponse(""); setBusy(false);
   }
 
   function stopGeneration() {
-    generationRef.current += 1; aiHandleRef.current?.engine.interruptGenerate();
+    generationRef.current += 1; aiLeaseRef.current?.engine.interruptGenerate();
     if (activePromptRef.current) setGoal(activePromptRef.current);
     setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
   }
@@ -165,45 +187,62 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   async function submit() {
     const text = goal.trim();
     if (!text || busy) return;
-    const attachmentBlock = attachment ? `\n\n[${attachment.name}]\n${attachment.text}` : "";
-    const prompt = `${text}${attachmentBlock}`.slice(0, 20_000);
-    const displayGoal = attachment ? `${text}\n📎 ${attachment.name}` : text;
+    const submittedAttachment = attachment;
+    const displayGoal = submittedAttachment ? `${text}\n📎 ${submittedAttachment.name}` : text;
+    const workflow = isLikelyWorkflowRequest(text) || Boolean(submittedAttachment);
     const runId = ++generationRef.current;
-    activePromptRef.current = text; setBusy(true); setStreamingGoal(displayGoal); setStreamingResponse(""); setAutomation(null); setAutomationError(""); setGoal(""); setAttachment(null);
+    activePromptRef.current = text; setBusy(true); setStreamingGoal(displayGoal); setStreamingResponse(""); setAutomation(null); setAutomationError(""); setGoal("");
     try {
-      const next = createAgentPlan(prompt, tools, locale, plan);
-      const workflow = isLikelyWorkflowRequest(prompt);
+      const next = createAgentPlan(text, tools, locale, workflow ? lastWorkflowPlanRef.current : null);
       setShowWorkflowPlan(workflow);
-      const extractedInput = extractAgentPayload(prompt);
-      const inheritedInput = !extractedInput && next.conversation.isFollowUp ? automation?.output || preparedInput : "";
-      const detectedInput = prepareAgentInput(prompt, next, extractedInput || inheritedInput);
+      const extractedInput = extractAgentPayload(text);
+      const inheritedInput = workflow && !extractedInput && !submittedAttachment?.text && next.conversation.isFollowUp ? automation?.output || preparedInput : "";
+      const sourceInput = extractedInput || submittedAttachment?.text || inheritedInput;
+      const detectedInput = workflow ? prepareAgentInput(text, next, sourceInput) : "";
       let answer = workflow ? next.response : createFastConversationResponse(locale, text);
       let mode: Turn["mode"] = "fast";
-      const handle = aiHandleRef.current;
-      if (handle && aiStatus === "ready") {
+      const lease = aiLeaseRef.current;
+      if (lease && aiStatus === "ready") {
         const history = turns.flatMap((turn) => [{ role: "user" as const, content: turn.goal }, { role: "assistant" as const, content: turn.answer }]);
-        const generated = await streamLocalAI(handle.engine, buildLocalAIMessages(locale, prompt, next, history, workflow), setStreamingResponse);
-        if (runId !== generationRef.current) return;
-        if (generated) { answer = sanitizeLocalAIOutput(generated); mode = "ai"; }
+        try {
+          const generated = await streamLocalAI(
+            lease.engine,
+            buildLocalAIMessages(locale, text, next, history, workflow, submittedAttachment),
+            setStreamingResponse,
+            workflow ? "workflow" : "conversation",
+          );
+          if (runId !== generationRef.current) return;
+          if (generated) { answer = generated; mode = "ai"; }
+        } catch (error) {
+          if (runId !== generationRef.current) return;
+          aiLeaseRef.current = null;
+          lease.release();
+          await disposePooledLocalAIEngine();
+          try { sessionStorage.removeItem(localAIOptInKey); } catch { /* avoid repeated failing warm-up */ }
+          setAIStatus("error"); setAIError(error instanceof Error ? error.message : ai.failed);
+        }
       }
       const finalPlan = { ...next, response: answer };
-      const nextTurns = [...turns, { goal: displayGoal, answer, tools: finalPlan.steps.map((step) => step.title), time: Date.now(), mode }].slice(-12);
-      setPlan(finalPlan); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setInputInherited(Boolean(inheritedInput)); setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
+      const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: workflow ? finalPlan.steps.map((step) => step.title) : [], time: Date.now(), mode }]);
+      if (workflow) lastWorkflowPlanRef.current = finalPlan;
+      setPlan(workflow ? finalPlan : null); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setInputInherited(Boolean(inheritedInput)); setStreamingGoal(""); setStreamingResponse(""); setBusy(false); setAttachment(null);
       if (workflow && detectedInput && canAutomatePlan(finalPlan)) {
         try { setAutomation(runAgentAutomation(next, detectedInput, locale)); }
         catch (error) { setAutomationError((error as Error).message); }
       }
       try {
-        sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify({ plan: finalPlan, currentStep: 0, stepOutputs: {}, completedStepIds: [], preparedInput: detectedInput || undefined }));
-        sessionStorage.setItem(historyKey, JSON.stringify(nextTurns));
+        if (workflow) sessionStorage.setItem(AGENT_SESSION_KEY, JSON.stringify({ plan: finalPlan, currentStep: 0, stepOutputs: {}, completedStepIds: [], preparedInput: detectedInput || undefined }));
+        else sessionStorage.removeItem(AGENT_SESSION_KEY);
+        sessionStorage.setItem(historyKey(locale), JSON.stringify(nextTurns));
       } catch { /* keep working without memory */ }
     } catch (error) {
       if (runId !== generationRef.current) return;
       setAIError(error instanceof Error ? error.message : ai.failed);
-      if (aiHandleRef.current) setAIStatus("error");
-      const fallback = createAgentPlan(prompt, tools, locale, plan);
-      const nextTurns = [...turns, { goal: displayGoal, answer: fallback.response, tools: fallback.steps.map((step) => step.title), time: Date.now(), mode: "fast" as const }].slice(-12);
-      setPlan(fallback); setTurns(nextTurns); setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
+      const answer = createFastConversationResponse(locale, text);
+      const fallbackTurn: Turn = { locale, goal: displayGoal, answer, tools: [], time: Date.now(), mode: "fast" };
+      const nextTurns = compactLocalAIConversationHistory([...turns, fallbackTurn]);
+      setPlan(null); setTurns(nextTurns); setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
+      try { sessionStorage.setItem(historyKey(locale), JSON.stringify(nextTurns)); } catch { /* keep working without memory */ }
     }
   }
 
@@ -240,23 +279,25 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   }
 
   function reset() {
-    generationRef.current += 1; aiHandleRef.current?.engine.interruptGenerate();
-    setGoal(""); setPlan(null); setTurns([]); setData(""); setPreparedInput(""); setAutomation(null); setAutomationError(""); setAutomationBusy(false); setInputInherited(false); setStreamingGoal(""); setStreamingResponse(""); setAttachment(null);
-    try { sessionStorage.removeItem(historyKey); sessionStorage.removeItem(AGENT_SESSION_KEY); sessionStorage.removeItem(AGENT_AUTO_PREPARE_KEY); } catch { /* optional */ }
+    generationRef.current += 1; aiLeaseRef.current?.engine.interruptGenerate();
+    setGoal(""); setPlan(null); setTurns([]); setData(""); setPreparedInput(""); setAutomation(null); setAutomationError(""); setAutomationBusy(false); setInputInherited(false); setStreamingGoal(""); setStreamingResponse(""); setAttachment(null); setAttachmentError("");
+    lastWorkflowPlanRef.current = null;
+    try { sessionStorage.removeItem(historyKey(locale)); sessionStorage.removeItem(AGENT_SESSION_KEY); sessionStorage.removeItem(AGENT_AUTO_PREPARE_KEY); } catch { /* optional */ }
     inputRef.current?.focus();
   }
 
   return <section className="agent-chat-app" aria-label={t.hello}>
-    <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {aiStatus === "ready" ? ai.mode : t.private}</small></div></div><div><span>{aiStatus === "ready" ? ai.enabled : turns.length ? t.memory : ai.fast}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
+    <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {aiStatus === "ready" ? ai.localTitle : ai.fastTitle}</small></div></div><div><span>{aiStatus === "ready" ? ai.enabled : turns.length ? t.memory : ai.fastTitle}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
     {!turns.length && <div className="agent-capability-path" aria-label={locale === "tr" ? "Ajan çalışma biçimi" : locale === "de" ? "Arbeitsweise des Agenten" : locale === "zh" ? "助手工作方式" : "How the Agent works"}><span><b>1</b>{locale === "tr" ? "İsteği anlatın" : locale === "de" ? "Ziel beschreiben" : locale === "zh" ? "描述目标" : "Describe"}</span><i>→</i><span><b>2</b>{locale === "tr" ? "Planı görün" : locale === "de" ? "Plan prüfen" : locale === "zh" ? "查看计划" : "Review"}</span><i>→</i><span><b>3</b>{locale === "tr" ? "Onaylayın" : locale === "de" ? "Bestätigen" : locale === "zh" ? "确认执行" : "Approve"}</span></div>}
 
-    <section className={`agent-local-ai-panel ${aiStatus}`} aria-label={ai.title}>
-      <div><span aria-hidden="true">✦</span><div><strong>{ai.title}</strong><small>{aiStatus === "unsupported" ? ai.unsupported : aiStatus === "error" ? ai.failed : aiStatus === "ready" ? ai.disclosure : ai.intro}</small></div></div>
-      {aiStatus === "loading" ? <div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {aiProgress.text || ai.loading}</small></div> : aiStatus === "ready" ? <button type="button" onClick={disableLocalAI}>{ai.disable}</button> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI()}>{ai.enable}</button> : null}
+    <section className={`agent-local-ai-panel ${aiStatus}`} aria-label={aiStatus === "ready" || aiStatus === "loading" ? ai.localTitle : ai.fastTitle}>
+      <div><span aria-hidden="true">✦</span><div><strong>{aiStatus === "ready" || aiStatus === "loading" ? ai.localTitle : ai.fastTitle}</strong><small>{aiStatus === "unsupported" ? ai.unsupported : aiStatus === "error" ? ai.failed : aiStatus === "ready" ? ai.disclosure : ai.intro}</small></div></div>
+      {aiStatus === "loading" ? <><div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {aiProgress.text || ai.loading}</small></div><button type="button" onClick={disableLocalAI}>{ai.cancelLoad}</button></> : aiStatus === "ready" ? <button type="button" onClick={disableLocalAI}>{ai.switchToFast}</button> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI()}>{ai.switchToLocal}</button> : null}
       {(aiStatus === "idle" || aiStatus === "error") && <p>ⓘ {ai.download}</p>}{aiError && aiStatus === "error" && <code title={aiError}>{aiError.slice(0, 140)}</code>}
     </section>
 
-    <div className="agent-chat-stream" aria-live="polite">
+    <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{busy ? (aiStatus === "ready" ? ai.generating : t.thinking) : turns.at(-1)?.answer ?? ""}</div>
+    <div className="agent-chat-stream">
       <article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><p>{t.helloBody}</p></div></article>
       {turns.slice(-6).map((turn, index) => <div className="agent-turn" key={`${turn.time}-${index}`}><article className="agent-message user"><div><p>{turn.goal}</p></div></article><article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><p>{turn.answer}</p>{index > 0 && <small>↳ {t.previous}</small>}</div></article></div>)}
       {busy && <div className="agent-turn current"><article className="agent-message user"><div><p>{streamingGoal}</p></div></article><article className="agent-message assistant thinking"><span className="agent-avatar">BQ</span><div><p>{streamingResponse || (aiStatus === "ready" ? ai.generating : t.thinking)}</p>{!streamingResponse && <i />}</div></article></div>}
@@ -270,7 +311,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
         {plan.clarifyingQuestions.length > 0 && <div className="agent-inline-questions" role="status"><strong>{state.needsInfo}</strong><p>{plan.clarifyingQuestions[0]}</p><small>{state.provisional}</small></div>}
         <div className="agent-primary-actions" ref={primaryActionsRef}>
           {plan.matchQuality === "strong" && !plan.coverage.missing.length ? <><Link className="primary-button" href={toolPath(locale, plan.steps[0].toolSlug)} onClick={() => startGuided(0)}>{t.start} →</Link>
-          <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link></> : <button type="button" className="primary-button" onClick={() => inputRef.current?.focus()}>{state.provisional} ↓</button>}
+          <Link className="secondary-button" href={pathFor(locale, "workstation")} onClick={() => { try { sessionStorage.setItem(WORKSPACE_AGENT_GOAL_KEY, plan.goal); sessionStorage.setItem(WORKSPACE_AGENT_PLAN_KEY, JSON.stringify(plan)); if (preparedInput) sessionStorage.setItem(WORKSPACE_AGENT_INPUT_KEY, preparedInput); else sessionStorage.removeItem(WORKSPACE_AGENT_INPUT_KEY); } catch { /* open without handoff */ } }}>{t.workstation} ↗</Link></> : <button type="button" className="primary-button" onClick={() => inputRef.current?.focus()}>{state.provisional} ↓</button>}
           <button type="button" className="agent-speak-button" aria-label={assist.speak} title={assist.speak} onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(plan.response); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>◖</button>
         </div>
         <div className="agent-followup-strip"><strong>{assist.reply}</strong><div>{plan.conversation.suggestedReplies.slice(0, 3).map((option) => <button type="button" key={option} onClick={() => { setGoal(option); inputRef.current?.focus(); }}>{option}</button>)}</div></div>
@@ -280,7 +321,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     </div>
 
     {!turns.length && <div className="agent-starter-grid">{t.examples.map(([title, prompt]) => <button type="button" key={title} onClick={() => { setGoal(prompt); inputRef.current?.focus(); }}><span>↗</span><strong>{title}</strong><small>{prompt}</small></button>)}</div>}
-    <div className="agent-composer"><textarea ref={inputRef} value={goal} onChange={(event) => setGoal(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(); } }} placeholder={t.placeholder} rows={3} maxLength={20_000} />{attachment && <div className="agent-attachment"><span>📎 {attachment.name} · {attachment.text.length.toLocaleString(tags[locale])}</span><button type="button" onClick={() => setAttachment(null)} aria-label={ai.remove}>×</button></div>}{voice === "unavailable" && <small className="agent-voice-boundary" role="status">ⓘ {t.voiceUnavailable}</small>}<div><span>◉ {t.private}</span><input ref={fileRef} type="file" hidden accept=".txt,.md,.csv,.json,.xml,.yaml,.yml,text/plain,text/csv,application/json" onChange={async (event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; const text = (await file.text()).slice(0, LOCAL_AI_MAX_ATTACHMENT); setAttachment({ name: file.name.slice(0, 90), text }); }} /><button type="button" onClick={() => fileRef.current?.click()}>＋ {ai.attach}</button><button type="button" onClick={() => void beginVoice()} disabled={voice === "listening"}>{voice === "listening" ? t.listening : `◌ ${t.voice}`}</button>{busy && aiStatus === "ready" ? <button type="button" className="agent-stop-button" onClick={stopGeneration}>■ {ai.stop}</button> : <button type="button" className="primary-button" onClick={() => void submit()} disabled={!goal.trim() || busy}>{busy ? t.thinking : t.send} ↑</button>}</div></div>
+    <div className="agent-composer"><textarea ref={inputRef} value={goal} onChange={(event) => setGoal(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void submit(); } }} placeholder={t.placeholder} rows={3} maxLength={20_000} />{attachment && <div className="agent-attachment"><span>📎 {attachment.name} · {attachment.text.length.toLocaleString(tags[locale])}{attachment.truncated ? ` · ${ai.truncated}` : ""}</span><button type="button" onClick={() => { setAttachment(null); setAttachmentError(""); }} aria-label={ai.remove}>×</button></div>}{attachmentError && <small className="agent-voice-boundary" role="alert">ⓘ {attachmentError}</small>}{voice === "unavailable" && <small className="agent-voice-boundary" role="status">ⓘ {t.voiceUnavailable}</small>}<div><span>◉ {t.private}</span><input ref={fileRef} type="file" hidden accept=".txt,.md,.csv,.json,.xml,.yaml,.yml,text/plain,text/csv,application/json" onChange={async (event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; setAttachmentError(""); try { setAttachment(await readLocalAIAttachmentFile(file)); } catch { setAttachment(null); setAttachmentError(ai.fileReadFailed); } }} /><button type="button" onClick={() => fileRef.current?.click()}>＋ {ai.attach}</button><button type="button" onClick={() => void beginVoice()} disabled={voice === "listening"}>{voice === "listening" ? t.listening : `◌ ${t.voice}`}</button>{busy && aiStatus === "ready" ? <button type="button" className="agent-stop-button" onClick={stopGeneration}>■ {ai.stop}</button> : <button type="button" className="primary-button" onClick={() => void submit()} disabled={!goal.trim() || busy}>{busy ? t.thinking : t.send} ↑</button>}</div></div>
 
     <details className="agent-utilities"><summary>{t.utilities}<span>+</span></summary><div><section><label><span>{t.find}</span><input value={utilityQuery} onChange={(event) => setUtilityQuery(event.target.value)} placeholder={t.findPlaceholder} /></label>{utilityResults.map((result) => <Link href={toolPath(locale, result.tool.slug)} key={result.tool.slug}><strong>{result.tool.title[locale]}</strong><small>{result.tool.short[locale]}</small><span>→</span></Link>)}</section><section><label><span>{t.error}</span><textarea value={errorQuery} onChange={(event) => setErrorQuery(event.target.value)} placeholder={t.errorPlaceholder} rows={4} maxLength={30_000} /></label>{errorResult && <div className="agent-mini-error"><strong>{errorResult.title}</strong><p>{errorResult.explanation}</p><ol>{errorResult.actions.slice(0, 3).map((action) => <li key={action}>{action}</li>)}</ol></div>}</section></div></details>
   </section>;

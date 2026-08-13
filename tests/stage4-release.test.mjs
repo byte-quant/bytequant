@@ -24,7 +24,7 @@ test("limits global identity schema to home and About surfaces", async () => {
 });
 
 test("keeps security and cache policies aligned for deployable hosting", async () => {
-  const [headers, worker] = await Promise.all([read("public/_headers"), read("worker/index.ts")]);
+  const [headers, worker, layout] = await Promise.all([read("public/_headers"), read("worker/index.ts"), read("app/layout.tsx")]);
   for (const name of ["Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "Permissions-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "X-Frame-Options", "X-Permitted-Cross-Domain-Policies", "Origin-Agent-Cluster"]) {
     assert.ok(headers.includes(name), `public/_headers omits ${name}`);
     assert.ok(worker.includes(name), `worker omits ${name}`);
@@ -34,6 +34,11 @@ test("keeps security and cache policies aligned for deployable hosting", async (
   assert.match(headers, /\/_next\/static\/\*[\s\S]*immutable/);
   assert.match(worker, /pathname === "\/sw\.js"/);
   assert.match(worker, /pathname\.startsWith\("\/_next\/static\/"\)/);
+  for (const host of ["https://huggingface.co", "https://cdn-lfs.hf.co", "https://cas-bridge.xethub.hf.co", "https://raw.githubusercontent.com"]) {
+    assert.ok(headers.includes(host), `public/_headers blocks the opt-in local AI model asset host ${host}`);
+    assert.ok(worker.includes(host), `worker CSP blocks the opt-in local AI model asset host ${host}`);
+    assert.ok(layout.includes(host), `meta CSP blocks the opt-in local AI model asset host ${host}`);
+  }
 });
 
 test("publishes a current RFC 9116 security contact", async () => {
