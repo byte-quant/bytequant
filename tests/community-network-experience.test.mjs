@@ -68,3 +68,21 @@ test("relay state and post actions expose accessible status and controls", async
   assert.ok(source.includes('aria-label={`${t.repost}: ${reposts}`}'));
   assert.match(source, /filtersActive && <button[^>]+onClick=\{clearFeedFilters\}/);
 });
+
+test("social feed supports device-local following and bounded progressive rendering", async () => {
+  const [source, styles] = await Promise.all([
+    read("app/components/CommunityNetwork.tsx"),
+    read("app/globals.css"),
+  ]);
+
+  assert.match(source, /bytequant:nostr-following:v1/);
+  assert.match(source, /const \[followingOnly, setFollowingOnly\]/);
+  assert.match(source, /following\.includes\(event\.pubkey\)/);
+  assert.match(source, /aria-pressed=\{following\.includes\(event\.pubkey\)\}/);
+  assert.match(source, /Your following list stays only on this device/);
+  assert.match(source, /const \[feedLimit, setFeedLimit\] = useState\(12\)/);
+  assert.match(source, /const displayedPosts = visiblePosts\.slice\(0, feedLimit\)/);
+  assert.match(source, /setFeedLimit\(\(current\) => current \+ 12\)/);
+  assert.match(styles, /\.community-load-more/);
+  assert.match(styles, /\.community-post-author-actions/);
+});

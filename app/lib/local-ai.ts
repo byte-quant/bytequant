@@ -39,6 +39,8 @@ export const LOCAL_AI_MAX_ATTACHMENT_BYTES = 64_000;
 export const LOCAL_AI_MAX_RESPONSE = 2_600;
 export const LOCAL_AI_CONTEXT_TOKEN_BUDGET = 3_000;
 export const LOCAL_AI_IDLE_TTL_MS = 5 * 60_000;
+export const LOCAL_AI_RESPONSE_CACHE_TTL_MS = 10 * 60_000;
+export const LOCAL_AI_RESPONSE_CACHE_LIMIT = 12;
 export const LOCAL_AI_HISTORY_GOAL_LIMIT = 4_000;
 export const LOCAL_AI_HISTORY_ANSWER_LIMIT = 3_000;
 export const LOCAL_AI_HISTORY_TOTAL_LIMIT = 64_000;
@@ -116,7 +118,9 @@ const localeNames: Record<Locale, string> = {
   zh: "Simplified Chinese",
 };
 
-const workflowTerms = /\b(json|csv|xml|yaml|jwt|regex|cron|pdf|png|jpe?g|webp|svg|heic|hash|base64|url|markdown|html|prompt|dosya|file|metin|text|veri|data|dönüştür|convert|format|biçim|maskele|mask|temizle|clean|ayı(k|r)|sort|tekrar|duplicate|encode|decode|şifre|encrypt|decrypt|hesapla|calculate|analiz|analyse|analyze|özet|summari[sz]e|prüf|umwandel|bereinig|datei|daten|转换|格式|文件|数据|清理|脱敏|计算|检查)\b/i;
+const workflowActionTerms = /(?:\b(?:dönüştür|çevir|formatla|biçimlendir|maskele|temizle|ayı[kır]|sırala|doğrula|karşılaştır|birleştir|böl|sıkıştır|çöz|kodla|şifrele|hesapla|analiz et|özetle|düzenle|oluştur|convert|format|mask|clean|sort|validate|compare|merge|split|compress|decode|encode|encrypt|decrypt|calculate|analy[sz]e|summari[sz]e|edit|generate|prüfen|prüf|formatieren|formatier|umwandeln|umwandel|bereinigen|bereinig|sortieren|validieren|vergleichen|zusammenführen|teilen|komprimieren|dekodieren|kodieren|verschlüsseln|berechnen|analysieren|zusammenfassen|erstellen)\b|转换|格式化|清理|脱敏|排序|验证|比较|合并|拆分|压缩|解码|编码|加密|解密|计算|分析|总结|编辑|生成)/i;
+const explicitToolTerms = /(?:\b(?:open|run|use|tool|workflow|akış|araç|çalıştır|kullan|aç|werkzeug|ablauf|ausführen|öffnen)\b|工具|流程|运行|打开|使用)/i;
+const informationalTerms = /(?:\b(?:nedir|ne demek|ne zaman|neden|nasıl çalışır|what is|what are|when should|why|how does|was ist|was sind|wann|warum|wie funktioniert)\b|是什么|什么时候|为什么|如何工作)/i;
 
 export function supportsLocalAI() {
   if (typeof window === "undefined") return { supported: false, reason: "server" };
@@ -178,14 +182,17 @@ export async function inspectLocalAIEnvironment(): Promise<LocalAIEnvironment> {
 export function isLikelyWorkflowRequest(value: string) {
   const text = value.trim();
   if (!text) return false;
-  if (workflowTerms.test(text)) return true;
-  if (/[\[{<][\s\S]{12,}[\]}>]/.test(text) || text.includes("|") || text.includes("\n")) return true;
-  return /\b(open|run|use|tool|workflow|akış|araç|çalıştır|kullan|werkzeug|ablauf|ausführen|工具|流程|运行)\b/i.test(text);
+  const structuredPayload = /^\s*[\[{<][\s\S]{12,}[\]}>]\s*$/.test(text)
+    || /(?:^|\n)[^|\n]{0,120}\|[^|\n]{0,120}(?:\n|$)/.test(text)
+    || /(?:^|\n)\s*(?:[-*]|\d+[.)])\s+\S+/.test(text);
+  const requestsAction = workflowActionTerms.test(text) || explicitToolTerms.test(text);
+  if (informationalTerms.test(text) && !workflowActionTerms.test(text) && !structuredPayload) return false;
+  return structuredPayload || requestsAction;
 }
 
 const quickReplies = {
   tr: {
-    hello: "Merhaba! Buradayım. Günlük bir konuda sohbet edebilir veya yapmak istediğiniz işi doğal dille anlatabilirsiniz.",
+    hello: "Merhaba! İyiyim, teşekkür ederim; sizin için buradayım. İsterseniz biraz sohbet edelim, isterseniz bir işi birlikte sonuçlandıralım. Bugün nasıl yardımcı olayım?",
     focus: "Bugün tek bir somut sonuç seçin, 25 dakikalık bildirim kapalı bir blok ayırın ve başlamadan önce ilk iki dakikalık adımı yazın. Blok bitince yalnızca sonucu ve bir sonraki adımı not edin.",
     thanks: "Rica ederim. İsterseniz kaldığımız yerden devam edebilir veya yeni bir konu açabilirsiniz.",
     current: "Canlı internete erişmediğim için güncel hava, haber veya fiyatı doğrulayamam. Güvenilir güncel kaynağı kontrol edin; metni buraya getirirseniz cihazınızda açıklamaya veya düzenlemeye yardımcı olabilirim.",
@@ -193,10 +200,12 @@ const quickReplies = {
     write: "Elbette. Önce hedef kitleyi, vermek istediğiniz ana mesajı ve tercih ettiğiniz uzunluğu yazın; ardından taslağı hazırlayıp tonu birlikte iyileştirebiliriz.",
     decide: "Kararı birlikte sadeleştirebiliriz. Seçenekleri, sizin için en önemli iki ölçütü ve vazgeçemeyeceğiniz sınırı yazın; artıları, eksileri ve geri döndürülebilir en güvenli adımı çıkarayım.",
     explain: "Bunu anlaşılır biçimde açıklayabilirim. Konuyu veya anlamadığınız cümleyi paylaşın; önce kısa yanıtı, ardından örnek ve dikkat edilmesi gereken sınırı vereyim.",
+    json: "JSON, bilgiyi anahtar–değer çiftleriyle saklayan okunabilir ve hiyerarşik bir veri biçimidir. API yanıtları, ayarlar ve iç içe veriler için uygundur. CSV ise satır–sütun düzenindeki düz tablolar için daha küçük ve pratiktir. İç içe alanlar veya farklı veri türleri varsa JSON; Excel benzeri tek tablo ve toplu kayıt aktarımı varsa CSV seçin.",
+    shortened: "Az önceki yanıtın kısa özeti:",
     other: "Buradayım. Ne elde etmek istediğinizi ve varsa bağlamı bir cümleyle biraz daha açın; size doğrudan bir yanıt, uygulanabilir kısa plan veya uygun ByteQuant aracını sunayım.",
   },
   en: {
-    hello: "Hello! I’m here. We can chat about an everyday topic, or you can describe a task in natural language.",
+    hello: "Hello! I’m doing well, thank you, and I’m ready to help. We can chat for a moment or turn a task into a concrete result. What would be useful today?",
     focus: "Choose one concrete outcome for today, reserve a 25-minute notification-free block, and write the first two-minute action before you begin. When the block ends, note only the result and the next step.",
     thanks: "You’re welcome. We can continue from here or start a new topic.",
     current: "I have no live web access, so I cannot verify current weather, news, or prices. Check a reliable current source; if you bring the text here, I can help explain or organize it on-device.",
@@ -204,10 +213,12 @@ const quickReplies = {
     write: "Absolutely. Tell me the audience, the main message, and the preferred length; then I can shape a draft and help refine its tone.",
     decide: "We can make the decision clearer. Share the options, your two most important criteria, and one non-negotiable limit; I will organize the trade-offs and the safest reversible next step.",
     explain: "I can explain it plainly. Share the topic or confusing sentence and I will lead with the short answer, then add an example and the important limitation.",
+    json: "JSON stores information as readable key–value structures and supports nested data, so it fits APIs, settings, and complex records. CSV is a compact row-and-column table. Choose JSON for nested fields or mixed data types; choose CSV for one flat table, spreadsheets, and large record exports.",
+    shortened: "Here is the shorter version of my previous answer:",
     other: "I’m ready. Add one sentence about the outcome and any useful context; I can respond directly, build a short practical plan, or connect the request to the right ByteQuant tool.",
   },
   de: {
-    hello: "Hallo! Ich bin bereit. Wir können über ein Alltagsthema sprechen oder Sie beschreiben eine Aufgabe in natürlicher Sprache.",
+    hello: "Hallo! Mir geht es gut, danke – und ich bin bereit zu helfen. Wir können kurz sprechen oder eine Aufgabe in ein konkretes Ergebnis verwandeln. Was wäre heute hilfreich?",
     focus: "Wählen Sie heute ein konkretes Ergebnis, reservieren Sie 25 Minuten ohne Benachrichtigungen und notieren Sie vorher den ersten Zwei-Minuten-Schritt. Danach halten Sie nur Ergebnis und nächsten Schritt fest.",
     thanks: "Gern. Wir können hier weitermachen oder ein neues Thema beginnen.",
     current: "Ich habe keinen Live-Webzugriff und kann Wetter, Nachrichten oder Preise nicht aktuell verifizieren. Prüfen Sie eine verlässliche aktuelle Quelle; eingefügten Text kann ich lokal erklären oder ordnen.",
@@ -215,10 +226,12 @@ const quickReplies = {
     write: "Gern. Nennen Sie Zielgruppe, Kernaussage und gewünschte Länge; anschließend kann ich einen Entwurf strukturieren und den Ton mit Ihnen verbessern.",
     decide: "Wir können die Entscheidung übersichtlich machen. Nennen Sie Optionen, die zwei wichtigsten Kriterien und eine feste Grenze; ich ordne Abwägungen und den sichersten reversiblen nächsten Schritt.",
     explain: "Ich erkläre es gern verständlich. Teilen Sie das Thema oder den unklaren Satz; zuerst kommt die Kurzantwort, danach ein Beispiel und die wichtigste Einschränkung.",
+    json: "JSON speichert Informationen lesbar als Schlüssel-Wert-Strukturen und unterstützt verschachtelte Daten. Es eignet sich für APIs, Einstellungen und komplexe Datensätze. CSV ist eine kompakte Tabelle aus Zeilen und Spalten. JSON passt zu verschachtelten Feldern; CSV zu einer flachen Tabelle, Tabellenkalkulationen und großen Exporten.",
+    shortened: "Hier ist die Kurzfassung meiner vorigen Antwort:",
     other: "Ich bin bereit. Ergänzen Sie in einem Satz das gewünschte Ergebnis und den Kontext; ich antworte direkt, erstelle einen kurzen Plan oder verbinde die Anfrage mit dem passenden ByteQuant-Werkzeug.",
   },
   zh: {
-    hello: "您好！我在这里。我们可以聊日常话题，也可以用自然语言描述您要完成的任务。",
+    hello: "您好！我状态很好，谢谢，我也已经准备好帮助您。我们可以先聊一聊，也可以把任务直接变成可用结果。今天想先做什么？",
     focus: "今天先选一个明确结果，安排 25 分钟并关闭通知，开始前写下两分钟内能完成的第一步。时间结束后，只记录结果和下一步。",
     thanks: "不客气。我们可以继续当前话题，也可以开始新话题。",
     current: "我无法访问实时网络，因此不能核实当前天气、新闻或价格。请先查看可靠的最新来源；把文字带到这里后，我可以在设备端帮助解释或整理。",
@@ -226,22 +239,82 @@ const quickReplies = {
     write: "当然可以。请告诉我读者、核心信息和希望的长度；我可以先整理草稿，再一起调整语气。",
     decide: "我们可以把决定变得更清楚。请提供选项、最重要的两个标准和一个不可妥协的限制；我会整理权衡并给出可撤回的安全下一步。",
     explain: "我可以用简单语言解释。请提供主题或不清楚的句子；我会先给简短答案，再补充例子和重要限制。",
+    json: "JSON 用易读的键值结构保存信息，并支持嵌套数据，适合 API、设置和复杂记录。CSV 是紧凑的行列式表格。数据有嵌套字段或多种类型时选 JSON；只有一张扁平表格、需要电子表格处理或批量导出时选 CSV。",
+    shortened: "这是上一条回答的简短版本：",
     other: "我已准备好。请再用一句话说明目标和必要背景；我可以直接回答、生成简短可执行计划，或连接到合适的 ByteQuant 工具。",
   },
 } as const;
 
-export function createFastConversationResponse(locale: Locale, goal: string) {
+export function createFastConversationResponse(locale: Locale, goal: string, history: LocalAIConversationTurn[] = []) {
   const text = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
   const copy = quickReplies[locale];
+  if (/(bunu|yanıtı|cevabı).*(kısalt|özet)|shorten (?:that|it|the answer)|summari[sz]e (?:that|it)|kürz(?:e|en)|kurzfassung|简短|缩短|总结一下/i.test(text)) {
+    const previous = [...history].reverse().find((turn) => turn.locale === locale && turn.answer.trim());
+    if (previous) return `${copy.shortened}\n\n${sliceAtBoundary(previous.answer, 320)}`;
+  }
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
   if (/(teşekkür|sağ ol|thanks|thank you|danke|谢谢)/i.test(text)) return copy.thanks;
   if (/(hava|weather|wetter|新闻|haber|news|nachricht|天气|fiyat|price|preis|价格|bugün kaç|what time|uhrzeit|几点)/i.test(text)) return copy.current;
   if (/(ne yapabilirsin|yardım|help|was kannst|hilfe|能做什么|帮助)/i.test(text)) return copy.help;
   if (/(merhaba|selam|hello|\bhi\b|hallo|guten tag|你好|您好)/i.test(text)) return copy.hello;
+  if (/(json).*(nedir|ne zaman|csv)|(?:what is|when should).*(json|csv)|(?:was ist|wann).*(json|csv)|(json|csv).*(是什么|什么时候)/i.test(text)) return copy.json;
   if (/(yaz|taslak|metin oluştur|write|draft|compose|schreib|entwurf|撰写|草稿|写一)/i.test(text)) return copy.write;
   if (/(karar|seçenek|hangisini|decid|choose|option|entscheid|wahl|决定|选择)/i.test(text)) return copy.decide;
   if (/(açıkla|anlat|nedir|neden|explain|what is|why|erklär|warum|was ist|解释|为什么|是什么)/i.test(text)) return copy.explain;
   return copy.other;
+}
+
+export type LocalAIErrorExplanation = { title: string; message: string; action: string; code: "device" | "storage" | "network" | "memory" | "busy" | "cancelled" | "unknown" };
+
+const errorCopy: Record<Locale, Record<LocalAIErrorExplanation["code"], Omit<LocalAIErrorExplanation, "code">>> = {
+  tr: {
+    device: { title: "Bu cihazda gelişmiş yanıt açılamadı", message: "Tarayıcınızın cihaz içi yapay zekâ desteği kapalı veya kullanılamıyor. Hızlı Ajan çalışmaya devam ediyor.", action: "Güncel bir tarayıcıyla yeniden deneyin ya da hızlı yanıtı kullanın." },
+    storage: { title: "Model için yeterli alan bulunamadı", message: "Tarayıcı önbelleği model dosyasını güvenle saklayamadı.", action: "Cihazda yer açın, site verisi iznini kontrol edin ve yeniden deneyin." },
+    network: { title: "Model paketi indirilemedi", message: "İlk kurulum bağlantısı tamamlanamadı. Sohbet içeriğiniz bu isteğe eklenmez.", action: "Bağlantınızı kontrol edip yeniden deneyin; hızlı yanıt kesintisiz kullanılabilir." },
+    memory: { title: "Cihaz belleği bu model için yeterli değil", message: "Tarayıcı, seçilen modeli çalıştırırken bellek sınırına ulaştı.", action: "Hafif modeli seçin veya açık ağır sekmeleri kapatıp yeniden deneyin." },
+    busy: { title: "Yanıt motoru şu anda başka bir hazırlık yapıyor", message: "Model profili değişikliği tamamlanmadan yeni motor başlatılamadı.", action: "Birkaç saniye bekleyip yeniden deneyin." },
+    cancelled: { title: "Hazırlama durduruldu", message: "Model başlatma işlemi güvenli biçimde iptal edildi.", action: "İsterseniz yeniden başlatabilir veya hızlı yanıtla devam edebilirsiniz." },
+    unknown: { title: "Gelişmiş yanıt geçici olarak kullanılamıyor", message: "ByteQuant AI hızlı ve araç odaklı yanıtlarla çalışmaya devam ediyor.", action: "Yeniden deneyin; sorun sürerse hızlı yanıtı kullanın." },
+  },
+  en: {
+    device: { title: "Enhanced answers cannot start on this device", message: "On-device AI support is disabled or unavailable in this browser. Fast Agent remains available.", action: "Try an up-to-date browser or continue with the fast response." },
+    storage: { title: "There is not enough storage for the model", message: "The browser could not safely cache the model files.", action: "Free some device space, check site-data permission, and try again." },
+    network: { title: "The model pack could not be downloaded", message: "The first-time setup connection did not finish. Your chat is never attached to that request.", action: "Check the connection and retry, or keep using the fast response." },
+    memory: { title: "This model exceeds the available memory", message: "The browser reached its memory limit while running the selected model.", action: "Choose the Light model or close heavy tabs before retrying." },
+    busy: { title: "The response engine is already preparing", message: "A second model profile cannot start until the current change finishes.", action: "Wait a few seconds and try again." },
+    cancelled: { title: "Preparation stopped", message: "Model startup was cancelled safely.", action: "Restart it when ready or continue with the fast response." },
+    unknown: { title: "Enhanced answers are temporarily unavailable", message: "ByteQuant AI continues with fast, tool-aware responses.", action: "Retry, or keep using the fast response if the issue persists." },
+  },
+  de: {
+    device: { title: "Erweiterte Antworten sind auf diesem Gerät nicht verfügbar", message: "Die lokale KI-Unterstützung ist im Browser deaktiviert oder nicht verfügbar. Der schnelle Agent bleibt nutzbar.", action: "Aktuellen Browser verwenden oder mit der schnellen Antwort fortfahren." },
+    storage: { title: "Nicht genügend Speicher für das Modell", message: "Der Browser konnte die Modelldateien nicht sicher zwischenspeichern.", action: "Speicher freigeben, Website-Daten erlauben und erneut versuchen." },
+    network: { title: "Modellpaket konnte nicht geladen werden", message: "Die Verbindung für die Ersteinrichtung wurde nicht abgeschlossen. Gesprächsinhalte werden dabei nicht gesendet.", action: "Verbindung prüfen und erneut versuchen oder die schnelle Antwort nutzen." },
+    memory: { title: "Der verfügbare Arbeitsspeicher reicht nicht aus", message: "Der Browser hat beim ausgewählten Modell seine Speichergrenze erreicht.", action: "Das leichte Modell wählen oder große Tabs schließen." },
+    busy: { title: "Das Antwortmodul wird bereits vorbereitet", message: "Während des Profilwechsels kann kein zweites Modell starten.", action: "Einige Sekunden warten und erneut versuchen." },
+    cancelled: { title: "Vorbereitung beendet", message: "Der Modellstart wurde sicher abgebrochen.", action: "Bei Bedarf neu starten oder die schnelle Antwort nutzen." },
+    unknown: { title: "Erweiterte Antworten sind vorübergehend nicht verfügbar", message: "ByteQuant AI arbeitet mit schnellen, werkzeugbezogenen Antworten weiter.", action: "Erneut versuchen oder die schnelle Antwort verwenden." },
+  },
+  zh: {
+    device: { title: "此设备无法启动增强回答", message: "浏览器中的设备端 AI 支持已关闭或不可用；快速助手仍可继续使用。", action: "请使用最新版浏览器重试，或继续使用快速回答。" },
+    storage: { title: "设备空间不足", message: "浏览器无法安全缓存模型文件。", action: "请释放空间、检查网站数据权限后重试。" },
+    network: { title: "模型包下载失败", message: "首次设置连接未完成；您的对话不会附加到该请求中。", action: "检查网络后重试，或继续使用快速回答。" },
+    memory: { title: "可用内存不足", message: "运行所选模型时，浏览器已达到内存上限。", action: "请选择轻量模型，或关闭占用资源较大的标签页。" },
+    busy: { title: "回答引擎正在准备中", message: "当前模型切换完成前无法启动第二个配置。", action: "请稍等片刻后重试。" },
+    cancelled: { title: "准备已停止", message: "模型启动已安全取消。", action: "需要时可重新启动，或继续使用快速回答。" },
+    unknown: { title: "增强回答暂时不可用", message: "ByteQuant AI 会继续提供快速、了解工具的回答。", action: "请重试；若问题仍在，可继续使用快速回答。" },
+  },
+};
+
+export function explainLocalAIError(error: unknown, locale: Locale): LocalAIErrorExplanation {
+  const raw = error instanceof Error ? `${error.name} ${error.message}` : String(error ?? "");
+  const value = raw.toLowerCase();
+  const code: LocalAIErrorExplanation["code"] = /abort|cancel/.test(value) ? "cancelled"
+    : /webgpu|gpu adapter|not-supported|unsupported/.test(value) ? "device"
+      : /quota|storage|cache/.test(value) ? "storage"
+        : /fetch|network|offline|download|failed to load/.test(value) ? "network"
+          : /out of memory|oom|device.?lost|memory/.test(value) ? "memory"
+            : /profile-busy|already.*prepar|busy/.test(value) ? "busy" : "unknown";
+  return { code, ...errorCopy[locale][code] };
 }
 
 function sliceAtBoundary(value: string, limit: number) {
@@ -579,12 +652,59 @@ export async function disposePooledLocalAIEngine() {
   if (handle) await disposeHandle(handle);
 }
 
+type CachedLocalAIResponse = { value: string; expiresAt: number };
+const localAIResponseCache = new Map<string, CachedLocalAIResponse>();
+
+function responseCacheKey(messages: ReturnType<typeof buildLocalAIMessages>, mode: LocalAIMode, scope: string) {
+  const source = `${mode}\u0000${scope}\u0000${JSON.stringify(messages)}`;
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
+  for (let index = 0; index < source.length; index += 1) {
+    const code = source.charCodeAt(index);
+    first = Math.imul(first ^ code, 0x01000193);
+    second = Math.imul(second ^ code, 0x85ebca6b);
+  }
+  return `${source.length}:${(first >>> 0).toString(36)}:${(second >>> 0).toString(36)}`;
+}
+
+function readCachedLocalAIResponse(key: string) {
+  const cached = localAIResponseCache.get(key);
+  if (!cached) return "";
+  if (cached.expiresAt <= Date.now()) { localAIResponseCache.delete(key); return ""; }
+  localAIResponseCache.delete(key);
+  localAIResponseCache.set(key, cached);
+  return cached.value;
+}
+
+function rememberLocalAIResponse(key: string, value: string) {
+  if (!value) return;
+  localAIResponseCache.delete(key);
+  localAIResponseCache.set(key, { value, expiresAt: Date.now() + LOCAL_AI_RESPONSE_CACHE_TTL_MS });
+  while (localAIResponseCache.size > LOCAL_AI_RESPONSE_CACHE_LIMIT) {
+    const oldest = localAIResponseCache.keys().next().value as string | undefined;
+    if (!oldest) break;
+    localAIResponseCache.delete(oldest);
+  }
+}
+
+export function clearLocalAIResponseCache() {
+  localAIResponseCache.clear();
+}
+
+export function getLocalAIResponseCacheSize() {
+  return localAIResponseCache.size;
+}
+
 export async function streamLocalAI(
   engine: LocalAIEngine,
   messages: ReturnType<typeof buildLocalAIMessages>,
   onText: (value: string) => void,
   mode: LocalAIMode = "conversation",
+  cacheScope = "default",
 ) {
+  const cacheKey = responseCacheKey(messages, mode, cacheScope);
+  const cached = readCachedLocalAIResponse(cacheKey);
+  if (cached) { onText(cached); return cached; }
   const stream = await engine.chat.completions.create({
     messages,
     stream: true,
@@ -611,6 +731,7 @@ export async function streamLocalAI(
     }
   }
   const finalOutput = sanitizeLocalAIOutput(output);
+  rememberLocalAIResponse(cacheKey, finalOutput);
   onText(finalOutput);
   return finalOutput;
 }

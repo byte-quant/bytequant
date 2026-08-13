@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 import {
   buildLocalAIMessages,
   buildAllowlistedLocalAIAppConfig,
+  clearLocalAIResponseCache,
   compactLocalAIConversationHistory,
   createFastConversationResponse,
   estimateLocalAITokens,
+  explainLocalAIError,
+  getLocalAIResponseCacheSize,
   isLikelyWorkflowRequest,
   LOCAL_AI_CONTEXT_TOKEN_BUDGET,
   LOCAL_AI_MAX_ATTACHMENT,
@@ -80,7 +83,10 @@ test("local AI runtime fails closed unless the reviewed single-model allowlist m
 
 test("workflow detection separates everyday chat from tool work", () => {
   assert.equal(isLikelyWorkflowRequest("Merhaba, bugün nasılsın?"), false);
+  assert.equal(isLikelyWorkflowRequest("JSON nedir ve CSV yerine ne zaman kullanmalıyım?"), false);
+  assert.equal(isLikelyWorkflowRequest("What is JSON and when should I use CSV?"), false);
   assert.equal(isLikelyWorkflowRequest("Bu CSV listesini temizle ve JSON'a dönüştür"), true);
+  assert.equal(isLikelyWorkflowRequest("Bu JSON'u biçimlendir"), true);
   assert.equal(isLikelyWorkflowRequest("Bitte diese JSON-Datei formatieren"), true);
   assert.equal(isLikelyWorkflowRequest("把这些数据转换为 JSON"), true);
 });
@@ -90,6 +96,16 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("en", "What is the weather today?"), /no live web access/i);
   assert.match(createFastConversationResponse("de", "Hallo"), /Hallo/);
   assert.match(createFastConversationResponse("zh", "你能做什么？"), /日常问题|ByteQuant/);
+  assert.match(createFastConversationResponse("tr", "JSON nedir ve CSV yerine ne zaman kullanmalıyım?"), /anahtar–değer|CSV/);
+  const history = [{ locale: "tr", goal: "JSON nedir?", answer: "Uzun bir açıklama ve önemli bir örnek.", tools: [], time: 1, mode: "fast" }];
+  assert.match(createFastConversationResponse("tr", "Bunu kısalt", history), /Uzun bir açıklama/);
+});
+
+test("local AI errors become friendly, actionable messages", () => {
+  assert.equal(explainLocalAIError(new Error("WebGPU adapter unavailable"), "tr").code, "device");
+  assert.equal(explainLocalAIError(new Error("QuotaExceededError cache"), "en").code, "storage");
+  assert.equal(explainLocalAIError(new Error("network fetch failed"), "de").code, "network");
+  assert.match(explainLocalAIError(new Error("out of memory"), "zh").action, /轻量模型/);
 });
 
 test("model output hides internal thinking tags and remains session-safe", () => {
@@ -167,6 +183,7 @@ test("conversation writer matches reader limits without silently losing the newe
 });
 
 test("streaming throttles UI updates, sanitizes final output, and separates sampling modes", async () => {
+  clearLocalAIResponseCache();
   const requests = [];
   let interrupted = 0;
   const engine = {
@@ -193,4 +210,28 @@ test("streaming throttles UI updates, sanitizes final output, and separates samp
   assert.equal(requests[1].temperature, 0.55);
   assert.equal(requests[1].max_tokens, 480);
   assert.equal(interrupted, 0);
+});
+
+test("identical local prompts reuse the bounded in-memory response cache", async () => {
+  clearLocalAIResponseCache();
+  let requests = 0;
+  const engine = {
+    chat: { completions: { async create() {
+      requests += 1;
+      return (async function* generate() { yield { choices: [{ delta: { content: "Cached answer" } }] }; })();
+    } } },
+    interruptGenerate() {},
+    async unload() {},
+  };
+  const plan = createAgentPlan("Explain JSON", publicTools, "en");
+  const messages = buildLocalAIMessages("en", plan.goal, plan, [], false);
+  const first = await streamLocalAI(engine, messages, () => undefined, "conversation", "en:lite");
+  const updates = [];
+  const second = await streamLocalAI(engine, messages, (value) => updates.push(value), "conversation", "en:lite");
+  assert.equal(first, "Cached answer");
+  assert.equal(second, first);
+  assert.equal(requests, 1);
+  assert.deepEqual(updates, ["Cached answer"]);
+  assert.equal(getLocalAIResponseCacheSize(), 1);
+  clearLocalAIResponseCache();
 });
