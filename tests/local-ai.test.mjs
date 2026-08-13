@@ -15,6 +15,7 @@ import {
   LOCAL_AI_MODEL_BASE_URL,
   LOCAL_AI_MODEL_LIB_URL,
   LOCAL_AI_MODEL_LICENSE,
+  LOCAL_AI_PROFILES,
   LOCAL_AI_RUNTIME_MODEL_VERSION,
   readLocalAIAttachmentFile,
   readLocalAIConversationHistory,
@@ -27,6 +28,29 @@ import { createAgentPlan } from "../app/lib/agent-core.ts";
 test("local AI runtime uses a pinned permissive multilingual model", () => {
   assert.equal(LOCAL_AI_MODEL_ID, "Qwen3-0.6B-q4f16_1-MLC");
   assert.equal(LOCAL_AI_MODEL_LICENSE, "Apache-2.0");
+});
+
+test("device-adaptive profiles stay on the reviewed Qwen3 allowlist", () => {
+  const balanced = LOCAL_AI_PROFILES.balanced;
+  const source = {
+    modelVersion: LOCAL_AI_RUNTIME_MODEL_VERSION,
+    modelLibURLPrefix: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/",
+    prebuiltAppConfig: {
+      model_list: [{
+        model_id: balanced.modelId,
+        model: balanced.modelUrl,
+        model_lib: balanced.modelLibUrl,
+        vram_required_MB: balanced.vramRequiredMB,
+      }],
+    },
+  };
+  const config = buildAllowlistedLocalAIAppConfig(source, "balanced");
+  assert.equal(config.model_list.length, 1);
+  assert.equal(config.model_list[0].model_id, "Qwen3-1.7B-q4f16_1-MLC");
+  assert.throws(() => buildAllowlistedLocalAIAppConfig({
+    ...source,
+    prebuiltAppConfig: { model_list: [{ ...source.prebuiltAppConfig.model_list[0], model: "https://example.invalid/model" }] },
+  }, "balanced"), /model-allowlist-mismatch/);
 });
 
 test("local AI runtime fails closed unless the reviewed single-model allowlist matches", () => {
@@ -65,7 +89,7 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "Bugün odaklanmak için öneri ver"), /25 dakikalık/);
   assert.match(createFastConversationResponse("en", "What is the weather today?"), /no live web access/i);
   assert.match(createFastConversationResponse("de", "Hallo"), /Hallo/);
-  assert.match(createFastConversationResponse("zh", "你能做什么？"), /两种方式/);
+  assert.match(createFastConversationResponse("zh", "你能做什么？"), /日常问题|ByteQuant/);
 });
 
 test("model output hides internal thinking tags and remains session-safe", () => {

@@ -24,8 +24,8 @@ test("global command search defers the full tool index until the keyboard shortc
 
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
-  assert.match(home, /İşinizi kolaylaştırın; hassas veriniz sizde kalsın/);
-  assert.match(english, /Make the task easier while sensitive data stays with you/);
+  assert.match(home, /Ne yapmak istediğinizi anlatın; ByteQuant AI doğru yolu hazırlasın/);
+  assert.match(english, /Describe what you need; ByteQuant AI will prepare the right path/);
   assert.match(home, /benzersiz yayımlanmış araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
@@ -35,10 +35,10 @@ test("exports the complete four-language site", async () => {
   assert.match(chinese, /个独立发布工具/);
   assert.match(home, /Sabitlenenler ve sık kullanılanlar/);
   assert.match(english, /Pinned and frequently used tools/);
-  assert.match(home, /Bugün ne yapmak istediğinizi seçin/);
-  assert.match(english, /Choose how you want to work today/);
-  assert.match(german, /Wählen Sie Ihren Einstieg/);
-  assert.match(chinese, /选择今天的工作方式/);
+  assert.match(home, /Kararsızsanız ByteQuant AI ile başlayın/);
+  assert.match(english, /Start with ByteQuant AI when the path is unclear/);
+  assert.match(german, /Bei unklarem Weg mit ByteQuant AI starten/);
+  assert.match(chinese, /不确定从何开始时，先使用 ByteQuant AI/);
   for (const page of [home, english, german, chinese]) {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
