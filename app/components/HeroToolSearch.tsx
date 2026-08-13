@@ -8,7 +8,7 @@ import { ToolIcon } from "./ToolIcon";
 
 const fold = (value: string) => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
 
-export function HeroToolSearch({ locale }: { locale: Locale }) {
+export function HeroToolSearch({ locale, placeholder }: { locale: Locale; placeholder?: string }) {
   const t = {
     tr: { label: "Araçlarda anında ara", placeholder: "JSON, PDF, KVKK, regex…", hint: "Yazmaya başlayın; sonuçlar cihazınızda anında filtrelenir.", all: "Tüm araçları göster", empty: "Bu ifadeyle eşleşen araç bulunamadı. Daha kısa bir terim deneyin." },
     en: { label: "Search tools instantly", placeholder: "JSON, PDF, privacy, regex…", hint: "Start typing; results are filtered instantly on your device.", all: "View every tool", empty: "No tool matched that phrase. Try a shorter term." },
@@ -29,7 +29,7 @@ export function HeroToolSearch({ locale }: { locale: Locale }) {
   }, [deferred, locale]);
   const active = query.trim().length > 0;
   return <div className="hero-tool-search" role="search">
-    <label><span aria-hidden="true">⌕</span><span className="sr-only">{t.label}</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.placeholder} autoComplete="off" aria-controls="hero-tool-results" /><kbd>⌘ K</kbd></label>
+    <label><span aria-hidden="true">⌕</span><span className="sr-only">{t.label}</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={placeholder ?? t.placeholder} autoComplete="off" aria-controls="hero-tool-results" /><kbd>⌘ K</kbd></label>
     <small>{t.hint}</small>
     {active && <div className="hero-tool-results" id="hero-tool-results" aria-live="polite">{results.length ? <>{results.map(({ tool }) => <Link key={tool.slug} href={toolPath(locale, tool.slug)}><ToolIcon tool={tool} size="sm" /><span><strong>{tool.title[locale]}</strong><small>{categories[tool.category].label[locale]}</small></span><b>→</b></Link>)}<Link className="hero-search-all" href={pathFor(locale, "tools")}>{t.all} · {tools.length} →</Link></> : <p>{t.empty}</p>}</div>}
   </div>;

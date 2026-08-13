@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { WORKSPACE_AGENT_INPUT_KEY, readWorkspaceAgentGoal, readWorkspaceAgentInput, readWorkspaceHandoff } from "../app/lib/workspace-handoff.ts";
+import { WORKSPACE_AGENT_INPUT_KEY, WORKSPACE_TOOL_START_KEY, readWorkspaceAgentGoal, readWorkspaceAgentInput, readWorkspaceHandoff, readWorkspaceToolStart } from "../app/lib/workspace-handoff.ts";
 import { COLLABORATION_SIGNAL_LIFETIME_MS, createCollaborationSafetyCode, decodeCollaborationSignal, encodeCollaborationSignal } from "../app/lib/workspace-p2p.ts";
 import { createWorkspaceRecipe, decodeWorkspaceRecipe, encodeWorkspaceRecipe } from "../app/lib/workspace-recipe.ts";
 import { assertWorkspaceQuota, decryptWorkspace, encryptWorkspace } from "../app/lib/workspace-storage.ts";
@@ -92,6 +92,12 @@ test("tool handoff rejects forged paths, password-sized data, and malformed ids"
   assert.equal(readWorkspaceAgentInput("  {\"safe\":true}  "), '{"safe":true}');
   assert.equal(readWorkspaceAgentInput("   "), null);
   assert.equal(readWorkspaceAgentInput("x".repeat(200_001)), null);
+  const toolStart = { version: 1, toolSlug: "json-bicimlendirici", input: '{"safe":true}', locale: "tr", createdAt: Date.now() };
+  assert.equal(WORKSPACE_TOOL_START_KEY, "bytequant:workstation-tool-start:v1");
+  assert.deepEqual(readWorkspaceToolStart(JSON.stringify(toolStart)), toolStart);
+  assert.equal(readWorkspaceToolStart(JSON.stringify({ ...toolStart, toolSlug: "../escape" })), null);
+  assert.equal(readWorkspaceToolStart(JSON.stringify({ ...toolStart, locale: "fr" })), null);
+  assert.equal(readWorkspaceToolStart(JSON.stringify({ ...toolStart, createdAt: Date.now() - 21 * 60 * 1000 })), null);
 });
 
 test("workstation keeps Agent input, guided navigation, localized loading, and locale-safe recipe routes", async () => {
@@ -109,8 +115,10 @@ test("workstation keeps Agent input, guided navigation, localized loading, and l
   assert.ok(client.includes("Schneller Ablaufplaner"));
   assert.ok(client.includes("快速流程规划器"));
   assert.ok(client.includes("workspaceFlowCopy[locale].runNext"));
-  assert.ok(client.includes('guidedMode ? <><a href="#workspace-start"'));
-  assert.ok(client.includes("setOnboardingOpen(!alreadyStarted"));
+  assert.ok(client.includes('className="workspace-guided-dashboard"'));
+  assert.ok(client.includes('!guidedMode && <nav className="workspace-mobile-nav"'));
+  assert.ok(client.includes("setOnboardingOpen(true)"));
+  assert.ok(!client.includes("setOnboardingOpen(!alreadyStarted"));
   assert.doesNotMatch(client, /\b309\b/u);
 
   assert.ok(loader.includes("ByteQuant İş İstasyonu cihazınızda hazırlanıyor…"));

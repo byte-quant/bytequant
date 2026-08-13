@@ -185,10 +185,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.startsWith(".")).length, 329);
-  assert.equal(englishTools.filter((name) => !name.startsWith(".")).length, 329);
-  assert.equal(germanTools.filter((name) => !name.startsWith(".")).length, 329);
-  assert.equal(chineseTools.filter((name) => !name.startsWith(".")).length, 329);
+  assert.equal(turkishTools.filter((name) => !name.includes(".")).length, 329);
+  assert.equal(englishTools.filter((name) => !name.includes(".")).length, 329);
+  assert.equal(germanTools.filter((name) => !name.includes(".")).length, 329);
+  assert.equal(chineseTools.filter((name) => !name.includes(".")).length, 329);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -748,25 +748,25 @@ test("every localized tool exposes demo UX and HowTo schema", async () => {
     read("de/faq/index.html"),
     read("zh/faq/index.html"),
   ]);
-  for (const slug of turkishTools.filter((name) => !name.startsWith("."))) {
+  for (const slug of turkishTools.filter((name) => !name.includes("."))) {
     if (toolAliases.has(slug)) continue;
     const page = await read(`araclar/${slug}/index.html`);
     assert.match(page, /Örnek veri yükle/);
     assert.match(page, /HowTo/);
   }
-  for (const slug of englishTools.filter((name) => !name.startsWith("."))) {
+  for (const slug of englishTools.filter((name) => !name.includes("."))) {
     if (toolAliases.has(slug)) continue;
     const page = await read(`en/tools/${slug}/index.html`);
     assert.match(page, /Load example/);
     assert.match(page, /HowTo/);
   }
-  for (const slug of germanTools.filter((name) => !name.startsWith("."))) {
+  for (const slug of germanTools.filter((name) => !name.includes("."))) {
     if (toolAliases.has(slug)) continue;
     const page = await read(`de/tools/${slug}/index.html`);
     assert.match(page, /Beispiel laden/);
     assert.match(page, /HowTo/);
   }
-  for (const slug of chineseTools.filter((name) => !name.startsWith("."))) {
+  for (const slug of chineseTools.filter((name) => !name.includes("."))) {
     if (toolAliases.has(slug)) continue;
     const page = await read(`zh/tools/${slug}/index.html`);
     assert.match(page, /加载示例/);
@@ -789,8 +789,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>104<\/strong>\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>104<\/strong>\s*in-depth guides/);
+  assert.match(blog, /<strong>104<\/strong>\s*(?:<!-- -->)?\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>104<\/strong>\s*(?:<!-- -->)?\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);
@@ -890,14 +890,14 @@ test("exports the four-language visual workstation and private recipe importer",
     read("workspace/index.html"),
     read("en/blog/visual-workflow-indexeddb-webrtc-workstation/index.html"),
   ]);
-  assert.match(turkish, /317 aracı, takip etmesi kolay bir görsel akışta/);
-  assert.match(english, /Connect 317 tools in a visual workflow/);
-  assert.match(german, /317 Werkzeuge in einem übersichtlichen visuellen Ablauf/);
-  assert.match(chinese, /清晰易懂的可视化流程中连接 317 个工具/);
-  assert.match(turkish, /İlk akışınızı beş kontrollü adımda kurun/);
-  assert.match(english, /Build your first workflow in five controlled steps/);
-  assert.match(german, /Den ersten Ablauf in fünf kontrollierten Schritten erstellen/);
-  assert.match(chinese, /通过五个可控步骤建立首个流程/);
+  assert.match(turkish, /Tekrarlanan işleri, takip etmesi kolay görsel akışlara dönüştürün/);
+  assert.match(english, /Turn repeated tasks into visual flows that are easy to follow/);
+  assert.match(german, /Wiederkehrende Aufgaben in leicht verständliche visuelle Abläufe verwandeln/);
+  assert.match(chinese, /把重复任务变成清晰易懂的可视化流程/);
+  assert.match(turkish, /İlk akışınızı beş anlaşılır adımda kurun/);
+  assert.match(english, /Build your first flow in five clear steps/);
+  assert.match(german, /Den ersten Ablauf in fünf klaren Schritten erstellen/);
+  assert.match(chinese, /通过五个清晰步骤建立首个流程/);
   for (const page of [turkish, english, german, chinese]) {
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);

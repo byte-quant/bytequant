@@ -73,10 +73,10 @@ const experienceCopy = {
 } as const;
 
 const secureCopy = {
-  tr: { autoLocked: "Profil 15 dakikalık hareketsizlikten sonra otomatik kilitlendi.", rateLimited: "Çok hızlı işlem yapıldı. Spam koruması için kısa bir süre bekleyin.", security: ["İmzalar doğrulanır", "Spam ve sır filtresi", "15 dk otomatik kilit"], profileSettings: "Profil ve güvenlik", startPost: "Yeni bir paylaşım başlat", closeComposer: "Taslağı kapat", backup: "Şifreli profil yedeğini indir", restore: "Şifreli yedeği içe aktar", backupReady: "Şifreli profil yedeği hazırlandı.", restoreReady: "Şifreli profil bu cihaza aktarıldı. Açmak için parolanızı girin.", publicProfile: "Nostr profili ve gönderileri herkese açıktır. Gerçek ad, konum veya özel iletişim bilgisi yazmayın.", clearBlocked: "Gizlenenleri temizle" },
-  en: { autoLocked: "The profile was locked automatically after 15 minutes of inactivity.", rateLimited: "Too many actions were attempted. Wait briefly while anti-spam protection resets.", security: ["Signatures verified", "Spam and secret filter", "15 min auto-lock"], profileSettings: "Profile and security", startPost: "Start a new post", closeComposer: "Close draft", backup: "Download encrypted profile backup", restore: "Import encrypted backup", backupReady: "The encrypted profile backup is ready.", restoreReady: "The encrypted profile was imported to this device. Enter its passphrase to unlock it.", publicProfile: "Nostr profiles and posts are public. Do not add your real name, location, or private contact details.", clearBlocked: "Clear hidden accounts" },
-  de: { autoLocked: "Das Profil wurde nach 15 Minuten Inaktivität automatisch gesperrt.", rateLimited: "Zu viele Aktionen. Bitte kurz warten, bis der Spam-Schutz zurückgesetzt ist.", security: ["Signaturen geprüft", "Spam- und Geheimnisfilter", "15 Min. Auto-Sperre"], profileSettings: "Profil und Sicherheit", startPost: "Neuen Beitrag beginnen", closeComposer: "Entwurf schließen", backup: "Verschlüsselte Profilsicherung laden", restore: "Verschlüsselte Sicherung importieren", backupReady: "Die verschlüsselte Profilsicherung wurde erstellt.", restoreReady: "Das verschlüsselte Profil wurde importiert. Zum Entsperren Passphrase eingeben.", publicProfile: "Nostr-Profile und Beiträge sind öffentlich. Keine echten Namen, Orte oder privaten Kontaktdaten angeben.", clearBlocked: "Ausgeblendete Konten leeren" },
-  zh: { autoLocked: "资料已在闲置 15 分钟后自动锁定。", rateLimited: "操作过于频繁。请稍候，待反垃圾保护重置。", security: ["验证事件签名", "垃圾与机密过滤", "15 分钟自动锁定"], profileSettings: "资料与安全", startPost: "发布新内容", closeComposer: "关闭草稿", backup: "下载加密资料备份", restore: "导入加密备份", backupReady: "加密资料备份已生成。", restoreReady: "加密资料已导入此设备。请输入密码解锁。", publicProfile: "Nostr 资料与帖子均为公开内容。请勿填写真实姓名、位置或私人联系方式。", clearBlocked: "清空隐藏账户" },
+  tr: { autoLocked: "Profil 15 dakikalık hareketsizlikten sonra otomatik kilitlendi.", rateLimited: "Çok hızlı işlem yapıldı. Spam koruması için kısa bir süre bekleyin.", security: ["Gönderi sahibini doğrular", "Riskli içeriği paylaşmadan uyarır", "Profili kendiliğinden kilitler"], profileSettings: "Profil ve güvenlik", startPost: "Yeni bir paylaşım başlat", closeComposer: "Taslağı kapat", backup: "Şifreli profil yedeğini indir", restore: "Şifreli yedeği içe aktar", backupReady: "Şifreli profil yedeği hazırlandı.", restoreReady: "Şifreli profil bu cihaza aktarıldı. Açmak için parolanızı girin.", publicProfile: "Nostr profili ve gönderileri herkese açıktır. Gerçek ad, konum veya özel iletişim bilgisi yazmayın.", clearBlocked: "Gizlenenleri temizle" },
+  en: { autoLocked: "The profile was locked automatically after 15 minutes of inactivity.", rateLimited: "Too many actions were attempted. Wait briefly while anti-spam protection resets.", security: ["Checks who signed each post", "Warns before risky content is shared", "Locks your profile automatically"], profileSettings: "Profile and security", startPost: "Start a new post", closeComposer: "Close draft", backup: "Download encrypted profile backup", restore: "Import encrypted backup", backupReady: "The encrypted profile backup is ready.", restoreReady: "The encrypted profile was imported to this device. Enter its passphrase to unlock it.", publicProfile: "Nostr profiles and posts are public. Do not add your real name, location, or private contact details.", clearBlocked: "Clear hidden accounts" },
+  de: { autoLocked: "Das Profil wurde nach 15 Minuten Inaktivität automatisch gesperrt.", rateLimited: "Zu viele Aktionen. Bitte kurz warten, bis der Spam-Schutz zurückgesetzt ist.", security: ["Prüft, wer einen Beitrag signiert hat", "Warnt vor riskanten Inhalten", "Sperrt das Profil automatisch"], profileSettings: "Profil und Sicherheit", startPost: "Neuen Beitrag beginnen", closeComposer: "Entwurf schließen", backup: "Verschlüsselte Profilsicherung laden", restore: "Verschlüsselte Sicherung importieren", backupReady: "Die verschlüsselte Profilsicherung wurde erstellt.", restoreReady: "Das verschlüsselte Profil wurde importiert. Zum Entsperren Passphrase eingeben.", publicProfile: "Nostr-Profile und Beiträge sind öffentlich. Keine echten Namen, Orte oder privaten Kontaktdaten angeben.", clearBlocked: "Ausgeblendete Konten leeren" },
+  zh: { autoLocked: "资料已在闲置 15 分钟后自动锁定。", rateLimited: "操作过于频繁。请稍候，待反垃圾保护重置。", security: ["核对每篇帖子的签名者", "发布风险内容前发出提醒", "自动锁定您的资料"], profileSettings: "资料与安全", startPost: "发布新内容", closeComposer: "关闭草稿", backup: "下载加密资料备份", restore: "导入加密备份", backupReady: "加密资料备份已生成。", restoreReady: "加密资料已导入此设备。请输入密码解锁。", publicProfile: "Nostr 资料与帖子均为公开内容。请勿填写真实姓名、位置或私人联系方式。", clearBlocked: "清空隐藏账户" },
 } as const;
 
 const profileExperienceCopy = {
@@ -120,6 +120,9 @@ const socialExperienceCopy = {
     clearFilters: "Filtreleri temizle",
     emptyFiltered: "Bu görünümde eşleşen gönderi yok. Filtreleri temizleyerek akışa dönebilirsiniz.",
     topicsLabel: "Konu filtreleri",
+    guestSummary: "Örnek akışı güvenle inceleyin; global gönderiler yalnızca siz bağlandığınızda yüklenir.",
+    liveSummary: "Doğrulanmış global gönderiler bu oturumda güncelleniyor.",
+    connectionDetails: "Bağlantı ve gizlilik ayrıntıları",
   },
   en: {
     consent: "The connection is created only for this session and only after you press the button. Your browser talks directly to the selected Nostr relays, whose operators can see your IP address.",
@@ -140,6 +143,9 @@ const socialExperienceCopy = {
     clearFilters: "Clear filters",
     emptyFiltered: "No post matches this view. Clear the filters to return to the feed.",
     topicsLabel: "Topic filters",
+    guestSummary: "Explore the examples safely; global posts load only after you choose to connect.",
+    liveSummary: "Verified global posts are updating in this session.",
+    connectionDetails: "Connection and privacy details",
   },
   de: {
     consent: "Die Verbindung wird nur für diese Sitzung und erst nach Ihrem Klick aufgebaut. Der Browser spricht direkt mit den gewählten Nostr-Relays; deren Betreiber können Ihre IP-Adresse sehen.",
@@ -160,6 +166,9 @@ const socialExperienceCopy = {
     clearFilters: "Filter zurücksetzen",
     emptyFiltered: "Für diese Ansicht gibt es keinen Treffer. Setzen Sie die Filter zurück, um zum Feed zurückzukehren.",
     topicsLabel: "Themenfilter",
+    guestSummary: "Beispiele sicher ansehen; globale Beiträge laden erst nach Ihrer Verbindung.",
+    liveSummary: "Geprüfte globale Beiträge werden in dieser Sitzung aktualisiert.",
+    connectionDetails: "Verbindungs- und Datenschutzdetails",
   },
   zh: {
     consent: "连接仅在本次会话中、且只会在您按下按钮后建立。浏览器会直接连接所选 Nostr 中继；中继运营者可能看到您的 IP 地址。",
@@ -180,6 +189,9 @@ const socialExperienceCopy = {
     clearFilters: "清除筛选",
     emptyFiltered: "当前视图没有匹配帖子。清除筛选即可返回动态。",
     topicsLabel: "主题筛选",
+    guestSummary: "可先安全浏览示例；只有主动连接后才会加载全球帖子。",
+    liveSummary: "本次会话正在更新已验证的全球帖子。",
+    connectionDetails: "连接与隐私详情",
   },
 } as const;
 
@@ -571,8 +583,8 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       <div className={`community-network-status status-${network}`} aria-busy={network === "connecting"}>
         <span aria-hidden="true" />
         <strong role="status" aria-live="polite">{stateLabel}</strong>
-        <small>{t.relayDisclosure}</small>
-        <small>{networkText.relayHealth}: {relaySummary}</small>
+        <small className="community-status-summary">{network === "connected" || network === "partial" ? networkText.liveSummary : networkText.guestSummary}</small>
+        <details className="community-connection-details"><summary>{networkText.connectionDetails}</summary><p>{t.relayDisclosure}</p><p>{networkText.relayHealth}: {relaySummary}</p></details>
         {network === "connected" || network === "partial" ? <>
           <div className="community-network-stats"><b>{connectedRelays}</b><small>{networkText.connectedRelays}</small><b>{events.length}</b><small>{networkText.visiblePosts}</small></div>
           <div className="community-network-buttons"><button type="button" onClick={() => void connect()}>{t.refresh}</button><button type="button" onClick={disconnect}>{networkText.disconnect}</button></div>

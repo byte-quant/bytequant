@@ -96,9 +96,17 @@ const pageExperienceCopy = {
   },
 } as const;
 
+const communityValueCopy = {
+  tr: [["◎", "Hesap açmadan okuyun", "Global akışı profil oluşturmadan inceleyin."], ["✦", "Hazır olduğunuzda katılın", "Paylaşım profili yalnızca cihazınızda şifrelenir."], ["◇", "Kontrol sizde kalsın", "Bağlantıyı kesin, profili kilitleyin veya cihaz arşivini ayrı tutun."]],
+  en: [["◎", "Read without an account", "Explore the global feed before creating a profile."], ["✦", "Join when you are ready", "Your posting profile is encrypted only on your device."], ["◇", "Stay in control", "Disconnect, lock your profile, or keep a separate device archive."]],
+  de: [["◎", "Ohne Konto lesen", "Globalen Feed vor der Profilerstellung ansehen."], ["✦", "Erst bei Bedarf mitmachen", "Das Beitragsprofil wird nur auf Ihrem Gerät verschlüsselt."], ["◇", "Die Kontrolle behalten", "Trennen, Profil sperren oder Gerätearchiv getrennt halten."]],
+  zh: [["◎", "无需账号即可阅读", "创建资料前先浏览全球动态。"], ["✦", "准备好后再参与", "发布资料只在您的设备上加密。"], ["◇", "始终由您掌控", "可断开连接、锁定资料，或单独保留设备归档。"]],
+} as const;
+
 export function CommunityPage({ locale }: { locale: Locale }) {
   const c = copy[locale];
   const hero = { ...networkHero[locale], ...pageExperienceCopy[locale] };
+  const values = communityValueCopy[locale];
   const pageUrl = absoluteUrl(pathFor(locale, "community"));
   const schema = [
     { "@context": "https://schema.org", "@type": "CollectionPage", name: hero.title, description: hero.intro, url: pageUrl, inLanguage: languageTag(locale), isPartOf: { "@id": `${absoluteUrl(pathFor(locale, "home"))}#website` }, author: { "@id": organizationId } },
@@ -106,7 +114,7 @@ export function CommunityPage({ locale }: { locale: Locale }) {
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "community")} languageHrefs={{ tr: pathFor("tr", "community"), en: pathFor("en", "community"), de: pathFor("de", "community"), zh: pathFor("zh", "community") }}>
     <SchemaScript data={schema} />
-    <section className="community-product-intro community-product-intro-compact"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#community-feed">{hero.read} ↓</a><a className="secondary-button" href="#community-compose">{hero.publish}</a><a className="secondary-button" href="#community-private-tools">{hero.privateTools}</a></nav></div></section>
+    <section className="community-product-intro community-product-intro-compact"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#community-feed">{hero.read} ↓</a><a className="secondary-button" href="#community-compose">{hero.publish}</a></nav><div className="community-value-strip">{values.map(([icon, title, body]) => <article key={title}><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><small>{body}</small></div></article>)}</div></div></section>
     <section className="section community-network-section" id="global-community"><div className="container wide-container"><CommunityNetwork locale={locale} /></div></section>
     <section className="section community-secondary-tools"><div className="container">
       <details className="community-secondary-panel" id="community-private-tools"><summary><span>◇</span><div><strong>{hero.advancedTitle}</strong><small>{hero.advancedBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { WorkstationPage } from "../../components/WorkstationPage";
 import { localizedAlternates, localizedSocialMetadata, pathFor } from "../../lib/site";
-const title = "工作站 · 可视化浏览器工具流程";
-const description = "将 317 个互不重复的 ByteQuant 工具连接为可视化节点，在设备上加密项目，并通过 URL 配方或无服务器 WebRTC 分享。";
+const title = "可视化工作流生成器 · 工作站";
+const description = "把重复的文本与数据任务变成清晰的分步流程。使用 317 个免费浏览器工具，工作进度仅保存在您的设备上。";
 export const metadata: Metadata = { title, description, alternates: localizedAlternates("zh", pathFor("tr", "workstation"), pathFor("en", "workstation")), ...localizedSocialMetadata("zh", title, description, pathFor("zh", "workstation")) };
 export default function Page() { return <WorkstationPage locale="zh" />; }

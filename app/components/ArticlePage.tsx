@@ -2,13 +2,18 @@ import Link from "next/link";
 import type { EditorialLocale, Post } from "../lib/posts";
 import { posts } from "../lib/posts";
 import { getTool, publicTools as tools, type Tool } from "../lib/tools";
-import { absoluteUrl, languageTag, organizationId, pathFor, postPath, schemaDate, siteUrl, toolPath, websiteId } from "../lib/site";
+import { absoluteUrl, languageTag, organizationId, pathFor, postLanguageHrefs, postPath, schemaDate, siteUrl, toolPath, websiteId } from "../lib/site";
 import { SchemaScript } from "./SchemaScript";
 import { SiteShell } from "./SiteShell";
 import { getLocalizedGuide } from "../lib/localized-guides";
 import { BrandLogo } from "./BrandLogo";
 import { GuideValidationLab, guideValidationText } from "./GuideValidationLab";
 import { GuideActionPlan } from "./GuideActionPlan";
+
+const articleUi = {
+  tr: { home: "Ana sayfa", guides: "Rehberler", breadcrumb: "Sayfa yolu", updated: "Güncellendi", byline: "Teknik inceleme, birincil kaynak ve ürün doğrulaması", inGuide: "Bu rehberde", tryTool: "İlgili aracı deneyin", sources: "Kaynaklar", short: "Kısa cevap", sourcesTitle: "Kaynaklar ve doğrulama", sourcesIntro: "Bu rehber hazırlanırken aşağıdaki birincil ve resmî belgeler kontrol edildi. Bağlantıların güncel sürüm ve değişiklik tarihlerini ayrıca inceleyin.", related: "İLGİLİ ARAÇLAR", practice: "Bu rehberi uygulamaya dönüştürün", method: "Editoryal yöntem", methodBody: "İçerik, görünür ByteQuant ürün davranışı ve varsa listelenen birincil kaynaklarla karşılaştırılarak hazırlanır. Genel bilgilendirmedir; hukuki veya güvenlik danışmanlığı değildir.", action: "Bilgiyi uygulamaya dönüştürün", start: "araçla cihazınızda çalışmaya başlayın", explore: "Araçları keşfet", next: "SONRAKİ OKUMA", relatedGuides: "İlgili rehberler", all: "Tüm rehberler", read: "Rehberi oku" },
+  en: { home: "Home", guides: "Guides", breadcrumb: "Breadcrumb", updated: "Updated", byline: "Technical review, primary sources, and product verification", inGuide: "In this guide", tryTool: "Try the related tool", sources: "Sources", short: "Short answer", sourcesTitle: "Sources and verification", sourcesIntro: "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well.", related: "RELATED TOOLS", practice: "Put this guide into practice", method: "Editorial method", methodBody: "Content is checked against visible ByteQuant product behavior and the listed primary sources where available. It is general information, not legal or security advice.", action: "Turn guidance into action", start: "tools on your device", explore: "Explore tools", next: "READ NEXT", relatedGuides: "Related guides", all: "All guides", read: "Read guide" },
+} as const;
 
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
@@ -17,6 +22,7 @@ function postRelevance(current: Post, candidate: Post) {
 
 export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLocale }) {
   const isTr = locale === "tr";
+  const ui = articleUi[locale];
   const currentLanguage = languageTag(locale);
   const pageUrl = absoluteUrl(postPath(locale, post.slug));
   const alternateHref = postPath(isTr ? "en" : "tr", post.slug);
@@ -48,19 +54,19 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
       author: { "@type": "Organization", "@id": `${siteUrl}/#editorial`, name: "ByteQuant Editorial", url: absoluteUrl(pathFor(locale, "about")), parentOrganization: { "@id": organizationId } },
       publisher: { "@id": organizationId }, citation: post.sources?.map((source) => source.url),
     },
-    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: isTr ? "Ana sayfa" : "Home", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: isTr ? "Rehberler" : "Guides", item: absoluteUrl(pathFor(locale, "blog")) }, { "@type": "ListItem", position: 3, name: post.title[locale], item: pageUrl }] },
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", "@id": `${pageUrl}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: ui.home, item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: ui.guides, item: absoluteUrl(pathFor(locale, "blog")) }, { "@type": "ListItem", position: 3, name: post.title[locale], item: pageUrl }] },
   ];
 
   return (
-    <SiteShell locale={locale} alternateHref={alternateHref} languageHrefs={isFourLanguageGuide ? { tr: postPath("tr", post.slug), en: postPath("en", post.slug), de: postPath("de", post.slug), zh: postPath("zh", post.slug) } : undefined}>
+    <SiteShell locale={locale} alternateHref={alternateHref} languageHrefs={postLanguageHrefs(post.slug, isFourLanguageGuide)}>
       <SchemaScript data={schema} />
       <article className="article-page">
         <header className="article-header">
           <div className="container article-header-inner">
-            <nav className="breadcrumbs" aria-label={isTr ? "Sayfa yolu" : "Breadcrumb"}>
-              <Link href={pathFor(locale, "home")}>{isTr ? "Ana sayfa" : "Home"}</Link>
+            <nav className="breadcrumbs" aria-label={ui.breadcrumb}>
+              <Link href={pathFor(locale, "home")}>{ui.home}</Link>
               <span>/</span>
-              <Link href={pathFor(locale, "blog")}>{isTr ? "Rehberler" : "Guides"}</Link>
+              <Link href={pathFor(locale, "blog")}>{ui.guides}</Link>
               <span>/</span>
               <span>{post.category[locale]}</span>
             </nav>
@@ -68,20 +74,20 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
               <span>{post.category[locale]}</span><span>·</span>
               <time dateTime={post.date}>{formattedDate}</time><span>·</span>
               <span>{post.readTime[locale]}</span>
-              {post.updated && <><span>·</span><time dateTime={post.updated}>{isTr ? `Güncellendi ${formattedModifiedDate}` : `Updated ${formattedModifiedDate}`}</time></>}
+              {post.updated && <><span>·</span><time dateTime={post.updated}>{ui.updated} {formattedModifiedDate}</time></>}
             </div>
             <h1>{post.title[locale]}</h1>
             <p>{post.excerpt[locale]}</p>
             <div className="byline">
               <BrandLogo />
-              <div><Link href={pathFor(locale, "about")}><strong>ByteQuant Editorial</strong></Link><small>{isTr ? "Teknik inceleme, birincil kaynak ve ürün doğrulaması" : "Technical review, primary sources, and product verification"}</small></div>
+              <div><Link href={pathFor(locale, "about")}><strong>ByteQuant Editorial</strong></Link><small>{ui.byline}</small></div>
             </div>
           </div>
         </header>
 
         <div className="container article-layout">
           <aside className="article-toc">
-            <strong>{isTr ? "Bu rehberde" : "In this guide"}</strong>
+            <strong>{ui.inGuide}</strong>
             {post.sections[locale].map((section, index) => (
               <a href={`#section-${index + 1}`} key={section.heading}>
                 <span>{String(index + 1).padStart(2, "0")}</span>{section.heading}
@@ -89,15 +95,15 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
             ))}
             {primaryTool && (
               <Link className="toc-tool" href={toolPath(locale, primaryTool.slug)}>
-                <b>{isTr ? "İlgili aracı deneyin" : "Try the related tool"}</b>
+                <b>{ui.tryTool}</b>
                 <span>{primaryTool.title[locale]} →</span>
               </Link>
             )}
-            {post.sources && <a href="#sources"><span>↗</span>{isTr ? "Kaynaklar" : "Sources"}</a>}
+            {post.sources && <a href="#sources"><span>↗</span>{ui.sources}</a>}
           </aside>
 
           <div className="article-body">
-            <div className="article-summary"><strong>{isTr ? "Kısa cevap" : "Short answer"}</strong><p>{post.description[locale]}</p></div>
+            <div className="article-summary"><strong>{ui.short}</strong><p>{post.description[locale]}</p></div>
             <GuideActionPlan guideTitle={post.title[locale]} locale={locale} tools={relatedTools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
             {post.sections[locale].map((section, index) => (
               <section id={`section-${index + 1}`} key={section.heading}>
@@ -108,13 +114,13 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
               </section>
             ))}
 
-            {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{isTr ? "Kaynaklar ve doğrulama" : "Sources and verification"}</h2><p>{isTr ? "Bu rehber hazırlanırken aşağıdaki birincil ve resmî belgeler kontrol edildi. Bağlantıların güncel sürüm ve değişiklik tarihlerini ayrıca inceleyin." : "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well."}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
+            {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{ui.sourcesTitle}</h2><p>{ui.sourcesIntro}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
 
             <GuideValidationLab guideTitle={post.title[locale]} guideSummary={post.description[locale]} locale={locale} tools={relatedTools} />
 
             <section className="article-related-tools" aria-labelledby="article-related-tools-title">
-              <span className="kicker">{isTr ? "İLGİLİ ARAÇLAR" : "RELATED TOOLS"}</span>
-              <h2 id="article-related-tools-title">{isTr ? "Bu rehberi uygulamaya dönüştürün" : "Put this guide into practice"}</h2>
+              <span className="kicker">{ui.related}</span>
+              <h2 id="article-related-tools-title">{ui.practice}</h2>
               <div className="article-tool-links">
                 {relatedTools.map((tool) => (
                   <Link href={toolPath(locale, tool.slug)} key={tool.slug}>
@@ -127,12 +133,12 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
             </section>
 
             <div className="article-note">
-              <strong>{isTr ? "Editoryal yöntem" : "Editorial method"}</strong>
-              <p>{isTr ? "İçerik, görünür ByteQuant ürün davranışı ve varsa listelenen birincil kaynaklarla karşılaştırılarak hazırlanır. Genel bilgilendirmedir; hukuki veya güvenlik danışmanlığı değildir." : "Content is checked against visible ByteQuant product behavior and the listed primary sources where available. It is general information, not legal or security advice."}</p>
+              <strong>{ui.method}</strong>
+              <p>{ui.methodBody}</p>
             </div>
             <div className="article-cta">
-              <div><span>{isTr ? "Bilgiyi uygulamaya dönüştürün" : "Turn guidance into action"}</span><h2>{isTr ? `${tools.length} araçla cihazınızda çalışmaya başlayın` : `Start working on-device with ${tools.length} tools`}</h2></div>
-              <Link className="light-button" href={pathFor(locale, "tools")}>{isTr ? "Araçları keşfet" : "Explore tools"} →</Link>
+              <div><span>{ui.action}</span><h2>{tools.length} {ui.start}</h2></div>
+              <Link className="light-button" href={pathFor(locale, "tools")}>{ui.explore} →</Link>
             </div>
           </div>
         </div>
@@ -141,8 +147,8 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
       <section className="section related-posts">
         <div className="container">
           <div className="section-heading split-heading">
-            <div><span className="kicker">{isTr ? "SONRAKİ OKUMA" : "READ NEXT"}</span><h2>{isTr ? "İlgili rehberler" : "Related guides"}</h2></div>
-            <Link className="text-link" href={pathFor(locale, "blog")}>{isTr ? "Tüm rehberler" : "All guides"} →</Link>
+            <div><span className="kicker">{ui.next}</span><h2>{ui.relatedGuides}</h2></div>
+            <Link className="text-link" href={pathFor(locale, "blog")}>{ui.all} →</Link>
           </div>
           <div className="post-grid">
             {relatedPosts.map((item) => (
@@ -150,7 +156,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
                 <span>{item.category[locale]} · {item.readTime[locale]}</span>
                 <h3><Link href={postPath(locale, item.slug)}>{item.title[locale]}</Link></h3>
                 <p>{item.excerpt[locale]}</p>
-                <Link className="text-link" href={postPath(locale, item.slug)}>{isTr ? "Rehberi oku" : "Read guide"} →</Link>
+                <Link className="text-link" href={postPath(locale, item.slug)}>{ui.read} →</Link>
               </article>
             ))}
           </div>

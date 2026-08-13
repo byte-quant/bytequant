@@ -17,11 +17,12 @@ test("tool pages expose visible answer-first content that matches richer structu
 });
 
 test("home discovery schema stays useful without serializing the full catalog twice", async () => {
-  const source = await read("app/components/HomePage.tsx");
+  const [source, library] = await Promise.all([read("app/components/HomePage.tsx"), read("app/components/ToolLibraryPage.tsx")]);
   assert.match(source, /"@type": "CollectionPage"/);
   assert.match(source, /"@type": "ItemList"/);
   assert.match(source, /"@type": "FAQPage"/);
-  assert.match(source, /numberOfItems: tools\.length/);
+  assert.match(source, /numberOfItems: featuredTools\.length/);
+  assert.match(library, /numberOfItems: publicTools\.length/);
   assert.doesNotMatch(source, /featureList:[^\n]+\.\.\.tools\.map/);
 });
 
@@ -53,7 +54,7 @@ test("progressive Three.js scene adapts by page and pauses in hidden tabs", asyn
 
 test("llms discovery file states canonical, locale, and claim boundaries", async () => {
   const source = await read("public/llms.txt");
-  assert.match(source, /Last editorial and interface review: 2026-08-11/);
+  assert.match(source, /Last editorial and interface review: 2026-08-13/);
   assert.match(source, /Authoritative discovery and citation rules/);
   assert.match(source, /Canonical HTML is the source of truth/);
   assert.match(source, /does not assert ratings/);

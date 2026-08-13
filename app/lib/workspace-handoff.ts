@@ -5,6 +5,15 @@ export const WORKSPACE_ACTIVE_KEY = "bytequant:workstation-active:v1";
 export const WORKSPACE_AGENT_GOAL_KEY = "bytequant:workstation-agent-goal:v1";
 export const WORKSPACE_AGENT_PLAN_KEY = "bytequant:workstation-agent-plan:v1";
 export const WORKSPACE_AGENT_INPUT_KEY = "bytequant:workstation-agent-input:v1";
+export const WORKSPACE_TOOL_START_KEY = "bytequant:workstation-tool-start:v1";
+
+export type WorkspaceToolStart = {
+  version: 1;
+  toolSlug: string;
+  input: string;
+  locale: "tr" | "en" | "de" | "zh";
+  createdAt: number;
+};
 
 export type WorkspaceHandoff = {
   version: 1;
@@ -45,4 +54,16 @@ export function readWorkspaceAgentInput(raw: string | null): string | null {
   if (!raw || raw.length > WORKSPACE_MAX_TEXT) return null;
   const value = raw.trim();
   return value ? value : null;
+}
+
+export function readWorkspaceToolStart(raw: string | null): WorkspaceToolStart | null {
+  if (!raw || raw.length > WORKSPACE_MAX_TEXT + 500) return null;
+  try {
+    const value = JSON.parse(raw) as WorkspaceToolStart;
+    if (value?.version !== 1 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.toolSlug)
+      || typeof value.input !== "string" || !value.input.trim() || value.input.length > WORKSPACE_MAX_TEXT
+      || !["tr", "en", "de", "zh"].includes(value.locale) || !Number.isFinite(value.createdAt)
+      || Date.now() - value.createdAt < 0 || Date.now() - value.createdAt > 20 * 60 * 1000) return null;
+    return value;
+  } catch { return null; }
 }

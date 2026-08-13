@@ -9,7 +9,7 @@ import { CONTENT_REVIEW_DATE_TIME } from "./lib/content-review";
 export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const updated = new Date(CONTENT_REVIEW_DATE_TIME);
-  const staticKeys = ["home", "agent", "workstation", "community", "news", "blog", "about", "standards", "privacy", "cookies", "terms", "contact", "faq"] as const;
+  const staticKeys = ["home", "tools", "agent", "workstation", "community", "news", "blog", "about", "standards", "privacy", "cookies", "terms", "contact", "faq"] as const;
   const staticRoutes = locales.flatMap((locale) => staticKeys.map((key) => ({ url: absoluteUrl(pathFor(locale, key)), lastModified: updated, alternates: { languages: localizedLanguageUrls(pathFor("tr", key), pathFor("en", key)) } })));
   const toolRoutes = tools.flatMap((tool) => locales.map((locale) => ({ url: absoluteUrl(toolPath(locale, tool.slug)), lastModified: updated, alternates: { languages: localizedLanguageUrls(toolPath("tr", tool.slug), toolPath("en", tool.slug)) } })));
   const localizedGuideSlugs = new Set(localizedGuides.map((guide) => guide.slug));

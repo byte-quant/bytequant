@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { CommunityPage } from "../components/CommunityPage";
 import { localizedAlternates, localizedSocialMetadata, pathFor } from "../lib/site";
 
-const title = "Global ByteQuant Topluluğu · Akışlar, Gruplar ve Profiller";
-const description = "Açık Nostr ağı üzerinden global gönderileri okuyun; cihazda şifreli taşınabilir profilinizle iş akışı paylaşın, yorum yapın, beğenin ve grupları keşfedin.";
+const title = "ByteQuant Topluluğu · İş Akışları, Sorular ve Fikirler";
+const description = "Hesap açmadan global ByteQuant konu akışını okuyun; hazır olduğunuzda cihazınızda şifrelenen profilinizle paylaşın, yanıtlayın ve faydalı fikirleri kaydedin.";
 
 export const metadata: Metadata = { title, description, alternates: localizedAlternates("tr", pathFor("tr", "community"), pathFor("en", "community")), ...localizedSocialMetadata("tr", title, description, pathFor("tr", "community")) };
 export default function Page() { return <CommunityPage locale="tr" />; }

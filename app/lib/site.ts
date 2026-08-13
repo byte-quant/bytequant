@@ -89,10 +89,10 @@ export type SitePageKey = "home" | "tools" | "agent" | "workstation" | "communit
 
 export function pathFor(locale: Locale, key: SitePageKey) {
   const routes = {
-    tr: { home: "/", tools: "/#araclar", agent: "/ajan", workstation: "/is-istasyonu", community: "/topluluk", news: "/guncel", blog: "/blog", about: "/hakkimizda", standards: "/yayin-ilkeleri", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
-    en: { home: "/en", tools: "/en#tools", agent: "/en/agent", workstation: "/en/workstation", community: "/en/community", news: "/en/updates", blog: "/en/blog", about: "/en/about", standards: "/en/publishing-standards", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
-    de: { home: "/de", tools: "/de#tools", agent: "/de/agent", workstation: "/de/workstation", community: "/de/community", news: "/de/updates", blog: "/de/blog", about: "/de/about", standards: "/de/publishing-standards", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
-    zh: { home: "/zh", tools: "/zh#tools", agent: "/zh/agent", workstation: "/zh/workstation", community: "/zh/community", news: "/zh/updates", blog: "/zh/blog", about: "/zh/about", standards: "/zh/publishing-standards", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
+    tr: { home: "/", tools: "/araclar", agent: "/ajan", workstation: "/is-istasyonu", community: "/topluluk", news: "/guncel", blog: "/blog", about: "/hakkimizda", standards: "/yayin-ilkeleri", privacy: "/gizlilik-politikasi", cookies: "/cerez-politikasi", terms: "/kullanim-kosullari", contact: "/iletisim", faq: "/sss" },
+    en: { home: "/en", tools: "/en/tools", agent: "/en/agent", workstation: "/en/workstation", community: "/en/community", news: "/en/updates", blog: "/en/blog", about: "/en/about", standards: "/en/publishing-standards", privacy: "/en/privacy", cookies: "/en/cookies", terms: "/en/terms", contact: "/en/contact", faq: "/en/faq" },
+    de: { home: "/de", tools: "/de/tools", agent: "/de/agent", workstation: "/de/workstation", community: "/de/community", news: "/de/updates", blog: "/de/blog", about: "/de/about", standards: "/de/publishing-standards", privacy: "/de/privacy", cookies: "/de/cookies", terms: "/de/terms", contact: "/de/contact", faq: "/de/faq" },
+    zh: { home: "/zh", tools: "/zh/tools", agent: "/zh/agent", workstation: "/zh/workstation", community: "/zh/community", news: "/zh/updates", blog: "/zh/blog", about: "/zh/about", standards: "/zh/publishing-standards", privacy: "/zh/privacy", cookies: "/zh/cookies", terms: "/zh/terms", contact: "/zh/contact", faq: "/zh/faq" },
   } as const;
   return routes[locale][key];
 }
@@ -103,6 +103,22 @@ export function toolPath(locale: Locale, slug: string) {
 
 export function postPath(locale: Locale, slug: string) {
   return locale === "tr" ? `/blog/${slug}` : `/${locale}/blog/${slug}`;
+}
+
+export function pageLanguageHrefs(key: SitePageKey): Record<Locale, string> {
+  return { tr: pathFor("tr", key), en: pathFor("en", key), de: pathFor("de", key), zh: pathFor("zh", key) };
+}
+
+export function postLanguageHrefs(slug: string, fullyLocalized: boolean): Record<Locale, string> {
+  if (fullyLocalized) {
+    return { tr: postPath("tr", slug), en: postPath("en", slug), de: postPath("de", slug), zh: postPath("zh", slug) };
+  }
+  return {
+    tr: postPath("tr", slug),
+    en: postPath("en", slug),
+    de: pathFor("de", "blog"),
+    zh: pathFor("zh", "blog"),
+  };
 }
 
 export function languageTag(locale: Locale) {

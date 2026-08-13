@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { copy, locales, organizationId, pathFor, siteUrl, websiteId, type Locale } from "../lib/site";
+import { copy, locales, organizationId, pageLanguageHrefs, pathFor, siteUrl, websiteId, type Locale } from "../lib/site";
 import { ConsentManager, PrivacySettingsButton } from "./ConsentManager";
 import { ThemeToggle } from "./ThemeToggle";
 import { BrandLogo } from "./BrandLogo";
@@ -13,14 +13,13 @@ import { AmbientScene } from "./AmbientScene";
 
 const localeNames = { tr: "Türkçe", en: "English", de: "Deutsch", zh: "简体中文" } as const;
 
-export function SiteShell({ children, locale, alternateHref, languageHrefs, includeGlobalSchema = false }: { children: ReactNode; locale: Locale; alternateHref: string; languageHrefs?: Partial<Record<Locale, string>>; includeGlobalSchema?: boolean }) {
+export function SiteShell({ children, locale, alternateHref, languageHrefs, includeGlobalSchema = false }: { children: ReactNode; locale: Locale; alternateHref: string; languageHrefs?: Record<Locale, string>; includeGlobalSchema?: boolean }) {
   const t = copy[locale];
   const localized = (tr: string, en: string, de: string, zh: string) => ({ tr, en, de, zh })[locale];
-  const hrefs: Record<Locale, string> = { tr: pathFor("tr", "home"), en: pathFor("en", "home"), de: pathFor("de", "home"), zh: pathFor("zh", "home"), ...languageHrefs };
-  if (!languageHrefs) {
-    if (locale === "tr") hrefs.en = alternateHref;
-    if (locale === "en") hrefs.tr = alternateHref;
-  }
+  const hrefs = languageHrefs ?? {
+    ...pageLanguageHrefs("home"),
+    ...(locale === "tr" ? { en: alternateHref } : locale === "en" ? { tr: alternateHref } : {}),
+  };
   const globalSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -29,7 +28,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs, incl
     ],
   };
   return (
-    <div className="site-shell">
+    <div className="site-shell experience-v2 experience-v3">
       {includeGlobalSchema ? <SchemaScript data={globalSchema} /> : null}
       <a className="skip-link" href="#main-content">{localized("İçeriğe geç", "Skip to content", "Zum Inhalt", "跳到内容")}</a>
       <header className="site-header">
@@ -41,7 +40,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs, incl
           <nav className="main-nav" aria-label={localized("Ana menü", "Main navigation", "Hauptnavigation", "主导航") }>
             <Link className="nav-product-link nav-library-link" href={pathFor(locale, "tools")}><span aria-hidden="true">⌕</span><b>{t.nav.tools}</b></Link>
             <Link className="nav-product-link agent-nav-link" href={pathFor(locale, "agent")}><span aria-hidden="true">✦</span><b>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</b></Link>
-            <Link className="nav-product-link workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span><b>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</b></Link>
+            <Link className="nav-product-link workstation-nav-link" href={pathFor(locale, "workstation")}><span aria-hidden="true">⌘</span><b>{localized("Akışlar", "Flows", "Abläufe", "工作流")}</b></Link>
             <details className="nav-more-menu"><summary><span aria-hidden="true">＋</span>{localized("Keşfet", "Explore", "Entdecken", "探索")}</summary><div><LazyCommandPalette locale={locale} /><Link href={pathFor(locale, "community")}><span>◎</span><b>{localized("Topluluk", "Community", "Community", "社区")}</b></Link><Link href={pathFor(locale, "news")}><span>◉</span><b>{localized("Gündem", "Updates", "Aktuell", "动态")}</b></Link><Link href={pathFor(locale, "blog")}><span>□</span><b>{t.nav.blog}</b></Link><Link href={pathFor(locale, "about")}><span>↗</span><b>{t.nav.about}</b></Link><Link href={pathFor(locale, "standards")}><span>✓</span><b>{localized("Yayın ilkeleri", "Publishing standards", "Publikationsstandards", "发布标准")}</b></Link><Link href={pathFor(locale, "faq")}><span>?</span><b>{t.nav.faq}</b></Link></div></details>
           </nav>
           <div className="header-actions">
@@ -55,7 +54,7 @@ export function SiteShell({ children, locale, alternateHref, languageHrefs, incl
                 <div className="mobile-menu-product-grid">
                   <Link className="mobile-menu-primary" href={pathFor(locale, "tools")}><b>⌕</b><span><strong>{t.nav.tools}</strong><small>{tools.length} · {localized("hemen kullan", "use now", "sofort nutzen", "立即使用")}</small></span></Link>
                   <Link className="agent-nav-link" href={pathFor(locale, "agent")}><b>✦</b><span><strong>{localized("Yerel Ajan", "Local Agent", "Lokaler Agent", "本地助手")}</strong><small>{localized("Hedefi plana çevir", "Turn a goal into a plan", "Ziel in Plan umwandeln", "把目标变成计划")}</small></span></Link>
-                  <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><b>⌘</b><span><strong>{localized("İş İstasyonu", "Workstation", "Workstation", "工作站")}</strong><small>{localized("Adımları görsel bağla", "Connect steps visually", "Schritte visuell verbinden", "可视化连接步骤")}</small></span></Link>
+                  <Link className="workstation-nav-link" href={pathFor(locale, "workstation")}><b>⌘</b><span><strong>{localized("Görsel akışlar", "Visual flows", "Visuelle Abläufe", "可视化工作流")}</strong><small>{localized("Birden fazla aracı sırayla kullan", "Run several tools in order", "Mehrere Werkzeuge nacheinander nutzen", "按顺序使用多个工具")}</small></span></Link>
                 </div>
                 <div className="mobile-menu-section"><strong>{localized("Keşfet", "Explore", "Entdecken", "探索")}</strong><div><Link href={pathFor(locale, "community")}>◎ {localized("Topluluk", "Community", "Community", "社区")}</Link><Link href={pathFor(locale, "news")}>◉ {localized("Gündem", "Updates", "Aktuell", "动态")}</Link><Link href={pathFor(locale, "blog")}>□ {t.nav.blog}</Link><Link href={pathFor(locale, "about")}>↗ {t.nav.about}</Link><Link href={pathFor(locale, "standards")}>✓ {localized("Yayın ilkeleri", "Publishing standards", "Publikationsstandards", "发布标准")}</Link><Link href={pathFor(locale, "faq")}>? {t.nav.faq}</Link><Link href={pathFor(locale, "contact")}>@ {t.nav.contact}</Link></div></div>
                 <div className="mobile-menu-section mobile-language-section"><strong>{localized("Dil", "Language", "Sprache", "语言")}</strong><div>{locales.map((item) => <Link key={item} className={item === locale ? "active" : ""} href={hrefs[item]} hrefLang={item} lang={item === "zh" ? "zh-CN" : item}><span>{localeNames[item]}</span><small>{item === locale ? "✓" : item.toUpperCase()}</small></Link>)}</div></div>
