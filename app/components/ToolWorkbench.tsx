@@ -20,6 +20,7 @@ import { precisionToolSlugs } from "../lib/precision-tools";
 import { frontierToolSlugs } from "../lib/frontier-tools";
 import { stageTwoToolSlugs } from "../lib/stage-two-tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
+import { csvToJson, jsonToCsv, parseCsv, detectCsvDelimiter } from "../lib/csv-conversion";
 
 export const converterSlugs = new Set(["gorsel-format-donusturucu", "gorsel-sikistirici", "gorselden-pdf", "pdf-birlestirme", "pdf-bolme"]);
 const ConverterWorkbench = dynamic(() => import("./ConverterWorkbenches").then((module) => module.ConverterWorkbench), {
@@ -204,48 +205,6 @@ function convertCase(input: string, mode: string, locale: Locale) {
 
 function sentenceCount(text: string) {
   return Math.max(1, (text.match(/[.!?]+(?:\s|$)/g) ?? []).length || (text.trim() ? 1 : 0));
-}
-
-function detectCsvDelimiter(input: string) {
-  const firstLine = input.replace(/^\uFEFF/, "").split(/\r?\n/).find((line) => line.trim()) ?? "";
-  const candidates = [",", ";", "\t"];
-  const counts = candidates.map((delimiter) => {
-    let quoted = false;
-    let count = 0;
-    for (let index = 0; index < firstLine.length; index += 1) {
-      if (firstLine[index] === '"') quoted = !quoted;
-      else if (firstLine[index] === delimiter && !quoted) count += 1;
-    }
-    return { delimiter, count };
-  });
-  return counts.sort((a, b) => b.count - a.count)[0]?.count ? counts.sort((a, b) => b.count - a.count)[0].delimiter : ",";
-}
-
-function csvParse(input: string, locale: Locale, delimiter = detectCsvDelimiter(input)): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-  for (let i = 0; i < input.length; i += 1) {
-    const char = input[i];
-    if (char === '"') {
-      if (quoted && input[i + 1] === '"') { cell += '"'; i += 1; }
-      else quoted = !quoted;
-    } else if (char === delimiter && !quoted) { row.push(cell); cell = ""; }
-    else if ((char === "\n" || char === "\r") && !quoted) {
-      if (char === "\r" && input[i + 1] === "\n") i += 1;
-      row.push(cell); rows.push(row); row = []; cell = "";
-    } else cell += char;
-  }
-  if (quoted) throw new Error(locale === "tr" ? "CSV içinde kapanmamış bir çift tırnaklı alan var." : "The CSV contains an unclosed quoted field.");
-  row.push(cell);
-  if (row.some((value) => value.length) || rows.length === 0) rows.push(row);
-  return rows;
-}
-
-function csvEscape(value: unknown) {
-  const text = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 function frequency(text: string, locale: Locale) {
@@ -636,14 +595,12 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
         }
         case "json-csv-donusturucu": {
           if (mode === "csv-to-json") {
-            const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter); const headers = rows[0] ?? [];
-            const data = rows.slice(1).filter((row) => row.some(Boolean)).map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
-            setResult(JSON.stringify(data, null, 2), [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: data.length }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: headers.length }, { label: ui(locale, { tr: "Algılanan ayraç", en: "Detected delimiter", de: "Erkanntes Trennzeichen", zh: "检测到的分隔符" }), value: delimiter === "\t" ? "TAB" : delimiter }]);
+            const converted = csvToJson(input, locale);
+            setResult(converted.output, [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: converted.records }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: converted.columns }, { label: ui(locale, { tr: "Algılanan ayraç", en: "Detected delimiter", de: "Erkanntes Trennzeichen", zh: "检测到的分隔符" }), value: converted.delimiter === "\t" ? "TAB" : converted.delimiter }]);
           } else {
-            const data = JSON.parse(input); if (!Array.isArray(data) || !data.every((item) => item && typeof item === "object" && !Array.isArray(item))) throw new Error(ui(locale, { tr: "Düz nesnelerden oluşan bir JSON dizisi gerekir.", en: "A JSON array of flat objects is required.", de: "Erforderlich ist ein JSON-Array aus flachen Objekten.", zh: "需要由扁平对象组成的 JSON 数组。" }));
-            const headers = [...new Set(data.flatMap((item) => Object.keys(item)))];
-            const csv = [headers.map(csvEscape).join(","), ...data.map((item) => headers.map((header) => csvEscape(item[header])).join(","))].join("\n");
-            setResult(csv, [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: data.length }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: headers.length }]);
+            const converted = jsonToCsv(input, locale);
+            setResult(converted.output, [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: converted.records }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: converted.columns }, { label: ui(locale, { tr: "Formül hücresi koruması", en: "Formula cells protected", de: "Geschützte Formelzellen", zh: "已保护公式单元格" }), value: converted.protectedFormulaCells }]);
+            if (converted.protectedFormulaCells) setNotice({ kind: "warning", text: ui(locale, { tr: "=, +, - veya @ ile başlayan hücreler, elektronik tablo formülü olarak çalışmaması için tek tırnakla güvenli hâle getirildi.", en: "Cells beginning with =, +, -, or @ were prefixed with an apostrophe so spreadsheet software does not execute them as formulas.", de: "Zellen, die mit =, +, - oder @ beginnen, wurden mit einem Apostroph geschützt, damit Tabellenprogramme sie nicht als Formeln ausführen.", zh: "以 =、+、- 或 @ 开头的单元格已加单引号，避免电子表格软件将其作为公式执行。" }) });
           }
           break;
         }
@@ -658,7 +615,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "csv-inceleyici": {
-          const delimiter = detectCsvDelimiter(input); const rows = csvParse(input, locale, delimiter).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
+          const delimiter = detectCsvDelimiter(input); const rows = parseCsv(input, locale, delimiter).filter((row) => row.some((cell) => cell.length)); const headers = rows[0] ?? []; const irregular = rows.slice(1).map((row, index) => ({ row, line: index + 2 })).filter(({ row }) => row.length !== headers.length);
           const duplicateHeaders = headers.filter((header, index) => headers.indexOf(header) !== index); const blankHeaders = headers.filter((header) => !header.trim()).length;
           const typeFor = (values: string[]) => values.every((value) => value === "" || /^-?\d+(?:[.,]\d+)?$/u.test(value)) ? "number" : values.every((value) => value === "" || /^(?:true|false|yes|no|0|1)$/iu.test(value)) ? "boolean" : values.every((value) => value === "" || !Number.isNaN(Date.parse(value))) ? "date-like" : "text";
           const profile = headers.map((header, index) => ({ header: header || `(column ${index + 1})`, type: typeFor(rows.slice(1, 101).map((row) => row[index] ?? "")), empty: rows.slice(1).filter((row) => !(row[index] ?? "").trim()).length, sample: rows.slice(1).map((row) => row[index] ?? "").find(Boolean)?.slice(0, 70) ?? "—" }));

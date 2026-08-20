@@ -114,7 +114,7 @@ export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Loca
         <article><strong>{t.boundary}</strong><p>{guidance.boundary[locale]}</p></article>
         <article><strong>{t.next}</strong><p>{tool.steps[locale][2]}</p></article>
       </div>
-      {deepDive ? <section className="tool-worked-example" aria-labelledby={`worked-${tool.slug}`}>
+      {deepDive ? <section className="tool-worked-example" id="worked-example" aria-labelledby={`worked-${tool.slug}`}>
         <div className="tool-worked-example-heading"><span aria-hidden="true">↳</span><h3 id={`worked-${tool.slug}`}>{t.worked}</h3></div>
         <div className="tool-worked-example-grid">
           <article><strong>{t.situation}</strong><p>{deepDive.situation[locale]}</p></article>

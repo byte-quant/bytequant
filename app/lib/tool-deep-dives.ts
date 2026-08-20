@@ -303,6 +303,214 @@ const deepDives: Record<string, ToolDeepDive> = {
       "如果文字变模糊、颜色明显偏移或目标应用无法打开文件，请提高质量或更换格式，并保留原图。",
     ),
   },
+  "cron-ifadesi-aciklayici": {
+    situation: l(
+      "Her gece yedek alan bir görevin beklenmedik saatte çalışmasını önlemek için beş alanlı cron ifadesini, sunucu saat dilimini ve yaz saati etkisini birlikte incelemek.",
+      "Review a five-field cron expression, server time zone, and daylight-saving impact together so a nightly backup does not run at an unexpected hour.",
+      "Einen fünfteiligen Cron-Ausdruck zusammen mit Serverzeitzone und Sommerzeit prüfen, damit eine nächtliche Sicherung nicht unerwartet ausgeführt wird.",
+      "同时检查五字段 Cron 表达式、服务器时区和夏令时影响，避免夜间备份在意外时间运行。",
+    ),
+    fixture: l(
+      "`0 3 * * 1-5` ifadesini deneyin; hedef sistemin klasik beş alan kullandığını ve `3` değerini hangi saat diliminde yorumladığını ayrıca not edin.",
+      "Try `0 3 * * 1-5`; separately record that the target scheduler uses the classic five fields and which time zone interprets the value `3`.",
+      "Testen Sie `0 3 * * 1-5`; halten Sie zusätzlich fest, dass der Ziel-Scheduler fünf Felder nutzt und in welcher Zeitzone der Wert `3` gilt.",
+      "测试 `0 3 * * 1-5`；另行记录目标调度器采用经典五字段格式，以及数值 `3` 按哪个时区解释。",
+    ),
+    evidence: l(
+      "Dakika, saat ve hafta günü alanları ayrı ayrı geçerlidir; açıklama hafta içi 03:00 anlamını verir ve üretim ortamındaki bir sonraki üç çalıştırma zamanı bununla uyuşur.",
+      "Minute, hour, and weekday fields validate separately; the explanation says 03:00 on weekdays and the scheduler's next three production run times agree.",
+      "Minute, Stunde und Wochentag sind einzeln gültig; die Erklärung nennt werktags 03:00 und die nächsten drei Läufe des Zielsystems stimmen überein.",
+      "分钟、小时和星期字段均分别有效；说明显示工作日 03:00，且目标系统接下来的三次运行时间与之相符。",
+    ),
+    failure: l(
+      "Hedef sistem altı/yedi alan, farklı hafta günü numarası veya UTC kullanıyorsa açıklamayı doğrudan kopyalamayın; zamanlayıcının kendi önizlemesiyle yeniden doğrulayın.",
+      "If the target uses six or seven fields, different weekday numbering, or UTC, do not copy the explanation into production; verify it with that scheduler's own preview.",
+      "Bei sechs oder sieben Feldern, anderer Wochentagsnummerierung oder UTC die Erklärung nicht direkt übernehmen, sondern im Ziel-Scheduler erneut prüfen.",
+      "如果目标系统使用六/七字段、不同星期编号或 UTC，请勿直接用于生产，应在该调度器自身的预览中重新核验。",
+    ),
+  },
+  "guclu-parola-uretici": {
+    situation: l(
+      "Yeni ve benzersiz bir hesap parolası üretirken tarayıcının kriptografik rastgeleliğini kullanmak ve sonucu yalnız güvenilir parola yöneticisine aktarmak.",
+      "Create a new unique account password with cryptographic browser randomness and transfer it only to a trusted password manager.",
+      "Ein neues eindeutiges Kontopasswort mit kryptografischer Browser-Zufälligkeit erzeugen und nur in einen vertrauenswürdigen Passwortmanager übernehmen.",
+      "使用浏览器的加密随机数生成全新且唯一的账户密码，并只保存到可信密码管理器。",
+    ),
+    fixture: l(
+      "24 ve 32 karakter uzunluklarında iki sentetik sonuç üretin; her birinde büyük/küçük harf, rakam ve sembol bulunduğunu görünür ölçülerden kontrol edin.",
+      "Generate synthetic results at lengths 24 and 32, then use the visible metrics to confirm that each contains upper- and lowercase letters, digits, and symbols.",
+      "Erzeugen Sie synthetische Ergebnisse mit 24 und 32 Zeichen und prüfen Sie anhand der sichtbaren Werte Groß-/Kleinbuchstaben, Ziffern und Symbole.",
+      "分别生成 24 位和 32 位的合成结果，并通过可见指标确认其中包含大小写字母、数字和符号。",
+    ),
+    evidence: l(
+      "Her üretimde sonuç değişir, seçilen uzunluk korunur ve kaynak Web Crypto olarak görünür; parola sayfayı yenilediğinizde kalıcı uygulama alanında bulunmaz.",
+      "Each run produces a different value at the chosen length, identifies Web Crypto as the source, and does not persist the password in application storage after reload.",
+      "Jeder Lauf liefert einen anderen Wert in gewählter Länge, nennt Web Crypto als Quelle und speichert das Passwort nach Neuladen nicht im Anwendungsspeicher.",
+      "每次生成的值都不同、长度符合选择，来源显示为 Web Crypto；刷新页面后密码不会保存在应用持久存储中。",
+    ),
+    failure: l(
+      "Sonucu birden fazla hesapta kullanmayın, mesaja veya düz metin notuna koymayın; pano geçmişi olan paylaşılan cihazda üretim yaptıysanız panoyu temizleyin.",
+      "Do not reuse the result across accounts or place it in chat or a plain-text note; clear clipboard history after generation on a shared device.",
+      "Das Ergebnis nicht für mehrere Konten verwenden oder in Chat bzw. Klartextnotizen ablegen; auf gemeinsam genutzten Geräten den Zwischenablageverlauf löschen.",
+      "不要在多个账户重复使用，也不要放入聊天或纯文本笔记；若在共享设备生成，请清理剪贴板历史。",
+    ),
+  },
+  "sifre-gucu-testi": {
+    situation: l(
+      "Bir parola politikasını değerlendirirken gerçek parolayı paylaşmadan, aynı uzunluk ve yapıdaki sentetik örneklerin tahmin edilebilirlik işaretlerini karşılaştırmak.",
+      "Compare predictability signals using synthetic examples with the same length and structure while evaluating a password policy without exposing a real password.",
+      "Bei der Bewertung einer Passwortrichtlinie Vorhersagbarkeit anhand synthetischer Beispiele gleicher Länge und Struktur vergleichen, ohne ein echtes Passwort offenzulegen.",
+      "评估密码策略时，不暴露真实密码，而是使用长度和结构相同的合成示例比较可预测性信号。",
+    ),
+    fixture: l(
+      "`Summer2026!`, tekrar eden 20 karakter ve beş rastgele sözcüklü sentetik bir parola cümlesini ayrı ayrı deneyin; gerçek hesap parolası kullanmayın.",
+      "Test `Summer2026!`, a repeated 20-character pattern, and a synthetic five-word random passphrase separately; never enter a real account password.",
+      "Testen Sie `Summer2026!`, ein wiederholtes 20-Zeichen-Muster und eine synthetische zufällige Fünfwort-Passphrase getrennt; kein echtes Passwort eingeben.",
+      "分别测试 `Summer2026!`、重复的 20 字符模式和合成的五词随机密码短语；不要输入真实账户密码。",
+    ),
+    evidence: l(
+      "Araç uzunluğun yanında yaygın yıl/kelime, tekrar ve karakter havuzu etkisini açıklar; daha uzun rastgele örnek ölçülebilir biçimde daha yüksek tahmin üretir.",
+      "The tool explains common-year or word patterns, repetition, and character-pool effects alongside length; the longer random sample receives a measurably stronger estimate.",
+      "Das Werkzeug erklärt neben Länge auch Jahres-/Wortmuster, Wiederholungen und Zeichenvorrat; das längere Zufallsbeispiel erhält eine messbar stärkere Schätzung.",
+      "工具除长度外还解释常见年份/词语、重复和字符池影响；更长的随机示例会得到可量化的更强估计。",
+    ),
+    failure: l(
+      "Tahmini kırılma süresini garanti saymayın; çevrim içi hız sınırlaması, sızıntı geçmişi ve saldırgan modeli farklıdır. Gerçek parolayı sızıntı sorgusu yapılmayan bu ön kontrole dayanarak onaylamayın.",
+      "Do not treat estimated crack time as a guarantee; online rate limits, breach history, and attacker models differ. Do not approve a real password from this pre-check alone.",
+      "Die geschätzte Knackzeit ist keine Garantie; Online-Limits, Leak-Historie und Angreifermodelle unterscheiden sich. Ein echtes Passwort nicht allein damit freigeben.",
+      "不要把预计破解时间视为保证；在线限速、泄露历史和攻击模型各不相同，不能仅凭此预检查批准真实密码。",
+    ),
+  },
+  "metin-farki-diff": {
+    situation: l(
+      "Bir gizlilik bildiriminin yeni sürümünde yükümlülük, saklama süresi veya kişi kategorisi gibi anlamlı değişiklikleri biçim değişikliklerinden ayırmak.",
+      "Separate meaningful changes to obligations, retention periods, or data-subject categories from mere formatting changes in a revised privacy notice.",
+      "In einer überarbeiteten Datenschutzerklärung Änderungen an Pflichten, Aufbewahrung oder Personengruppen von reiner Formatierung unterscheiden.",
+      "在隐私声明新版本中，将义务、保存期限或主体类别等实质变化与单纯格式变化区分开。",
+    ),
+    fixture: l(
+      "Kısa bir sentetik metnin ilk sürümünde `30 gün`, ikinci sürümünde `90 gün` kullanın; ayrıca bir başlığı taşıyıp noktalama değişikliği ekleyin.",
+      "Use `30 days` in one short synthetic version and `90 days` in the next; also move a heading and change punctuation.",
+      "Verwenden Sie in einer kurzen synthetischen Fassung `30 Tage`, in der nächsten `90 Tage`; verschieben Sie zusätzlich eine Überschrift und ändern Sie Zeichensetzung.",
+      "在简短合成文本的第一版写“30 天”，第二版写“90 天”；同时移动一个标题并改变标点。",
+    ),
+    evidence: l(
+      "Eklenen ve silinen parçalar ayrı renk ve etiketle görünür; `30`→`90` değişikliği kolayca bulunur ve özgün iki metin karşılaştırma boyunca korunur.",
+      "Insertions and deletions have distinct colours and labels, the `30`→`90` change is easy to locate, and both source texts remain available throughout review.",
+      "Einfügungen und Löschungen sind getrennt markiert, die Änderung `30`→`90` ist leicht auffindbar und beide Ausgangstexte bleiben sichtbar.",
+      "新增与删除使用不同颜色和标签，`30`→`90` 的变化易于定位，审阅过程中两个原文都保持可见。",
+    ),
+    failure: l(
+      "Araç yeniden sıralanan büyük blokları bağımsız silme/ekleme gibi gösteriyorsa bunu anlamsal karar olarak yorumlamayın; kritik metni bölüm bölüm ve bir editörle inceleyin.",
+      "If reordered blocks appear as unrelated deletion and insertion, do not treat that as a semantic verdict; review consequential text section by section with an editor.",
+      "Werden verschobene Blöcke als getrennte Löschung und Einfügung dargestellt, ist das kein semantisches Urteil; wichtige Texte abschnittsweise redaktionell prüfen.",
+      "如果重排的大段内容显示为独立删除和新增，不要将其视为语义结论；重要文本应逐节并由编辑复核。",
+    ),
+  },
+  "csv-inceleyici": {
+    situation: l(
+      "Bir müşteri dışa aktarımını JSON veya SQL'e çevirmeden önce ayraç, başlık, sütun sayısı, boş değer ve düzensiz satır sorunlarını sentetik kopyada bulmak.",
+      "Find delimiter, header, column-count, empty-value, and irregular-row problems in a synthetic copy before converting a customer export to JSON or SQL.",
+      "Vor der Umwandlung eines Kundenexports in JSON oder SQL Trennzeichen, Header, Spaltenzahl, Leerwerte und unregelmäßige Zeilen in einer synthetischen Kopie prüfen.",
+      "在将客户导出数据转换为 JSON 或 SQL 前，先在合成副本中发现分隔符、表头、列数、空值和不规则行问题。",
+    ),
+    fixture: l(
+      "Noktalı virgüllü üç sütunlu örneğe bir boş başlık, bir eksik hücre ve tırnak içinde satır sonu ekleyin; gerçek müşteri verisi kullanmayın.",
+      "Use a three-column semicolon sample with one blank header, one missing cell, and a quoted line break; do not use real customer data.",
+      "Nutzen Sie ein dreispaltiges Semikolon-Beispiel mit leerem Header, fehlender Zelle und zitiertem Zeilenumbruch; keine echten Kundendaten.",
+      "使用三列分号分隔的示例，加入一个空表头、一个缺失单元格和一个带引号的换行；不要使用真实客户数据。",
+    ),
+    evidence: l(
+      "Algılanan ayraç doğru görünür; başlık ve düzensiz satır sayıları beklenen değerle eşleşir, tırnaklı satır sonu tek hücre olarak korunur.",
+      "The detected delimiter is correct, header and irregular-row counts match expectations, and the quoted line break remains inside one cell.",
+      "Das erkannte Trennzeichen stimmt, Header- und Zeilenfehler entsprechen der Erwartung und der zitierte Umbruch bleibt in einer Zelle.",
+      "检测到的分隔符正确，表头问题和不规则行数量符合预期，带引号的换行仍保留在同一单元格。",
+    ),
+    failure: l(
+      "Kodlama bozuksa, bir satır beklenmeyen sütun sayısı veriyorsa veya yinelenen başlık varsa dönüşüme geçmeyin; kaynağın dışa aktarma ayarını düzeltin.",
+      "Do not convert when encoding is damaged, any row has an unexpected column count, or headers repeat; correct the source export settings first.",
+      "Bei beschädigter Kodierung, unerwarteter Spaltenzahl oder doppelten Headern nicht konvertieren; zuerst die Export-Einstellungen der Quelle korrigieren.",
+      "若编码损坏、任一行列数异常或表头重复，请不要继续转换，应先修正源系统的导出设置。",
+    ),
+  },
+  "prompt-kalite-denetimi": {
+    situation: l(
+      "Bir ekip özetleme promptunu modele göndermeden önce hedef, bağlam, çıktı biçimi, sınır, hedef kitle ve doğrulama ölçütlerinin görünür olup olmadığını incelemek.",
+      "Check whether a team summarisation prompt states its goal, context, output format, boundaries, audience, and verification criteria before sending it to a model.",
+      "Vor der Modellnutzung prüfen, ob ein Team-Prompt für Zusammenfassungen Ziel, Kontext, Ausgabeformat, Grenzen, Zielgruppe und Prüfkriterien nennt.",
+      "在把团队摘要提示词发送给模型前，检查其中是否明确目标、语境、输出格式、边界、受众和核验标准。",
+    ),
+    fixture: l(
+      "Önce yalnız `Bu raporu özetle` yazın; sonra sentetik rapor bağlamı, beş maddelik çıktı, yönetici hedef kitlesi, bilinmeyeni uydurmama sınırı ve tarih kontrolü ekleyin.",
+      "Start with only `Summarise this report`; then add synthetic report context, a five-bullet format, executive audience, a no-invention boundary, and a date check.",
+      "Beginnen Sie nur mit `Fasse diesen Bericht zusammen`; ergänzen Sie dann synthetischen Kontext, fünf Stichpunkte, Führungskräfte als Zielgruppe, Erfindungsverbot und Datumsprüfung.",
+      "先只输入“总结这份报告”；随后加入合成报告背景、五点输出格式、管理层受众、不得编造的边界和日期核验。",
+    ),
+    evidence: l(
+      "İkinci sürüm daha fazla görünür ölçütü karşılar ve rapor her eksik bileşeni ayrı gerekçeyle işaretler; aynı metin tekrarlandığında sonuç deterministiktir.",
+      "The second version passes more visible checks, each missing component receives a separate reason, and rerunning the same text returns the same deterministic result.",
+      "Die zweite Fassung erfüllt mehr sichtbare Kriterien, jeder fehlende Baustein wird separat begründet und dieselbe Eingabe liefert dasselbe Ergebnis.",
+      "第二版通过更多可见检查，每个缺失项都有独立理由；重复运行相同文本时结果保持确定一致。",
+    ),
+    failure: l(
+      "Yüksek skorun gerçek model doğruluğunu kanıtladığını varsaymayın; promptu temsilî iyi, sınır ve kötü niyetli örneklerle hedef modelde ayrıca test edin.",
+      "Do not assume a high score proves model accuracy; test the prompt on the target model with representative success, boundary, and adversarial examples.",
+      "Ein hoher Wert beweist keine Modellgenauigkeit; testen Sie den Prompt im Zielmodell mit Erfolgs-, Grenz- und adversarialen Beispielen.",
+      "不要认为高分能证明模型准确；仍需在目标模型中使用代表性成功、边界和对抗样例测试。",
+    ),
+  },
+  "unix-zaman-damgasi-donusturucu": {
+    situation: l(
+      "Bir olay kaydındaki saniye veya milisaniye epoch değerini yanlış birime bölmeden UTC ve yerel saatle karşılaştırmak.",
+      "Compare a seconds- or milliseconds-based epoch value with UTC and local time without applying the wrong unit conversion.",
+      "Einen Epoch-Wert in Sekunden oder Millisekunden korrekt mit UTC und Ortszeit vergleichen, ohne die falsche Einheit anzuwenden.",
+      "正确比较以秒或毫秒表示的 epoch 值与 UTC、当地时间，避免使用错误单位。",
+    ),
+    fixture: l(
+      "Aynı sentetik anı önce `1785328200` saniye, sonra `1785328200000` milisaniye olarak deneyin; beklenen UTC değerini bağımsız tarih aracıyla not edin.",
+      "Test the same synthetic instant first as `1785328200` seconds and then `1785328200000` milliseconds; record the expected UTC value independently.",
+      "Testen Sie denselben synthetischen Zeitpunkt als `1785328200` Sekunden und `1785328200000` Millisekunden; notieren Sie UTC unabhängig.",
+      "将同一合成时刻分别以 `1785328200` 秒和 `1785328200000` 毫秒测试，并独立记录预期 UTC 值。",
+    ),
+    evidence: l(
+      "Her iki girdi aynı UTC anına dönüşür, algılanan birim açıkça gösterilir ve yerel saat çıktısı tarayıcının geçerli saat dilimiyle uyumludur.",
+      "Both inputs resolve to the same UTC instant, the detected unit is explicit, and local output agrees with the browser's current time zone.",
+      "Beide Eingaben ergeben denselben UTC-Zeitpunkt, die erkannte Einheit ist sichtbar und die Ortszeit entspricht der Browser-Zeitzone.",
+      "两种输入转换为同一 UTC 时刻，检测到的单位清晰显示，当地时间与浏览器当前时区一致。",
+    ),
+    failure: l(
+      "Saat dilimi, yaz saati veya belirsiz insan tarihi açık değilse sonucu kayıt sırası için kullanmayın; özgün değer, birim ve IANA saat dilimini birlikte saklayın.",
+      "If the time zone, daylight-saving rule, or human date is ambiguous, do not use the result to order records; retain the original value, unit, and IANA zone together.",
+      "Bei unklarer Zeitzone, Sommerzeit oder Datumsangabe das Ergebnis nicht zur Reihenfolge nutzen; Originalwert, Einheit und IANA-Zone gemeinsam behalten.",
+      "若时区、夏令时规则或人类日期存在歧义，不要用结果排序记录；应同时保留原值、单位和 IANA 时区。",
+    ),
+  },
+  "renk-donusturucu": {
+    situation: l(
+      "Bir arayüz rengini HEX, RGB ve HSL arasında dönüştürürken aynı görünümü korumak ve metin kontrastını ayrıca doğrulamak.",
+      "Preserve the same visual colour while converting among HEX, RGB, and HSL, then validate text contrast separately.",
+      "Bei der Umwandlung zwischen HEX, RGB und HSL dieselbe sichtbare Farbe erhalten und den Textkontrast separat prüfen.",
+      "在 HEX、RGB 和 HSL 之间转换时保持相同视觉颜色，并另行验证文字对比度。",
+    ),
+    fixture: l(
+      "`#3366FF` değerini RGB ve HSL'ye dönüştürün, sonra oluşan değerlerden HEX'e geri dönün; açık ve koyu zemin önizlemelerini karşılaştırın.",
+      "Convert `#3366FF` to RGB and HSL, then convert the results back to HEX; compare previews on light and dark backgrounds.",
+      "Konvertieren Sie `#3366FF` nach RGB und HSL und anschließend zurück nach HEX; vergleichen Sie helle und dunkle Hintergründe.",
+      "将 `#3366FF` 转换为 RGB 和 HSL，再由结果转换回 HEX；比较浅色与深色背景预览。",
+    ),
+    evidence: l(
+      "Geri dönüş değeri yuvarlama toleransı içinde aynı rengi üretir; örnek kart ve renk seçici eşleşir, her kanal izin verilen aralıkta kalır.",
+      "The round trip produces the same colour within rounding tolerance, swatch and picker agree, and every channel remains within its valid range.",
+      "Die Rückkonvertierung ergibt innerhalb der Rundungstoleranz dieselbe Farbe, Farbfeld und Picker stimmen überein und alle Kanäle sind gültig.",
+      "往返转换在舍入容差内保持同一颜色，色块与取色器一致，各通道均处于有效范围。",
+    ),
+    failure: l(
+      "Renk uzayı, alfa kanalı veya geniş gamut gereksinimi kayboluyorsa sonucu tasarım sistemine aktarmayın; hedef platformun renk yönetimini ayrıca kontrol edin.",
+      "Do not move the result into a design system when colour space, alpha, or wide-gamut requirements are lost; check target-platform colour management separately.",
+      "Bei Verlust von Farbraum, Alpha oder Wide-Gamut-Anforderungen die Ausgabe nicht ins Designsystem übernehmen; Farbmanagement separat prüfen.",
+      "若颜色空间、透明度或广色域要求丢失，请不要把结果加入设计系统，应另行检查目标平台的颜色管理。",
+    ),
+  },
 };
 
 export function getToolDeepDive(slug: string) {

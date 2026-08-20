@@ -28,9 +28,11 @@ test("describes a concrete input, method, output, verification, and boundary for
 
 test("publishes hand-reviewed worked examples for high-intent tools in every locale", () => {
   const expected = [
-    "curl-kod-donusturucu", "exif-meta-veri-temizleyici", "gorsel-sikistirici", "json-bicimlendirici",
-    "json-csv-donusturucu", "jwt-decoder", "kvkk-veri-maskeleyici", "markdown-onizleyici",
-    "pdf-birlestirme", "qr-kod-olusturucu", "regex-test-araci",
+    "cron-ifadesi-aciklayici", "csv-inceleyici", "curl-kod-donusturucu", "exif-meta-veri-temizleyici",
+    "gorsel-sikistirici", "guclu-parola-uretici", "json-bicimlendirici", "json-csv-donusturucu",
+    "jwt-decoder", "kvkk-veri-maskeleyici", "markdown-onizleyici", "metin-farki-diff",
+    "pdf-birlestirme", "prompt-kalite-denetimi", "qr-kod-olusturucu", "regex-test-araci",
+    "renk-donusturucu", "sifre-gucu-testi", "unix-zaman-damgasi-donusturucu",
   ];
   assert.deepEqual([...toolDeepDiveSlugs].sort(), expected);
   for (const slug of expected) {

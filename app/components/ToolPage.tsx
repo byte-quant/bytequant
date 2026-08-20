@@ -15,12 +15,14 @@ import { ToolExperience } from "./ToolExperience";
 import { CONTENT_REVIEW_DATE } from "../lib/content-review";
 import { ToolEditorialReview } from "./ToolEditorialReview";
 import { getToolGuidanceDetails } from "../lib/tool-guidance";
+import { getToolDeepDive } from "../lib/tool-deep-dives";
 
 export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const editorialLocale = locale === "tr" ? "tr" : "en";
   const localized = (tr: string, en: string, de: string, zh: string) => ({ tr, en, de, zh })[locale];
   const currentLanguage = languageTag(locale);
   const guidance = getToolGuidanceDetails(tool);
+  const deepDive = getToolDeepDive(tool.slug);
   const pageUrl = absoluteUrl(toolPath(locale, tool.slug));
   const alternateHref = toolPath(locale === "tr" ? "en" : "tr", tool.slug);
   const related = getRelatedTools(tool);
@@ -42,9 +44,9 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const verifyLabel = localized("Doğrulama", "Verification", "Prüfung", "核验");
   const methodLabel = localized("Yöntem", "Method", "Methode", "方法");
   const faq = [
-    [localized(`${tool.title.tr} hangi girdiyi kabul eder?`, `What input does ${tool.title.en} accept?`, `Welche Eingabe akzeptiert ${tool.title.de}?`, `${tool.title.zh}接受什么输入？`), `${guidance.input[locale]} ${tool.steps[locale][0]}`],
-    [localized(`${tool.title.tr} çıktısında ne görürüm?`, `What does ${tool.title.en} return?`, `Was liefert ${tool.title.de}?`, `${tool.title.zh}会输出什么？`), `${guidance.output[locale]} ${guidance.method[locale]}`],
-    [localized(`${tool.title.tr} çıktısını nasıl doğrulamalıyım?`, `How should I validate ${tool.title.en} output?`, `Wie prüfe ich die Ausgabe von ${tool.title.de}?`, `如何核验${tool.title.zh}的输出？`), localized(`“${tool.useCases.tr[0]}” senaryosu için önce “${tool.steps.tr[1]}” adımını tamamlayın; ardından “${tool.steps.tr[2]}” kontrolünü uygulayın. Sınır veya bozuk girdiyle ikinci bir deneme yapmadan kritik sonucu kullanmayın.`, `For “${tool.useCases.en[0]}”, first complete “${tool.steps.en[1]}”, then apply this check: “${tool.steps.en[2]}”. Do not use a consequential result before a second test with boundary or malformed input.`, `Für „${tool.useCases.de[0]}“ führen Sie zunächst „${tool.steps.de[1]}“ aus und prüfen danach „${tool.steps.de[2]}“. Folgenreiche Ergebnisse erst nach einem zweiten Test mit Grenz- oder Fehleingabe verwenden.`, `针对“${tool.useCases.zh[0]}”，先完成“${tool.steps.zh[1]}”，再执行“${tool.steps.zh[2]}”。在使用可能产生重要影响的结果前，还应使用边界或错误输入再测试一次。`)],
+    [localized(`${tool.title.tr} hangi girdiyi kabul eder?`, `What input does ${tool.title.en} accept?`, `Welche Eingabe akzeptiert ${tool.title.de}?`, `${tool.title.zh}接受什么输入？`), deepDive ? `${guidance.input[locale]} ${deepDive.fixture[locale]}` : `${guidance.input[locale]} ${tool.steps[locale][0]}`],
+    [localized(`${tool.title.tr} çıktısında ne görürüm?`, `What does ${tool.title.en} return?`, `Was liefert ${tool.title.de}?`, `${tool.title.zh}会输出什么？`), deepDive ? `${guidance.output[locale]} ${deepDive.evidence[locale]}` : `${guidance.output[locale]} ${guidance.method[locale]}`],
+    [localized(`${tool.title.tr} çıktısını nasıl doğrulamalıyım?`, `How should I validate ${tool.title.en} output?`, `Wie prüfe ich die Ausgabe von ${tool.title.de}?`, `如何核验${tool.title.zh}的输出？`), deepDive ? `${guidance.verification[locale]} ${deepDive.failure[locale]}` : localized(`“${tool.useCases.tr[0]}” senaryosu için önce “${tool.steps.tr[1]}” adımını tamamlayın; ardından “${tool.steps.tr[2]}” kontrolünü uygulayın. Sınır veya bozuk girdiyle ikinci bir deneme yapmadan kritik sonucu kullanmayın.`, `For “${tool.useCases.en[0]}”, first complete “${tool.steps.en[1]}”, then apply this check: “${tool.steps.en[2]}”. Do not use a consequential result before a second test with boundary or malformed input.`, `Für „${tool.useCases.de[0]}“ führen Sie zunächst „${tool.steps.de[1]}“ aus und prüfen danach „${tool.steps.de[2]}“. Folgenreiche Ergebnisse erst nach einem zweiten Test mit Grenz- oder Fehleingabe verwenden.`, `针对“${tool.useCases.zh[0]}”，先完成“${tool.steps.zh[1]}”，再执行“${tool.steps.zh[2]}”。在使用可能产生重要影响的结果前，还应使用边界或错误输入再测试一次。`)],
     [localized("Bu araç verimi bir sunucuya gönderiyor veya kaydediyor mu?", "Does this tool send or store input on a server?", "Sendet oder speichert dieses Werkzeug Eingaben auf einem Server?", "该工具会向服务器发送或保存输入吗？"), localized("Hayır. İşlem bu tarayıcı sekmesinde çalışır ve araç girdisi kalıcı alanda tutulmaz. Kopyalama, indirme veya başka araca aktarım yalnızca sizin eyleminizle gerçekleşir.", "No. Processing runs in this browser tab and tool input is not persisted. Copying, downloading, or transferring happens only when you choose it.", "Nein. Die Verarbeitung läuft in diesem Browser-Tab; Werkzeugeingaben werden nicht dauerhaft gespeichert. Kopieren, Herunterladen oder Übertragen erfolgt nur durch Ihre Aktion.", "不会。处理在当前浏览器标签页中完成，工具输入不会持久保存。复制、下载或传递只会由您的操作触发。")],
   ];
   const schema = [
@@ -63,7 +65,7 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
       <section className="container tool-answer-card" data-tool-intent="specific" aria-labelledby="tool-answer-title">
         <div className="tool-answer-copy"><span className="kicker">{localized("KISA CEVAP", "QUICK ANSWER", "KURZANTWORT", "简短回答")}</span><h2 id="tool-answer-title">{localized("Bu araç ne yapar?", "What does this tool do?", "Was macht dieses Werkzeug?", "这个工具能做什么？")}</h2><p>{answer}</p></div>
         <dl><div><dt>{inputLabel}</dt><dd>{guidance.input[locale]}</dd></div><div><dt>{outputLabel}</dt><dd>{guidance.output[locale]}</dd></div><div><dt>{methodLabel}</dt><dd>{guidance.method[locale]}</dd></div><div><dt>{verifyLabel}</dt><dd>{guidance.verification[locale]}</dd></div></dl>
-        <nav aria-label={localized("Araç içi hızlı bağlantılar", "Tool quick links", "Werkzeug-Schnelllinks", "工具快捷链接")}><a className="primary-button" href="#tool-workbench">{localized("Aracı kullan", "Use the tool", "Werkzeug nutzen", "使用工具")} →</a><a href="#how-to">{localized("Kullanım adımları", "Usage steps", "Anleitung", "使用步骤")}</a><a href="#tool-faq">FAQ</a></nav>
+        <nav aria-label={localized("Araç içi hızlı bağlantılar", "Tool quick links", "Werkzeug-Schnelllinks", "工具快捷链接")}><a className="primary-button" href="#tool-workbench">{localized("Aracı kullan", "Use the tool", "Werkzeug nutzen", "使用工具")} →</a>{deepDive ? <a href="#worked-example">{localized("Gerçek örnek", "Worked example", "Praxisbeispiel", "实践示例")}</a> : null}<a href="#how-to">{localized("Kullanım adımları", "Usage steps", "Anleitung", "使用步骤")}</a><a href="#tool-faq">FAQ</a></nav>
       </section>
       <div className="container" id="tool-workbench" data-stage-three-ready="true" data-tool-quality-contract="catalog-v2" data-tool-slug={tool.slug} data-input-profile={guidance.input[locale]}><WorkspaceToolBridge slug={tool.slug} locale={locale} /><AgentToolBridge slug={tool.slug} locale={locale} /><ToolWorkbench slug={tool.slug} locale={locale} /><ToolExperience slug={tool.slug} locale={locale} compare={compareOutput} related={related.map((item) => ({ slug: item.slug, title: item.title[locale] }))} /></div>
       <section className="container tool-transparency" aria-label={localized("Araç veri ve yöntem özeti", "Tool data and method summary", "Daten- und Methodenübersicht", "工具数据与方法摘要")}>
