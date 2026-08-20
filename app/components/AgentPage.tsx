@@ -46,6 +46,7 @@ const content = {
 
 export function AgentPage({ locale }: { locale: Locale }) {
   const c = content[locale];
+  const visualPrompt = { tr: "Bir görsel oluşturmak veya yüklediğim resmi düzenlemek istiyorum", en: "I want to create a visual or edit an image I upload", de: "Ich möchte ein Bild erstellen oder ein hochgeladenes Bild bearbeiten", zh: "我想创建视觉内容或编辑我上传的图片" }[locale];
   const pageUrl = absoluteUrl(pathFor(locale, "agent"));
   const agentName = "ByteQuant AI";
   const schemas = [
@@ -55,7 +56,7 @@ export function AgentPage({ locale }: { locale: Locale }) {
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "agent")} languageHrefs={{ tr: pathFor("tr", "agent"), en: pathFor("en", "agent"), de: pathFor("de", "agent"), zh: pathFor("zh", "agent") }}>
     <SchemaScript data={schemas} />
-    <section className="agent-product-intro agent-product-intro-compact"><div className="container agent-product-intro-grid"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="agent-intro-actions"><a className="primary-button" href="#local-agent">{c.start} <span aria-hidden="true">↓</span></a><a className="secondary-button" href="#agent-visual">{c.visual} <span aria-hidden="true">↓</span></a><Link className="secondary-button" href={pathFor(locale, "workstation")}>{c.workspace} <span aria-hidden="true">→</span></Link></div></div><aside className="agent-simple-promise"><span>01</span><strong>{c.steps[0][1]}</strong><i>→</i><span>02</span><strong>{c.steps[1][1]}</strong><i>→</i><span>03</span><strong>{c.steps[2][1]}</strong></aside></div></section>
+    <section className="agent-product-intro agent-product-intro-compact"><div className="container agent-product-intro-grid"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="agent-intro-actions"><a className="primary-button" href="#local-agent">{c.start} <span aria-hidden="true">↓</span></a><Link className="secondary-button" href={`${pathFor(locale, "agent")}?q=${encodeURIComponent(visualPrompt)}#local-agent`}>{c.visual} <span aria-hidden="true">→</span></Link><Link className="secondary-button" href={pathFor(locale, "workstation")}>{c.workspace} <span aria-hidden="true">→</span></Link></div></div><aside className="agent-simple-promise"><span>01</span><strong>{c.steps[0][1]}</strong><i>→</i><span>02</span><strong>{c.steps[1][1]}</strong><i>→</i><span>03</span><strong>{c.steps[2][1]}</strong></aside></div></section>
     <section id="local-agent" className="section agent-console-section"><div className="container"><AgentConversation locale={locale} /></div></section>
     <section id="agent-visual" className="section agent-visual-section"><div className="container"><AgentVisualStudioLoader locale={locale} /></div></section>
     <section className="section agent-how"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">LOCAL-FIRST</span><h2>{c.howTitle}</h2></div><p>{c.howIntro}</p></div><div className="agent-how-grid">{c.cards.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>

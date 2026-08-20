@@ -5,6 +5,8 @@ export const VISUAL_MAX_PIXELS = 40_000_000;
 export const VISUAL_MAX_EDGE = 8192;
 
 export type VisualOutputMime = "image/png" | "image/jpeg" | "image/webp";
+export type VisualIntentKind = "none" | "edit" | "create";
+export type VisualIntent = { kind: VisualIntentKind; confidence: "none" | "medium" | "high" };
 export type VisualSettings = {
   brightness: number;
   contrast: number;
@@ -36,6 +38,22 @@ const normalizeRotation = (value: number): VisualSettings["rotation"] => {
   const normalized = ((Math.round(value / 90) * 90) % 360 + 360) % 360;
   return (normalized === 90 || normalized === 180 || normalized === 270 ? normalized : 0);
 };
+
+const visualNouns = /(?:görsel|resim|foto(?:ğraf)?|logo|afiş|kapa(?:k|ğ)|image|picture|photo|poster|cover|graphic|bild|foto|grafik|plakat|封面|图片|图像|照片|海报|徽标)/iu;
+const createVerbs = /(?:oluştur|üret|tasarla|çiz|hazırla|create|generate|design|draw|make|erstell|generier|gestalt|entwirf|zeichne|创建|生成|设计|绘制|制作)/iu;
+const editVerbs = /(?:düzenle|boyutlandır|küçült|büyüt|döndür|çevir|parlak|kontrast|doygun|bulan|siyah.?beyaz|edit|resize|rotate|flip|brightness|contrast|saturat|blur|grayscale|bearbeit|skalier|dreh|spiegel|hellig|kontrast|sättig|unschär|graustuf|编辑|调整大小|缩放|旋转|翻转|亮度|对比度|饱和度|模糊|灰度)/iu;
+
+/** Detects only explicit visual work requests; ordinary uses of "show" or "create" stay in chat. */
+export function detectVisualIntent(instruction: string, hasImage = false): VisualIntent {
+  const text = instruction.replace(/\s+/g, " ").trim();
+  if (!text) return hasImage ? { kind: "edit", confidence: "high" } : { kind: "none", confidence: "none" };
+  const mentionsVisual = visualNouns.test(text);
+  if (hasImage && (mentionsVisual || editVerbs.test(text) || createVerbs.test(text))) return { kind: "edit", confidence: "high" };
+  if (mentionsVisual && editVerbs.test(text)) return { kind: "edit", confidence: "high" };
+  if (mentionsVisual && createVerbs.test(text)) return { kind: "create", confidence: "high" };
+  if (hasImage) return { kind: "edit", confidence: "medium" };
+  return { kind: "none", confidence: "none" };
+}
 
 export function sanitizeVisualSettings(value: Partial<VisualSettings>): VisualSettings {
   const finiteOr = (candidate: unknown, fallback: number) => {
@@ -94,13 +112,16 @@ export function parseVisualInstruction(instruction: string, current: VisualSetti
   }
   if (/(yatay (?:çevir|yansıt)|flip horizontal|horizontal spiegel|水平翻转)/iu.test(text)) update("flipX", !current.flipX);
   if (/(dikey (?:çevir|yansıt)|flip vertical|vertikal spiegel|垂直翻转)/iu.test(text)) update("flipY", !current.flipY);
+  const outputMime: VisualOutputMime | undefined = /(?:\bwebp\b)/iu.test(text) ? "image/webp" : /(?:\b(?:jpg|jpeg)\b)/iu.test(text) ? "image/jpeg" : /(?:\bpng\b)/iu.test(text) ? "image/png" : undefined;
+  const qualityMatch = text.match(/(?:kalite|quality|qualität|质量)[^\d]{0,8}(\d{2,3})/iu);
+  const quality = qualityMatch ? clamp(Number(qualityMatch[1]), 40, 100) : undefined;
   const sanitized = sanitizeVisualSettings(next);
   const names = labels[locale];
   const summary = changed.length ? changed.map((key) => {
     if (key === "width" || key === "height") return names.size;
     return names[key];
   }).filter((item, index, all) => all.indexOf(item) === index).join(" · ") : "";
-  return { settings: sanitized, changed, summary };
+  return { settings: sanitized, changed, summary, outputMime, quality };
 }
 
 function hashPrompt(value: string) {

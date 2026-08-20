@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { pathFor, toolPath, type Locale } from "../lib/site";
-import { createVisualDraftSvg, DEFAULT_VISUAL_SETTINGS, parseVisualInstruction, sanitizeVisualSettings, VISUAL_MAX_FILE_BYTES, type VisualOutputMime, type VisualSettings } from "../lib/visual-studio";
+import { createVisualDraftSvg, DEFAULT_VISUAL_SETTINGS, detectVisualIntent, parseVisualInstruction, sanitizeVisualSettings, VISUAL_MAX_FILE_BYTES, type VisualOutputMime, type VisualSettings } from "../lib/visual-studio";
 import { WORKSPACE_TOOL_START_KEY } from "../lib/workspace-handoff";
 
 type Result = { url: string; blob: Blob; width: number; height: number; filename: string };
@@ -28,20 +28,32 @@ const copy = {
 
 const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KiB` : `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
 
-export function AgentVisualStudio({ locale }: { locale: Locale }) {
+type AgentVisualStudioProps = {
+  locale: Locale;
+  initialCommand?: string;
+  initialFile?: File | null;
+  embedded?: boolean;
+  onClose?: () => void;
+};
+
+export function AgentVisualStudio({ locale, initialCommand = "", initialFile = null, embedded = false, onClose }: AgentVisualStudioProps) {
   const c = copy[locale];
-  const [mode, setMode] = useState<"edit" | "create">("edit");
-  const [file, setFile] = useState<File | null>(null);
-  const [originalUrl, setOriginalUrl] = useState("");
-  const [command, setCommand] = useState("");
-  const [commandNote, setCommandNote] = useState("");
-  const [settings, setSettings] = useState<VisualSettings>(DEFAULT_VISUAL_SETTINGS);
-  const [outputMime, setOutputMime] = useState<VisualOutputMime>("image/webp");
-  const [quality, setQuality] = useState(86);
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
+  const seededIntent = detectVisualIntent(initialCommand, Boolean(initialFile));
+  const seededParse = parseVisualInstruction(initialCommand, DEFAULT_VISUAL_SETTINGS, locale);
+  const seededFile = initialFile && ["image/png", "image/jpeg", "image/webp"].includes(initialFile.type) && initialFile.size <= VISUAL_MAX_FILE_BYTES ? initialFile : null;
+  const seededFileError = initialFile && !seededFile ? (initialFile.size > VISUAL_MAX_FILE_BYTES ? c.errorSize : c.errorType) : "";
+  const [mode, setMode] = useState<"edit" | "create">(seededIntent.kind === "create" ? "create" : "edit");
+  const [file, setFile] = useState<File | null>(seededFile);
+  const [originalUrl, setOriginalUrl] = useState(() => seededFile ? URL.createObjectURL(seededFile) : "");
+  const [command, setCommand] = useState(seededIntent.kind === "edit" ? initialCommand : "");
+  const [commandNote, setCommandNote] = useState(seededParse.changed.length ? `${c.understood}: ${seededParse.summary}` : "");
+  const [settings, setSettings] = useState<VisualSettings>(seededParse.settings);
+  const [outputMime, setOutputMime] = useState<VisualOutputMime>(seededParse.outputMime ?? "image/webp");
+  const [quality, setQuality] = useState(seededParse.quality ?? 86);
+  const [status, setStatus] = useState<Status>(seededFileError ? "error" : "idle");
+  const [error, setError] = useState(seededFileError);
   const [result, setResult] = useState<Result | null>(null);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(seededIntent.kind === "create" ? initialCommand.trim().slice(0, 120) : "");
   const [draftStyle, setDraftStyle] = useState<"soft" | "bold" | "mono">("soft");
   const [draftSize, setDraftSize] = useState("1200x630");
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -62,7 +74,7 @@ export function AgentVisualStudio({ locale }: { locale: Locale }) {
   function interpretCommand() {
     const parsed = parseVisualInstruction(command, settings, locale);
     if (!parsed.changed.length) { setCommandNote(c.noCommand); return; }
-    setSettings(parsed.settings); setCommandNote(`${c.understood}: ${parsed.summary}`); clearResult();
+    setSettings(parsed.settings); if (parsed.outputMime) setOutputMime(parsed.outputMime); if (parsed.quality) setQuality(parsed.quality); setCommandNote(`${c.understood}: ${parsed.summary}`); clearResult();
   }
   async function processImage() {
     if (!file || status === "processing") return;
@@ -100,8 +112,8 @@ export function AgentVisualStudio({ locale }: { locale: Locale }) {
 
   const slider = (key: "brightness" | "contrast" | "saturation" | "blur", label: string, min: number, max: number) => <label className="agent-visual-slider"><span>{label}<b>{settings[key]}{key === "blur" ? " px" : "%"}</b></span><input type="range" min={min} max={max} value={settings[key]} onChange={(event) => { setSetting(key, Number(event.target.value)); clearResult(); }} /></label>;
 
-  return <section className="agent-visual-studio" aria-labelledby="agent-visual-title">
-    <header><div><span className="kicker">BYTEQUANT VISUAL · ON-DEVICE</span><h2 id="agent-visual-title">{mode === "edit" ? c.editTitle : c.createTitle}</h2><p>{mode === "edit" ? c.editText : c.createText}</p></div><div className="agent-visual-tabs" role="tablist" aria-label={c.modeLabel}><button type="button" role="tab" aria-selected={mode === "edit"} onClick={() => { setMode("edit"); clearResult(); }}>{c.edit}</button><button type="button" role="tab" aria-selected={mode === "create"} onClick={() => { setMode("create"); clearResult(); }}>{c.create}</button></div></header>
+  return <section className={`agent-visual-studio${embedded ? " is-embedded" : ""}`} aria-labelledby="agent-visual-title">
+    <header><div><span className="kicker">BYTEQUANT VISUAL · ON-DEVICE</span><h2 id="agent-visual-title">{mode === "edit" ? c.editTitle : c.createTitle}</h2><p>{mode === "edit" ? c.editText : c.createText}</p></div><div className="agent-visual-header-actions"><div className="agent-visual-tabs" role="tablist" aria-label={c.modeLabel}><button type="button" role="tab" aria-selected={mode === "edit"} onClick={() => { setMode("edit"); clearResult(); }}>{c.edit}</button><button type="button" role="tab" aria-selected={mode === "create"} onClick={() => { setMode("create"); clearResult(); }}>{c.create}</button></div>{onClose && <button className="agent-visual-close" type="button" onClick={onClose} aria-label={locale === "tr" ? "Stüdyoyu kapat" : locale === "de" ? "Bildstudio schließen" : locale === "zh" ? "关闭视觉工作室" : "Close Visual Studio"}>×</button>}</div></header>
     {mode === "edit" ? <div className="agent-visual-layout"><div className="agent-visual-controls">
       <label className="agent-visual-upload"><span aria-hidden="true">＋</span><strong>{c.upload}</strong><small>{file ? `${file.name} · ${formatSize(file.size)}` : c.limit}</small><input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" onChange={(event) => chooseFile(event.target.files?.[0] ?? null)} /></label>
       <label className="field-label"><span>{c.editTitle}</span><textarea rows={3} value={command} placeholder={c.command} onChange={(event) => setCommand(event.target.value)} /></label><button type="button" className="secondary-button agent-visual-interpret" disabled={!command.trim()} onClick={interpretCommand}>✦ {c.understand}</button>{commandNote && <p className="agent-visual-command-note" role="status">{commandNote}</p>}
