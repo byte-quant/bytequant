@@ -15,6 +15,7 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
         { heading: "Produktprinzipien", paragraphs: ["Wir entwickeln kleine, zugängliche und nachvollziehbare Werkzeuge ohne Pflichtkonto."], bullets: ["Serverfreie Aufgaben auf dem Gerät halten", "Fehler verständlich anzeigen", "Näherungen und rechtliche Grenzen offenlegen", "Mobil, tastaturbedienbar und schnell bleiben", "Korrekturen und Sicherheitsmeldungen erreichbar machen"] },
         { heading: "Sicherheit und redaktioneller Ansatz", paragraphs: ["Datei-, Code- und URL-Prüfungen sind begrenzte heuristische Vorprüfungen. Sie sind kein Antivirus, keine vollständige SAST-Analyse und keine Reputationsprüfung.", "Rechtliche, finanzielle und sicherheitskritische Inhalte sind allgemeine Informationen. Für konkrete Entscheidungen ist qualifizierte Fachberatung erforderlich."] },
         { heading: "Open Source und Nachvollziehbarkeit", paragraphs: ["Der ByteQuant-Quellcode wird unter der MIT-Lizenz auf GitHub veröffentlicht. Verhalten, Abhängigkeiten, Sicherheitsrichtlinie und Änderungshistorie sind überprüfbar.", "Korrekturen sollen beobachtbares Verhalten und reproduzierbare Schritte enthalten. Sicherheitslücken werden vertraulich über SECURITY.md gemeldet; Methoden und Abläufe können in der Community diskutiert werden."] },
+        { heading: "Wie Inhalte und Werkzeuge geprüft werden", paragraphs: ["Jede Werkzeugseite nennt die erwartete Eingabe, die sichtbare Verarbeitungsmethode, eine reproduzierbare Beispieldatei oder einen Testwert sowie ein Abnahmekriterium. Fehlerfälle werden nicht als Erfolg ausgegeben; folgenreiche Resultate erhalten eine klare Grenze für die menschliche Prüfung.", "Die redaktionelle Prüfung bewertet nicht nur Textlänge. Entscheidend sind Aufgabenbezug, Originalität, nachvollziehbare Methode, mobile Bedienbarkeit, Tastaturzugang, lokalisierte Fehlermeldungen und ein sicherer nächster Schritt. Beobachtbare Fehler können über die Kontakt- und GitHub-Kanäle gemeldet werden."] },
       ],
     },
     privacy: {
@@ -95,6 +96,8 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
         { heading: "为什么创建 ByteQuant", paragraphs: ["JSON 验证、单位换算或数据遮蔽等许多小任务在技术上并不需要上传。ByteQuant 把这类工作保留在当前浏览器标签页，并清楚说明方法与限制。", "我们把客户端处理视为技术边界，而不是营销口号。未来如增加外部数据流，必须在启用前公开说明。"] },
         { heading: "产品原则", paragraphs: ["我们构建无需强制账户、可访问、可解释的小工具。"], bullets: ["无需服务器的任务留在设备上", "友好显示错误", "明确说明估算与法律限制", "保持移动端、键盘和性能友好", "提供纠错与安全报告渠道"] },
         { heading: "安全与编辑方法", paragraphs: ["文件、代码和 URL 检查只是有限的启发式预扫描，不是杀毒软件、完整 SAST 或信誉查询。", "法律、财务和安全关键内容仅为一般信息，具体决策需要合格专业人员审查。"] },
+        { heading: "开源与可核验性", paragraphs: ["ByteQuant 源代码以 MIT 许可证发布在 GitHub。任何人都可以检查工具行为、固定版本依赖、安全政策与变更记录，而不必依赖无法验证的产品承诺。", "纠错报告应包含可复现步骤、预期行为与实际结果。安全问题可按 SECURITY.md 进行协调披露；普通方法改进和工作流建议也可通过公开渠道讨论。"] },
+        { heading: "我们如何审核内容与工具", paragraphs: ["每个工具页都应说明正确输入、可见处理方法、可复现的示例或测试值、验收标准以及停止条件。错误输入不会被包装成成功，高影响结果会明确要求人工复核。", "编辑审核不以字数为目标，而是检查任务相关性、原创性、方法透明度、移动端与键盘可用性、本地化错误提示以及安全的下一步。用户可通过联系页面或 GitHub 报告可观察的问题。"] },
       ],
     },
     privacy: {

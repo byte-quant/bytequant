@@ -23,6 +23,7 @@ import {
   readLocalAIAttachmentFile,
   readLocalAIConversationHistory,
   sanitizeLocalAIOutput,
+  selectLocalAIConversationContext,
   streamLocalAI,
 } from "../app/lib/local-ai.ts";
 import { publicTools } from "../app/lib/tools.ts";
@@ -99,6 +100,32 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "JSON nedir ve CSV yerine ne zaman kullanmalıyım?"), /anahtar–değer|CSV/);
   const history = [{ locale: "tr", goal: "JSON nedir?", answer: "Uzun bir açıklama ve önemli bir örnek.", tools: [], time: 1, mode: "fast" }];
   assert.match(createFastConversationResponse("tr", "Bunu kısalt", history), /Uzun bir açıklama/);
+  assert.match(createFastConversationResponse("tr", "Ben en son ne demiştim?", history), /JSON nedir/);
+  assert.match(createFastConversationResponse("tr", "Sen en son ne cevap vermiştin?", history), /önemli bir örnek/);
+  const chineseHistory = [{ locale: "zh", goal: "我喜欢蓝色", answer: "我会在当前对话中记住蓝色。", tools: [], time: 1, mode: "fast", intent: "conversation" }];
+  assert.match(createFastConversationResponse("zh", "上一条消息是什么？", chineseHistory), /我喜欢蓝色/);
+});
+
+test("conversation context keeps relevant pairs and isolates unrelated workflow history", () => {
+  const turns = [
+    { locale: "tr", goal: "CSV dosyasını maskele", answer: "Maskeleme akışı hazır.", tools: ["KVKK"], time: 1, mode: "fast", intent: "workflow" },
+    { locale: "tr", goal: "En sevdiğim renk mavidir", answer: "Mavi tercihinizi bu konuşmada dikkate alacağım.", tools: [], time: 2, mode: "ai", intent: "conversation" },
+    { locale: "en", goal: "Wrong locale", answer: "Ignore", tools: [], time: 3, mode: "ai", intent: "conversation" },
+  ];
+  const ordinary = selectLocalAIConversationContext(turns, "tr", "Bana uygun bir tema öner", "conversation");
+  assert.equal(ordinary.length, 2);
+  assert.match(ordinary[0].content, /mavidir/);
+  assert.doesNotMatch(JSON.stringify(ordinary), /CSV|Wrong locale/);
+  const referenced = selectLocalAIConversationContext(turns, "tr", "Az önceki akışa devam et", "workflow");
+  assert.match(JSON.stringify(referenced), /CSV dosyasını maskele/);
+  assert.doesNotMatch(JSON.stringify(referenced), /Wrong locale/);
+  const chineseReference = selectLocalAIConversationContext(
+    [{ locale: "zh", goal: "上一项任务", answer: "任务结果", tools: [], time: 1, mode: "fast", intent: "conversation" }],
+    "zh",
+    "继续上一条",
+    "conversation",
+  );
+  assert.match(JSON.stringify(chineseReference), /上一项任务/);
 });
 
 test("local AI errors become friendly, actionable messages", () => {
@@ -133,6 +160,7 @@ test("grounded messages stay below the model budget and isolate untrusted attach
   assert.doesNotMatch(messages[0].content, /evil_tool/);
   assert.match(messages.at(-1).content, /LATEST-REQUEST/);
   assert.match(messages.at(-1).content, /LATEST-END/);
+  assert.doesNotMatch(messages.at(-1).content, /<user_request>\s*<\/user_request>/);
   assert.match(messages.at(-1).content, /<untrusted_attachment name="unsafe&quot;&lt;name&gt;\.txt">/);
   assert.match(messages.at(-1).content, /&lt;\/untrusted_attachment&gt;/);
   assert.equal(messages.at(-1).content.match(/<\/untrusted_attachment>/g)?.length, 1);
@@ -205,10 +233,10 @@ test("streaming throttles UI updates, sanitizes final output, and separates samp
   assert.doesNotMatch(result, /hidden|think/i);
   assert.equal(updates.at(-1), result);
   assert.ok(updates.length < 200, `received ${updates.length} UI updates`);
-  assert.equal(requests[0].temperature, 0.24);
+  assert.equal(requests[0].temperature, 0.2);
   assert.equal(requests[0].max_tokens, 360);
-  assert.equal(requests[1].temperature, 0.55);
-  assert.equal(requests[1].max_tokens, 480);
+  assert.equal(requests[1].temperature, 0.36);
+  assert.equal(requests[1].max_tokens, 520);
   assert.equal(interrupted, 0);
 });
 
