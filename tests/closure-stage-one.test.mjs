@@ -10,7 +10,7 @@ const locales = ["tr", "en", "de", "zh"];
 test("all legacy generic workbenches have native four-locale demos", async () => {
   const source = await readFile(new URL("../app/components/ToolWorkbench.tsx", import.meta.url), "utf8");
   const slugBlock = source.match(/export const legacyGenericToolSlugs = new Set\(\[([\s\S]*?)\]\);/)?.[1] ?? "";
-  const sampleBlock = source.match(/export const legacyGenericSamples:[\s\S]*?= \{([\s\S]*?)\n\};\n\nfunction secondarySample/)?.[1] ?? "";
+  const sampleBlock = source.match(/export const legacyGenericSamples:[\s\S]*?= \{([\s\S]*?)\r?\n\};\r?\n\r?\nfunction secondarySample/)?.[1] ?? "";
   const slugs = [...slugBlock.matchAll(/"([a-z0-9-]+)"/g)].map((match) => match[1]);
   const rows = sampleBlock.split("\n").filter((line) => /^  "[a-z0-9-]+": \{ tr:/.test(line));
   assert.equal(new Set(slugs).size, 22);

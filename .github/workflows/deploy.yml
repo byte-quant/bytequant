@@ -76,6 +76,8 @@ jobs:
         run: pnpm audit:quality3
       - name: Audit AdSense quality program Stage 4
         run: pnpm audit:quality4
+      - name: Audit every rendered page and stylesheet
+        run: pnpm audit:experience
       - name: Audit final release readiness
         run: pnpm audit:release
       - name: Upload verified Pages artifact

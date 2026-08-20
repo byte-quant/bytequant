@@ -3418,3 +3418,118 @@ main{isolation:isolate}
 @media(prefers-reduced-motion:reduce){
   .experience-v3 .home-platform-card,.experience-v3 .community-global-post{transition:none!important;transform:none!important}
 }
+
+/* Release 4.9 · final visual integrity across home, tools, AI, Workstation, community, updates, guides, and static pages. */
+.experience-v3 :where(.article-meta,.guide-language-badge,.local-status,.community-feed-masthead .eyebrow,.community-post-meta>*,.community-character-count,.news-source-row span,.news-grid article>header span,.tool-runtime-strip span,.tool-version-badges span){font-size:12px!important;line-height:1.5}
+.experience-v3 :where(.category-dot,.tool-mark,.tool-mark small,.window-bar b,.window-bar small,.preview-heading small,.preview-checks span,.preview-footer span,.preview-footer b,.floating-note strong,.floating-note small){font-size:12px!important;line-height:1.4}
+.experience-v3 :where(.text-link,.category-block-heading>a,.blog-topic-strip a,.breadcrumbs a){min-height:40px;display:inline-flex;align-items:center}
+.experience-v3 .hero-product{min-width:0;padding:18px;filter:drop-shadow(0 30px 55px color-mix(in srgb,var(--navy) 15%,transparent))}
+.experience-v3 .hero-product .product-window{max-width:100%;transform:none}
+.experience-v3 .hero-product:hover .product-window{transform:translateY(-3px)}
+.experience-v3 .hero-product .floating-note{right:4px;bottom:-12px;max-width:calc(100% - 20px)}
+.experience-v3 .install-icon{margin:8px;overflow:visible}
+.experience-v3 .install-icon i{right:0;bottom:0}
+.experience-v3 .workstation-feature-grid li{min-width:0;overflow:hidden}
+.experience-v3 .workspace-journey>*{min-width:0}
+.experience-v3 .workspace-journey :where(strong,small){overflow-wrap:anywhere}
+.experience-v3 .workspace-onboarding li{min-width:0;overflow:hidden}
+.experience-v3 .workspace-onboarding li>*{min-width:0;overflow-wrap:anywhere}
+.experience-v3 .community-identity-card,.experience-v3 .community-identity-card>*{min-width:0}
+.experience-v3 .community-profile-card dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-width:0}
+.experience-v3 .community-profile-card dl>div,.experience-v3 .community-profile-card dd{min-width:0;overflow-wrap:anywhere}
+.experience-v3 :where(.info-content,.article-body,.tool-guide-section,.tool-guide-links,.community-global-feed,.news-grid)>*{min-width:0}
+.experience-v3 :where(.info-content,.article-body,.tool-guide-section,.tool-guide-links,.community-global-feed,.news-grid) :where(h1,h2,h3,h4,p,li,a,strong,small,code){overflow-wrap:anywhere}
+.experience-v3 :where(.workbench,.frontier-workbench,.specialized-workbench,.tool-shell) button{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.experience-v3 :where(
+  .main-nav>a>span,
+  .hero-tool-search kbd,
+  .proof-grid span,
+  .home-platform-steps li,
+  .home-platform-steps li>span,
+  .home-workstation-flow span,
+  .home-workstation-flow b,
+  .home-platform-boundary,
+  .interactive-demo-copy>div span,
+  .interactive-demo-console label>span,
+  .interactive-demo-console header span,
+  .interactive-demo-console a,
+  .interactive-demo-tabs button,
+  .agent-product-steps span,
+  .agent-simple-promise>span,
+  .agent-ai-profile-grid b,
+  .agent-capability-path span,
+  .agent-goal-coverage span,
+  .agent-avatar,
+  .agent-ai-profile-grid em,
+  .workstation-feature-grid li>span,
+  .workstation-hero .hero-node,
+  .community-identity-card label span,
+  .community-profile-fields label span,
+  .community-group-card label span,
+  .community-draft-meta>span,
+  .community-author>span,
+  .community-author strong,
+  .community-post-badges span,
+  .community-p2p-state,
+  .community-chat-log p,
+  .community-profile-stats dt,
+  .news-product-intro aside span,
+  .news-controls>span,
+  .news-quick-read strong,
+  .news-why strong,
+  .news-source-brief-prominent strong,
+  .news-source-brief-prominent small,
+  .news-attribution-note>summary,
+  .news-source-action,
+  .news-checklist summary,
+  .news-glossary summary,
+  .news-source-summary summary,
+  .news-source-summary small,
+  .article-toc>a span,
+  .numbered-list li>span,
+  .frontier-row-head,
+  .grade-row-head,
+  .frontier-guided-fields label>span,
+  .frontier-editable-row label>span,
+  .frontier-state,
+  .field-label>span,
+  .result-header>span,
+  .tool-operation-state span,
+  .tool-experience-bar p,
+  .tool-transparency article>span,
+  .tool-transparency article strong,
+  .tool-editorial-heading span,
+  .tool-editorial-grid li>span,
+  .tool-editorial-grid li strong,
+  .limit-note strong,
+  .limit-note p,
+  .article-author strong,
+  .article-toc>strong,
+  .toc-tool b,
+  .article-summary strong,
+  .article-tools li>span,
+  .article-tools li>a,
+  .article-note strong,
+  .guide-action-plan>header span,
+  .post-card>span,
+  .info-section-nav span,
+  .guide-plan-progress span,
+  .publisher-trust-grid article>span
+){font-size:12px!important;line-height:1.45}
+.experience-v3 :where(.interactive-demo-console a,.community-boundary-inline a,.guide-action-plan li>a,.news-source-action,.article-tools li>a){min-height:44px;display:inline-flex;align-items:center}
+.experience-v3 .footer-bottom{font-size:12px;line-height:1.55}
+
+@media(max-width:760px){
+  .experience-v3 .hero-product{width:100%;padding:12px 8px 24px;margin-inline:0}
+  .experience-v3 .hero-product .floating-note{position:relative;right:auto;bottom:auto;width:100%;max-width:none;margin:12px 0 0}
+  .experience-v3 .workspace-journey{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .workspace-journey>span{min-height:52px;display:grid;grid-template-columns:auto minmax(0,1fr);justify-items:start;text-align:left}
+  .experience-v3 .workspace-journey>small{grid-column:auto}
+  .experience-v3 .community-social-layout{grid-template-areas:"profile" "feed" "aside"}
+  .experience-v3 :where(.result-actions,.workbench-actions,.frontier-actions)>*{flex:1 1 160px}
+}
+
+@media(max-width:420px){
+  .experience-v3 .community-profile-card dl{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .tool-answer-card{width:calc(100% - 16px);padding:16px}
+}

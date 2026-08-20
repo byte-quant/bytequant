@@ -96,7 +96,7 @@ for (const source of [headers, worker]) {
   assert.match(source, /googlesyndication\.com/i);
   assert.match(source, /doubleclick\.net/i);
 }
-for (const audit of ["static", "adsense", "content", "editorial", "trust", "inventory", "stage1", "stage2", "stage3", "stage4", "closure1", "closure2", "closure3", "quality1", "quality2", "quality3", "quality4", "release"]) {
+for (const audit of ["static", "adsense", "content", "editorial", "trust", "inventory", "stage1", "stage2", "stage3", "stage4", "closure1", "closure2", "closure3", "quality1", "quality2", "quality3", "quality4", "experience", "release"]) {
   assert.match(workflow, new RegExp(`pnpm audit:${audit}`), `CI does not run audit:${audit}.`);
 }
 assert.match(workflow, /actions\/upload-pages-artifact@[\w]+[\s\S]*include-hidden-files:\s*true/, "Pages upload omits audited hidden paths such as .well-known/security.txt.");

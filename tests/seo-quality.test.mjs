@@ -54,8 +54,17 @@ test("progressive Three.js scene adapts by page and pauses in hidden tabs", asyn
 
 test("llms discovery file states canonical, locale, and claim boundaries", async () => {
   const source = await read("public/llms.txt");
-  assert.match(source, /Last editorial and interface review: 2026-08-13/);
+  assert.match(source, /Last editorial and interface review: 2026-08-21/);
   assert.match(source, /Authoritative discovery and citation rules/);
   assert.match(source, /Canonical HTML is the source of truth/);
   assert.match(source, /does not assert ratings/);
+});
+
+test("German and Chinese guide indexes publish their own social URL and locale", async () => {
+  const [german, chinese] = await Promise.all([
+    read("app/de/blog/page.tsx"),
+    read("app/zh/blog/page.tsx"),
+  ]);
+  assert.match(german, /localizedSocialMetadata\("de", title, description, "\/de\/blog"\)/);
+  assert.match(chinese, /localizedSocialMetadata\("zh", title, description, "\/zh\/blog"\)/);
 });

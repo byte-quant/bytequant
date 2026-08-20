@@ -154,7 +154,8 @@ if (process.argv.includes("--write")) {
   await writeFile(reportUrl, report, "utf8");
   console.log("Generated closure Stage 3 report.");
 } else {
-  assert.equal(await readFile(reportUrl, "utf8"), report, "closure Stage 3 report is stale; run pnpm closure3:generate");
+  const storedReport = (await readFile(reportUrl, "utf8")).replace(/\r\n/g, "\n");
+  assert.equal(storedReport, report, "closure Stage 3 report is stale; run pnpm closure3:generate");
   console.log(`Closure Stage 3 audit: PASS (${publicTools.length * locales.length} localized tool guides, ${posts.length * 2 + localizedGuides.length * 2} localized editorial guides)`);
   console.log(`Minimum tool depth: ${JSON.stringify(toolMinima)}; minimum guide depth: ${JSON.stringify(guideMinima)}`);
 }

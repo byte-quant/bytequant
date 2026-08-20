@@ -10,7 +10,7 @@
 - Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
 
 Canonical site: https://bytequant.org/
-Last editorial and interface review: 2026-08-13
+Last editorial and interface review: 2026-08-21
 
 Languages:
 - Turkish (default): https://bytequant.org/
@@ -130,7 +130,7 @@ Complete localized tool libraries:
 ## Data and developer tools
 
 - [JSON Biçimlendirici](https://bytequant.org/araclar/json-bicimlendirici): validates, formats, and minifies JSON.
-- [JSON ↔ CSV Dönüştürücü](https://bytequant.org/araclar/json-csv-donusturucu): converts tabular JSON and CSV in both directions.
+- [JSON ↔ CSV Dönüştürücü](https://bytequant.org/araclar/json-csv-donusturucu): converts tabular JSON and CSV in both directions with delimiter detection, quoted and multiline-cell support, formula-injection protection, and explicit rejection of lossy nested data.
 - [Regex Test Aracı](https://bytequant.org/araclar/regex-test-araci): tests regular expressions, flags, and matches.
 - [CSV İnceleyici](https://bytequant.org/araclar/csv-inceleyici): parses CSV and previews rows and columns.
 - [Base64 Kodlayıcı](https://bytequant.org/araclar/base64-kodlayici): encodes and decodes UTF-8 text using Base64.

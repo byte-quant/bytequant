@@ -26,7 +26,7 @@ assert.ok(layout.includes(expectedScript), "protected AdSense Auto Ads script ch
 
 assert.equal(publicTools.length, 317, "canonical tool count changed");
 const slugBlock = workbench.match(/export const legacyGenericToolSlugs = new Set\(\[([\s\S]*?)\]\);/)?.[1] ?? "";
-const sampleBlock = workbench.match(/export const legacyGenericSamples:[\s\S]*?= \{([\s\S]*?)\n\};\n\nfunction secondarySample/)?.[1] ?? "";
+const sampleBlock = workbench.match(/export const legacyGenericSamples:[\s\S]*?= \{([\s\S]*?)\r?\n\};\r?\n\r?\nfunction secondarySample/)?.[1] ?? "";
 const legacyGenericToolSlugs = [...slugBlock.matchAll(/"([a-z0-9-]+)"/g)].map((match) => match[1]);
 const sampleRows = sampleBlock.split("\n").filter((line) => /^  "[a-z0-9-]+": \{ tr:/.test(line));
 assert.equal(new Set(legacyGenericToolSlugs).size, 22, "legacy generic workbench count changed");
