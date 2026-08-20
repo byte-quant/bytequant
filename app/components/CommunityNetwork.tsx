@@ -203,6 +203,13 @@ const communityPolishCopy = {
   zh: { following: "正在关注", follow: "关注", unfollow: "取消关注", localFollow: "关注列表仅保存在此设备上。", emptyFollowing: "您还没有关注任何人。请在发现动态中点击有用作者旁的“关注”。", loadMore: "显示更多帖子", remaining: "条更多帖子", feedHint: "阅读最新帖子；解锁资料后可点赞、回复或关注。" },
 } as const;
 
+const socialFrameCopy = {
+  tr: { feed: "Akış", compose: "Paylaş", topics: "Konular", profile: "Profil", feedTitle: "Topluluk akışı", feedBody: "İş akışlarını, soruları ve pratik ipuçlarını keşfedin.", publicLabel: "Herkese açık Nostr akışı" },
+  en: { feed: "Feed", compose: "Post", topics: "Topics", profile: "Profile", feedTitle: "Community feed", feedBody: "Discover workflows, questions, and practical tips.", publicLabel: "Public Nostr feed" },
+  de: { feed: "Feed", compose: "Posten", topics: "Themen", profile: "Profil", feedTitle: "Community-Feed", feedBody: "Abläufe, Fragen und praktische Hinweise entdecken.", publicLabel: "Öffentlicher Nostr-Feed" },
+  zh: { feed: "动态", compose: "发布", topics: "主题", profile: "资料", feedTitle: "社区动态", feedBody: "发现工作流、问题与实用技巧。", publicLabel: "公开 Nostr 动态" },
+} as const;
+
 const starters: Record<Locale, Array<SocialContent & { id: string; author: string }>> = {
   tr: [
     { id: "starter-1", v: 1, title: "KVKK paylaşımı öncesi üç adımlı kontrol", body: "Sentetik örnekle başlayın, maskeleme sonrasında önce/sonra farkını inceleyin ve yalnızca gerekli alanları dışa aktarın.", kind: "workflow", group: "Gizlilik", author: "ByteQuant" },
@@ -306,6 +313,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const t = { ...copy[locale], ...experienceCopy[locale], ...secureCopy[locale], ...profileExperienceCopy[locale], passHint };
   const actions = postActionCopy[locale];
   const networkText = { ...networkCopy[locale], ...socialExperienceCopy[locale], ...communityPolishCopy[locale] };
+  const frame = socialFrameCopy[locale];
   const [network, setNetwork] = useState<NetworkState>("idle");
   const [connectedRelays, setConnectedRelays] = useState(0);
   const [relayHealth, setRelayHealth] = useState<Record<string, boolean>>({});
@@ -609,6 +617,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     </header>
     <div className="community-network-disclosure"><span aria-hidden="true">ⓘ</span><p><strong>{networkText.readStep}</strong> {networkText.readStepBody} <strong>{networkText.shareStep}</strong> {networkText.shareStepBody}</p><details><summary>{t.explain}</summary><p>{networkText.consent} {t.explainBody}</p></details></div>
     <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
+    <nav className="community-mobile-tabs" aria-label={t.feed}><a href="#community-feed"><span>⌂</span>{frame.feed}</a><a href="#community-compose"><span>＋</span>{frame.compose}</a><a href="#community-topics"><span>#</span>{frame.topics}</a><a href="#community-profile"><span>◎</span>{frame.profile}</a></nav>
 
     <div className="community-social-layout">
       <aside className="community-social-left">
@@ -627,6 +636,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       </aside>
 
       <section className="community-social-main" id="community-feed" aria-label={t.feed}>
+        <header className="community-feed-masthead"><div><span className="eyebrow"><i />{frame.publicLabel}</span><h3>{frame.feedTitle}</h3><p>{frame.feedBody}</p></div><span className={`community-feed-state status-${network}`}>{network === "connected" || network === "partial" ? "●" : "○"} {stateLabel}</span></header>
         <nav className="community-social-nav" aria-label={t.feed}>
           <button type="button" aria-pressed={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter} className={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter ? "active" : ""} onClick={clearFeedFilters}>⌂ {networkText.newest}</button>
           <button type="button" aria-pressed={activeSort && !mineOnly && !savedOnly && !followingOnly} className={activeSort && !mineOnly && !savedOnly && !followingOnly ? "active" : ""} onClick={() => { setActiveSort(true); setMineOnly(false); setFollowingOnly(false); setQuery(""); setGroupFilter(""); setSavedOnly(false); }}>◉ {networkText.active}</button>

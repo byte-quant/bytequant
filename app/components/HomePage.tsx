@@ -57,7 +57,6 @@ const faqs = {
 } as const;
 
 export function HomePage({ locale }: { locale: Locale }) {
-  const isTr = locale === "tr";
   const editorialLocale = locale === "tr" ? "tr" : "en";
   const localized = (tr: string, en: string, de: string, zh: string) => ({ tr, en, de, zh })[locale];
   const currentLanguage = languageTag(locale);
@@ -101,7 +100,7 @@ export function HomePage({ locale }: { locale: Locale }) {
                 <div className="preview-footer"><span><i />{localized("Sonuç ve sonraki adım görünür", "Result and next step are visible", "Ergebnis und nächster Schritt sichtbar", "结果与下一步清晰可见")}</span><b>{localized("Akışı çalıştır", "Run workflow", "Ablauf starten", "运行流程")} →</b></div>
               </div>
             </div>
-            <div className="floating-note"><span>◎</span><div><strong>{isTr ? "Ağ isteği yok" : "No network request"}</strong><small>{isTr ? "Girdi tarayıcı belleğinde" : "Input remains in browser memory"}</small></div></div>
+            <div className="floating-note"><span>◎</span><div><strong>{localized("Uzak AI servisi yok", "No remote AI service", "Kein entfernter KI-Dienst", "无需远程 AI 服务")}</strong><small>{localized("İstek ve araç girdisi cihazınızda", "Request and tool input stay on-device", "Anfrage und Werkzeugeingabe bleiben lokal", "请求与工具输入保留在设备端")}</small></div></div>
           </div>
         </div>
       </section>
