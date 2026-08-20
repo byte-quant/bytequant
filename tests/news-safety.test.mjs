@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { newsItems } from "../app/lib/generated-news.ts";
+import { boilerplateSummary } from "../scripts/news-sanitization.mjs";
 
 const allowedHosts = new Set([
   "www.nist.gov", "nist.gov", "csrc.nist.gov", "www.nasa.gov", "nasa.gov", "science.nasa.gov",
@@ -8,6 +9,13 @@ const allowedHosts = new Set([
   "www.esa.int", "esa.int", "www.ncsc.gov.uk", "ncsc.gov.uk", "oceanservice.noaa.gov", "www.noaa.gov", "noaa.gov",
 ]);
 const spam = /\b(?:casino|betting|sportsbook|crypto\s*giveaway|free\s*money|limited\s*time\s*offer|click\s+here|sponsored\s+post|adult\s+content)\b/i;
+
+test("news summaries reject navigation text even when HTML removal joins words", () => {
+  const title = "APOD: 2026 August 20 – The Moon";
+  assert.equal(boilerplateSummary("Today’s APOD Archive Submissions Index Search Calendar RSS", title), true);
+  assert.equal(boilerplateSummary("Today’s APODArchiveSubmissionsIndexSearchCalendarRSS", title), true);
+  assert.equal(boilerplateSummary("A newly calibrated camera reveals fine structure across the lunar surface.", title), false);
+});
 
 test("checked-in news stays finite, diverse, chronological, and spam resistant", () => {
   assert.ok(newsItems.length >= 12 && newsItems.length <= 72);
