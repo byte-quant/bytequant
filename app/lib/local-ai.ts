@@ -4,13 +4,20 @@ import type { AppConfig } from "@mlc-ai/web-llm";
 
 export const LOCAL_AI_MODEL_LICENSE = "Apache-2.0";
 export const LOCAL_AI_RUNTIME_MODEL_VERSION = "v0_2_84/base";
+/**
+ * Immutable upstream revision for the reviewed WebGPU binaries. Keeping the
+ * revision explicit prevents a future change on the upstream default branch
+ * from silently changing executable code downloaded by the browser.
+ */
+export const LOCAL_AI_MODEL_LIB_REVISION = "025bcaf3780fa8254f5e5efd3bfea0a5397248f4";
+export const LOCAL_AI_MODEL_LIB_PREFIX = `https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/${LOCAL_AI_MODEL_LIB_REVISION}/web-llm-models/`;
 export type LocalAIProfileId = "lite" | "balanced";
 export const LOCAL_AI_PROFILES = {
   lite: {
     id: "lite",
     modelId: "Qwen3-0.6B-q4f16_1-MLC",
     modelUrl: "https://huggingface.co/mlc-ai/Qwen3-0.6B-q4f16_1-MLC",
-    modelLibUrl: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_84/base/Qwen3-0.6B-q4f16_1_cs1k-webgpu.wasm",
+    modelLibUrl: `${LOCAL_AI_MODEL_LIB_PREFIX}v0_2_84/base/Qwen3-0.6B-q4f16_1_cs1k-webgpu.wasm`,
     vramRequiredMB: 1403.34,
     downloadLabel: "~400–700 MB",
   },
@@ -18,7 +25,7 @@ export const LOCAL_AI_PROFILES = {
     id: "balanced",
     modelId: "Qwen3-1.7B-q4f16_1-MLC",
     modelUrl: "https://huggingface.co/mlc-ai/Qwen3-1.7B-q4f16_1-MLC",
-    modelLibUrl: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_84/base/Qwen3-1.7B-q4f16_1_cs1k-webgpu.wasm",
+    modelLibUrl: `${LOCAL_AI_MODEL_LIB_PREFIX}v0_2_84/base/Qwen3-1.7B-q4f16_1_cs1k-webgpu.wasm`,
     vramRequiredMB: 2036.66,
     downloadLabel: "~1–1.3 GB",
   },
@@ -97,12 +104,12 @@ type LocalAIConfigSource = {
 };
 
 /**
- * Keep the optional runtime on one reviewed model record. This is an allowlist,
- * not a claim that mutable upstream assets have cryptographic SRI coverage.
+ * Keep the optional runtime on one reviewed model record and immutable
+ * upstream revision. WebAssembly fetches do not support script-style SRI, so
+ * the exact URL and model record are both checked before the engine starts.
  */
 export function buildAllowlistedLocalAIAppConfig(source: LocalAIConfigSource, profileId: LocalAIProfileId = "lite"): AppConfig {
-  const expectedPrefix = "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/";
-  if (source.modelVersion !== LOCAL_AI_RUNTIME_MODEL_VERSION || source.modelLibURLPrefix !== expectedPrefix) {
+  if (source.modelVersion !== LOCAL_AI_RUNTIME_MODEL_VERSION || source.modelLibURLPrefix !== LOCAL_AI_MODEL_LIB_PREFIX) {
     throw new Error("local-ai-runtime-version-mismatch");
   }
   const profile = LOCAL_AI_PROFILES[profileId];

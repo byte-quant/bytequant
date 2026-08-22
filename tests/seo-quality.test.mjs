@@ -33,7 +33,7 @@ test("review dates are synchronized across sitemap, visible tools, and schema", 
     read("app/components/ToolPage.tsx"),
     read("app/components/ToolExperience.tsx"),
   ]);
-  assert.match(review, /CONTENT_REVIEW_DATE = "2026-08-20"/);
+  assert.match(review, /CONTENT_REVIEW_DATE = "2026-08-22"/);
   assert.match(sitemap, /CONTENT_REVIEW_DATE_TIME/);
   assert.match(toolPage, /schemaDate\(CONTENT_REVIEW_DATE\)/);
   assert.match(experience, /dateTime=\{CONTENT_REVIEW_DATE\}/);
@@ -54,7 +54,7 @@ test("progressive Three.js scene adapts by page and pauses in hidden tabs", asyn
 
 test("llms discovery file states canonical, locale, and claim boundaries", async () => {
   const source = await read("public/llms.txt");
-  assert.match(source, /Last editorial and interface review: 2026-08-21/);
+  assert.match(source, /Last editorial and interface review: 2026-08-22/);
   assert.match(source, /Authoritative discovery and citation rules/);
   assert.match(source, /Canonical HTML is the source of truth/);
   assert.match(source, /does not assert ratings/);

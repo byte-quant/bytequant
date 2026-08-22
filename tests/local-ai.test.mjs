@@ -16,6 +16,8 @@ import {
   LOCAL_AI_MAX_RESPONSE,
   LOCAL_AI_MODEL_ID,
   LOCAL_AI_MODEL_BASE_URL,
+  LOCAL_AI_MODEL_LIB_PREFIX,
+  LOCAL_AI_MODEL_LIB_REVISION,
   LOCAL_AI_MODEL_LIB_URL,
   LOCAL_AI_MODEL_LICENSE,
   LOCAL_AI_PROFILES,
@@ -32,13 +34,16 @@ import { createAgentPlan } from "../app/lib/agent-core.ts";
 test("local AI runtime uses a pinned permissive multilingual model", () => {
   assert.equal(LOCAL_AI_MODEL_ID, "Qwen3-0.6B-q4f16_1-MLC");
   assert.equal(LOCAL_AI_MODEL_LICENSE, "Apache-2.0");
+  assert.match(LOCAL_AI_MODEL_LIB_REVISION, /^[a-f0-9]{40}$/);
+  assert.match(LOCAL_AI_MODEL_LIB_URL, new RegExp(`/binary-mlc-llm-libs/${LOCAL_AI_MODEL_LIB_REVISION}/`));
+  assert.doesNotMatch(LOCAL_AI_MODEL_LIB_URL, /\/main\//);
 });
 
 test("device-adaptive profiles stay on the reviewed Qwen3 allowlist", () => {
   const balanced = LOCAL_AI_PROFILES.balanced;
   const source = {
     modelVersion: LOCAL_AI_RUNTIME_MODEL_VERSION,
-    modelLibURLPrefix: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/",
+    modelLibURLPrefix: LOCAL_AI_MODEL_LIB_PREFIX,
     prebuiltAppConfig: {
       model_list: [{
         model_id: balanced.modelId,
@@ -60,7 +65,7 @@ test("device-adaptive profiles stay on the reviewed Qwen3 allowlist", () => {
 test("local AI runtime fails closed unless the reviewed single-model allowlist matches", () => {
   const source = {
     modelVersion: LOCAL_AI_RUNTIME_MODEL_VERSION,
-    modelLibURLPrefix: "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/",
+    modelLibURLPrefix: LOCAL_AI_MODEL_LIB_PREFIX,
     prebuiltAppConfig: {
       model_list: [
         { model_id: "another-model", model: "https://example.invalid/model", model_lib: "https://example.invalid/model.wasm" },

@@ -10,7 +10,7 @@
 - Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
 
 Canonical site: https://bytequant.org/
-Last editorial and interface review: 2026-08-21
+Last editorial and interface review: 2026-08-22
 
 Languages:
 - Turkish (default): https://bytequant.org/

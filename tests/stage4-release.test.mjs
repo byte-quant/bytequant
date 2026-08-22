@@ -25,7 +25,7 @@ test("limits global identity schema to home and About surfaces", async () => {
 
 test("keeps security and cache policies aligned for deployable hosting", async () => {
   const [headers, worker, layout] = await Promise.all([read("public/_headers"), read("worker/index.ts"), read("app/layout.tsx")]);
-  for (const name of ["Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "Permissions-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "X-Frame-Options", "X-Permitted-Cross-Domain-Policies", "Origin-Agent-Cluster"]) {
+  for (const name of ["Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy", "Permissions-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "X-Frame-Options", "X-DNS-Prefetch-Control", "X-XSS-Protection", "X-Permitted-Cross-Domain-Policies", "Origin-Agent-Cluster"]) {
     assert.ok(headers.includes(name), `public/_headers omits ${name}`);
     assert.ok(worker.includes(name), `worker omits ${name}`);
   }
@@ -34,6 +34,10 @@ test("keeps security and cache policies aligned for deployable hosting", async (
   assert.match(headers, /\/_next\/static\/\*[\s\S]*immutable/);
   assert.match(worker, /pathname === "\/sw\.js"/);
   assert.match(worker, /pathname\.startsWith\("\/_next\/static\/"\)/);
+  assert.match(headers, /block-all-mixed-content/);
+  assert.match(worker, /block-all-mixed-content/);
+  assert.match(headers, /browsing-topics=\(\)/);
+  assert.match(worker, /browsing-topics=\(\)/);
   for (const host of ["https://huggingface.co", "https://cdn-lfs.hf.co", "https://cas-bridge.xethub.hf.co", "https://raw.githubusercontent.com"]) {
     assert.ok(headers.includes(host), `public/_headers blocks the opt-in local AI model asset host ${host}`);
     assert.ok(worker.includes(host), `worker CSP blocks the opt-in local AI model asset host ${host}`);
@@ -48,4 +52,14 @@ test("publishes a current RFC 9116 security contact", async () => {
   assert.match(security, /^Preferred-Languages: tr, en, de, zh$/m);
   assert.ok(new Date(/^Expires: (.+)$/m.exec(security)?.[1] ?? 0) > new Date("2026-08-09"));
   assert.match(workflow, /include-hidden-files:\s*true/, "GitHub Pages must deploy the audited .well-known path");
+});
+
+test("pins patched PostCSS and nanoid transitive releases", async () => {
+  const [workspace, lockfile] = await Promise.all([read("pnpm-workspace.yaml"), read("pnpm-lock.yaml")]);
+  assert.match(workspace, /nanoid: 3\.3\.18/);
+  assert.match(workspace, /postcss: 8\.5\.23/);
+  assert.match(lockfile, /nanoid@3\.3\.18/);
+  assert.match(lockfile, /postcss@8\.5\.23/);
+  assert.doesNotMatch(lockfile, /nanoid@3\.3\.16/);
+  assert.doesNotMatch(lockfile, /^  postcss@8\.5\.19:/m);
 });

@@ -19,6 +19,12 @@ test("the shared shell applies the final design system to every page family", as
   assert.match(styles, /\.tool-answer-card dl\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(styles, /\.workstation-app\{overflow:hidden;border-radius:26px/);
   assert.match(styles, /Release 4\.9 · final visual integrity/);
+  assert.match(styles, /Release 6\.0 · unified visual, responsive, accessibility, and readability system/);
+  assert.match(styles, /--bq-design-release:6/);
+  assert.match(styles, /--bq-section-space:clamp\(68px,8vw,112px\)/);
+  assert.match(styles, /@media\(prefers-contrast:more\)/);
+  assert.match(styles, /@media\(forced-colors:active\)/);
+  assert.match(styles, /font-size:16px\}\s*\.experience-v3 :where\(\.workbench-actions/);
   assert.match(styles, /\.workspace-journey>\*\{min-width:0\}/);
   assert.match(styles, /\.community-identity-card,\.experience-v3 \.community-identity-card>\*\{min-width:0\}/);
   assert.match(styles, /\.hero-product \.floating-note\{right:4px;bottom:-12px/);
@@ -37,6 +43,8 @@ test("responsive product surfaces keep a single-column mobile reading path", asy
   assert.match(finalLayer, /\.workstation-hero\{min-height:auto;padding-block:64px\}/);
   assert.match(finalLayer, /\.workspace-journey\{grid-template-columns:minmax\(0,1fr\)\}/);
   assert.match(finalLayer, /\.community-social-layout\{grid-template-areas:"profile" "feed" "aside"\}/);
+  assert.match(finalLayer, /\.workbench-grid,\s*\.experience-v3 :where\(\.frontier-workbench-grid/);
+  assert.match(finalLayer, /\.tool-transfer-control>\*\{width:100%\}/);
 });
 
 test("CI blocks missing styles and social metadata regressions across generated pages", async () => {

@@ -36,6 +36,7 @@ const contentSecurityPolicy = [
   "form-action 'self'",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
+  "block-all-mixed-content",
 ].join("; ");
 
 function cachePolicy(pathname: string, contentType: string) {
@@ -52,11 +53,13 @@ function withSecurityHeaders(response: Response, pathname: string) {
   headers.set("Content-Security-Policy", contentSecurityPolicy);
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
   headers.set("Cross-Origin-Resource-Policy", "same-origin");
-  headers.set("Permissions-Policy", "camera=(), geolocation=(), payment=(), usb=(), microphone=(self), on-device-speech-recognition=(self)");
+  headers.set("Permissions-Policy", "accelerometer=(), browsing-topics=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), payment=(), usb=(), microphone=(self), on-device-speech-recognition=(self)");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
+  headers.set("X-DNS-Prefetch-Control", "off");
+  headers.set("X-XSS-Protection", "0");
   headers.set("X-Permitted-Cross-Domain-Policies", "none");
   headers.set("Origin-Agent-Cluster", "?1");
   headers.set("Cache-Control", cachePolicy(pathname, headers.get("content-type") ?? ""));

@@ -78,5 +78,9 @@ for (const url of urls) {
 }
 
 assert.ok(sharedStyles.size > 0, "No shared production stylesheet was discovered.");
+const sharedCss = [...sharedStyles].map((relativePath) => readOutput(relativePath)).join("\n");
+assert.match(sharedCss, /--bq-design-release:6/, "The current unified design system is missing from production CSS.");
+assert.match(sharedCss, /@media\s*\(prefers-contrast:more\)/, "High-contrast adaptations are missing from production CSS.");
+assert.match(sharedCss, /@media\s*\(forced-colors:active\)/, "Forced-colour accessibility support is missing from production CSS.");
 console.log(`Experience integrity audit: PASS (${urls.length} routes, ${sharedStyles.size} CSS assets, ${schemaBlocks} JSON-LD blocks).`);
 console.log("Canonical/social locale parity, rendered landmarks, design shell, and stylesheet delivery are complete.");
