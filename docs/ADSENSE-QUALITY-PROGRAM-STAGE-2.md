@@ -6,7 +6,7 @@ Generated: 2026-08-11
 
 | Check | Result |
 | --- | ---: |
-| Canonical public tools | 317 |
+| Canonical public tools | 327 |
 | New purpose-specific tools | 8 |
 | New localized tool pages | 32 |
 | New deep guides | 4 × 4 languages |
@@ -18,7 +18,7 @@ Generated: 2026-08-11
 - The package adds distinct contract, data-quality, accessibility, cache-safety, and scenario-calculation tasks rather than aliases of existing formatters.
 - Every new tool has its own processor, safe synthetic demo, error boundary, metrics, visible limitation, standardized copy/download controls, and on-device completion notice.
 - Four editorial guides connect the tools to verification, migration, accessibility, privacy, and decision-owner workflows. They do not claim that automated output proves compliance, security, accessibility, ranking, or financial suitability.
-- Every canonical tool remains public and indexable. The sitemap and structured-data routes derive from the canonical catalog, so all 1268 localized tool URLs stay synchronized.
+- Every canonical tool remains public and indexable. The sitemap and structured-data routes derive from the canonical catalog, so all 1308 localized tool URLs stay synchronized.
 - The protected AdSense publisher identity and seller record remain byte-for-byte unchanged.
 
 This report is engineering evidence, not a promise of AdSense approval or search ranking.

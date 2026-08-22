@@ -18,8 +18,8 @@ Stage 3 improves the product itself: input methods, error recovery, result state
 
 | Measure | Verified |
 | --- | ---: |
-| Canonical tools | 317 |
-| Localized canonical pages carrying the Stage 3 contract | 1268 |
+| Canonical tools | 327 |
+| Localized canonical pages carrying the Stage 3 contract | 1308 |
 | Deep-runtime workbenches retained | 110 |
 | Four-locale frontier demo runs | 300 |
 | key=value tools upgraded to guided fields | 20 |

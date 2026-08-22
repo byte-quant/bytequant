@@ -21,20 +21,20 @@ The audit fails immediately if the seller record, hash, publisher ID, or exact A
 
 | Measure | Verified |
 | --- | ---: |
-| Canonical public tools | 317 |
-| Canonical localized tool pages kept indexable | 1268 |
-| Unique localized titles, summaries, and descriptions | 317 × 4 |
+| Canonical public tools | 327 |
+| Canonical localized tool pages kept indexable | 1308 |
+| Unique localized titles, summaries, and descriptions | 327 × 4 |
 | High-risk tools with executable demos | 110 |
 | Successful four-locale runtime demo runs | 440 |
 | Duplicate high-risk demo outputs | 0 |
-| Tool pages with WebApplication + HowTo + FAQ structured data | 1268 |
+| Tool pages with WebApplication + HowTo + FAQ structured data | 1308 |
 
 ## Repairs completed in Stage 1
 
 - INI ↔ JSON and Properties ↔ JSON now publish measurable key/section/character results instead of an unmeasured text block.
 - All 35 precision workbenches now explain the expected input structure beside the field, show a localized example signature, expose a visible ready/processing/completed/error state, and publish a Local Agent input/run contract.
 - Precision errors now return actionable, fully localized JSON, table, numeric, date, key-value, or generic recovery guidance without mixing raw English into German, Chinese, or Turkish UI.
-- All 317 canonical tools remain publicly indexable in four languages; Stage 1 introduces no blanket noindex or tool removal.
+- All 327 canonical tools remain publicly indexable in four languages; Stage 1 introduces no blanket noindex or tool removal.
 
 ## Measured Stage 2 editorial backlog
 

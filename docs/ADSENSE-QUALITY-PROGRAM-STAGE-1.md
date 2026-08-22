@@ -21,10 +21,10 @@ Both protected files are read-only inputs to this gate. Any byte-level seller-re
 
 | Measure | Result |
 | --- | ---: |
-| Canonical tools retained | 317 |
-| Localized canonical pages retained and indexable | 1268 |
+| Canonical tools retained | 327 |
+| Localized canonical pages retained and indexable | 1308 |
 | Languages per tool | 4 |
-| Tool-specific input/method/output/verification/boundary contracts | 1268 |
+| Tool-specific input/method/output/verification/boundary contracts | 1308 |
 | Unmapped runtime families | 0 |
 | Generic fallthrough for unknown tools | 0 — fail-closed |
 | Same-category intent pairs above 0.68 similarity | 0 |
@@ -33,6 +33,7 @@ Both protected files are read-only inputs to this gate. Any byte-level seller-re
 
 | Family | Canonical tools |
 | --- | ---: |
+| studio | 10 |
 | stageTwo | 8 |
 | frontier | 75 |
 | precision | 35 |
@@ -51,7 +52,7 @@ Both protected files are read-only inputs to this gate. Any byte-level seller-re
 ## Repairs completed
 
 - Runtime routing now has one explicit resolver. Only the 22 allowlisted legacy tools may use the generic processor; an unknown slug produces a localized visible error instead of plausible but unrelated output.
-- All 317 tools are assigned to a real workbench family, and all 1,268 localized tool pages expose the `catalog-v2` quality contract while remaining indexable.
+- All 327 tools are assigned to a real workbench family, and all 1,308 localized tool pages expose the `catalog-v2` quality contract while remaining indexable.
 - The two closest prompt-tool intents were separated without deleting or hiding either page. Few-shot Dataset Coverage now audits input/output pairs, duplicate inputs, label distribution, and conflicting labels. Prompt Scenario Balance now requires a four-field test-pack contract and audits normal, boundary, negative, and adversarial coverage plus expected-output shapes.
 - The new intent-similarity gate prevents a future catalog change from silently reintroducing near-duplicate same-category tools.
 

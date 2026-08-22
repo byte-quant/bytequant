@@ -14,6 +14,7 @@ import { demandToolSlugs } from "../app/lib/demand-tool-slugs.ts";
 import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
 import { frontierToolSlugs } from "../app/lib/frontier-tools.ts";
 import { stageTwoToolSlugs } from "../app/lib/stage-two-tools.ts";
+import { studioToolSlugs } from "../app/lib/studio-tools.ts";
 import { advancedWorkbenchSlugs } from "../app/components/AdvancedWorkbenches.tsx";
 import { growthWorkbenchSlugs } from "../app/components/GrowthWorkbenches.tsx";
 import { newWorkbenchSlugs } from "../app/components/NewToolWorkbenches.tsx";
@@ -52,7 +53,7 @@ assert.match(workbenchSource, /if \(family === "generic"\) return <GenericToolWo
 assert.match(workbenchSource, /data-runtime-family="unsupported"/, "unknown runtimes must fail closed with visible guidance");
 
 const familySets = [
-  ["stageTwo", stageTwoToolSlugs],
+  ["studio", studioToolSlugs], ["stageTwo", stageTwoToolSlugs],
   ["frontier", frontierToolSlugs], ["precision", precisionToolSlugs], ["essential", new Set([...essentialToolSlugs, ...guidedLegacyToolSlugs])],
   ["expansion", expansionToolSlugs], ["discovery", discoveryToolSlugs], ["productivity", new Set(productivityToolSlugs)], ["demand", demandToolSlugs],
   ["growth", growthWorkbenchSlugs], ["converter", converterSlugs], ["new", newWorkbenchSlugs], ["specialized", specializedSlugs],

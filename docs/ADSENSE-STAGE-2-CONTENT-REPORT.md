@@ -18,14 +18,14 @@ Stage 2 replaces repeated instructional copy with intent-aware guidance. It does
 
 | Measure | Verified |
 | --- | ---: |
-| Canonical tools | 317 |
-| Localized canonical pages | 1268 |
-| Unique use-case sets in every locale | 317 × 4 |
-| Unique HowTo step sets in every locale | 317 × 4 |
+| Canonical tools | 327 |
+| Localized canonical pages | 1308 |
+| Unique use-case sets in every locale | 327 × 4 |
+| Unique HowTo step sets in every locale | 327 × 4 |
 | Intent-aware input/method/output/verification profiles | 18 |
-| TR/EN guides with multi-section depth | 104 |
-| DE/ZH guides with multi-section depth | 76 |
-| Total editorial guide records | 180 |
+| TR/EN guides with multi-section depth | 109 |
+| DE/ZH guides with multi-section depth | 81 |
+| Total editorial guide records | 190 |
 | Largest intentional input-profile family | 41 tools |
 
 ## Editorial decisions

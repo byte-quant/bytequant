@@ -6,8 +6,8 @@ Generated: 2026-08-11
 
 | Check | Result |
 | --- | ---: |
-| Turkish and English guide records | 104 each |
-| German and Chinese localized guides | 76 each |
+| Turkish and English guide records | 109 each |
+| German and Chinese localized guides | 81 each |
 | Clearly labelled English originals in DE/ZH library | 28 |
 | Searchable, filterable guide indexes | 4 |
 | Protected ads.txt SHA-256 | 615d7aea69afeecc9d6cbdbd5692db5329ead488c685cfd6e73f5a67f5eebc61 |
