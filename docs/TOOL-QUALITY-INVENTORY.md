@@ -8,11 +8,11 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 
 | Measure | Count |
 | --- | ---: |
-| Public canonical tools | 317 |
+| Public canonical tools | 327 |
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |
-| Canonical tools mapped to an implemented runtime family | 317 |
+| Canonical tools mapped to an implemented runtime family | 327 |
 | Deep four-locale runtime-demo tools | 110 |
 
 ## Category distribution
@@ -20,15 +20,15 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | Mark | Category | Tools |
 | --- | --- | ---: |
 | P | Prompt tools | 25 |
-| T | Text & NLP | 43 |
-| D | Data & developer | 76 |
+| T | Text & NLP | 45 |
+| D | Data & developer | 78 |
 | C | Converters | 29 |
-| S | Privacy & security | 29 |
-| N | Calculation tools | 41 |
-| G | Everyday tools | 16 |
+| S | Privacy & security | 30 |
+| N | Calculation tools | 42 |
+| G | Everyday tools | 17 |
 | AI | AI tools | 19 |
-| CS | Code & file security | 29 |
-| R | Research & evidence | 10 |
+| CS | Code & file security | 30 |
+| R | Research & evidence | 12 |
 
 ## Automated checks applied to every public tool
 
@@ -365,3 +365,13 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | 327 | `html-tablo-erisilebilirlik-denetleyici` | Text & NLP | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
 | 328 | `borc-odeme-stratejisi-karsilastirici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
 | 329 | `veri-alani-sozlugu-olusturucu` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 332 | `retry-after-geri-cekilme-planlayici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 333 | `webhook-teslim-gunlugu-analizoru` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 334 | `aria-erisebilir-ad-envanteri` | Code & file security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 335 | `html-dil-baslik-yapisi-denetleyici` | Text & NLP | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 336 | `sitemap-url-kume-analizoru` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 337 | `robots-meta-politikasi-olusturucu` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 338 | `eposta-konu-onizleme-denetleyici` | Text & NLP | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 339 | `web-performans-butce-planlayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 330 | `yedekleme-3-2-1-hazirlik-denetleyici` | Privacy & security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 331 | `surum-notu-degisiklik-derleyici` | Everyday tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |

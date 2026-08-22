@@ -25,13 +25,13 @@ assert.equal(adsTxt, expectedAds, "protected ads.txt seller record changed");
 assert.equal(createHash("sha256").update(adsTxt).digest("hex"), expectedAdsHash, "protected ads.txt hash changed");
 assert.ok(layout.includes(expectedScript), "protected AdSense Auto Ads script changed");
 
-assert.equal(publicTools.length, 317, "canonical public tool count changed");
-assert.equal(new Set(publicTools.map((tool) => tool.slug)).size, 317, "canonical slugs must be unique");
+assert.equal(publicTools.length, 327, "canonical public tool count changed");
+assert.equal(new Set(publicTools.map((tool) => tool.slug)).size, 327, "canonical slugs must be unique");
 
 for (const locale of locales) {
-  assert.equal(new Set(publicTools.map((tool) => tool.title[locale].trim().toLocaleLowerCase(locale))).size, 317, `${locale} titles must be unique`);
-  assert.equal(new Set(publicTools.map((tool) => tool.short[locale].trim().toLocaleLowerCase(locale))).size, 317, `${locale} summaries must be unique`);
-  assert.equal(new Set(publicTools.map((tool) => tool.description[locale].trim().toLocaleLowerCase(locale))).size, 317, `${locale} descriptions must be unique`);
+  assert.equal(new Set(publicTools.map((tool) => tool.title[locale].trim().toLocaleLowerCase(locale))).size, 327, `${locale} titles must be unique`);
+  assert.equal(new Set(publicTools.map((tool) => tool.short[locale].trim().toLocaleLowerCase(locale))).size, 327, `${locale} summaries must be unique`);
+  assert.equal(new Set(publicTools.map((tool) => tool.description[locale].trim().toLocaleLowerCase(locale))).size, 327, `${locale} descriptions must be unique`);
 }
 
 const runtimeSlugs = new Set([...precisionToolSlugs, ...frontierToolSlugs]);
@@ -86,7 +86,7 @@ for (const tool of publicTools) {
     indexedPages += 1;
   }
 }
-assert.equal(indexedPages, 1268, "all 317 canonical tools must remain indexable in four languages");
+assert.equal(indexedPages, 1308, "all 327 canonical tools must remain indexable in four languages");
 
 const repeatedUseCaseSets = new Map();
 const repeatedStepSets = new Map();
@@ -138,7 +138,7 @@ The audit fails immediately if the seller record, hash, publisher ID, or exact A
 - INI ↔ JSON and Properties ↔ JSON now publish measurable key/section/character results instead of an unmeasured text block.
 - All 35 precision workbenches now explain the expected input structure beside the field, show a localized example signature, expose a visible ready/processing/completed/error state, and publish a Local Agent input/run contract.
 - Precision errors now return actionable, fully localized JSON, table, numeric, date, key-value, or generic recovery guidance without mixing raw English into German, Chinese, or Turkish UI.
-- All 317 canonical tools remain publicly indexable in four languages; Stage 1 introduces no blanket noindex or tool removal.
+- All 327 canonical tools remain publicly indexable in four languages; Stage 1 introduces no blanket noindex or tool removal.
 
 ## Measured Stage 2 editorial backlog
 

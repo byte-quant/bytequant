@@ -10,7 +10,7 @@ const locales = ["tr", "en", "de", "zh"];
 test("Stage 2 publishes eight unique tools with four-language product contracts", () => {
   assert.equal(stageTwoTools.length, 8);
   assert.equal(stageTwoToolSlugs.size, 8);
-  assert.equal(publicTools.length, 317);
+  assert.equal(publicTools.length, 327);
   for (const tool of stageTwoTools) {
     assert.ok(stageTwoDemos[tool.slug]?.input.trim(), `${tool.slug}: missing demo`);
     for (const locale of locales) {

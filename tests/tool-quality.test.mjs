@@ -166,9 +166,9 @@ test("Stage 1 AdSense gate preserves publisher identity and audits all canonical
     read(".github/workflows/deploy.yml"),
   ]);
   assert.match(audit, /expectedAdsHash = "615d7aea69afeecc9d6cbdbd5692db5329ead488c685cfd6e73f5a67f5eebc61"/);
-  assert.match(audit, /assert\.equal\(publicTools\.length, 317/);
+  assert.match(audit, /assert\.equal\(publicTools\.length, 327/);
   assert.match(audit, /assert\.equal\(runtimeRuns, 440/);
-  assert.match(audit, /assert\.equal\(indexedPages, 1268/);
+  assert.match(audit, /assert\.equal\(indexedPages, 1308/);
   assert.match(packageJson, /"audit:stage1"/);
   assert.match(workflow, /pnpm audit:stage1/);
 });

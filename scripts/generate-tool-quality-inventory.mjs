@@ -8,7 +8,7 @@ import { precisionToolSlugs } from "../app/lib/precision-tools.ts";
 const locales = ["tr", "en", "de", "zh"];
 const reportUrl = new URL("../docs/TOOL-QUALITY-INVENTORY.md", import.meta.url);
 
-assert.equal(publicTools.length, 317, "public canonical catalog must contain 317 tools");
+assert.equal(publicTools.length, 327, "public canonical catalog must contain 327 tools");
 assert.equal(Object.keys(toolAliases).length, 12, "legacy alias register must contain 12 entries");
 assert.equal(Object.keys(categories).length, 10, "catalog must contain ten categories");
 assert.equal(new Set(publicTools.map((tool) => tool.slug)).size, publicTools.length, "canonical slugs must be unique");
@@ -49,7 +49,7 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 
 | Measure | Count |
 | --- | ---: |
-| Public canonical tools | 317 |
+| Public canonical tools | 327 |
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |

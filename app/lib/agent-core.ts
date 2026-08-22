@@ -338,6 +338,17 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
   if (has(/orneklem|sample size|stichprob|样本量/u) && has(/guven|confidence|konfidenz|置信|hata payi|margin of error|fehlerspanne|误差/u)) add("orneklem-buyuklugu-tahminleyici", intentLabel("Anket örneklem büyüklüğünü tahmin et", "Estimate survey sample size", "Stichprobengröße schätzen", "估算调查样本量"));
   if (has(/bahsis|tip|trinkgeld|小费/u) && has(/hesap|calculate|split|bol|rechnung|计算|分摊/u)) add("bahsis-hesap-bolusturucu", intentLabel("Bahşişi ve kişi başı tutarı hesapla", "Calculate the tip and per-person amount", "Trinkgeld und Pro-Kopf-Betrag berechnen", "计算小费与人均金额"));
 
+  if (has(/retry-after|backoff|geri cekil|yeniden dene|wiederhol|退避|重试/u)) add("retry-after-geri-cekilme-planlayici", intentLabel("Yeniden deneme zamanlamasını planla", "Plan a safe retry schedule", "Sichere Wiederholungen planen", "规划安全重试时间"));
+  if (has(/webhook/u) && has(/log|gunluk|teslim|delivery|protokoll|日志|投递/u)) add("webhook-teslim-gunlugu-analizoru", intentLabel("Webhook teslim kayıtlarını incele", "Review webhook delivery logs", "Webhook-Auslieferungsprotokolle prüfen", "检查 Webhook 投递日志"));
+  if (has(/aria|accessible name|erisilebilir ad|zuganglich|zugänglich|无障碍名称/u)) add("aria-erisebilir-ad-envanteri", intentLabel("Erişilebilir adları envanterle", "Inventory accessible names", "Barrierefreie Namen erfassen", "盘点无障碍名称"));
+  if (has(/html/u) && has(/lang|language|dil|heading|baslik|uberschrift|überschrift|语言|标题/u)) add("html-dil-baslik-yapisi-denetleyici", intentLabel("HTML dil ve başlık yapısını incele", "Review HTML language and heading structure", "HTML-Sprache und Überschriften prüfen", "检查 HTML 语言与标题结构"));
+  if (has(/sitemap/u) && has(/url|kume|liste|cluster|gruppe|聚类|列表/u)) add("sitemap-url-kume-analizoru", intentLabel("Sitemap URL kümelerini incele", "Review sitemap URL clusters", "Sitemap-URL-Gruppen prüfen", "检查 Sitemap URL 分组"));
+  if (has(/robots meta|noindex|nofollow|nosnippet|max-snippet/u)) add("robots-meta-politikasi-olusturucu", intentLabel("Robots meta politikasını hazırla", "Prepare a robots meta policy", "Robots-Meta-Richtlinie erstellen", "生成 Robots Meta 策略"));
+  if (has(/subject|konu|betreff|主题/u) && has(/email|e-posta|e-mail|mail|邮件/u)) add("eposta-konu-onizleme-denetleyici", intentLabel("E-posta konu ve önizlemesini incele", "Review email subject and preview text", "E-Mail-Betreff und Vorschau prüfen", "检查邮件主题与预览文本"));
+  if (has(/performance budget|performans butce|lcp|inp|cls|bundle|leistungsbudget|性能预算/u)) add("web-performans-butce-planlayici", intentLabel("Web performans bütçesini değerlendir", "Evaluate the web performance budget", "Web-Performance-Budget bewerten", "评估网页性能预算"));
+  if (has(/3-2-1|backup|yedek|sicherung|备份/u)) add("yedekleme-3-2-1-hazirlik-denetleyici", intentLabel("3-2-1 yedekleme hazırlığını incele", "Review 3-2-1 backup readiness", "3-2-1-Sicherungsbereitschaft prüfen", "检查 3-2-1 备份就绪度"));
+  if (has(/release note|changelog|surum not|versionshinweis|发布说明|更新日志/u)) add("surum-notu-degisiklik-derleyici", intentLabel("Değişikliklerden sürüm notu hazırla", "Draft release notes from changes", "Versionshinweise aus Änderungen erstellen", "根据变更生成发布说明"));
+
   return intents.slice(0, 6);
 }
 

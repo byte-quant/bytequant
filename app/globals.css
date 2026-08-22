@@ -3801,3 +3801,71 @@ main{isolation:isolate}
 
 /* Keep secondary actions compact without dropping below a readable 12 px. */
 .experience-v3 :where(.home-social-strip a,.github-activity .text-link,.community-mobile-tabs a,.guide-action-plan a){font-size:.75rem}
+
+/* 2026-08 product pass: bring the primary task above supporting explanation. */
+.experience-v3 .workstation-hero{min-height:auto;padding-block:clamp(70px,8vw,112px)}
+.experience-v3 .workstation-app-section{padding-block:clamp(28px,4vw,54px);scroll-margin-top:78px}
+.experience-v3 .workstation-explain{padding-top:clamp(62px,7vw,96px)}
+.experience-v3 .agent-chat-stream{min-height:clamp(190px,28vh,350px);max-height:min(56vh,620px)}
+.experience-v3 .agent-starter-grid{padding-top:2px}
+.experience-v3 .agent-starter-grid button{min-height:84px}
+.experience-v3 .agent-starter-grid small{font-size:12px;line-height:1.45;white-space:normal}
+.experience-v3 .agent-composer{position:relative;z-index:2;margin-top:18px}
+.experience-v3 .agent-composer>div>span{font-size:12px;line-height:1.45}
+
+/* Purpose-built fields for the ten studio tools. */
+.experience-v3 .studio-workbench-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+.experience-v3 .studio-form{min-width:0;padding:clamp(20px,3vw,34px);display:flex;flex-direction:column;gap:20px;background:color-mix(in srgb,var(--surface-soft) 42%,var(--surface))}
+.experience-v3 .studio-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.experience-v3 .studio-fields label{min-width:0;display:grid;align-content:start;gap:8px;color:var(--text);font-size:13px;font-weight:800;line-height:1.45}
+.experience-v3 .studio-fields label>small{color:var(--muted);font-size:12px;font-weight:500;line-height:1.55}
+.experience-v3 .studio-field-wide{grid-column:1/-1}
+.experience-v3 .studio-field-wide textarea{min-height:270px;font-family:var(--font-mono,monospace)}
+.experience-v3 .studio-check{min-height:76px;padding:13px;grid-template-columns:auto minmax(0,1fr);align-items:start!important;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.experience-v3 .studio-check input{width:20px;height:20px;margin-top:2px;accent-color:var(--teal)}
+.experience-v3 .studio-check span{display:grid;gap:4px}
+.experience-v3 .studio-form>.run-button{width:100%;min-height:52px;margin-top:auto;justify-content:center}
+.experience-v3 .studio-workbench .result-panel{min-width:0;display:flex;flex-direction:column;gap:16px}
+.experience-v3 .studio-workbench .metric-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.experience-v3 .studio-workbench .metric-strip>div{min-width:0;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-soft)}
+.experience-v3 .studio-workbench .metric-strip strong,.experience-v3 .studio-workbench .metric-strip span{display:block;overflow-wrap:anywhere}
+.experience-v3 .studio-workbench .metric-strip strong{font-size:17px;line-height:1.3}
+.experience-v3 .studio-workbench .metric-strip span{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45}
+.experience-v3 .studio-workbench .workbench-trust-card{margin-top:auto;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start}
+
+/* Product hero contrast must remain independent from the global heading palette. */
+.experience-v3 .workstation-hero h1{color:#f7fbff;text-shadow:0 1px 0 rgba(0,0,0,.08)}
+.experience-v3 .workstation-hero p{color:#d6e2ed}
+.experience-v3 .workstation-hero .workstation-badges span{color:#f5fbff}
+
+/* Community puts the conversation first on narrow screens and makes filters discoverable. */
+.experience-v3 .community-social-nav{scroll-padding-inline:6px}
+.experience-v3 .community-feed-hint{margin:8px 3px 14px;color:var(--muted);font-size:13px;line-height:1.55}
+.experience-v3 .community-global-post>p{font-size:15px;line-height:1.72;overflow-wrap:anywhere}
+.experience-v3 .community-global-post h3{font-size:clamp(20px,2vw,25px);line-height:1.28;overflow-wrap:anywhere}
+
+@media(max-width:760px){
+  .experience-v3 .workstation-hero{padding-block:54px}.experience-v3 .workstation-hero-visual{display:none}
+  .experience-v3 .workstation-hero h1{color:#f7fbff}
+  .experience-v3 .workstation-app-section{padding-block:18px 42px}
+  .experience-v3 .agent-chat-stream{min-height:160px;max-height:48vh;padding-block:15px}
+  .experience-v3 .agent-composer{margin:14px 14px 10px}
+  .experience-v3 .agent-starter-grid{padding:4px 14px 16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .experience-v3 .agent-starter-grid button{min-height:96px;padding:12px}
+  .experience-v3 .community-social-layout{grid-template-areas:"feed" "profile" "aside"}
+  .experience-v3 .community-social-nav{margin-inline:-2px;padding-bottom:9px;scroll-snap-type:x mandatory;scrollbar-color:var(--teal) transparent}
+  .experience-v3 .community-social-nav::after{content:"";flex:0 0 14px}
+  .experience-v3 .community-social-nav button{scroll-snap-align:start}
+  .experience-v3 .studio-workbench-grid{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .studio-form{padding:18px 15px}
+  .experience-v3 .studio-fields{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .studio-field-wide{grid-column:auto}
+  .experience-v3 .studio-workbench .result-panel{border-top:1px solid var(--line);border-left:0}
+}
+
+@media(max-width:460px){
+  .experience-v3 .agent-starter-grid{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .studio-workbench .metric-strip{grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .studio-workbench .workbench-bar{align-items:stretch;flex-direction:column}
+  .experience-v3 .studio-workbench .workbench-bar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}

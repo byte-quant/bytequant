@@ -61,7 +61,7 @@ const familySets = [
 const familyFor = (slug) => familySets.find(([, slugs]) => slugs.has(slug))?.[0] ?? "unsupported";
 const familyCounts = new Map(familySets.map(([family]) => [family, 0]));
 
-assert.equal(publicTools.length, 317, "canonical catalog must retain 317 public tools");
+assert.equal(publicTools.length, 327, "canonical catalog must retain 327 public tools");
 for (const tool of publicTools) {
   const family = familyFor(tool.slug);
   assert.notEqual(family, "unsupported", `${tool.slug}: no implemented runtime family`);
@@ -118,7 +118,7 @@ for (const tool of publicTools) for (const locale of locales) {
   assert.match(html, /"@type":"FAQPage"/, `${tool.slug}/${locale}: FAQ schema missing`);
   localizedPages += 1;
 }
-assert.equal(localizedPages, 1268, "all canonical tool pages must remain public and quality-marked in four locales");
+assert.equal(localizedPages, 1308, "all canonical tool pages must remain public and quality-marked in four locales");
 
 const familyTable = [...familyCounts].map(([family, count]) => `| ${family} | ${count} |`).join("\n");
 const report = `# AdSense quality program — Stage 1
@@ -161,7 +161,7 @@ ${familyTable}
 ## Repairs completed
 
 - Runtime routing now has one explicit resolver. Only the 22 allowlisted legacy tools may use the generic processor; an unknown slug produces a localized visible error instead of plausible but unrelated output.
-- All 317 tools are assigned to a real workbench family, and all 1,268 localized tool pages expose the \`catalog-v2\` quality contract while remaining indexable.
+- All 327 tools are assigned to a real workbench family, and all 1,308 localized tool pages expose the \`catalog-v2\` quality contract while remaining indexable.
 - The two closest prompt-tool intents were separated without deleting or hiding either page. Few-shot Dataset Coverage now audits input/output pairs, duplicate inputs, label distribution, and conflicting labels. Prompt Scenario Balance now requires a four-field test-pack contract and audits normal, boundary, negative, and adversarial coverage plus expected-output shapes.
 - The new intent-similarity gate prevents a future catalog change from silently reintroducing near-duplicate same-category tools.
 

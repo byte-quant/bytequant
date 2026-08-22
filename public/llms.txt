@@ -1,10 +1,10 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 317 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 327 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 ## Editorial quality model
 
-- All 317 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
+- All 327 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
 - Canonical aliases remain `noindex` and point to the matching unique tool; private or query-driven workspace URLs remain outside the search index.
 - High-impact legal, financial, medical, academic, identity, and security decisions always require an authoritative source or qualified human review.
 - Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
@@ -67,7 +67,7 @@ Complete localized tool libraries:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner can search all 317 distinct public tools and explain the method and limitations of the selected tool.
+- The planner can search all 327 distinct public tools and explain the method and limitations of the selected tool.
 - The optional local model uses a bounded, deterministically compressed context sized for its 4,096-token window. It throttles streamed UI updates and keeps the engine available while the Agent screen is open; leaving that screen starts a five-minute same-tab reuse window, while switching to Fast Agent or an inference failure unloads it immediately.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
@@ -456,6 +456,16 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [HTML Table Accessibility Checker](https://bytequant.org/en/tools/html-tablo-erisilebilirlik-denetleyici)
 - [Debt Payoff Strategy Comparator](https://bytequant.org/en/tools/borc-odeme-stratejisi-karsilastirici)
 - [Data Field Dictionary Builder](https://bytequant.org/en/tools/veri-alani-sozlugu-olusturucu)
+- [Retry-After & Backoff Planner](https://bytequant.org/en/tools/retry-after-geri-cekilme-planlayici): creates a bounded retry timeline from HTTP status, Retry-After, idempotency, exponential delay, and jitter assumptions.
+- [Webhook Delivery Log Analyzer](https://bytequant.org/en/tools/webhook-teslim-gunlugu-analizoru): groups attempts by event, identifies ordering and duplicate-delivery signals, and highlights unresolved failures.
+- [ARIA Accessible Name Inventory](https://bytequant.org/en/tools/aria-erisebilir-ad-envanteri): inventories interactive HTML elements and explains which controls lack an accessible name.
+- [HTML Language & Heading Structure Checker](https://bytequant.org/en/tools/html-dil-baslik-yapisi-denetleyici): reviews document language, title, description, and heading order without executing supplied markup.
+- [Sitemap URL Cluster Analyzer](https://bytequant.org/en/tools/sitemap-url-kume-analizoru): reviews URL hosts, protocols, parameters, duplicates, path depth, and localized clusters.
+- [Robots Meta Policy Builder](https://bytequant.org/en/tools/robots-meta-politikasi-olusturucu): builds explicit index, follow, archive, snippet, image-preview, and video-preview directives.
+- [Email Subject & Preheader Reviewer](https://bytequant.org/en/tools/eposta-konu-onizleme-denetleyici): previews likely subject truncation and detects repeated or missing preview copy.
+- [Web Performance Budget Planner](https://bytequant.org/en/tools/web-performans-butce-planlayici): compares HTML, CSS, JavaScript, image, font, and other transfer sizes with a declared mobile budget.
+- [3-2-1 Backup Readiness Checker](https://bytequant.org/en/tools/yedekleme-3-2-1-hazirlik-denetleyici): checks copy count, media diversity, off-site storage, encryption, restore evidence, and recovery-time assumptions.
+- [Release Notes Change Compiler](https://bytequant.org/en/tools/surum-notu-degisiklik-derleyici): groups structured change lines into deduplicated release-note sections with an explicit publication checklist.
 
 ## Editorial guides and site resources
 
@@ -498,6 +508,11 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 15. API delivery security checklist: https://bytequant.org/en/blog/api-teslim-guvenlik-kontrol-listesi
 16. CSV and JSON reshaping workflow: https://bytequant.org/en/blog/csv-json-veri-yeniden-sekillendirme-rehberi
 17. Evidence-led research and source freshness: https://bytequant.org/en/blog/kanit-odakli-arastirma-ve-guncellik-rehberi
+18. Reliable API retries and webhook delivery: https://bytequant.org/en/blog/dayanikli-api-retry-webhook-teslim-rehberi
+19. Accessible HTML publishing: https://bytequant.org/en/blog/erisebilir-html-dil-baslik-form-rehberi
+20. Sitemap, robots meta, and hreflang release review: https://bytequant.org/en/blog/sitemap-robots-meta-indexleme-yayin-rehberi
+21. Email subject and preheader design: https://bytequant.org/en/blog/eposta-konu-preheader-icerik-kalite-rehberi
+22. Performance budgets, backup evidence, and release operations: https://bytequant.org/en/blog/performans-yedekleme-surum-operasyon-rehberi
 
 This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources. Neither this file nor structured data guarantees indexing, citation, ranking, AdSense approval, or inclusion in an AI-generated answer.
 

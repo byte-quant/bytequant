@@ -21,7 +21,7 @@ assert.equal(adsTxt, expectedAds, "protected ads.txt seller record changed");
 assert.equal(createHash("sha256").update(adsTxt).digest("hex"), expectedAdsHash, "protected ads.txt hash changed");
 assert.ok(layout.includes(expectedScript), "protected AdSense Auto Ads script changed");
 
-assert.equal(publicTools.length, 317, "Stage 2 expects 317 canonical tools");
+assert.equal(publicTools.length, 327, "Stage 2 expects 327 canonical tools");
 const guidanceProfiles = new Map();
 for (const locale of locales) {
   assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.useCases[locale]))).size, publicTools.length, `${locale}: use-case sets must be tool-specific`);

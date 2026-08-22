@@ -15,7 +15,7 @@ const readOut = (relative) => readFile(path.join(root, "out", relative, "index.h
 const words = (text, locale) => [...new Intl.Segmenter(languageTag[locale], { granularity: "word" }).segment(text)].filter((part) => part.isWordLike).length;
 const toolBySlug = new Map(publicTools.map((tool) => [tool.slug, tool]));
 
-assert.equal(publicTools.length, 317, "editorial audit expects 317 canonical tools");
+assert.equal(publicTools.length, 327, "editorial audit expects 327 canonical tools");
 for (const locale of locales) {
   for (const field of ["title", "short", "description"]) {
     const values = publicTools.map((tool) => tool[field][locale]);

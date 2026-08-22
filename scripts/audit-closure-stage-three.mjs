@@ -61,7 +61,7 @@ assert.match(articleSource, /guideValidationText/);
 assert.match(localizedArticleSource, /guideValidationText/);
 assert.doesNotMatch(validationSource, /legal, financial, medical, or security-significant decision/);
 
-assert.equal(publicTools.length, 317, "closure audit expects 317 canonical tools");
+assert.equal(publicTools.length, 327, "closure audit expects 327 canonical tools");
 const toolMinima = {};
 const guideMinima = {};
 for (const locale of locales) {
@@ -140,7 +140,7 @@ The gate fails immediately if any protected value changes.
 ## Editorial repairs
 
 - Every canonical tool now explains its accepted input, disclosed method, expected output, three real use cases, acceptance signals, tool-specific stop condition, and safe next step in all four languages.
-- Generic “unique canonical URL” copy was removed from the visible quality passport. The replacement is written around the actual tool task and remains unique across all 317 tools per locale.
+- Generic “unique canonical URL” copy was removed from the visible quality passport. The replacement is written around the actual tool task and remains unique across all 327 tools per locale.
 - Guide validation blocks now use the real related tools and their input, method, output, verification, and boundary text. The same broad legal/medical/financial warning is no longer repeated on unrelated guides.
 - BlogPosting word counts now include the visible applied verification material, so structured data reflects the article readers actually receive.
 - Canonical tools and editorial guides remain indexable; no discoverable content was removed or blanket-noindexed.

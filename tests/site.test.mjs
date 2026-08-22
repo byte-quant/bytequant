@@ -132,7 +132,7 @@ test("exports the complete four-language site", async () => {
     assert.match(robots, new RegExp(`User-Agent: ${crawler}[\\s\\S]*?Allow: /`));
   }
   assert.match(llms, /^# ByteQuant/m);
-  assert.equal((llms.match(/^- \[/gm) ?? []).length, 317);
+  assert.equal((llms.match(/^- \[/gm) ?? []).length, 327);
   for (const standardsUrl of [
     "https://bytequant.org/yayin-ilkeleri",
     "https://bytequant.org/en/publishing-standards",
@@ -185,10 +185,10 @@ test("exports consent, storage, and security disclosures", async () => {
 
 test("exports all tool and guide routes", async () => {
   const [turkishTools, englishTools, germanTools, chineseTools, turkishPosts, englishPosts, germanPosts, chinesePosts] = await Promise.all([readdir(new URL("araclar/", root)), readdir(new URL("en/tools/", root)), readdir(new URL("de/tools/", root)), readdir(new URL("zh/tools/", root)), readdir(new URL("blog/", root)), readdir(new URL("en/blog/", root)), readdir(new URL("de/blog/", root)), readdir(new URL("zh/blog/", root))]);
-  assert.equal(turkishTools.filter((name) => !name.includes(".")).length, 329);
-  assert.equal(englishTools.filter((name) => !name.includes(".")).length, 329);
-  assert.equal(germanTools.filter((name) => !name.includes(".")).length, 329);
-  assert.equal(chineseTools.filter((name) => !name.includes(".")).length, 329);
+  assert.equal(turkishTools.filter((name) => !name.includes(".")).length, 339);
+  assert.equal(englishTools.filter((name) => !name.includes(".")).length, 339);
+  assert.equal(germanTools.filter((name) => !name.includes(".")).length, 339);
+  assert.equal(chineseTools.filter((name) => !name.includes(".")).length, 339);
   assert.ok(turkishPosts.length >= 36);
   assert.ok(englishPosts.length >= 36);
   assert.ok(turkishPosts.length >= 42);
@@ -789,8 +789,8 @@ test("exports the four-language editorial discovery and structured-data package"
     read("de/feed.xml"),
     read("zh/feed.xml"),
   ]);
-  assert.match(blog, /<strong>104<\/strong>\s*(?:<!-- -->)?\s*ayrıntılı rehber/);
-  assert.match(englishBlog, /<strong>104<\/strong>\s*(?:<!-- -->)?\s*in-depth guides/);
+  assert.match(blog, /<strong>109<\/strong>\s*(?:<!-- -->)?\s*ayrıntılı rehber/);
+  assert.match(englishBlog, /<strong>109<\/strong>\s*(?:<!-- -->)?\s*in-depth guides/);
   assert.ok(blog.indexOf("json-ld-schema-nextjs-denetim-rehberi") < blog.indexOf("geo-aeo-ai-overviews-teknik-seo-rehberi"));
   assert.match(blog, /application\/rss\+xml/);
   assert.match(englishBlog, /application\/rss\+xml/);

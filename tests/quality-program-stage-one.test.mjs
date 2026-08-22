@@ -17,7 +17,7 @@ test("runtime dispatch is explicit and unknown tools fail closed", async () => {
 
 test("every canonical page publishes the catalog-v2 tool contract", async () => {
   const source = await readFile(new URL("../app/components/ToolPage.tsx", import.meta.url), "utf8");
-  assert.equal(publicTools.length, 317);
+  assert.equal(publicTools.length, 327);
   assert.match(source, /data-tool-quality-contract="catalog-v2"/);
   assert.match(source, /data-tool-slug=\{tool\.slug\}/);
 });

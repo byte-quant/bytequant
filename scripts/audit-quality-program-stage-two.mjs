@@ -17,12 +17,12 @@ const [adsTxt, layout, llms] = await Promise.all([readFile(join(root, "public/ad
 assert.equal(adsTxt, expectedAds, "protected ads.txt changed");
 assert.equal(createHash("sha256").update(adsTxt).digest("hex"), expectedAdsHash, "protected ads.txt hash changed");
 assert.ok(layout.includes(expectedScript), "protected AdSense script changed");
-assert.equal(publicTools.length, 317);
+assert.equal(publicTools.length, 327);
 assert.equal(stageTwoTools.length, 8);
 assert.equal(stageTwoToolSlugs.size, 8);
 assert.equal(stageTwoPosts.length, 4);
 assert.equal(stageTwoLocalizedGuides.length, 4);
-assert.equal((llms.match(/^- \[/gm) ?? []).length, 317);
+assert.equal((llms.match(/^- \[/gm) ?? []).length, 327);
 
 let runs = 0;
 for (const slug of stageTwoToolSlugs) {

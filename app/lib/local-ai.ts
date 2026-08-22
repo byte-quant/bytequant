@@ -220,6 +220,10 @@ const quickReplies = {
     recalledAssistant: "Bu sekmede verdiğim son yanıt şuydu:",
     continued: "Önceki konuşmayı bağlam olarak koruyorum. Geliştirmemi istediğiniz bölüm:",
     other: "Buradayım. Ne elde etmek istediğinizi ve varsa bağlamı bir cümleyle biraz daha açın; size doğrudan bir yanıt, uygulanabilir kısa plan veya uygun ByteQuant aracını sunayım.",
+    plan: "Bunu birlikte uygulanabilir bir plana çevirelim. Önce sonucu tek cümleyle tanımlayın; sonra başarı ölçütünü, elinizdeki girdiyi ve değişmemesi gereken sınırı yazın. Ben de en kısa sırayı, kontrol noktalarını ve geri alınabilir ilk adımı çıkarayım.",
+    privacy: "Gizlilik için önce veri minimizasyonu uygulayın: gerçekten gerekmeyen alanı hiç işlemeyin. Kişisel veriyi mümkünse sentetik örnekle değiştirin, sonucu paylaşmadan önce maskeleyin ve tarayıcı içi işlem iddiasını geliştirici araçlarında ağ isteğiyle doğrulayın. Yasal uygunluk, tek bir araç sonucu değil süreç ve kanıt gerektirir.",
+    seo: "Sağlam SEO; benzersiz ve yararlı ana içerik, anlaşılır başlık hiyerarşisi, doğru canonical/hreflang, taranabilir iç bağlantılar ve hızlı, erişilebilir sayfaların birlikte çalışmasıdır. Etiketler tek başına sıralama garantisi vermez. Önce kullanıcı görevini eksiksiz çözen sayfayı kurun, ardından indeksleme sinyallerini ve canlı URL durumlarını doğrulayın.",
+    contextExample: "Az önceki konuya uygun somut örnek:",
   },
   en: {
     hello: "Hello! I’m doing well, thank you, and I’m ready to help. We can chat for a moment or turn a task into a concrete result. What would be useful today?",
@@ -236,6 +240,10 @@ const quickReplies = {
     recalledAssistant: "My latest answer in this tab was:",
     continued: "I am keeping the previous exchange in context. The part you want to develop is:",
     other: "I’m ready. Add one sentence about the outcome and any useful context; I can respond directly, build a short practical plan, or connect the request to the right ByteQuant tool.",
+    plan: "Let’s turn that into an actionable plan. Define the outcome in one sentence, then add the success measure, the input you already have, and one boundary that must not change. I can then produce the shortest sequence, review gates, and a reversible first step.",
+    privacy: "Start privacy work with data minimisation: do not process a field that is not actually needed. Prefer synthetic examples, mask personal data before sharing, and verify in-browser claims by inspecting network activity. Legal compliance requires a process and evidence, not a single tool result.",
+    seo: "Durable SEO combines unique useful main content, clear heading structure, correct canonical and hreflang signals, crawlable internal links, and fast accessible pages. Tags alone cannot guarantee ranking. Solve the user task completely first, then verify indexing signals and live URL behaviour.",
+    contextExample: "A concrete example based on our previous topic:",
   },
   de: {
     hello: "Hallo! Mir geht es gut, danke – und ich bin bereit zu helfen. Wir können kurz sprechen oder eine Aufgabe in ein konkretes Ergebnis verwandeln. Was wäre heute hilfreich?",
@@ -252,6 +260,10 @@ const quickReplies = {
     recalledAssistant: "Meine letzte Antwort in diesem Tab war:",
     continued: "Ich behalte den vorherigen Austausch als Kontext. Diesen Teil möchten Sie weiterentwickeln:",
     other: "Ich bin bereit. Ergänzen Sie in einem Satz das gewünschte Ergebnis und den Kontext; ich antworte direkt, erstelle einen kurzen Plan oder verbinde die Anfrage mit dem passenden ByteQuant-Werkzeug.",
+    plan: "Machen wir daraus einen umsetzbaren Plan. Ergebnis in einem Satz, Erfolgskriterium, vorhandene Eingabe und eine feste Grenze nennen; anschließend ordne ich die kürzeste Folge, Prüfgates und den ersten reversiblen Schritt.",
+    privacy: "Datenschutz beginnt mit Datenminimierung: Nicht benötigte Felder gar nicht verarbeiten. Synthetische Beispiele bevorzugen, Personendaten vor dem Teilen maskieren und Browser-Verarbeitung über die Netzwerkaktivität prüfen. Rechtskonformität braucht Prozess und Nachweise, nicht nur ein Werkzeugergebnis.",
+    seo: "Dauerhaftes SEO verbindet einzigartigen nützlichen Hauptinhalt, klare Überschriften, korrekte Canonical-/hreflang-Signale, crawlbare interne Links sowie schnelle barrierearme Seiten. Tags allein garantieren kein Ranking. Zuerst die Nutzeraufgabe vollständig lösen, dann Live-URLs und Indexsignale prüfen.",
+    contextExample: "Ein konkretes Beispiel passend zum vorigen Thema:",
   },
   zh: {
     hello: "您好！我状态很好，谢谢，我也已经准备好帮助您。我们可以先聊一聊，也可以把任务直接变成可用结果。今天想先做什么？",
@@ -268,6 +280,10 @@ const quickReplies = {
     recalledAssistant: "我在当前标签页中的上一条回答是：",
     continued: "我会保留上一轮对话作为语境。您希望继续展开的部分是：",
     other: "我已准备好。请再用一句话说明目标和必要背景；我可以直接回答、生成简短可执行计划，或连接到合适的 ByteQuant 工具。",
+    plan: "我们可以把它转成可执行计划。请用一句话定义结果，再补充成功标准、已有输入和一个不可改变的边界；我会给出最短步骤、检查门槛与可回退的第一步。",
+    privacy: "隐私工作应从数据最小化开始：不真正需要的字段不要处理。优先使用合成示例，分享前遮蔽个人数据，并通过浏览器网络活动验证“设备端处理”声明。法律合规需要流程与证据，不能依赖单一工具结果。",
+    seo: "稳健 SEO 需要独特有用的主体内容、清晰标题结构、正确 canonical/hreflang、可抓取内部链接，以及快速无障碍页面协同工作。标签本身不能保证排名。先完整解决用户任务，再验证索引信号与线上 URL 行为。",
+    contextExample: "结合上一主题的具体例子：",
   },
 } as const;
 
@@ -284,6 +300,9 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (/(bunu|yanıtı|cevabı).*(kısalt|özet)|shorten (?:that|it|the answer)|summari[sz]e (?:that|it)|kürz(?:e|en)|kurzfassung|简短|缩短|总结一下/i.test(text)) {
     if (previous) return `${copy.shortened}\n\n${sliceAtBoundary(previous.answer, 320)}`;
   }
+  if (/(örnek ver|bir örnek|give (?:me )?an example|example of that|beispiel|举例|例子)/i.test(text) && previous) {
+    return `${copy.contextExample}\n\n${sliceAtBoundary(previous.answer, 280)}\n\n${locale === "tr" ? "Örnek kabul kaydı: amaç → girdi → işlem → beklenen sonuç → doğrulama → bilinen sınır. Bu sırayı kendi verinize uyarlayın." : locale === "de" ? "Beispiel-Abnahme: Ziel → Eingabe → Verarbeitung → erwartetes Ergebnis → Prüfung → bekannte Grenze. Diese Folge an Ihren Fall anpassen." : locale === "zh" ? "示例验收记录：目标 → 输入 → 处理 → 预期结果 → 验证 → 已知边界。请按自己的数据调整。" : "Example acceptance record: goal → input → processing → expected result → verification → known limitation. Adapt that sequence to your data."}`;
+  }
   if (memoryReferenceTerms.test(text) && previous) {
     return `${copy.continued}\n\n${sliceAtBoundary(previous.answer, 420)}\n\n${copy.other}`;
   }
@@ -293,6 +312,9 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (/(ne yapabilirsin|yardım|help|was kannst|hilfe|能做什么|帮助)/i.test(text)) return copy.help;
   if (/(merhaba|selam|hello|\bhi\b|hallo|guten tag|你好|您好)/i.test(text)) return copy.hello;
   if (/(json).*(nedir|ne zaman|csv)|(?:what is|when should).*(json|csv)|(?:was ist|wann).*(json|csv)|(json|csv).*(是什么|什么时候)/i.test(text)) return copy.json;
+  if (/(seo|hreflang|canonical|arama motor|search engine|suchmaschine|搜索引擎|索引|indexing)/i.test(text)) return copy.seo;
+  if (/(gizlilik|privacy|datenschutz|隐私|kvkk|gdpr|kişisel veri|personal data)/i.test(text)) return copy.privacy;
+  if (/(planla|plan yap|yol haritası|roadmap|make a plan|plane|fahrplan|计划|路线图)/i.test(text)) return copy.plan;
   if (/(yaz|taslak|metin oluştur|write|draft|compose|schreib|entwurf|撰写|草稿|写一)/i.test(text)) return copy.write;
   if (/(karar|seçenek|hangisini|decid|choose|option|entscheid|wahl|决定|选择)/i.test(text)) return copy.decide;
   if (/(açıkla|anlat|nedir|neden|explain|what is|why|erklär|warum|was ist|解释|为什么|是什么)/i.test(text)) return copy.explain;
@@ -476,8 +498,25 @@ export function selectLocalAIConversationContext(
   const sameLocale = turns.filter((turn) => turn.locale === locale && turn.goal.trim() && turn.answer.trim());
   const explicitReference = referencesLocalAIHistory(latestGoal);
   const matchingIntent = sameLocale.filter((turn) => (turn.intent ?? (turn.tools.length ? "workflow" : "conversation")) === intent);
-  const source = explicitReference ? sameLocale : matchingIntent;
-  const selected = source.slice(explicitReference ? -4 : -3);
+  const tokenSet = (value: string) => new Set((value.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale).match(/[\p{L}\p{N}]{3,}/gu) ?? []).filter((token) => !/^(?:this|that|with|from|have|what|your|about|için|bunu|olan|nasıl|daha|aber|oder|eine|dies|diese)$/u.test(token)));
+  const latestTokens = tokenSet(latestGoal);
+  const relevance = (turn: LocalAIConversationTurn) => {
+    const previousTokens = tokenSet(`${turn.goal} ${turn.tools.join(" ")}`);
+    if (!latestTokens.size || !previousTokens.size) return 0;
+    let overlap = 0; latestTokens.forEach((token) => { if (previousTokens.has(token)) overlap += 1; });
+    return overlap / Math.max(1, Math.min(latestTokens.size, previousTokens.size));
+  };
+  const ranked = matchingIntent.map((turn) => ({ turn, score: relevance(turn) }))
+    .filter((item) => item.score >= .18)
+    .sort((a, b) => a.score - b.score)
+    .slice(-2)
+    .map((item) => item.turn);
+  // Keep one same-intent turn when lexical overlap is absent. This supports natural
+  // follow-ups such as preference-based suggestions without leaking workflow data.
+  const source = explicitReference
+    ? sameLocale.slice(-4)
+    : (ranked.length ? ranked : matchingIntent.slice(-1));
+  const selected = source.slice(explicitReference ? -4 : -2);
   return selected.flatMap((turn) => [
     { role: "user" as const, content: `[previous user message]\n${sliceAtBoundary(turn.goal, 1_200)}` },
     { role: "assistant" as const, content: `[previous assistant answer]\n${sliceAtBoundary(turn.answer, 1_200)}` },

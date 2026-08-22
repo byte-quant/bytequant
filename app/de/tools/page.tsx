@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ToolLibraryPage } from "../../components/ToolLibraryPage";
 import { localizedAlternates, localizedSocialMetadata } from "../../lib/site";
 
-const description = "Entdecken Sie 317 kostenlose Browser-Werkzeuge für Text, Daten, PDF, Bilder, Berechnungen, Code und Datenschutz. Ohne Konto starten.";
+const description = "Entdecken Sie 327 kostenlose Browser-Werkzeuge für Text, Daten, PDF, Bilder, Berechnungen, Code und Datenschutz. Ohne Konto starten.";
 export const metadata: Metadata = {
   title: "Kostenlose Browser-Werkzeuge",
   description,

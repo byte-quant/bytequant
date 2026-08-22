@@ -19,6 +19,7 @@ import { PrecisionWorkbench } from "./PrecisionWorkbenches";
 import { precisionToolSlugs } from "../lib/precision-tools";
 import { frontierToolSlugs } from "../lib/frontier-tools";
 import { stageTwoToolSlugs } from "../lib/stage-two-tools";
+import { studioToolSlugs } from "../lib/studio-tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 import { csvToJson, jsonToCsv, parseCsv, detectCsvDelimiter } from "../lib/csv-conversion";
 
@@ -31,6 +32,9 @@ const FrontierWorkbench = dynamic(() => import("./FrontierWorkbenches").then((mo
 });
 const StageTwoWorkbench = dynamic(() => import("./StageTwoWorkbenches").then((module) => module.StageTwoWorkbench), {
   loading: () => <div className="workbench stage-two-workbench" aria-busy="true" />,
+});
+const StudioWorkbench = dynamic(() => import("./StudioWorkbenches").then((module) => module.StudioWorkbench), {
+  loading: () => <div className="workbench studio-workbench" aria-busy="true" />,
 });
 const DemandWorkbench = dynamic(() => import("./DemandWorkbenches").then((module) => module.DemandWorkbench), {
   loading: () => <div className="workbench converter-loading" aria-busy="true" />,
@@ -55,9 +59,10 @@ export const legacyGenericToolSlugs = new Set([
   "cron-ifadesi-aciklayici",
 ]);
 
-export type ToolRuntimeFamily = "stageTwo" | "frontier" | "precision" | "essential" | "expansion" | "discovery" | "productivity" | "demand" | "growth" | "converter" | "new" | "specialized" | "advanced" | "generic" | "unsupported";
+export type ToolRuntimeFamily = "studio" | "stageTwo" | "frontier" | "precision" | "essential" | "expansion" | "discovery" | "productivity" | "demand" | "growth" | "converter" | "new" | "specialized" | "advanced" | "generic" | "unsupported";
 
 export function getToolRuntimeFamily(slug: string): ToolRuntimeFamily {
+  if (studioToolSlugs.has(slug)) return "studio";
   if (stageTwoToolSlugs.has(slug)) return "stageTwo";
   if (frontierToolSlugs.has(slug)) return "frontier";
   if (precisionToolSlugs.has(slug)) return "precision";
@@ -363,6 +368,7 @@ function explainCron(expression: string, locale: Locale) {
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
   const family = getToolRuntimeFamily(slug);
+  if (family === "studio") return <StudioWorkbench slug={slug} locale={locale} />;
   if (family === "stageTwo") return <StageTwoWorkbench slug={slug} locale={locale} />;
   if (family === "frontier") return <FrontierWorkbench slug={slug} locale={locale} />;
   if (family === "precision") return <PrecisionWorkbench slug={slug} locale={locale} />;

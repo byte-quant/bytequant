@@ -18,7 +18,7 @@ test("Stage 3 keeps the protected AdSense identity byte-for-byte", async () => {
 
 test("tool decision guidance is specific, multilingual, and scenario based", async () => {
   const source = await read("app/components/ToolEditorialReview.tsx");
-  assert.equal(publicTools.length, 317);
+  assert.equal(publicTools.length, 327);
   assert.match(source, /data-content-depth="task-specific"/);
   assert.match(source, /tool\.useCases\[locale\]\.map/);
   assert.match(source, /tool\.steps\[locale\]\[0\]/);
