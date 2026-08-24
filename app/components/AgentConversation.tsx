@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canAutomatePlan, runAgentAutomation, type AgentAutomationResult } from "../lib/agent-automation";
 import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, prepareAgentInput, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
 import { AGENT_AUTO_PREPARE_KEY } from "../lib/agent-session";
-import { acquireLocalAIEngine, buildLocalAIMessages, compactLocalAIConversationHistory, createFastConversationResponse, disposePooledLocalAIEngine, explainLocalAIError, inspectLocalAIEnvironment, isLikelyWorkflowRequest, LOCAL_AI_MODEL_ID, LOCAL_AI_PROFILES, readLocalAIAttachmentFile, readLocalAIConversationHistory, selectLocalAIConversationContext, streamLocalAI, supportsLocalAI, type LocalAIAttachment, type LocalAIConversationTurn, type LocalAIEnvironment, type LocalAILease, type LocalAIProfileId } from "../lib/local-ai";
+import { acquireLocalAIEngine, buildLocalAIMessages, compactLocalAIConversationHistory, createFastConversationResponse, didFastConversationUseHistory, disposePooledLocalAIEngine, explainLocalAIError, inspectLocalAIEnvironment, isLikelyWorkflowRequest, LOCAL_AI_MODEL_ID, LOCAL_AI_PROFILES, readLocalAIAttachmentFile, readLocalAIConversationHistory, referencesLocalAIHistory, selectLocalAIConversationContext, streamLocalAI, supportsLocalAI, type LocalAIAttachment, type LocalAIConversationTurn, type LocalAIEnvironment, type LocalAILease, type LocalAIProfileId } from "../lib/local-ai";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 import { publicTools as tools } from "../lib/tools";
 import { detectVisualIntent, VISUAL_MAX_FILE_BYTES } from "../lib/visual-studio";
@@ -50,10 +50,17 @@ const assistCopy = {
 } as const;
 
 const modeCopy = {
-  tr: { instant: "Anında yanıt", local: "Cihazdaki model", idle: "Kullanılmadığında belleği otomatik boşaltır", retry: "Yeniden dene" },
-  en: { instant: "Instant response", local: "On-device model", idle: "Automatically frees memory when idle", retry: "Try again" },
-  de: { instant: "Sofortantwort", local: "Modell auf dem Gerät", idle: "Gibt ungenutzten Speicher automatisch frei", retry: "Erneut versuchen" },
-  zh: { instant: "即时回答", local: "设备端模型", idle: "闲置时自动释放内存", retry: "重试" },
+  tr: { instant: "Hızlı araç motoru", local: "Yerel dil modeli", idle: "Kullanılmadığında belleği otomatik boşaltır", retry: "Yeniden dene" },
+  en: { instant: "Fast tool engine", local: "Local language model", idle: "Automatically frees memory when idle", retry: "Try again" },
+  de: { instant: "Schnelle Werkzeuglogik", local: "Lokales Sprachmodell", idle: "Gibt ungenutzten Speicher automatisch frei", retry: "Erneut versuchen" },
+  zh: { instant: "快速工具引擎", local: "本地语言模型", idle: "闲置时自动释放内存", retry: "重试" },
+} as const;
+
+const messageCopy = {
+  tr: { fastNotice: "Bu yanıt dil modelinden değil, hızlı ve açıklanabilir yardımcıdan geldi.", upgrade: "Yerel AI ile yeniden yanıtla", copy: "Kopyala", copied: "Kopyalandı", speak: "Sesli oku", retry: "Yeniden üret", inactive: "Gerçek yerel model henüz kapalı", active: "Gerçek yerel model etkin", toolReady: "Araç eşleme ve otomasyon hazır", context: "Sekme içi konuşma bağlamı", once: "İlk kullanımda bir kez indirilir" },
+  en: { fastNotice: "This came from the fast explainable helper, not the language model.", upgrade: "Answer again with local AI", copy: "Copy", copied: "Copied", speak: "Read aloud", retry: "Regenerate", inactive: "The real local model is not running yet", active: "Real local model is running", toolReady: "Tool matching and automation ready", context: "Tab-scoped conversation context", once: "Downloaded once on first use" },
+  de: { fastNotice: "Diese Antwort stammt von der schnellen, erklärbaren Hilfe – nicht vom Sprachmodell.", upgrade: "Mit lokaler KI neu beantworten", copy: "Kopieren", copied: "Kopiert", speak: "Vorlesen", retry: "Neu erzeugen", inactive: "Das echte lokale Modell ist noch ausgeschaltet", active: "Echtes lokales Modell ist aktiv", toolReady: "Werkzeugzuordnung und Automatisierung bereit", context: "Gesprächskontext nur in diesem Tab", once: "Wird bei der ersten Nutzung einmal geladen" },
+  zh: { fastNotice: "此回答来自快速可解释助手，并非语言模型。", upgrade: "使用本地 AI 重新回答", copy: "复制", copied: "已复制", speak: "朗读", retry: "重新生成", inactive: "真正的本地模型尚未启动", active: "真正的本地模型已启动", toolReady: "工具匹配与自动化已就绪", context: "仅限当前标签页的对话语境", once: "首次使用时仅下载一次" },
 } as const;
 
 const stateCopy = {
@@ -83,6 +90,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
   const state = stateCopy[locale];
   const ai = aiCopy[locale];
   const modeText = modeCopy[locale];
+  const message = messageCopy[locale];
   const [goal, setGoal] = useState("");
   const [plan, setPlan] = useState<AgentPlan | null>(null);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -135,24 +143,27 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     }, activeLeaseIdleMs);
   }, []);
 
-  const enableLocalAI = useCallback(async (profileId: LocalAIProfileId) => {
-    if (aiLeaseRef.current || aiInitAbortRef.current) return;
+  const enableLocalAI = useCallback(async (profileId: LocalAIProfileId): Promise<LocalAILease | null> => {
+    if (aiLeaseRef.current) return aiLeaseRef.current;
+    if (aiInitAbortRef.current) return null;
     const capability = supportsLocalAI();
-    if (!capability.supported) { setAIStatus("unsupported"); return; }
+    if (!capability.supported) { setAIStatus("unsupported"); return null; }
     const controller = new AbortController();
     aiInitAbortRef.current = controller;
     setAIStatus("loading"); setAIError(""); setAIProgress({ progress: 0, text: ai.loading });
     try {
       const lease = await acquireLocalAIEngine(setAIProgress, controller.signal, profileId);
-      if (controller.signal.aborted) { lease.release(); return; }
+      if (controller.signal.aborted) { lease.release(); return null; }
       aiLeaseRef.current = lease;
       setActiveProfile(lease.profileId);
       setAIStatus("ready"); setAIProgress({ progress: 1, text: ai.enabled });
       scheduleLeaseIdleRelease();
       try { sessionStorage.setItem(localAIOptInKey, lease.profileId); } catch { /* optional warm-up preference */ }
+      return lease;
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
+      if (error instanceof DOMException && error.name === "AbortError") return null;
       setAIStatus("error"); setAIError(error instanceof Error ? error.message : ai.failed);
+      return null;
     } finally {
       if (aiInitAbortRef.current === controller) aiInitAbortRef.current = null;
     }
@@ -251,14 +262,14 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
   }
 
-  async function submit() {
-    const text = goal.trim();
+  async function submit(forcedGoal?: string, providedLease?: LocalAILease) {
+    const text = (forcedGoal ?? goal).trim();
     if (!text || busy) return;
     const visualIntent = detectVisualIntent(text, Boolean(visualFile));
     if (visualIntent.kind !== "none") {
       const answer = visualIntent.kind === "create" ? visualCopy[locale].readyCreate : visualCopy[locale].readyEdit;
       const displayGoal = visualFile ? `${text}\n🖼 ${visualFile.name}` : text;
-      const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: [], time: Date.now(), mode: "fast", intent: "conversation", usedContext: false }]);
+      const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: ["visual-studio"], time: Date.now(), mode: "fast", intent: "workflow", usedContext: false }]);
       setTurns(nextTurns); setPlan(null); setShowWorkflowPlan(false); setVisualRequest({ id: Date.now(), command: text, file: visualFile }); setVisualFile(null); setAttachment(null); setGoal(""); setAutomation(null); setAutomationError("");
       try { sessionStorage.setItem(historyKey(locale), JSON.stringify(nextTurns)); sessionStorage.removeItem(AGENT_SESSION_KEY); } catch { /* continue without optional memory */ }
       return;
@@ -281,7 +292,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
       let mode: Turn["mode"] = "fast";
       if (aiLeaseIdleTimerRef.current !== null) clearTimeout(aiLeaseIdleTimerRef.current);
       aiLeaseIdleTimerRef.current = null;
-      let lease = aiLeaseRef.current;
+      let lease = providedLease ?? aiLeaseRef.current;
       if (!lease && aiStatus === "ready" && activeProfile) {
         try {
           lease = await acquireLocalAIEngine(setAIProgress, undefined, activeProfile);
@@ -293,7 +304,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
           lease = null;
         }
       }
-      if (lease && aiStatus === "ready") {
+      if (lease && (aiStatus === "ready" || Boolean(providedLease))) {
         try {
           const generated = await streamLocalAI(
             lease.engine,
@@ -330,7 +341,10 @@ export function AgentConversation({ locale }: { locale: Locale }) {
         }
       }
       const finalPlan = { ...next, response: answer };
-      const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: workflow ? finalPlan.steps.map((step) => step.title) : [], time: Date.now(), mode, intent, usedContext: conversationContext.length > 0 || next.conversation.isFollowUp }]);
+      const usedContext = mode === "ai"
+        ? conversationContext.length > 0 && (referencesLocalAIHistory(text) || next.conversation.isFollowUp)
+        : didFastConversationUseHistory(text, turns);
+      const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: workflow ? finalPlan.steps.map((step) => step.title) : [], time: Date.now(), mode, intent, usedContext }]);
       if (workflow) lastWorkflowPlanRef.current = finalPlan;
       setPlan(workflow ? finalPlan : null); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setInputInherited(Boolean(inheritedInput)); setStreamingGoal(""); setStreamingResponse(""); setBusy(false); setAttachment(null);
       setAutomation(automaticResult);
@@ -343,11 +357,19 @@ export function AgentConversation({ locale }: { locale: Locale }) {
       if (runId !== generationRef.current) return;
       setAIError(error instanceof Error ? error.message : ai.failed);
       const answer = createFastConversationResponse(locale, text, turns);
-      const fallbackTurn: Turn = { locale, goal: displayGoal, answer, tools: [], time: Date.now(), mode: "fast", intent: "conversation", usedContext: selectLocalAIConversationContext(turns, locale, text, "conversation").length > 0 };
+      const fallbackTurn: Turn = { locale, goal: displayGoal, answer, tools: [], time: Date.now(), mode: "fast", intent: "conversation", usedContext: didFastConversationUseHistory(text, turns) };
       const nextTurns = compactLocalAIConversationHistory([...turns, fallbackTurn]);
       setPlan(null); setTurns(nextTurns); setStreamingGoal(""); setStreamingResponse(""); setBusy(false);
       try { sessionStorage.setItem(historyKey(locale), JSON.stringify(nextTurns)); } catch { /* keep working without memory */ }
     }
+  }
+
+  async function answerAgainWithLocalAI(turn: Turn) {
+    if (busy || aiStatus === "loading") return;
+    const lease = await enableLocalAI(selectedProfile);
+    if (!lease) return;
+    const cleanGoal = turn.goal.split("\n📎")[0]?.trim() || turn.goal;
+    await submit(cleanGoal, lease);
   }
 
   async function beginVoice() {
@@ -398,9 +420,10 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {ai.automatic}</small></div></div><div><span>{aiStatus === "ready" ? `${ai.enabled} · ${activeModelLabel}` : turns.length ? t.memory : ai.automatic}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
     {!turns.length && <div className="agent-capability-path" aria-label={locale === "tr" ? "Ajan çalışma biçimi" : locale === "de" ? "Arbeitsweise des Agenten" : locale === "zh" ? "助手工作方式" : "How the Agent works"}><span><b>1</b>{locale === "tr" ? "İsteği anlatın" : locale === "de" ? "Ziel beschreiben" : locale === "zh" ? "描述目标" : "Describe"}</span><i>→</i><span><b>2</b>{locale === "tr" ? "Planı görün" : locale === "de" ? "Plan prüfen" : locale === "zh" ? "查看计划" : "Review"}</span><i>→</i><span><b>3</b>{locale === "tr" ? "Onaylayın" : locale === "de" ? "Bestätigen" : locale === "zh" ? "确认执行" : "Approve"}</span></div>}
 
-    <section className={`agent-local-ai-panel agent-ai-auto ${aiStatus}`} aria-label={ai.automatic}>
-      <div><span aria-hidden="true">✦</span><div><strong>{ai.automatic}</strong><small>{aiStatus === "unsupported" ? ai.unsupported : aiStatus === "error" ? ai.failed : aiStatus === "ready" ? `${ai.enabled} · ${activeModelLabel}` : ai.intro}</small></div></div>
-      {aiStatus === "loading" ? <><div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {ai.loading}</small></div><button type="button" onClick={disableLocalAI}>{ai.cancelLoad}</button></> : aiStatus === "ready" ? <span className="agent-ai-ready-badge">✓ {ai.enabled}</span> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI(selectedProfile)}>{ai.improve}</button> : null}
+    <section className={`agent-local-ai-panel agent-ai-auto ${aiStatus}`} aria-label={ai.automatic} aria-live="polite">
+      <div><span aria-hidden="true">✦</span><div><strong>{aiStatus === "ready" ? message.active : message.inactive}</strong><small>{aiStatus === "unsupported" ? ai.unsupported : aiStatus === "error" ? ai.failed : aiStatus === "ready" ? `${activeModelLabel} · ${ai.intro}` : ai.intro}</small></div></div>
+      {aiStatus === "loading" ? <><div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {ai.loading}</small></div><button type="button" onClick={disableLocalAI}>{ai.cancelLoad}</button></> : aiStatus === "ready" ? <span className="agent-ai-ready-badge">✓ {ai.enabled}</span> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI(selectedProfile)}>{ai.improve} · {selectedModel.downloadLabel}</button> : null}
+      <div className="agent-ai-mode-proof"><span>✓ {message.toolReady}</span><span>✓ {message.context}</span><span>{aiStatus === "ready" ? "✓" : "↓"} {aiStatus === "ready" ? message.active : message.once}</span></div>
       <details className="agent-ai-settings"><summary>{ai.settings}<span>+</span></summary><div>
         <div className="agent-ai-profile-grid">
           {(["lite", "balanced", "advanced"] as LocalAIProfileId[]).map((profileId) => {
@@ -421,7 +444,10 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{busy ? (aiStatus === "ready" ? ai.generating : t.thinking) : turns.at(-1)?.answer ?? ""}</div>
     <div className="agent-chat-stream">
       <article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><p>{t.helloBody}</p></div></article>
-      {turns.slice(-6).map((turn, index) => <div className="agent-turn" key={`${turn.time}-${index}`}><article className="agent-message user"><div><p>{turn.goal}</p></div></article><article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><small className={`agent-response-mode ${turn.mode === "ai" ? "local" : "instant"}`}><i />{turn.mode === "ai" ? modeText.local : modeText.instant}</small><p>{turn.answer}</p>{turn.usedContext && <small>↳ {t.previous}</small>}</div></article></div>)}
+      {turns.slice(-6).map((turn, index) => {
+        const latest = turn === turns.at(-1);
+        return <div className="agent-turn" key={`${turn.time}-${index}`}><article className="agent-message user"><div><p>{turn.goal}</p></div></article><article className="agent-message assistant"><span className="agent-avatar">BQ</span><div><small className={`agent-response-mode ${turn.mode === "ai" ? "local" : "instant"}`}><i />{turn.mode === "ai" ? modeText.local : modeText.instant}</small><p>{turn.answer}</p>{turn.usedContext && <small>↳ {t.previous}</small>}{latest && turn.mode !== "ai" && turn.intent === "conversation" && <small className="agent-fast-disclosure">ⓘ {message.fastNotice}</small>}<nav className="agent-message-actions" aria-label={assist.next}><button type="button" onClick={async (event) => { try { await navigator.clipboard.writeText(turn.answer); const button = event.currentTarget; button.textContent = `✓ ${message.copied}`; window.setTimeout(() => { button.textContent = message.copy; }, 1_600); } catch { /* clipboard permission is optional */ } }}>{message.copy}</button><button type="button" onClick={() => { if (!("speechSynthesis" in window)) return; window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(turn.answer); utterance.lang = tags[locale]; window.speechSynthesis.speak(utterance); }}>{message.speak}</button>{latest && turn.intent === "conversation" && <button type="button" className="agent-upgrade-answer" disabled={busy || aiStatus === "loading" || aiStatus === "unsupported"} onClick={() => void answerAgainWithLocalAI(turn)}>{turn.mode === "ai" ? message.retry : message.upgrade}</button>}</nav></div></article></div>;
+      })}
       {busy && <div className="agent-turn current"><article className="agent-message user"><div><p>{streamingGoal}</p></div></article><article className="agent-message assistant thinking"><span className="agent-avatar">BQ</span><div><p>{streamingResponse || (aiStatus === "ready" ? ai.generating : t.thinking)}</p>{!streamingResponse && <i />}</div></article></div>}
 
       {plan && !busy && showWorkflowPlan && <article className="agent-answer-card">

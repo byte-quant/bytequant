@@ -154,10 +154,10 @@ const localeNames: Record<Locale, string> = {
   zh: "Simplified Chinese",
 };
 
-const workflowActionTerms = /(?:\b(?:dönüştür|çevir|formatla|biçimlendir|maskele|temizle|ayı[kır]|sırala|doğrula|karşılaştır|birleştir|böl|sıkıştır|çöz|kodla|şifrele|hesapla|analiz et|özetle|düzenle|oluştur|convert|format|mask|clean|sort|validate|compare|merge|split|compress|decode|encode|encrypt|decrypt|calculate|analy[sz]e|summari[sz]e|edit|generate|prüfen|prüf|formatieren|formatier|umwandeln|umwandel|bereinigen|bereinig|sortieren|validieren|vergleichen|zusammenführen|teilen|komprimieren|dekodieren|kodieren|verschlüsseln|berechnen|analysieren|zusammenfassen|erstellen)\b|转换|格式化|清理|脱敏|排序|验证|比较|合并|拆分|压缩|解码|编码|加密|解密|计算|分析|总结|编辑|生成)/i;
+const workflowActionTerms = /(?:\b(?:dönüştür\p{L}*|çevir\p{L}*|formatla\p{L}*|biçimlendir\p{L}*|maskele\p{L}*|temizle\p{L}*|ayı[kır]\p{L}*|sırala\p{L}*|doğrula\p{L}*|karşılaştır\p{L}*|birleştir\p{L}*|böl\p{L}*|sıkıştır\p{L}*|çöz\p{L}*|kodla\p{L}*|şifrele\p{L}*|hesapla\p{L}*|analiz et\p{L}*|özetle\p{L}*|düzenle\p{L}*|oluştur\p{L}*|convert\p{L}*|format\p{L}*|mask\p{L}*|clean\p{L}*|sort\p{L}*|validate\p{L}*|compare\p{L}*|merge\p{L}*|split\p{L}*|compress\p{L}*|decode\p{L}*|encode\p{L}*|encrypt\p{L}*|decrypt\p{L}*|calculate\p{L}*|analy[sz]e\p{L}*|summari[sz]e\p{L}*|edit\p{L}*|generate\p{L}*|prüfen\p{L}*|prüf\p{L}*|formatieren\p{L}*|formatier\p{L}*|umwandeln\p{L}*|umwandel\p{L}*|bereinigen\p{L}*|bereinig\p{L}*|sortieren\p{L}*|validieren\p{L}*|vergleichen\p{L}*|zusammenführen\p{L}*|teilen\p{L}*|komprimieren\p{L}*|dekodieren\p{L}*|kodieren\p{L}*|verschlüsseln\p{L}*|berechnen\p{L}*|analysieren\p{L}*|zusammenfassen\p{L}*|erstellen\p{L}*)\b|转换|格式化|清理|脱敏|排序|验证|比较|合并|拆分|压缩|解码|编码|加密|解密|计算|分析|总结|编辑|生成)/iu;
 const explicitToolTerms = /(?:\b(?:open|run|use|tool|workflow|akış|araç|çalıştır|kullan|aç|werkzeug|ablauf|ausführen|öffnen)\b|工具|流程|运行|打开|使用)/i;
 const informationalTerms = /(?:\b(?:nedir|ne demek|ne zaman|neden|nasıl çalışır|what is|what are|when should|why|how does|was ist|was sind|wann|warum|wie funktioniert)\b|是什么|什么时候|为什么|如何工作)/i;
-const memoryReferenceTerms = /(?:\b(?:az önce|önceki|en son|bunu|şunu|onu|cevabın|yanıtın|ne demiş|hatırla|devam et|detaylandır|örnek ver|just now|previous|last (?:answer|message)|that|it|what did (?:i|you) say|remember|continue|expand|give an example|vorher|gerade|letzte antwort|das|daran|erinner|weiter|ausführlicher|beispiel)\b|刚才|上一条|之前|这个|那个|记得|继续|详细|举例)/iu;
+const memoryReferenceTerms = /(?:\b(?:az önce|önceki|en son|bunu|şunu|onu|cevabın|yanıtın|ne demiş|hatırla|beni hatırlıyor|benim adım ne|devam et|detaylandır|örnek ver|just now|previous|last (?:answer|message)|that|it|what did (?:i|you) say|remember|my name|continue|expand|give an example|vorher|gerade|letzte antwort|das|daran|erinner|mein name|weiter|ausführlicher|beispiel)\b|刚才|上一条|之前|这个|那个|记得|我的名字|继续|详细|举例)/iu;
 
 export function referencesLocalAIHistory(goal: string) {
   return memoryReferenceTerms.test(goal);
@@ -230,7 +230,9 @@ export function isLikelyWorkflowRequest(value: string) {
   const structuredPayload = /^\s*[\[{<][\s\S]{12,}[\]}>]\s*$/.test(text)
     || /(?:^|\n)[^|\n]{0,120}\|[^|\n]{0,120}(?:\n|$)/.test(text)
     || /(?:^|\n)\s*(?:[-*]|\d+[.)])\s+\S+/.test(text);
-  const requestsAction = workflowActionTerms.test(text) || explicitToolTerms.test(text);
+  const requestsAction = workflowActionTerms.test(text)
+    || explicitToolTerms.test(text)
+    || /(?:\b(?:pdf|json|csv|png|jpe?g|webp)\b[^.!?\n]{0,24}\b(?:yap\p{L}*|hazırla\p{L}*|make|create|erstell\p{L}*)\b|(?:制作|生成).{0,12}(?:PDF|JSON|CSV))/iu.test(text);
   if (informationalTerms.test(text) && !workflowActionTerms.test(text) && !structuredPayload) return false;
   return structuredPayload || requestsAction;
 }
@@ -238,6 +240,10 @@ export function isLikelyWorkflowRequest(value: string) {
 const quickReplies = {
   tr: {
     hello: "Merhaba! İyiyim, teşekkür ederim; sizin için buradayım. İsterseniz biraz sohbet edelim, isterseniz bir işi birlikte sonuçlandıralım. Bugün nasıl yardımcı olayım?",
+    wellbeing: "İyiyim, teşekkür ederim. Burada acele ettirmeden düşünebilir, bir soruyu konuşabilir veya dosya ve verileriniz için doğru ByteQuant aracını hazırlayabilirim. Siz nasılsınız?",
+    identity: "Ben ByteQuant AI'yım. Sohbet ve araç planlama katmanım hemen çalışır; gerçek açık kaynak dil modeli ise siz başlattığınızda bu cihazda çalışır. Mesajlarınızı uzak bir yapay zekâ servisine göndermem.",
+    remembered: "Bu sekmedeki konuşmayı hatırlıyorum; sekme kapanınca bu sohbet belleği silinir.",
+    noMemory: "Bu sekmede henüz hatırlayabileceğim önceki bir bilgi yok. İsterseniz bir ayrıntıyı yazın; yalnızca bu sohbet oturumunda bağlam olarak kullanayım.",
     focus: "Bugün tek bir somut sonuç seçin, 25 dakikalık bildirim kapalı bir blok ayırın ve başlamadan önce ilk iki dakikalık adımı yazın. Blok bitince yalnızca sonucu ve bir sonraki adımı not edin.",
     thanks: "Rica ederim. İsterseniz kaldığımız yerden devam edebilir veya yeni bir konu açabilirsiniz.",
     current: "Canlı internete erişmediğim için güncel hava, haber veya fiyatı doğrulayamam. Güvenilir güncel kaynağı kontrol edin; metni buraya getirirseniz cihazınızda açıklamaya veya düzenlemeye yardımcı olabilirim.",
@@ -258,6 +264,10 @@ const quickReplies = {
   },
   en: {
     hello: "Hello! I’m doing well, thank you, and I’m ready to help. We can chat for a moment or turn a task into a concrete result. What would be useful today?",
+    wellbeing: "I’m doing well, thank you. We can think through a question without rushing, or I can prepare the right ByteQuant tool for your file or data. How are you?",
+    identity: "I’m ByteQuant AI. My conversation and tool-planning layer works immediately; the real open-source language model runs on this device after you start it. I do not send your messages to a remote AI service.",
+    remembered: "I remember this tab’s conversation; that session memory is removed when the tab session ends.",
+    noMemory: "There is no earlier detail to recall in this tab yet. Share one if you like, and I will use it only as context for this chat session.",
     focus: "Choose one concrete outcome for today, reserve a 25-minute notification-free block, and write the first two-minute action before you begin. When the block ends, note only the result and the next step.",
     thanks: "You’re welcome. We can continue from here or start a new topic.",
     current: "I have no live web access, so I cannot verify current weather, news, or prices. Check a reliable current source; if you bring the text here, I can help explain or organize it on-device.",
@@ -278,6 +288,10 @@ const quickReplies = {
   },
   de: {
     hello: "Hallo! Mir geht es gut, danke – und ich bin bereit zu helfen. Wir können kurz sprechen oder eine Aufgabe in ein konkretes Ergebnis verwandeln. Was wäre heute hilfreich?",
+    wellbeing: "Mir geht es gut, danke. Wir können eine Frage in Ruhe durchdenken oder das passende ByteQuant-Werkzeug für Ihre Datei oder Daten vorbereiten. Wie geht es Ihnen?",
+    identity: "Ich bin ByteQuant AI. Gespräch und Werkzeugplanung funktionieren sofort; das echte Open-Source-Sprachmodell läuft nach Ihrer Aktivierung auf diesem Gerät. Nachrichten gehen nicht an einen entfernten KI-Dienst.",
+    remembered: "Ich merke mir den Verlauf dieses Tabs; mit dem Ende der Tab-Sitzung wird dieser Gesprächskontext gelöscht.",
+    noMemory: "In diesem Tab gibt es noch keine frühere Angabe, an die ich anknüpfen kann. Sie können eine nennen; ich nutze sie nur in dieser Gesprächssitzung.",
     focus: "Wählen Sie heute ein konkretes Ergebnis, reservieren Sie 25 Minuten ohne Benachrichtigungen und notieren Sie vorher den ersten Zwei-Minuten-Schritt. Danach halten Sie nur Ergebnis und nächsten Schritt fest.",
     thanks: "Gern. Wir können hier weitermachen oder ein neues Thema beginnen.",
     current: "Ich habe keinen Live-Webzugriff und kann Wetter, Nachrichten oder Preise nicht aktuell verifizieren. Prüfen Sie eine verlässliche aktuelle Quelle; eingefügten Text kann ich lokal erklären oder ordnen.",
@@ -298,6 +312,10 @@ const quickReplies = {
   },
   zh: {
     hello: "您好！我状态很好，谢谢，我也已经准备好帮助您。我们可以先聊一聊，也可以把任务直接变成可用结果。今天想先做什么？",
+    wellbeing: "我很好，谢谢。我们可以从容地分析一个问题，也可以为您的文件或数据准备合适的 ByteQuant 工具。您今天怎么样？",
+    identity: "我是 ByteQuant AI。对话与工具规划层可立即使用；真正的开源语言模型会在您启动后运行于当前设备。您的消息不会发送到远程 AI 服务。",
+    remembered: "我会记住当前标签页中的对话；标签页会话结束后，这些对话记忆会被删除。",
+    noMemory: "当前标签页还没有可回忆的先前信息。您可以告诉我一个细节，我只会在本次对话中把它作为语境使用。",
     focus: "今天先选一个明确结果，安排 25 分钟并关闭通知，开始前写下两分钟内能完成的第一步。时间结束后，只记录结果和下一步。",
     thanks: "不客气。我们可以继续当前话题，也可以开始新话题。",
     current: "我无法访问实时网络，因此不能核实当前天气、新闻或价格。请先查看可靠的最新来源；把文字带到这里后，我可以在设备端帮助解释或整理。",
@@ -322,6 +340,18 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   const text = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
   const copy = quickReplies[locale];
   const previous = [...history].reverse().find((turn) => turn.locale === locale && turn.answer.trim());
+  const previousName = [...history].reverse().map((turn) => turn.goal.match(/(?:benim adım|adım|my name is|ich hei(?:ß|ss)e|mein name ist|我叫)\s+([\p{L}\p{M}][\p{L}\p{M}'’-]{1,30})/iu)?.[1]).find((value) => value && !/^(?:ne|nedir|what|was|什么)$/iu.test(value));
+  const introducedName = goal.match(/(?:benim adım|adım|my name is|ich hei(?:ß|ss)e|mein name ist|我叫)\s+([\p{L}\p{M}][\p{L}\p{M}'’-]{1,30})/iu)?.[1];
+  if (introducedName && !/^(?:ne|nedir|what|was|什么)$/iu.test(introducedName)) {
+    return locale === "tr" ? `Memnun oldum, ${introducedName}. Adınızı yalnızca bu sekmedeki konuşma bağlamında tutacağım.`
+      : locale === "de" ? `Freut mich, ${introducedName}. Ich behalte Ihren Namen nur im Gesprächskontext dieses Tabs.`
+      : locale === "zh" ? `很高兴认识您，${introducedName}。我只会在当前标签页的对话语境中记住这个名字。`
+      : `Nice to meet you, ${introducedName}. I will keep your name only in this tab's conversation context.`;
+  }
+  if (/(?:benim adım ne|what(?:'s| is) my name|wie hei(?:ß|ss)e ich|我的名字是什么|我叫什么)/iu.test(text)) {
+    if (previousName) return locale === "tr" ? `Bu sekmede adınızı ${previousName} olarak söylemiştiniz.` : locale === "de" ? `In diesem Tab haben Sie Ihren Namen als ${previousName} genannt.` : locale === "zh" ? `您在当前标签页中说自己的名字是 ${previousName}。` : `You told me your name is ${previousName} in this tab.`;
+    return copy.noMemory;
+  }
   if (/(?:ben|i|ich|我).*(?:ne demiş|what did.*say|was habe.*gesagt|说了什么)|(?:son|last|letzte|上一条).*(?:mesaj|message|nachricht|消息)/iu.test(text) && previous) {
     return `${copy.recalledUser}\n\n“${sliceAtBoundary(previous.goal, 420)}”`;
   }
@@ -348,11 +378,14 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (memoryReferenceTerms.test(text) && previous) {
     return `${copy.continued}\n\n${sliceAtBoundary(previous.answer, 420)}\n\n${copy.other}`;
   }
+  if (/(beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(text)) return previous ? copy.remembered : copy.noMemory;
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
   if (/(teşekkür|sağ ol|thanks|thank you|danke|谢谢)/i.test(text)) return copy.thanks;
   if (/(hava|weather|wetter|新闻|haber|news|nachricht|天气|fiyat|price|preis|价格|bugün kaç|what time|uhrzeit|几点)/i.test(text)) return copy.current;
   if (/(ne yapabilirsin|yardım|help|was kannst|hilfe|能做什么|帮助)/i.test(text)) return copy.help;
-  if (/(merhaba|selam|hello|\bhi\b|hallo|guten tag|你好|您好)/i.test(text)) return copy.hello;
+  if (/(ad[ıi]n ne|sen kimsin|who are you|what(?:'s| is) your name|wie hei(?:ß|ss)t du|wer bist du|你是谁|你叫什么)/iu.test(text)) return copy.identity;
+  if (/(nas[ıi]ls[ıi]n|ne haber|how are you|how(?:'s| is) it going|wie geht(?: es)? dir|你好吗|最近怎么样)/iu.test(text)) return copy.wellbeing;
+  if (/(merh(?:a|e)(?:ba|na)|selam|hello|\bhi\b|hallo|guten tag|你好|您好)/iu.test(text)) return copy.hello;
   if (/(json).*(nedir|ne zaman|csv)|(?:what is|when should).*(json|csv)|(?:was ist|wann).*(json|csv)|(json|csv).*(是什么|什么时候)/i.test(text)) return copy.json;
   if (/(seo|hreflang|canonical|arama motor|search engine|suchmaschine|搜索引擎|索引|indexing)/i.test(text)) return copy.seo;
   if (/(gizlilik|privacy|datenschutz|隐私|kvkk|gdpr|kişisel veri|personal data)/i.test(text)) return copy.privacy;
@@ -361,6 +394,13 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (/(karar|seçenek|hangisini|decid|choose|option|entscheid|wahl|决定|选择)/i.test(text)) return copy.decide;
   if (/(açıkla|anlat|nedir|neden|explain|what is|why|erklär|warum|was ist|解释|为什么|是什么)/i.test(text)) return copy.explain;
   return copy.other;
+}
+
+/** Whether the visible response actually depended on earlier tab-scoped turns. */
+export function didFastConversationUseHistory(goal: string, history: LocalAIConversationTurn[]) {
+  if (!history.some((turn) => turn.answer.trim())) return false;
+  return referencesLocalAIHistory(goal)
+    || /(?:benim adım ne|what(?:'s| is) my name|wie hei(?:ß|ss)e ich|我的名字是什么|我叫什么|beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(goal);
 }
 
 export type LocalAIErrorExplanation = { title: string; message: string; action: string; code: "device" | "storage" | "network" | "memory" | "busy" | "cancelled" | "quality" | "unknown" };

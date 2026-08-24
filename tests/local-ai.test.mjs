@@ -8,6 +8,7 @@ import {
   clearLocalAIResponseCache,
   compactLocalAIConversationHistory,
   createFastConversationResponse,
+  didFastConversationUseHistory,
   estimateLocalAITokens,
   explainLocalAIError,
   getLocalAIResponseCacheSize,
@@ -112,6 +113,8 @@ test("workflow detection separates everyday chat from tool work", () => {
   assert.equal(isLikelyWorkflowRequest("Bu JSON'u biçimlendir"), true);
   assert.equal(isLikelyWorkflowRequest("Bitte diese JSON-Datei formatieren"), true);
   assert.equal(isLikelyWorkflowRequest("把这些数据转换为 JSON"), true);
+  assert.equal(isLikelyWorkflowRequest("Ben görseli PDF'e dönüştürmeni istiyorum"), true);
+  assert.equal(isLikelyWorkflowRequest("Bu fotoğrafları tek PDF yapar mısın?"), true);
 });
 
 test("fast fallback handles common conversation without inventing a tool", () => {
@@ -128,6 +131,23 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "Sen en son ne cevap vermiştin?", history), /önemli bir örnek/);
   const chineseHistory = [{ locale: "zh", goal: "我喜欢蓝色", answer: "我会在当前对话中记住蓝色。", tools: [], time: 1, mode: "fast", intent: "conversation" }];
   assert.match(createFastConversationResponse("zh", "上一条消息是什么？", chineseHistory), /我喜欢蓝色/);
+  assert.match(createFastConversationResponse("tr", "merhana nasılsın"), /İyiyim|nasılsınız/i);
+  assert.match(createFastConversationResponse("tr", "adın ne"), /ByteQuant AI/);
+  assert.doesNotMatch(createFastConversationResponse("tr", "nasılsın", history), /Ne elde etmek istediğinizi/);
+  assert.equal(didFastConversationUseHistory("adın ne", history), false);
+  assert.equal(didFastConversationUseHistory("Ben en son ne demiştim?", history), true);
+  const namedHistory = [{ locale: "tr", goal: "Benim adım Ada", answer: "Memnun oldum, Ada.", tools: [], time: 1, mode: "fast", intent: "conversation" }];
+  assert.match(createFastConversationResponse("tr", "Benim adım ne?", namedHistory), /Ada/);
+  assert.equal(didFastConversationUseHistory("Benim adım ne?", namedHistory), true);
+});
+
+test("image-to-PDF language routes to the dedicated local converter", () => {
+  const tr = createAgentPlan("Ben görseli PDF'e dönüştürmeni istiyorum", publicTools, "tr");
+  assert.equal(tr.matchQuality, "strong");
+  assert.equal(tr.steps[0]?.toolSlug, "gorselden-pdf");
+  assert.equal(tr.steps[0]?.requiresFile, true);
+  const en = createAgentPlan("Convert these photos into one PDF", publicTools, "en");
+  assert.equal(en.steps[0]?.toolSlug, "gorselden-pdf");
 });
 
 test("conversation context keeps relevant pairs and isolates unrelated workflow history", () => {

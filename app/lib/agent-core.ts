@@ -304,6 +304,14 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
   const toJson = has(/json(?:a| a| olarak| format)|to json|into json|als json|zu json|转(?:为|成) json/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
   const toCsv = has(/csv(?:ye| ye| olarak| format)|to csv|into csv|als csv|zu csv|转(?:为|成) csv/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
 
+  const imageMention = has(/gorsel|resim|foto|png|jpe?g|webp|image|picture|photo|bild|图片|照片/u);
+  const pdfMention = has(/\bpdf\b/u);
+  const conversion = has(/donustur|cevir|pdf yap|convert|turn into|umwandel|konvertier|转(?:为|成)|转换/u);
+  if (imageMention && pdfMention && conversion) {
+    const pdfIsSource = has(/pdf(?:den| den|ten| ten)|from (?:a )?pdf|aus (?:einer )?pdf|从 pdf/u);
+    if (!pdfIsSource) add("gorselden-pdf", intentLabel("Görselleri tek bir PDF dosyasına dönüştür", "Convert images into one PDF file", "Bilder in eine PDF-Datei umwandeln", "将图像转换为一个 PDF 文件"));
+  }
+
   if (has(/\bjwt\b|json web token/u) && has(/decode|coz|incele|oku|inspect|解析|解码/u)) {
     add("jwt-decoder", intentLabel("JWT içeriğini yerel olarak çöz", "Decode JWT content locally", "JWT-Inhalt lokal dekodieren", "在本地解码 JWT 内容"));
   } else if (has(/regex|regular expression|duzenli ifade/u) && has(/test|hata|error|kontrol|dene|pruf|prüf|检查|错误/u)) {

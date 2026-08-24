@@ -48,6 +48,12 @@ export function detectVisualIntent(instruction: string, hasImage = false): Visua
   const text = instruction.replace(/\s+/g, " ").trim();
   if (!text) return hasImage ? { kind: "edit", confidence: "high" } : { kind: "none", confidence: "none" };
   const mentionsVisual = visualNouns.test(text);
+  // File-format conversion is a tool workflow, not an image-editing command.
+  // Without this boundary, phrases such as “turn this image into a PDF” could
+  // open the visual studio instead of the dedicated converter.
+  if (mentionsVisual && /\bpdf\b/iu.test(text) && /(?:dönüştür\p{L}*|çevir\p{L}*|pdf yap\p{L}*|convert\p{L}*|turn into|umwandel\p{L}*|konvertier\p{L}*|转换|转为|转成)/iu.test(text)) {
+    return { kind: "none", confidence: "none" };
+  }
   if (hasImage && (mentionsVisual || editVerbs.test(text) || createVerbs.test(text))) return { kind: "edit", confidence: "high" };
   if (mentionsVisual && editVerbs.test(text)) return { kind: "edit", confidence: "high" };
   if (mentionsVisual && createVerbs.test(text)) return { kind: "create", confidence: "high" };

@@ -3903,3 +3903,25 @@ main{isolation:isolate}
   .reference-editorial,
   .workstation-example li { border-radius: 1rem; }
 }
+
+/* ByteQuant AI 7.0: make the real-model boundary and message actions obvious. */
+.experience-v3 .agent-ai-auto{position:relative;overflow:hidden}
+.experience-v3 .agent-ai-auto::after{content:"";position:absolute;right:0;top:0;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--violet) 14%,transparent),transparent 68%);pointer-events:none}
+.agent-ai-mode-proof{grid-column:1/-1;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important}
+.agent-ai-mode-proof>span{min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:color-mix(in srgb,var(--surface-soft) 72%,transparent);font-size:11px;font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+.agent-ai-auto.ready .agent-ai-mode-proof>span{border-color:color-mix(in srgb,var(--green) 24%,var(--line));color:var(--text)}
+.agent-fast-disclosure{margin-top:10px!important;padding:9px 10px;border:1px solid color-mix(in srgb,var(--violet) 22%,var(--line));border-radius:9px;color:var(--muted)!important;background:color-mix(in srgb,var(--violet) 6%,var(--surface-soft));font-size:11px!important;line-height:1.55!important}
+.agent-message-actions{margin-top:10px;padding-top:9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.agent-message-actions button{min-height:34px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:var(--surface-soft);font-size:10px;font-weight:800;line-height:1.35;cursor:pointer}
+.agent-message-actions button:hover,.agent-message-actions button:focus-visible{border-color:color-mix(in srgb,var(--teal) 45%,var(--line));color:var(--text);background:var(--teal-soft)}
+.agent-message-actions .agent-upgrade-answer{margin-left:auto;border-color:color-mix(in srgb,var(--violet) 35%,var(--line));color:var(--text);background:color-mix(in srgb,var(--violet) 10%,var(--surface))}
+.agent-message-actions button:disabled{opacity:.55;cursor:not-allowed}
+.experience-v3 .agent-ai-settings{position:relative;z-index:1}
+.experience-v3 .agent-ai-settings[open]>div{max-height:min(52vh,430px);padding-right:4px;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+
+@media(max-width:760px){
+  .agent-ai-mode-proof{grid-template-columns:minmax(0,1fr)}
+  .agent-message-actions{align-items:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .agent-message-actions .agent-upgrade-answer{grid-column:1/-1;margin-left:0}
+  .agent-message-actions button{min-height:42px;white-space:normal}
+}

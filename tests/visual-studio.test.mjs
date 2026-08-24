@@ -35,6 +35,8 @@ test("visual intent routing is explicit, multilingual, and does not hijack ordin
   assert.equal(detectVisualIntent("Bitte dieses Bild nach rechts drehen").kind, "edit");
   assert.equal(detectVisualIntent("创建一个蓝色科技海报").kind, "create");
   assert.equal(detectVisualIntent("Create a short checklist").kind, "none");
+  assert.equal(detectVisualIntent("Ben görseli PDF'e dönüştürmeni istiyorum").kind, "none");
+  assert.equal(detectVisualIntent("Convert these images into one PDF", true).kind, "none");
   assert.equal(detectVisualIntent("", true).kind, "edit");
 });
 
