@@ -51,7 +51,7 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@mlc-ai/web-llm": "0.2.84",
+    "@mlc-ai/web-llm": "0.2.82",
     "drizzle-orm": "0.45.2",
     "next": "16.2.12",
     "nostr-tools": "2.24.1",

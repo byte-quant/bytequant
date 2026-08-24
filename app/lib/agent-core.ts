@@ -237,10 +237,6 @@ export function extractAgentPayload(goal: string) {
   const url = bounded.match(/https?:\/\/[^\s<>"']+/iu)?.[0];
   if (url && /(?:qr|encode|decode|kodla|coz|çöz|analiz|incele|check|pruf|prüf|生成|编码|解码|检查)/iu.test(bounded.slice(0, Math.max(0, bounded.indexOf(url))))) return url.slice(0, 180_000);
 
-  const lines = bounded.split(/\r?\n/);
-  const structuredLine = lines.findIndex((line, index) => index > 0 && /[,\t;]/.test(line) && /[,\t;]/.test(lines[index + 1] ?? ""));
-  if (structuredLine >= 0) return lines.slice(structuredLine).join("\n").trim().slice(0, 180_000);
-
   const colon = bounded.search(/:\s+/);
   if (colon >= 0) {
     const lead = bounded.slice(0, colon);
@@ -248,6 +244,10 @@ export function extractAgentPayload(goal: string) {
     const explicitAction = /(?:girdi|veri|metin|input|data|content|inhalt|eingabe|输入|数据|bicimlendir|biçimlendir|format|donustur|dönüştür|cevir|çevir|convert|\byap\b|\bmake\b|maskele|mask|redact|kodla|encode|decode|coz|çöz|olustur|oluştur|generate|temizle|clean|sirala|sırala|sort|incele|inspect|compare|karsilastir|karşılaştır)/iu.test(lead);
     if (tail && (explicitAction || /@|https?:\/\/|\b(?:true|false|null)\b|[,\t].*[,\t]/iu.test(tail))) return tail.slice(0, 180_000);
   }
+
+  const lines = bounded.split(/\r?\n/);
+  const structuredLine = lines.findIndex((line, index) => index > 0 && /[,\t;]/.test(line) && /[,\t;]/.test(lines[index + 1] ?? ""));
+  if (structuredLine >= 0) return lines.slice(structuredLine).join("\n").trim().slice(0, 180_000);
   return "";
 }
 

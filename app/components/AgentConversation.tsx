@@ -64,10 +64,10 @@ const stateCopy = {
 } as const;
 
 const aiCopy = {
-  tr: { automatic: "ByteQuant AI · Otomatik", intro: "İsteğinizi anında anlar; cihazınızda hazır bir yerel model varsa daha doğal yanıtları otomatik kullanır.", improve: "Yanıtları güçlendir", enabled: "Gelişmiş yanıtlar hazır", loading: "Yanıt motoru bu cihazda hazırlanıyor", cancelLoad: "İptal", stop: "Durdur", stopModel: "Yerel modeli durdur", unsupported: "Bu cihaz gelişmiş yerel modeli desteklemiyor; araç planlama ve otomasyon çalışmaya devam eder.", failed: "Gelişmiş yanıt motoru başlatılamadı; ByteQuant AI kesintisiz devam ediyor.", settings: "Yanıt kalitesi ve cihaz ayarları", lite: "Hafif", liteText: "Daha az indirme, daha hızlı başlangıç", balanced: "Dengeli", balancedText: "Daha doğal ve tutarlı yanıtlar", recommended: "Bu cihaz için önerilen", cached: "Bu cihazda hazır", disclosure: "Açık kaynak Qwen3 · Apache-2.0 · cihaz içi Web Worker · uzak çıkarım yok", attach: "Dosya ekle", remove: "Dosyayı kaldır", attached: "eklendi", truncated: "güvenli sınırda kısaltıldı", fileReadFailed: "Dosya okunamadı. Metin tabanlı ve daha küçük bir dosya deneyin.", generating: "Yanıt cihazınızda üretiliyor…", download: "İlk etkinleştirme seçtiğiniz model paketini indirir. Sohbetiniz indirme isteğine veya uzak bir yapay zekâ servisine gönderilmez." },
-  en: { automatic: "ByteQuant AI · Automatic", intro: "It understands the request instantly and automatically uses a cached on-device model when one is ready.", improve: "Improve responses", enabled: "Enhanced responses ready", loading: "Preparing the response engine on this device", cancelLoad: "Cancel", stop: "Stop", stopModel: "Stop local model", unsupported: "This device cannot run the enhanced local model; tool planning and automation remain available.", failed: "The enhanced response engine could not start; ByteQuant AI remains available.", settings: "Response quality and device settings", lite: "Light", liteText: "Smaller download and faster start", balanced: "Balanced", balancedText: "More natural and consistent answers", recommended: "Recommended for this device", cached: "Ready on this device", disclosure: "Open-source Qwen3 · Apache-2.0 · on-device Web Worker · no remote inference", attach: "Attach file", remove: "Remove file", attached: "attached", truncated: "shortened at the safe limit", fileReadFailed: "The file could not be read. Try a smaller text-based file.", generating: "Generating on your device…", download: "First activation downloads the selected model pack. Your conversation is not added to that download or sent to a remote AI service." },
-  de: { automatic: "ByteQuant AI · Automatisch", intro: "Versteht die Anfrage sofort und nutzt automatisch ein lokal vorhandenes Modell, wenn es bereit ist.", improve: "Antworten verbessern", enabled: "Erweiterte Antworten bereit", loading: "Antwortmodul wird auf diesem Gerät vorbereitet", cancelLoad: "Abbrechen", stop: "Stoppen", stopModel: "Lokales Modell stoppen", unsupported: "Dieses Gerät unterstützt das erweiterte lokale Modell nicht; Planung und Automatisierung bleiben verfügbar.", failed: "Das erweiterte Antwortmodul konnte nicht starten; ByteQuant AI bleibt verfügbar.", settings: "Antwortqualität und Geräteeinstellungen", lite: "Leicht", liteText: "Kleinerer Download und schnellerer Start", balanced: "Ausgewogen", balancedText: "Natürlichere und konsistentere Antworten", recommended: "Für dieses Gerät empfohlen", cached: "Auf diesem Gerät bereit", disclosure: "Open-Source Qwen3 · Apache-2.0 · lokaler Web Worker · keine Remote-Inferenz", attach: "Datei anhängen", remove: "Datei entfernen", attached: "angehängt", truncated: "am sicheren Limit gekürzt", fileReadFailed: "Die Datei konnte nicht gelesen werden. Versuchen Sie eine kleinere Textdatei.", generating: "Antwort entsteht auf Ihrem Gerät…", download: "Bei der ersten Aktivierung wird das gewählte Modellpaket geladen. Das Gespräch wird weder angefügt noch an einen entfernten KI-Dienst gesendet." },
-  zh: { automatic: "ByteQuant AI · 自动", intro: "立即理解请求；若设备上已有本地模型，则自动使用它生成更自然的回答。", improve: "增强回答", enabled: "增强回答已就绪", loading: "正在此设备准备回答引擎", cancelLoad: "取消", stop: "停止", stopModel: "停止本地模型", unsupported: "此设备无法运行增强本地模型；工具规划与自动化仍可使用。", failed: "增强回答引擎无法启动；ByteQuant AI 仍可继续使用。", settings: "回答质量与设备设置", lite: "轻量", liteText: "下载更小，启动更快", balanced: "均衡", balancedText: "回答更自然、更一致", recommended: "为此设备推荐", cached: "此设备已就绪", disclosure: "开源 Qwen3 · Apache-2.0 · 设备端 Web Worker · 无远程推理", attach: "添加文件", remove: "移除文件", attached: "已添加", truncated: "已按安全上限截短", fileReadFailed: "无法读取文件。请尝试更小的文本文件。", generating: "正在您的设备上生成回答…", download: "首次启用会下载所选模型包。对话不会加入下载请求，也不会发送到远程 AI 服务。" },
+  tr: { automatic: "ByteQuant AI · Cihazınızda", intro: "Gerçek açık kaynak modelle sohbet edin; mesajlarınız uzak bir yapay zekâ servisine gitmez.", improve: "Cihazdaki AI'ı başlat", enabled: "Yerel AI hazır", loading: "Model güvenli biçimde hazırlanıyor", cancelLoad: "İptal", stop: "Durdur", stopModel: "Modeli kapat", unsupported: "Bu tarayıcı yerel modeli çalıştıramıyor; güvenli araç planlama ve otomasyon yine kullanılabilir.", failed: "Yerel model başlatılamadı; araç odaklı hızlı yardımcı çalışmaya devam ediyor.", settings: "Model ve cihaz seçenekleri", lite: "Hızlı", liteText: "Günlük kısa sorular ve düşük bellek kullanımı", balanced: "Dengeli", balancedText: "Çoğu cihazda daha doğal ve tutarlı sohbet", advanced: "İleri", advancedText: "Güçlü cihazlarda daha derin yazma ve akıl yürütme", recommended: "Önerilen", cached: "İndirilmiş", unavailableProfile: "Bu cihaz için önerilmez", disclosure: "Qwen3 · Apache-2.0 · Web Worker · uzak çıkarım yok", attach: "Dosya ekle", remove: "Dosyayı kaldır", attached: "eklendi", truncated: "güvenli sınırda kısaltıldı", fileReadFailed: "Dosya okunamadı. Metin tabanlı ve daha küçük bir dosya deneyin.", generating: "ByteQuant AI cihazınızda yanıtlıyor…", download: "İlk kullanım seçtiğiniz modeli bir kez indirir. Sohbetiniz indirme isteğine eklenmez ve uzak bir modele gönderilmez." },
+  en: { automatic: "ByteQuant AI · On your device", intro: "Chat with a real open-source model without sending messages to a remote AI service.", improve: "Start on-device AI", enabled: "Local AI ready", loading: "Preparing the model safely", cancelLoad: "Cancel", stop: "Stop", stopModel: "Turn model off", unsupported: "This browser cannot run the local model; safe tool planning and automation remain available.", failed: "The local model could not start; the fast tool-aware helper remains available.", settings: "Model and device options", lite: "Fast", liteText: "Short everyday questions with lower memory use", balanced: "Balanced", balancedText: "More natural and consistent chat on most devices", advanced: "Advanced", advancedText: "Deeper writing and reasoning on capable devices", recommended: "Recommended", cached: "Downloaded", unavailableProfile: "Not recommended on this device", disclosure: "Qwen3 · Apache-2.0 · Web Worker · no remote inference", attach: "Attach file", remove: "Remove file", attached: "attached", truncated: "shortened at the safe limit", fileReadFailed: "The file could not be read. Try a smaller text-based file.", generating: "ByteQuant AI is answering on your device…", download: "First use downloads your chosen model once. Your conversation is not added to the download request or sent to a remote model." },
+  de: { automatic: "ByteQuant AI · Auf Ihrem Gerät", intro: "Mit einem echten Open-Source-Modell chatten, ohne Nachrichten an einen entfernten KI-Dienst zu senden.", improve: "Lokale KI starten", enabled: "Lokale KI bereit", loading: "Modell wird sicher vorbereitet", cancelLoad: "Abbrechen", stop: "Stoppen", stopModel: "Modell ausschalten", unsupported: "Dieser Browser kann das lokale Modell nicht ausführen; sichere Werkzeugplanung und Automatisierung bleiben verfügbar.", failed: "Das lokale Modell konnte nicht starten; die schnelle werkzeugbezogene Hilfe bleibt verfügbar.", settings: "Modell- und Geräteoptionen", lite: "Schnell", liteText: "Kurze Alltagsfragen mit geringerem Speicherbedarf", balanced: "Ausgewogen", balancedText: "Natürlichere, konsistentere Gespräche auf den meisten Geräten", advanced: "Erweitert", advancedText: "Tieferes Schreiben und Schlussfolgern auf leistungsfähigen Geräten", recommended: "Empfohlen", cached: "Heruntergeladen", unavailableProfile: "Für dieses Gerät nicht empfohlen", disclosure: "Qwen3 · Apache-2.0 · Web Worker · keine Remote-Inferenz", attach: "Datei anhängen", remove: "Datei entfernen", attached: "angehängt", truncated: "am sicheren Limit gekürzt", fileReadFailed: "Die Datei konnte nicht gelesen werden. Versuchen Sie eine kleinere Textdatei.", generating: "ByteQuant AI antwortet auf Ihrem Gerät…", download: "Bei der ersten Nutzung wird das gewählte Modell einmal geladen. Das Gespräch wird weder angefügt noch an ein entferntes Modell gesendet." },
+  zh: { automatic: "ByteQuant AI · 在您的设备上", intro: "使用真正的开源模型聊天，消息不会发送到远程 AI 服务。", improve: "启动设备端 AI", enabled: "本地 AI 已就绪", loading: "正在安全准备模型", cancelLoad: "取消", stop: "停止", stopModel: "关闭模型", unsupported: "此浏览器无法运行本地模型；安全的工具规划与自动化仍可使用。", failed: "本地模型无法启动；快速工具助手仍可使用。", settings: "模型与设备选项", lite: "快速", liteText: "适合简短日常问题，占用更少内存", balanced: "均衡", balancedText: "在大多数设备上提供更自然、一致的对话", advanced: "进阶", advancedText: "在高性能设备上进行更深入的写作与推理", recommended: "推荐", cached: "已下载", unavailableProfile: "不建议在此设备使用", disclosure: "Qwen3 · Apache-2.0 · Web Worker · 无远程推理", attach: "添加文件", remove: "移除文件", attached: "已添加", truncated: "已按安全上限截短", fileReadFailed: "无法读取文件。请尝试更小的文本文件。", generating: "ByteQuant AI 正在您的设备上回答…", download: "首次使用时会下载一次所选模型。对话不会加入下载请求，也不会发送到远程模型。" },
 } as const;
 
 const visualCopy = {
@@ -196,7 +196,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
         let preferred: LocalAIProfileId | null = null;
         try {
           const stored = sessionStorage.getItem(localAIOptInKey);
-          if (stored === "lite" || stored === "balanced") preferred = stored;
+          if (stored === "lite" || stored === "balanced" || stored === "advanced") preferred = stored;
           else if (stored === LOCAL_AI_MODEL_ID) preferred = "lite";
         } catch { /* preference is optional */ }
         const cached = preferred && environment.cachedProfiles.includes(preferred)
@@ -297,7 +297,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
         try {
           const generated = await streamLocalAI(
             lease.engine,
-            buildLocalAIMessages(locale, text, next, conversationContext, workflow, submittedAttachment),
+            buildLocalAIMessages(locale, text, next, conversationContext, workflow, submittedAttachment, lease.profileId),
             setStreamingResponse,
             workflow ? "workflow" : "conversation",
             `${locale}:${lease.profileId}`,
@@ -306,11 +306,15 @@ export function AgentConversation({ locale }: { locale: Locale }) {
           if (generated) { answer = generated; mode = "ai"; }
         } catch (error) {
           if (runId !== generationRef.current) return;
-          aiLeaseRef.current = null;
-          lease.release();
-          await disposePooledLocalAIEngine();
-          try { sessionStorage.removeItem(localAIOptInKey); } catch { /* avoid repeated failing warm-up */ }
-          setActiveProfile(null); setAIStatus("error"); setAIError(error instanceof Error ? error.message : ai.failed);
+          const issue = explainLocalAIError(error, locale);
+          setAIError(error instanceof Error ? error.message : ai.failed);
+          if (issue.code !== "quality") {
+            aiLeaseRef.current = null;
+            lease.release();
+            await disposePooledLocalAIEngine();
+            try { sessionStorage.removeItem(localAIOptInKey); } catch { /* avoid repeated failing warm-up */ }
+            setActiveProfile(null); setAIStatus("error");
+          }
         }
       }
       if (aiLeaseRef.current) scheduleLeaseIdleRelease();
@@ -388,7 +392,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
 
   const selectedModel = LOCAL_AI_PROFILES[selectedProfile];
   const selectedIsCached = aiEnvironment?.cachedProfiles.includes(selectedProfile) ?? false;
-  const activeModelLabel = activeProfile === "balanced" ? ai.balanced : ai.lite;
+  const activeModelLabel = activeProfile === "advanced" ? ai.advanced : activeProfile === "balanced" ? ai.balanced : ai.lite;
 
   return <section className="agent-chat-app" aria-label={t.hello}>
     <header className="agent-chat-bar"><div><span className="agent-avatar">BQ</span><div><strong>{t.hello}</strong><small><i />{AGENT_VERSION} · {ai.automatic}</small></div></div><div><span>{aiStatus === "ready" ? `${ai.enabled} · ${activeModelLabel}` : turns.length ? t.memory : ai.automatic}</span><button type="button" onClick={reset}>{t.newChat}</button></div></header>
@@ -396,14 +400,15 @@ export function AgentConversation({ locale }: { locale: Locale }) {
 
     <section className={`agent-local-ai-panel agent-ai-auto ${aiStatus}`} aria-label={ai.automatic}>
       <div><span aria-hidden="true">✦</span><div><strong>{ai.automatic}</strong><small>{aiStatus === "unsupported" ? ai.unsupported : aiStatus === "error" ? ai.failed : aiStatus === "ready" ? `${ai.enabled} · ${activeModelLabel}` : ai.intro}</small></div></div>
-      {aiStatus === "loading" ? <><div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {aiProgress.text || ai.loading}</small></div><button type="button" onClick={disableLocalAI}>{ai.cancelLoad}</button></> : aiStatus === "ready" ? <span className="agent-ai-ready-badge">✓ {ai.enabled}</span> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI(selectedProfile)}>{ai.improve}</button> : null}
+      {aiStatus === "loading" ? <><div className="agent-ai-progress" role="status"><span><i style={{ width: `${Math.round(aiProgress.progress * 100)}%` }} /></span><small>{Math.round(aiProgress.progress * 100)}% · {ai.loading}</small></div><button type="button" onClick={disableLocalAI}>{ai.cancelLoad}</button></> : aiStatus === "ready" ? <span className="agent-ai-ready-badge">✓ {ai.enabled}</span> : aiStatus !== "unsupported" ? <button type="button" onClick={() => void enableLocalAI(selectedProfile)}>{ai.improve}</button> : null}
       <details className="agent-ai-settings"><summary>{ai.settings}<span>+</span></summary><div>
         <div className="agent-ai-profile-grid">
-          {(["lite", "balanced"] as LocalAIProfileId[]).map((profileId) => {
+          {(["lite", "balanced", "advanced"] as LocalAIProfileId[]).map((profileId) => {
             const profile = LOCAL_AI_PROFILES[profileId];
-            const profileLabel = profileId === "balanced" ? ai.balanced : ai.lite;
-            const profileText = profileId === "balanced" ? ai.balancedText : ai.liteText;
-            return <button type="button" key={profileId} className={selectedProfile === profileId ? "selected" : ""} aria-pressed={selectedProfile === profileId} disabled={aiStatus === "loading" || aiStatus === "ready"} onClick={() => setSelectedProfile(profileId)}><span><strong>{profileLabel}</strong><small>{profileText}</small></span><b>{profile.downloadLabel}</b>{aiEnvironment?.recommendedProfile === profileId && <em>{ai.recommended}</em>}{aiEnvironment?.cachedProfiles.includes(profileId) && <em>{ai.cached}</em>}</button>;
+            const profileLabel = profileId === "advanced" ? ai.advanced : profileId === "balanced" ? ai.balanced : ai.lite;
+            const profileText = profileId === "advanced" ? ai.advancedText : profileId === "balanced" ? ai.balancedText : ai.liteText;
+            const advancedWarning = profileId === "advanced" && aiEnvironment && !aiEnvironment.advancedEligible && !aiEnvironment.cachedProfiles.includes("advanced");
+            return <button type="button" key={profileId} className={`${selectedProfile === profileId ? "selected" : ""}${advancedWarning ? " device-warning" : ""}`} aria-pressed={selectedProfile === profileId} disabled={aiStatus === "loading" || aiStatus === "ready"} onClick={() => setSelectedProfile(profileId)}><span><strong>{profileLabel}</strong><small>{profileText}</small></span><b>{profile.downloadLabel}</b>{aiEnvironment?.recommendedProfile === profileId && <em>{ai.recommended}</em>}{aiEnvironment?.cachedProfiles.includes(profileId) && <em>{ai.cached}</em>}{advancedWarning && <em>{ai.unavailableProfile}</em>}</button>;
           })}
         </div>
         <p>ⓘ {ai.download} {selectedIsCached ? ai.cached : selectedModel.downloadLabel}</p>

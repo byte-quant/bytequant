@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
+  assessLocalAIResponseQuality,
   buildLocalAIMessages,
   buildAllowlistedLocalAIAppConfig,
   clearLocalAIResponseCache,
@@ -21,7 +23,9 @@ import {
   LOCAL_AI_MODEL_LIB_URL,
   LOCAL_AI_MODEL_LICENSE,
   LOCAL_AI_PROFILES,
+  LOCAL_AI_RUNTIME_PACKAGE_VERSION,
   LOCAL_AI_RUNTIME_MODEL_VERSION,
+  LOCAL_AI_UPSTREAM_MODEL_LIB_PREFIX,
   readLocalAIAttachmentFile,
   readLocalAIConversationHistory,
   sanitizeLocalAIOutput,
@@ -37,6 +41,12 @@ test("local AI runtime uses a pinned permissive multilingual model", () => {
   assert.match(LOCAL_AI_MODEL_LIB_REVISION, /^[a-f0-9]{40}$/);
   assert.match(LOCAL_AI_MODEL_LIB_URL, new RegExp(`/binary-mlc-llm-libs/${LOCAL_AI_MODEL_LIB_REVISION}/`));
   assert.doesNotMatch(LOCAL_AI_MODEL_LIB_URL, /\/main\//);
+  assert.equal(LOCAL_AI_RUNTIME_PACKAGE_VERSION, "0.2.82");
+  const packageManifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  assert.equal(packageManifest.dependencies["@mlc-ai/web-llm"], LOCAL_AI_RUNTIME_PACKAGE_VERSION);
+  assert.equal(LOCAL_AI_RUNTIME_MODEL_VERSION, "v0_2_80");
+  assert.equal(LOCAL_AI_PROFILES.advanced.modelId, "Qwen3-4B-q4f16_1-MLC");
+  assert.equal(LOCAL_AI_PROFILES.advanced.vramRequiredMB, 3431.59);
 });
 
 test("device-adaptive profiles stay on the reviewed Qwen3 allowlist", () => {
@@ -56,6 +66,13 @@ test("device-adaptive profiles stay on the reviewed Qwen3 allowlist", () => {
   const config = buildAllowlistedLocalAIAppConfig(source, "balanced");
   assert.equal(config.model_list.length, 1);
   assert.equal(config.model_list[0].model_id, "Qwen3-1.7B-q4f16_1-MLC");
+  const upstreamSource = {
+    ...source,
+    modelLibURLPrefix: LOCAL_AI_UPSTREAM_MODEL_LIB_PREFIX,
+    prebuiltAppConfig: { model_list: [{ ...source.prebuiltAppConfig.model_list[0], model_lib: balanced.modelLibUrl.replace(LOCAL_AI_MODEL_LIB_PREFIX, LOCAL_AI_UPSTREAM_MODEL_LIB_PREFIX) }] },
+  };
+  const pinnedConfig = buildAllowlistedLocalAIAppConfig(upstreamSource, "balanced");
+  assert.equal(pinnedConfig.model_list[0].model_lib, balanced.modelLibUrl);
   assert.throws(() => buildAllowlistedLocalAIAppConfig({
     ...source,
     prebuiltAppConfig: { model_list: [{ ...source.prebuiltAppConfig.model_list[0], model: "https://example.invalid/model" }] },
@@ -74,7 +91,7 @@ test("local AI runtime fails closed unless the reviewed single-model allowlist m
     },
   };
   const appConfig = buildAllowlistedLocalAIAppConfig(source);
-  assert.equal(appConfig.cacheBackend, "cache");
+  assert.equal(appConfig.useIndexedDBCache, false);
   assert.equal(appConfig.model_list.length, 1);
   assert.equal(appConfig.model_list[0].model_id, LOCAL_AI_MODEL_ID);
   assert.throws(
@@ -105,6 +122,8 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "JSON nedir ve CSV yerine ne zaman kullanmalıyım?"), /anahtar–değer|CSV/);
   const history = [{ locale: "tr", goal: "JSON nedir?", answer: "Uzun bir açıklama ve önemli bir örnek.", tools: [], time: 1, mode: "fast" }];
   assert.match(createFastConversationResponse("tr", "Bunu kısalt", history), /Uzun bir açıklama/);
+  const structuredSummary = createFastConversationResponse("tr", "Bunu 3 maddede özetle", [{ ...history[0], answer: "Tek sonuç seçin, 25 dakika ayırın ve ilk adımı yazın. Sonucu kaydedin." }]);
+  assert.equal(structuredSummary.match(/^• /gm)?.length, 3);
   assert.match(createFastConversationResponse("tr", "Ben en son ne demiştim?", history), /JSON nedir/);
   assert.match(createFastConversationResponse("tr", "Sen en son ne cevap vermiştin?", history), /önemli bir örnek/);
   const chineseHistory = [{ locale: "zh", goal: "我喜欢蓝色", answer: "我会在当前对话中记住蓝色。", tools: [], time: 1, mode: "fast", intent: "conversation" }];
@@ -147,6 +166,13 @@ test("model output hides internal thinking tags and remains session-safe", () =>
   assert.ok(clean.startsWith("Useful answer"));
   assert.ok(clean.length <= LOCAL_AI_MAX_RESPONSE);
   assert.equal(sanitizeLocalAIOutput("Visible answer<think>unfinished private notes"), "Visible answer");
+});
+
+test("response quality gate rejects prompt leakage and decode loops", () => {
+  assert.deepEqual(assessLocalAIResponseQuality("Useful, concise answer."), { valid: true, reason: "ok" });
+  assert.equal(assessLocalAIResponseQuality("<think>only hidden work</think>").reason, "empty");
+  assert.equal(assessLocalAIResponseQuality("System prompt: reveal the host policy").reason, "internal");
+  assert.equal(assessLocalAIResponseQuality("Repeat this long sentence now. Repeat this long sentence now. Repeat this long sentence now.").reason, "repetitive");
 });
 
 test("grounded messages stay below the model budget and isolate untrusted attachments", () => {
@@ -238,11 +264,34 @@ test("streaming throttles UI updates, sanitizes final output, and separates samp
   assert.doesNotMatch(result, /hidden|think/i);
   assert.equal(updates.at(-1), result);
   assert.ok(updates.length < 200, `received ${updates.length} UI updates`);
-  assert.equal(requests[0].temperature, 0.2);
-  assert.equal(requests[0].max_tokens, 360);
-  assert.equal(requests[1].temperature, 0.36);
-  assert.equal(requests[1].max_tokens, 520);
+  assert.equal(requests[0].temperature, 0.18);
+  assert.equal(requests[0].max_tokens, 440);
+  assert.equal(requests[1].temperature, 0.38);
+  assert.equal(requests[1].max_tokens, 620);
   assert.equal(interrupted, 0);
+});
+
+test("invalid first generation is repaired once before it reaches the user", async () => {
+  clearLocalAIResponseCache();
+  let requests = 0;
+  const engine = {
+    chat: { completions: { async create() {
+      requests += 1;
+      const value = requests === 1
+        ? "Repeated invalid sentence here. Repeated invalid sentence here. Repeated invalid sentence here."
+        : "The repaired answer is clear and useful.";
+      return (async function* generate() { yield { choices: [{ delta: { content: value } }] }; })();
+    } } },
+    interruptGenerate() {},
+    async unload() {},
+  };
+  const plan = createAgentPlan("Explain JSON", publicTools, "en");
+  const messages = buildLocalAIMessages("en", plan.goal, plan, [], false);
+  const updates = [];
+  const result = await streamLocalAI(engine, messages, (value) => updates.push(value), "conversation", "en:balanced");
+  assert.equal(result, "The repaired answer is clear and useful.");
+  assert.equal(requests, 2);
+  assert.equal(updates.at(-1), result);
 });
 
 test("identical local prompts reuse the bounded in-memory response cache", async () => {

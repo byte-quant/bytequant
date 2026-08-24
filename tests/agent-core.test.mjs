@@ -62,6 +62,10 @@ test("local agent semantically ranks tools and extracts bounded parameters", () 
 test("local agent extracts only strongly bounded payloads for safe handoff", () => {
   assert.equal(extractAgentPayload('Format this JSON: {"ok":true}'), '{"ok":true}');
   assert.equal(extractAgentPayload("Clean this list\ninput: a@example.com, b@example.com"), "a@example.com, b@example.com");
+  assert.equal(
+    extractAgentPayload("Bu CSV listesindeki e-postaları temizle ve JSON'a dönüştür: ad,email\nAda,ADA@example.com\nAda,ada@example.com"),
+    "ad,email\nAda,ADA@example.com\nAda,ada@example.com",
+  );
   assert.equal(extractAgentPayload("Explain how JSON formatting works"), "");
 });
 
