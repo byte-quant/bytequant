@@ -48,6 +48,8 @@ jobs:
         run: pnpm audit:adsense
       - name: Audit canonical content value
         run: pnpm audit:content
+      - name: Audit original, task-specific content contracts
+        run: pnpm audit:authenticity
       - name: Audit editorial depth
         run: pnpm audit:editorial
       - name: Audit publisher trust

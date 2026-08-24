@@ -21,10 +21,12 @@ test("tool decision guidance is specific, multilingual, and scenario based", asy
   assert.equal(publicTools.length, 327);
   assert.match(source, /data-content-depth="task-specific"/);
   assert.match(source, /tool\.useCases\[locale\]\.map/);
-  assert.match(source, /tool\.steps\[locale\]\[0\]/);
+  assert.match(source, /scenarioNarrative\(locale, index, useCase, guidance\)/);
+  assert.match(source, /guidance\.input\[locale\]/);
   assert.match(source, /guidance\.output\[locale\]/);
   assert.match(source, /guidance\.verification\[locale\]/);
   assert.match(source, /guidance\.boundary\[locale\]/);
+  assert.match(source, /t\.nextBody\(guidance\.verification\[locale\], guidance\.boundary\[locale\]\)/);
   for (const locale of ["tr", "en", "de", "zh"]) {
     assert.equal(new Set(publicTools.map((tool) => tool.description[locale])).size, publicTools.length);
     assert.ok(publicTools.every((tool) => tool.useCases[locale].length === 3 && tool.steps[locale].length === 3));

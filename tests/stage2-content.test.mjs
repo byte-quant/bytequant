@@ -4,6 +4,7 @@ import { publicTools } from "../app/lib/tools.ts";
 import { getToolGuidanceDetails } from "../app/lib/tool-guidance.ts";
 import { getToolDeepDive, toolDeepDiveSlugs } from "../app/lib/tool-deep-dives.ts";
 import { localizedInfo } from "../app/lib/localized-info.ts";
+import { studioToolSlugs } from "../app/lib/studio-tools.ts";
 
 const locales = ["tr", "en", "de", "zh"];
 
@@ -34,7 +35,8 @@ test("publishes hand-reviewed worked examples for high-intent tools in every loc
     "pdf-birlestirme", "prompt-kalite-denetimi", "qr-kod-olusturucu", "regex-test-araci",
     "renk-donusturucu", "sifre-gucu-testi", "unix-zaman-damgasi-donusturucu",
   ];
-  assert.deepEqual([...toolDeepDiveSlugs].sort(), expected);
+  expected.push(...studioToolSlugs);
+  assert.deepEqual([...toolDeepDiveSlugs].sort(), expected.sort());
   for (const slug of expected) {
     const deepDive = getToolDeepDive(slug);
     assert.ok(deepDive, slug);

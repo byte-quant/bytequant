@@ -22,7 +22,7 @@ Stage 2 replaces repeated instructional copy with intent-aware guidance. It does
 | Localized canonical pages | 1308 |
 | Unique use-case sets in every locale | 327 × 4 |
 | Unique HowTo step sets in every locale | 327 × 4 |
-| Intent-aware input/method/output/verification profiles | 18 |
+| Intent-aware input/method/output/verification profiles | 28 |
 | TR/EN guides with multi-section depth | 109 |
 | DE/ZH guides with multi-section depth | 81 |
 | Total editorial guide records | 190 |

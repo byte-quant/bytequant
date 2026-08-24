@@ -70,25 +70,57 @@ const methodology = {
 const copy = {
   tr: {
     eyebrow: "UYGULAMA VE KARAR REHBERİ", title: (name: string) => `${name} için doğru girdi, doğru kontrol ve güvenli sonraki adım`,
-    body: (name: string, description: string) => `${description} Aşağıdaki notlar ${name} sonucunu yalnızca üretmek için değil, amacına uygunluğunu sınamak ve hatalı bir çıktıyı erken durdurmak için hazırlanmıştır.`,
-    method: "Araç gerçekte nasıl çalışır?", input: "Başlamadan önce girdi kontrolü", output: "Çıktıyı nasıl yorumlamalısınız?", scenarios: "Üç gerçek kullanım senaryosu", action: "Uygulama", check: "Kabul işareti", boundary: "Sonucu kullanmadan önce durma koşulu", next: "Güvenli sonraki adım", worked: "Uygulamalı karar kaydı", situation: "Gerçek ihtiyaç", fixture: "Denenecek örnek", evidence: "Başarı kanıtı", failure: "Durma ve düzeltme koşulu", date: "Son içerik ve yöntem incelemesi", badge: "İNCELENDİ",
+    body: (name: string, description: string) => `${description} Bu inceleme ${name} sonucunun amaca uyup uymadığını, hangi kanıtla kabul edileceğini ve zayıf bir çıktının nerede durdurulacağını açıklar.`,
+    method: "Araç gerçekte nasıl çalışır?", input: "Başlamadan önce girdi kontrolü", output: "Çıktıyı nasıl yorumlamalısınız?", scenarios: "Üç gerçek kullanım senaryosu", action: "Uygulama", check: "Kabul işareti", boundary: "Sonucu kullanmadan önce durma koşulu", next: "Güvenli sonraki adım", nextBody: (verification: string, boundary: string) => `Sonucu başka bir araca veya gerçek sürece yalnızca ${verification} tamamlandıktan sonra taşıyın. Karar kaydında şu sınırı görünür tutun: ${boundary}`, worked: "Uygulamalı karar kaydı", situation: "Gerçek ihtiyaç", fixture: "Denenecek örnek", evidence: "Başarı kanıtı", failure: "Durma ve düzeltme koşulu", date: "Son içerik ve yöntem incelemesi", badge: "İNCELENDİ",
   },
   en: {
     eyebrow: "APPLICATION AND DECISION GUIDE", title: (name: string) => `Use ${name} with the right input, acceptance check, and next step`,
     body: (name: string, description: string) => `${description} The notes below help you do more than produce a result: they show how to test whether ${name} fits the task and when to stop before a weak output travels further.`,
-    method: "How does the tool actually work?", input: "Input check before you begin", output: "How should you interpret the output?", scenarios: "Three practical use cases", action: "Action", check: "Acceptance signal", boundary: "Stop condition before using the result", next: "Safe next step", worked: "Worked decision record", situation: "Real need", fixture: "Example to try", evidence: "Evidence of success", failure: "Stop and correct when", date: "Latest content and method review", badge: "REVIEWED",
+    method: "How does the tool actually work?", input: "Input check before you begin", output: "How should you interpret the output?", scenarios: "Three practical use cases", action: "Action", check: "Acceptance signal", boundary: "Stop condition before using the result", next: "Safe next step", nextBody: (verification: string, boundary: string) => `Move the result to another tool or live process only after ${verification}. Keep this limit visible in the decision record: ${boundary}`, worked: "Worked decision record", situation: "Real need", fixture: "Example to try", evidence: "Evidence of success", failure: "Stop and correct when", date: "Latest content and method review", badge: "REVIEWED",
   },
   de: {
     eyebrow: "ANWENDUNGS- UND ENTSCHEIDUNGSHILFE", title: (name: string) => `${name}: passende Eingabe, Abnahmekriterium und nächster Schritt`,
     body: (name: string, description: string) => `${description} Die folgenden Hinweise helfen nicht nur beim Erzeugen eines Ergebnisses. Sie zeigen, wie Sie die Eignung von ${name} für den konkreten Zweck prüfen und eine schwache Ausgabe rechtzeitig stoppen.`,
-    method: "Wie arbeitet das Werkzeug tatsächlich?", input: "Eingabeprüfung vor dem Start", output: "Wie ist die Ausgabe zu bewerten?", scenarios: "Drei praktische Einsatzfälle", action: "Durchführung", check: "Abnahmesignal", boundary: "Abbruchbedingung vor der Nutzung", next: "Sicherer nächster Schritt", worked: "Nachvollziehbares Praxisbeispiel", situation: "Konkreter Bedarf", fixture: "Testbeispiel", evidence: "Erfolgsnachweis", failure: "Stoppen und korrigieren, wenn", date: "Letzte Inhalts- und Methodenprüfung", badge: "GEPRÜFT",
+    method: "Wie arbeitet das Werkzeug tatsächlich?", input: "Eingabeprüfung vor dem Start", output: "Wie ist die Ausgabe zu bewerten?", scenarios: "Drei praktische Einsatzfälle", action: "Durchführung", check: "Abnahmesignal", boundary: "Abbruchbedingung vor der Nutzung", next: "Sicherer nächster Schritt", nextBody: (verification: string, boundary: string) => `Das Ergebnis erst nach ${verification} in ein anderes Werkzeug oder einen Live-Prozess übergeben. Im Entscheidungsprotokoll diese Grenze sichtbar halten: ${boundary}`, worked: "Nachvollziehbares Praxisbeispiel", situation: "Konkreter Bedarf", fixture: "Testbeispiel", evidence: "Erfolgsnachweis", failure: "Stoppen und korrigieren, wenn", date: "Letzte Inhalts- und Methodenprüfung", badge: "GEPRÜFT",
   },
   zh: {
     eyebrow: "应用与决策指南", title: (name: string) => `${name}：正确输入、验收检查与安全的下一步`,
     body: (name: string, description: string) => `${description} 以下说明不仅帮助生成结果，还会说明如何判断${name}是否适合当前任务，以及何时应在低质量输出继续流转前停止。`,
-    method: "工具实际如何工作？", input: "开始前的输入检查", output: "如何解读输出？", scenarios: "三个实际使用场景", action: "执行", check: "验收信号", boundary: "使用结果前的停止条件", next: "安全的下一步", worked: "可复现的决策记录", situation: "实际需求", fixture: "试用示例", evidence: "成功证据", failure: "出现以下情况应停止并修正", date: "最近内容与方法审核", badge: "已审核",
+    method: "工具实际如何工作？", input: "开始前的输入检查", output: "如何解读输出？", scenarios: "三个实际使用场景", action: "执行", check: "验收信号", boundary: "使用结果前的停止条件", next: "安全的下一步", nextBody: (verification: string, boundary: string) => `只有完成${verification}后，才能把结果交给其他工具或真实流程。请在决策记录中明确保留此边界：${boundary}`, worked: "可复现的决策记录", situation: "实际需求", fixture: "试用示例", evidence: "成功证据", failure: "出现以下情况应停止并修正", date: "最近内容与方法审核", badge: "已审核",
   },
 } as const;
+
+function scenarioNarrative(locale: Locale, index: number, useCase: string, guidance: ReturnType<typeof getToolGuidanceDetails>) {
+  const action = {
+    tr: [
+      `Önce bu ihtiyacı temsil eden küçük ve sentetik bir örnek hazırlayın. Beklenen girdi: ${guidance.input.tr}.`,
+      `Aynı örneği değişmeden koruyup cihaz içi yöntemi çalıştırın: ${guidance.method.tr}`,
+      `Sonucu hedef sürece taşımadan önce çıktı kaydını saklayın: ${guidance.output.tr}.`,
+    ],
+    en: [
+      `Start with a small synthetic fixture that represents this need. Expected input: ${guidance.input.en}.`,
+      `Keep that fixture unchanged and run the on-device method: ${guidance.method.en}`,
+      `Retain the output record before moving it into the target workflow: ${guidance.output.en}.`,
+    ],
+    de: [
+      `Zuerst ein kleines synthetisches Beispiel für diesen Bedarf vorbereiten. Erwartete Eingabe: ${guidance.input.de}.`,
+      `Dieses Beispiel unverändert lassen und die lokale Methode ausführen: ${guidance.method.de}`,
+      `Vor der Übergabe in den Zielprozess die Ausgabe dokumentieren: ${guidance.output.de}.`,
+    ],
+    zh: [
+      `先准备一个代表该需求的小型合成样本。预期输入：${guidance.input.zh}。`,
+      `保持样本不变并运行设备端方法：${guidance.method.zh}`,
+      `将结果交给目标流程前，先保留输出记录：${guidance.output.zh}。`,
+    ],
+  }[locale][index] ?? "";
+  const check = {
+    tr: [`Örnek, “${useCase}” ihtiyacını gerçek kişisel veri kullanmadan yeniden üretebilmelidir.`, `Aynı girdi aynı sonucu vermeli; yöntemin dışındaki hiçbir ağ veya dosya işlemi varsayılmamalıdır.`, `Kabul için ${guidance.verification.tr}; aksi durumda sonucu ilerletmeyin.`],
+    en: [`The fixture should reproduce “${useCase}” without real personal data.`, `Identical input should return the same result, with no network or file action assumed beyond the disclosed method.`, `Acceptance requires ${guidance.verification.en}; otherwise do not move the result forward.`],
+    de: [`Das Beispiel soll „${useCase}“ ohne echte Personendaten reproduzieren.`, `Dieselbe Eingabe soll dasselbe Ergebnis liefern; keine nicht offengelegte Netz- oder Dateiaktion annehmen.`, `Für die Abnahme gilt: ${guidance.verification.de}; andernfalls nicht weitergeben.`],
+    zh: [`样本应在不使用真实个人数据的情况下复现“${useCase}”。`, `相同输入应得到相同结果，不得假设公开方法之外的网络或文件操作。`, `验收要求：${guidance.verification.zh}；否则不要继续传递结果。`],
+  }[locale][index] ?? "";
+  return { action, check };
+}
 
 export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Locale }) {
   const t = copy[locale];
@@ -103,16 +135,16 @@ export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Loca
       <p>{t.body(tool.title[locale], tool.description[locale])}</p>
       <div className="tool-editorial-grid">
         <article><strong>{t.method}</strong><p>{guidance.method[locale]} {methodology[tool.category][locale]}</p></article>
-        <article><strong>{t.input}</strong><p>{tool.steps[locale][0]}</p></article>
+        <article><strong>{t.input}</strong><p>{guidance.input[locale]} {({ tr: "Biçimi önce kişisel veri içermeyen küçük bir örnekle doğrulayın.", en: "Confirm the shape first with a small example containing no personal data.", de: "Das Format zuerst mit einem kleinen Beispiel ohne Personendaten prüfen.", zh: "请先用不含个人数据的小样本确认格式。" } as const)[locale]}</p></article>
         <article><strong>{t.output}</strong><p>{guidance.output[locale]} — {guidance.verification[locale]}</p></article>
       </div>
       <div className="tool-editorial-scenarios" data-tool-acceptance="three-scenario">
         <h3>{t.scenarios}</h3>
-        <div>{tool.useCases[locale].map((useCase, index) => <article key={useCase}><span>{String(index + 1).padStart(2, "0")}</span><h4>{useCase}</h4><p><b>{t.action}:</b> {tool.steps[locale][index] ?? tool.steps[locale][tool.steps[locale].length - 1]}</p><p><b>{t.check}:</b> {index === 0 ? tool.short[locale] : guidance.verification[locale]}</p></article>)}</div>
+        <div>{tool.useCases[locale].map((useCase, index) => { const scenario = scenarioNarrative(locale, index, useCase, guidance); return <article key={useCase}><span>{String(index + 1).padStart(2, "0")}</span><h4>{useCase}</h4><p><b>{t.action}:</b> {scenario.action}</p><p><b>{t.check}:</b> {scenario.check}</p></article>; })}</div>
       </div>
       <div className="tool-editorial-decision">
-        <article><strong>{t.boundary}</strong><p>{guidance.boundary[locale]}</p></article>
-        <article><strong>{t.next}</strong><p>{tool.steps[locale][2]}</p></article>
+        <article><strong>{t.boundary}</strong><p>{({ tr: "Sonuç aşağıdaki sınırı aşan bir karar için kullanılmamalıdır: ", en: "Do not use the result for a decision beyond this boundary: ", de: "Das Ergebnis nicht für Entscheidungen außerhalb dieser Grenze nutzen: ", zh: "不要将结果用于超出以下边界的决策：" } as const)[locale]}{guidance.boundary[locale]}</p></article>
+        <article><strong>{t.next}</strong><p>{t.nextBody(guidance.verification[locale], guidance.boundary[locale])}</p></article>
       </div>
       {deepDive ? <section className="tool-worked-example" id="worked-example" aria-labelledby={`worked-${tool.slug}`}>
         <div className="tool-worked-example-heading"><span aria-hidden="true">↳</span><h3 id={`worked-${tool.slug}`}>{t.worked}</h3></div>

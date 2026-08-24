@@ -1,4 +1,5 @@
 import type { Locale } from "./site";
+import { studioToolDeepDives, studioToolDeepDiveSlugs } from "./studio-tool-deep-dives";
 
 type LocalizedText = Record<Locale, string>;
 
@@ -514,7 +515,7 @@ const deepDives: Record<string, ToolDeepDive> = {
 };
 
 export function getToolDeepDive(slug: string) {
-  return deepDives[slug] ?? null;
+  return deepDives[slug] ?? studioToolDeepDives[slug] ?? null;
 }
 
-export const toolDeepDiveSlugs = Object.freeze(Object.keys(deepDives));
+export const toolDeepDiveSlugs = Object.freeze([...Object.keys(deepDives), ...studioToolDeepDiveSlugs]);

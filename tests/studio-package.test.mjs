@@ -4,6 +4,8 @@ import test from "node:test";
 import { runStudioTool } from "../app/components/StudioWorkbenches.tsx";
 import { studioLocalizedGuides, studioPosts } from "../app/lib/studio-guides.ts";
 import { studioTools } from "../app/lib/studio-tools.ts";
+import { studioToolGuidance, studioGuidanceSlugs } from "../app/lib/studio-tool-guidance.ts";
+import { studioToolDeepDives, studioToolDeepDiveSlugs } from "../app/lib/studio-tool-deep-dives.ts";
 
 const locales = ["tr", "en", "de", "zh"];
 const fixtures = {
@@ -37,6 +39,27 @@ test("every studio tool executes a representative input in every locale", () => 
     assert.ok(result.output.length > 80, `${tool.slug}/${locale}/output`);
     assert.ok(result.metrics.length >= 2, `${tool.slug}/${locale}/metrics`);
     assert.doesNotMatch(result.output, /undefined|NaN/iu, `${tool.slug}/${locale}/invalid-output`);
+  }
+});
+
+test("every studio landing page has a hand-written task contract and worked example", () => {
+  const expected = studioTools.map((tool) => tool.slug).sort();
+  assert.deepEqual([...studioGuidanceSlugs].sort(), expected);
+  assert.deepEqual([...studioToolDeepDiveSlugs].sort(), expected);
+  for (const tool of studioTools) for (const locale of locales) {
+    const guidance = studioToolGuidance[tool.slug];
+    const deepDive = studioToolDeepDives[tool.slug];
+    for (const field of ["input", "method", "output", "verification", "boundary", "workflow"]) {
+      const minimum = field === "workflow" ? (locale === "zh" ? 8 : 25) : (locale === "zh" ? 18 : 45);
+      assert.ok(guidance[field][locale].length >= minimum, `${tool.slug}/${locale}/guidance/${field}`);
+    }
+    for (const field of ["situation", "fixture", "evidence", "failure"]) {
+      assert.ok(deepDive[field][locale].length >= (locale === "zh" ? 28 : 75), `${tool.slug}/${locale}/deep-dive/${field}`);
+    }
+  }
+  for (const locale of locales) {
+    assert.equal(new Set(studioTools.map((tool) => studioToolGuidance[tool.slug].input[locale])).size, studioTools.length, `${locale}/unique-input-contracts`);
+    assert.equal(new Set(studioTools.map((tool) => studioToolDeepDives[tool.slug].fixture[locale])).size, studioTools.length, `${locale}/unique-fixtures`);
   }
 });
 

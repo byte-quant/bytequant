@@ -39,7 +39,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     eyebrow: "YAYINCILIK VE GÜVEN STANDARTLARI",
     title: "Ne yayımladığımızı, nasıl doğruladığımızı ve reklamı içerikten nasıl ayırdığımızı açıklıyoruz",
     intro: "Bu sayfa ByteQuant araçları, rehberleri ve ürün açıklamaları için sahiplik, üretim, kaynak, düzeltme, reklam ve gizlilik kurallarını tek yerde toplar. Amaç bir rozet göstermek değil; denetlenebilir bir yayın süreci sunmaktır.",
-    updated: "Son doğrulama: 8 Ağustos 2026",
+    updated: "Son doğrulama: 24 Ağustos 2026",
     breadcrumb: "Yayın ilkeleri",
     evidenceLabel: "DOĞRULANABİLİR YAYINCI KANITLARI",
     evidence: [
@@ -67,7 +67,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     eyebrow: "PUBLISHING & TRUST STANDARDS",
     title: "How we publish, verify, correct, and keep advertising separate from content",
     intro: "This page brings ownership, production, sourcing, corrections, advertising, and privacy rules for ByteQuant tools and guides into one auditable standard. It is evidence of process, not a trust badge.",
-    updated: "Last verified: August 8, 2026",
+    updated: "Last verified: August 24, 2026",
     breadcrumb: "Publishing standards",
     evidenceLabel: "VERIFIABLE PUBLISHER EVIDENCE",
     evidence: [
@@ -95,7 +95,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     eyebrow: "PUBLIKATIONS- & VERTRAUENSSTANDARDS",
     title: "Wie wir veröffentlichen, prüfen, korrigieren und Werbung von Inhalten trennen",
     intro: "Diese Seite bündelt Verantwortlichkeit, Herstellung, Quellen, Korrekturen, Werbung und Datenschutz für ByteQuant-Werkzeuge und Ratgeber in einem prüfbaren Standard.",
-    updated: "Zuletzt geprüft: 8. August 2026",
+    updated: "Zuletzt geprüft: 24. August 2026",
     breadcrumb: "Publikationsstandards",
     evidenceLabel: "ÜBERPRÜFBARE NACHWEISE",
     evidence: [
@@ -123,7 +123,7 @@ export const publishingStandards: Record<Locale, PublishingStandardsCopy> = {
     eyebrow: "发布与信任标准",
     title: "我们如何发布、核验、纠错，并把广告与内容清晰分开",
     intro: "本页把 ByteQuant 工具与指南的责任主体、制作流程、来源、纠错、广告和隐私规则汇总为可检查的发布标准，而不是空泛的信任徽章。",
-    updated: "最后核验：2026 年 8 月 8 日",
+    updated: "最后核验：2026 年 8 月 24 日",
     breadcrumb: "发布标准",
     evidenceLabel: "可核验的发布者证据",
     evidence: [

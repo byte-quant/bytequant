@@ -61,6 +61,7 @@ export function ToolLibraryPage({ locale }: { locale: Locale }) {
   const t = text[locale];
   const language = languageTag(locale);
   const categoryKeys = Object.keys(categories) as ToolCategory[];
+  const searchTools = publicTools.map((tool) => ({ slug: tool.slug, category: tool.category, mark: tool.mark, title: tool.title[locale], short: tool.short[locale], categoryLabel: categories[tool.category].label[locale] }));
   const schema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -95,7 +96,7 @@ export function ToolLibraryPage({ locale }: { locale: Locale }) {
             <span className="kicker">{t.eyebrow}</span>
             <h1>{t.title}</h1>
             <p>{t.intro}</p>
-            <div className="tool-library-search"><HeroToolSearch locale={locale} placeholder={t.search} /></div>
+            <div className="tool-library-search"><HeroToolSearch locale={locale} tools={searchTools} placeholder={t.search} /></div>
           </div>
           <aside className="tool-library-trust-card">
             <span aria-hidden="true">✓</span>

@@ -24,7 +24,7 @@ The gate fails immediately if any protected value changes.
 | Indexable localized tool decision guides inspected | 1308 |
 | TR/EN editorial guides with applied tool-specific review | 218 |
 | DE/ZH editorial guides with applied tool-specific review | 162 |
-| Smallest TR/EN/DE/ZH tool decision guide | TR 317 · EN 363 · DE 323 · ZH 399 words |
+| Smallest TR/EN/DE/ZH tool decision guide | TR 353 · EN 412 · DE 363 · ZH 433 words |
 | Smallest TR/EN/DE/ZH applied guide review | TR 399 · EN 442 · DE 401 · ZH 493 words |
 
 ## Editorial repairs

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { categories, publicTools as tools, type Tool } from "../lib/tools";
+import type { ToolCategory } from "../lib/tools";
 import { canonicalToolSlug } from "../lib/tool-aliases";
 import { consentChangeEvent, favoritesStorageKey, hasPreferenceConsent, openPrivacySettings, usageStorageKey } from "../lib/consent";
 import { toolPath, type Locale } from "../lib/site";
@@ -12,6 +12,7 @@ const fallbackSlugs = ["json-bicimlendirici", "kvkk-veri-maskeleyici", "prompt-k
 const usageLifetimeMs = 180 * 24 * 60 * 60 * 1000;
 type UsageEntry = { count: number; lastUsed: number };
 type UsageMap = Record<string, UsageEntry>;
+type PersonalToolSummary = { slug: string; category: ToolCategory; mark: string; title: string; short: string; categoryLabel: string };
 
 function readUsage(): UsageMap {
   if (!hasPreferenceConsent()) return {};
@@ -54,7 +55,7 @@ export function ToolUsageTracker({ slug }: { slug: string }) {
   return null;
 }
 
-export function PersonalToolsHub({ locale }: { locale: Locale }) {
+export function PersonalToolsHub({ locale, tools }: { locale: Locale; tools: PersonalToolSummary[] }) {
   const l = {
     tr: { kicker: "SİZE GÖRE BYTEQUANT", title: "Sabitlenenler ve sık kullanılanlar, tek araç kutusunda", body: "Önemli araçları sabitleyin; izin verirseniz ByteQuant son 180 gündeki yerel açılma sayılarından yararlı kısa yolları öne çıkarsın. İki liste de yalnızca bu cihazda kalır.", private: "Girdi, çıktı ve dosya içeriği hiçbir zaman bu sayaçlara yazılmaz.", offTitle: "Kişisel araç kutusu isteğe bağlıdır", off: "Gizlilik tercihiniz kapalıyken hiçbir kullanım geçmişi veya sabitlenen araç listesi tutulmaz. Açmak için Gizlilik Tercihleri'nde ‘Yerel kişiselleştirme’ seçeneğini etkinleştirin.", manage: "Gizlilik tercihlerini aç", pinned: "Sabitlenen araçlar", frequent: "Sık kullanılanlar ve öneriler", empty: "Henüz sabitlediğiniz araç yok. Aşağıdaki önerilerdeki yıldızla ilk kısa yolunuzu oluşturun.", pin: "Sabitle", unpin: "Sabitlemeyi kaldır", open: "Aracı aç", opened: "açılış", count: "sabit", local: "Yalnızca bu cihaz" },
     en: { kicker: "BYTEQUANT, YOUR WAY", title: "Pinned and frequently used tools in one toolbox", body: "Pin important tools and—if you opt in—let ByteQuant surface useful shortcuts from local opens over the last 180 days. Both lists stay on this device.", private: "Input, output, and file contents are never written to these counters.", offTitle: "Your personal toolbox is optional", off: "No usage history or pinned list is stored while the preference is off. Enable ‘Local personalization’ in Privacy Choices to turn it on.", manage: "Open privacy choices", pinned: "Pinned tools", frequent: "Frequently used and suggested", empty: "Nothing is pinned yet. Use the star on a suggestion below to create your first shortcut.", pin: "Pin", unpin: "Unpin", open: "Open tool", opened: "opens", count: "pinned", local: "This device only" },
@@ -67,13 +68,13 @@ export function PersonalToolsHub({ locale }: { locale: Locale }) {
     refresh(); ["storage", "bq-tool-usage", "bq-favorites-change", consentChangeEvent].forEach((event) => window.addEventListener(event, refresh));
     return () => ["storage", "bq-tool-usage", "bq-favorites-change", consentChangeEvent].forEach((event) => window.removeEventListener(event, refresh));
   }, []);
-  const pinned = useMemo(() => slugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is Tool => Boolean(tool)), [slugs]);
+  const pinned = useMemo(() => slugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is PersonalToolSummary => Boolean(tool)), [slugs, tools]);
   const suggestions = useMemo(() => {
     const used = tools.filter((tool) => usage[tool.slug]?.count > 0).sort((a, b) => (usage[b.slug].count - usage[a.slug].count) || (usage[b.slug].lastUsed - usage[a.slug].lastUsed));
-    const fallback = fallbackSlugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is Tool => Boolean(tool));
+    const fallback = fallbackSlugs.map((slug) => tools.find((tool) => tool.slug === slug)).filter((tool): tool is PersonalToolSummary => Boolean(tool));
     return [...used, ...fallback].filter((tool, index, all) => all.findIndex((item) => item.slug === tool.slug) === index && !slugs.includes(tool.slug)).slice(0, 6);
-  }, [slugs, usage]);
+  }, [slugs, tools, usage]);
   const pin = (slug: string) => { if (!consented) { openPrivacySettings(); return; } try { toggleFavorite(slug); } catch { /* Storage may be disabled. */ } };
-  const Card = ({ tool, isPinned }: { tool: Tool; isPinned: boolean }) => <article className={`personal-tool-card ${isPinned ? "is-pinned" : ""}`}><header><ToolIcon tool={tool} size="md" /><span>{categories[tool.category].label[locale]}</span><button type="button" className="personal-pin-button" aria-pressed={isPinned} aria-label={`${isPinned ? l.unpin : l.pin}: ${tool.title[locale]}`} onClick={() => pin(tool.slug)}>{isPinned ? "★" : "☆"}</button></header><h3><Link href={toolPath(locale, tool.slug)}>{tool.title[locale]}</Link></h3><p>{tool.short[locale]}</p><footer><Link href={toolPath(locale, tool.slug)}>{l.open} →</Link>{usage[tool.slug]?.count ? <span>{usage[tool.slug].count}× {l.opened}</span> : <span>{l.local}</span>}</footer></article>;
+  const Card = ({ tool, isPinned }: { tool: PersonalToolSummary; isPinned: boolean }) => <article className={`personal-tool-card ${isPinned ? "is-pinned" : ""}`}><header><ToolIcon tool={tool} size="md" /><span>{tool.categoryLabel}</span><button type="button" className="personal-pin-button" aria-pressed={isPinned} aria-label={`${isPinned ? l.unpin : l.pin}: ${tool.title}`} onClick={() => pin(tool.slug)}>{isPinned ? "★" : "☆"}</button></header><h3><Link href={toolPath(locale, tool.slug)}>{tool.title}</Link></h3><p>{tool.short}</p><footer><Link href={toolPath(locale, tool.slug)}>{l.open} →</Link>{usage[tool.slug]?.count ? <span>{usage[tool.slug].count}× {l.opened}</span> : <span>{l.local}</span>}</footer></article>;
   return <section className="section personal-tools-section" aria-labelledby={`personal-tools-${locale}`}><div className="container"><div className="section-heading split-heading personal-tools-heading"><div><span className="kicker">{l.kicker}</span><h2 id={`personal-tools-${locale}`}>{l.title}</h2></div><div><p>{l.body}</p><small>◇ {l.private}</small></div></div>{!consented ? <div className="personal-tools-consent"><span aria-hidden="true">◇</span><div><strong>{l.offTitle}</strong><p>{l.off}</p></div><button type="button" onClick={openPrivacySettings}>{l.manage} →</button></div> : <><div className="personal-tools-subheading"><div><strong>{l.pinned}</strong><span>{pinned.length}/12 {l.count}</span></div><small>{l.local}</small></div>{pinned.length ? <div className="personal-tool-grid pinned-grid">{pinned.map((tool) => <Card key={tool.slug} tool={tool} isPinned />)}</div> : <div className="personal-tools-empty"><span>☆</span><p>{l.empty}</p></div>}<div className="personal-tools-subheading suggestion-heading"><div><strong>{l.frequent}</strong><span>{suggestions.length}</span></div><small>{l.private}</small></div><div className="personal-tool-grid">{suggestions.map((tool) => <Card key={tool.slug} tool={tool} isPinned={false} />)}</div></>}</div></section>;
 }
