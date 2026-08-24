@@ -4,7 +4,7 @@ import { absoluteUrl, localizedAlternates, ogImageUrl } from "../lib/site";
 
 export const metadata: Metadata = {
   title: { absolute: "ByteQuant · 隐私优先的浏览器内工具" },
-  description: "327 个互不重复的免费工具，涵盖数据、文件、研究、计算、AI 工作流和代码安全预检查。核心处理保留在浏览器中。",
+  description: "ByteQuant 提供 327 个互不重复的免费浏览器内工具，覆盖数据、文件、研究、计算、AI 工作流与代码安全预检查；无需账户，核心输入留在当前设备中处理。",
   alternates: localizedAlternates("zh", "/", "/en"),
   openGraph: { type: "website", siteName: "ByteQuant", locale: "zh_CN", alternateLocale: ["tr_TR", "en_US", "de_DE"], url: absoluteUrl("/zh"), title: "ByteQuant · 隐私优先的浏览器内工具", description: "327 个互不重复的免费工具，无需账户或服务器上传。", images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "ByteQuant 隐私优先工具" }] },
   twitter: { card: "summary_large_image", title: "ByteQuant", description: "在浏览器中运行的隐私优先工具。", images: [ogImageUrl] },

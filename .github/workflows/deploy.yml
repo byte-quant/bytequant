@@ -50,6 +50,8 @@ jobs:
         run: pnpm audit:content
       - name: Audit original, task-specific content contracts
         run: pnpm audit:authenticity
+      - name: Audit indexable publisher content surfaces
+        run: pnpm audit:publisher-surface
       - name: Audit editorial depth
         run: pnpm audit:editorial
       - name: Audit publisher trust

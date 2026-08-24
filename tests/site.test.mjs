@@ -623,7 +623,7 @@ test("exports the 15 discovery tools and four new guides in every locale", async
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-22/);
+    assert.match(page, /dateModified[^<]*2026-08-24/);
   }
 
   const guideSlugs = [
@@ -933,7 +933,7 @@ test("exports the 55-tool expansion and localized evidence guides", async () => 
     assert.match(page, /WebApplication/);
     assert.match(page, /HowTo/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /dateModified[^<]*2026-08-22/);
+    assert.match(page, /dateModified[^<]*2026-08-24/);
   }
   for (const localeRoot of ["blog", "en/blog", "de/blog", "zh/blog"]) {
     for (const slug of ["local-agent-workstation-verifiable-planning", "source-reliability-evidence-synthesis", "seo-aeo-geo-useful-tool-pages"]) {

@@ -3,7 +3,7 @@ import { LocalizedBlogIndex } from "../../components/LocalizedBlogIndex";
 import { absoluteUrl, localizedAlternates, localizedSocialMetadata } from "../../lib/site";
 
 const title = "Ratgeber";
-const description = "Ausführliche ByteQuant-Ratgeber in transparent gekennzeichneten Sprachen.";
+const description = "Ausführliche ByteQuant-Ratgeber mit nachvollziehbaren Methoden, Praxisbeispielen, Grenzen und Prüfwegen für lokale Browser-Werkzeuge, Datenschutz und sichere digitale Abläufe.";
 
 export const metadata: Metadata = {
   title,

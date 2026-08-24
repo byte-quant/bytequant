@@ -52,12 +52,14 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "NUTZUNGSBEDINGUNGEN",
       title: "Kostenlose Werkzeuge mit klaren Verantwortungsgrenzen",
       intro: "Mit der Nutzung von ByteQuant akzeptieren Sie diese Bedingungen und verwenden die Werkzeuge nur für rechtmäßige, autorisierte Zwecke.",
-      updated: "Zuletzt aktualisiert: 22. Juli 2026",
+      updated: "Gültig seit 22. Juli 2026 · zuletzt geprüft am 24. August 2026",
       sections: [
         { heading: "Zulässige Nutzung", paragraphs: ["Verarbeiten Sie nur Daten, Dateien, URLs und Quellcode, die Sie rechtmäßig prüfen dürfen. Umgehen Sie keine Zugriffskontrollen, Verschlüsselung, Lizenz oder Rechte Dritter."] },
         { heading: "Keine Fach- oder Sicherheitsgarantie", paragraphs: ["Berechnungen, Vertrags- und Rechnungsentwürfe, Zitationen, Malware-Indikatoren und Prompt-Bewertungen sind Hilfsmittel. Sie ersetzen keine Rechts-, Finanz-, Studien-, Steuer- oder Sicherheitsberatung.", "Ein unauffälliger Datei-, Code- oder URL-Bericht beweist keine Sicherheit. Kritische Ergebnisse müssen unabhängig geprüft werden."] },
         { heading: "Lokaler Agent und Nutzerkontrolle", paragraphs: ["Agentenpläne sind nachvollziehbare Vorschläge, keine autonome Genehmigung. Dateiauswahl, Ausführung, Download und folgenreiche Entscheidungen bleiben bei Ihnen. Spracheingabe ist keine Authentisierung."] },
         { heading: "Workstation, Rezept und Peer-Verantwortung", paragraphs: ["Visuelle Pläne und Synchronisierung ersetzen keine Prüfung. Das Öffnen oder Ausführen eines Knotens, Dateiauswahl, Passworteingabe und Download erfordern Ihre Handlung. Teilen Sie Raum- und Rezeptcodes nur mit autorisierten Personen; sichern Sie wichtige Projekte datenschutzgerecht."] },
+        { heading: "Eigene Inhalte und Rechte Dritter", paragraphs: ["Sie behalten die Verantwortung für Texte, Dateien und Ergebnisse, die Sie in Werkzeuge eingeben, herunterladen oder teilen. Verwenden Sie nur Material, für das Sie eine ausreichende Berechtigung besitzen, und entfernen Sie vertrauliche oder personenbezogene Angaben vor einer öffentlichen Weitergabe.", "Open-Source-Lizenzen der verwendeten Abhängigkeiten werden im Repository dokumentiert. Diese Bedingungen gewähren keine Rechte an Marken, Datensätzen oder Inhalten Dritter, die ein Nutzer selbst einbringt."] },
+        { heading: "Änderungen, Beendigung und Kontakt", paragraphs: ["Wesentliche Änderungen dieser Bedingungen werden mit einem neuen Aktualisierungsdatum veröffentlicht. Sie können die Nutzung jederzeit beenden und lokale Projekte, Einstellungen, Cache sowie die installierte PWA über die Browser- oder Geräteeinstellungen löschen.", "Fragen zu diesen Bedingungen können an bytequant@yahoo.com gesendet werden. Rechtswidrige, missbräuchliche oder sicherheitsgefährdende Nutzung darf technisch eingeschränkt oder über die jeweilige Hosting- beziehungsweise Netzwerkplattform gemeldet werden."] },
         { heading: "Verfügbarkeit und Haftung", paragraphs: ["Der Dienst wird ohne Verfügbarkeits- oder Fehlerfreiheitsgarantie bereitgestellt. Die Installation ist eine Browser-PWA-Funktion; ByteQuant verteilt keine APK und garantiert nicht die Kompatibilität der vom Browser erzeugten Android-Hülle. Prüfen und sichern Sie Ergebnisse vor wichtiger Nutzung. Soweit gesetzlich zulässig, liegt die Verantwortung für Eingabe, Interpretation und Verwendung bei Ihnen."] },
       ],
     },
@@ -68,6 +70,9 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       sections: [
         { heading: "E-Mail", paragraphs: ["Schreiben Sie an bytequant@yahoo.com. Senden Sie keine Passwörter, privaten Schlüssel, ungeschwärzten personenbezogenen Datensätze oder aktive Schadsoftware per E-Mail."] },
         { heading: "Sicherheitsmeldung", paragraphs: ["Beschreiben Sie betroffene URL, reproduzierbare Schritte, Auswirkung und eine sichere Kontaktmöglichkeit. Veröffentlichen Sie den Befund nicht, bevor eine angemessene Behebung möglich war.", "Die koordinierte Meldung ist auch in /.well-known/security.txt dokumentiert."] },
+        { heading: "Inhaltliche Korrekturen", paragraphs: ["Nennen Sie bei veralteten Angaben, Übersetzungsfehlern oder nicht belegbaren Aussagen die betroffene URL und den genauen Absatz. Eine Primärquelle oder eine offizielle Dokumentation hilft, Umfang und Aktualität nachvollziehbar zu prüfen.", "Eine bestätigte Korrektur wird nicht isoliert behandelt: verknüpfte Werkzeugtexte, strukturierte Daten und die übrigen Sprachfassungen werden gemeinsam kontrolliert."] },
+        { heading: "Barrierefreiheit und Nutzung", paragraphs: ["Bei Problemen mit Tastaturfokus, Screenreader-Beschriftung, Kontrast, mobiler Darstellung oder überlaufendem Text nennen Sie bitte Browser, Bildschirmgröße und verwendete Hilfstechnik.", "Senden Sie keine echten Werkzeugdaten. Ein synthetisches Beispiel mit derselben Struktur reicht aus, um einen Fehler zu reproduzieren, ohne Personen- oder Geschäftsangaben offenzulegen."] },
+        { heading: "Bearbeitung der Anfrage", paragraphs: ["Meldungen werden nach Auswirkung und Reproduzierbarkeit geprüft; für eine Antwort gibt es keine garantierte Frist. Sicherheits- und Datenschutzprobleme haben Vorrang. Spam, missbräuchliche oder rechtswidrige Anfragen können unbeantwortet bleiben."] },
       ],
     },
     faq: {
@@ -136,12 +141,14 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       eyebrow: "使用条款",
       title: "免费工具与清晰的责任边界",
       intro: "使用 ByteQuant 即表示您接受本条款，并仅将工具用于合法且获授权的目的。",
-      updated: "最后更新：2026 年 7 月 22 日",
+      updated: "生效：2026 年 7 月 22 日 · 最近审核：2026 年 8 月 24 日",
       sections: [
         { heading: "允许的使用", paragraphs: ["只处理您依法有权检查的数据、文件、URL 和源代码。不得绕过访问控制、加密、许可证或第三方权利。"] },
         { heading: "不构成专业或安全保证", paragraphs: ["计算、合同与发票草稿、引用、恶意指标和提示词评分只是辅助工具，不能替代法律、财务、教育、税务或安全建议。", "文件、代码或 URL 报告无异常，并不能证明安全。关键结果必须独立核验。"] },
         { heading: "本地助手与用户控制", paragraphs: ["助手计划是可解释建议，不是自主批准。选择文件、运行、下载和高影响决策都由您控制；语音输入不构成身份验证。"] },
         { heading: "工作站、配方与对等共享责任", paragraphs: ["可视化计划和同步不能替代人工复核。打开或运行节点、选择文件、输入密码和下载均需要您的操作。只与获授权人员共享房间码和配方码，并自行为重要项目创建不含敏感数据的备份。"] },
+        { heading: "您的内容与第三方权利", paragraphs: ["您应对输入工具、下载或分享的文本、文件与结果负责。只使用您有权处理的材料；公开分享前，应移除机密信息和不必要的个人数据。", "项目所用依赖的开源许可证记录在代码仓库中。这些条款不会授予您对第三方商标、数据集或由用户自行提交内容的额外权利。"] },
+        { heading: "条款变更、停止使用与联系", paragraphs: ["条款发生重大变化时会更新页面日期。您可随时停止使用，并通过浏览器或设备设置删除本地项目、偏好、缓存和已安装的 PWA。", "有关条款的问题可发送至 bytequant@yahoo.com。违法、滥用或危害安全的使用可能会受到技术限制，也可能被报告给相关托管或网络平台。"] },
         { heading: "可用性与责任", paragraphs: ["服务不保证持续可用或没有错误。安装属于浏览器 PWA 功能；ByteQuant 不分发 APK，也不保证浏览器生成的 Android 封装兼容性。重要使用前请核验并备份结果。在法律允许范围内，输入、解释和使用责任由用户承担。"] },
       ],
     },
@@ -152,12 +159,15 @@ export const localizedInfo: Record<ExtendedLocale, Record<InfoKey, Content>> = {
       sections: [
         { heading: "电子邮件", paragraphs: ["请发送至 bytequant@yahoo.com。不要通过邮件发送密码、私钥、未遮蔽的个人数据集或活动恶意软件。"] },
         { heading: "安全报告", paragraphs: ["请说明受影响 URL、可复现步骤、影响和安全联系方式。在给予合理修复时间前，请勿公开问题。", "协调披露方式也记录在 /.well-known/security.txt。"] },
+        { heading: "内容纠错与来源建议", paragraphs: ["如果指南包含过时信息、翻译问题或无法核实的表述，请注明页面 URL 和具体段落。若能附上一手来源或机构官方文档，将有助于核对范围与时效。", "确认需要修改后，我们会同时检查相关工具说明、结构化数据与其他语言版本，而不是只替换单独一句话。"] },
+        { heading: "无障碍与使用问题", paragraphs: ["若遇到键盘焦点、屏幕阅读器标签、颜色对比度、移动端溢出或文字难以阅读，请说明浏览器、屏幕尺寸和所使用的辅助技术。", "请勿发送真实工具数据。使用保留相同结构的合成示例即可复现问题，同时避免泄露个人或业务信息。"] },
+        { heading: "处理方式", paragraphs: ["我们会根据影响范围和可复现性审阅来信，但不承诺固定回复时限。安全与隐私问题会优先处理；垃圾邮件、滥用或违法请求可能不会得到回复。"] },
       ],
     },
     faq: {
       eyebrow: "常见问题",
       title: "使用前需要了解的事项",
-      intro: "关于隐私、安装、离线使用、新语言和安全限制的简短说明。",
+      intro: "了解 ByteQuant 的浏览器内处理、隐私边界、安装与离线使用、本地助手、工作站、社区以及安全限制；每个回答都说明用户仍需自行核验的事项。",
       sections: [
         { heading: "工具输入会上传吗？", paragraphs: ["不会。核心处理在当前浏览器标签页中运行。文件、代码和 URL 预扫描不使用外部扫描 API。"] },
         { heading: "本地助手是大型语言模型吗？", paragraphs: ["不是。它使用版本化语义评分与可解释规划规则，不进行远程推理。计划只保留在当前标签页的 sessionStorage 中，每一步执行都需要您的操作。"] },

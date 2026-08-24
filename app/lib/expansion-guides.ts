@@ -19,7 +19,7 @@ const bullets: Record<Locale, string[]> = {
   zh: ["先用少量合成数据测试。", "记录失败与停止条件。", "将来源、日期和方法说明与输出一起保存。"],
 };
 const depthCopy: Record<Locale, {
-  evidence: string;
+  evidence: (heading: string, nextHeading: string, index: number) => string;
   walkthrough: string;
   walkthroughBody: string;
   walkthroughBullets: string[];
@@ -28,7 +28,7 @@ const depthCopy: Record<Locale, {
   qualityBullets: string[];
 }> = {
   tr: {
-    evidence: "Bu adımı gerçek veriye uygulamadan önce küçük bir sentetik örnekle beklenen sonucu yazın. Normal durumun yanında eksik alan, hatalı biçim, çok uzun girdi ve çelişkili bilgi örneklerini de deneyin. Çıktıda hangi bölümün doğrudan girdiden geldiğini, hangisinin kural tabanlı çıkarım olduğunu ve hangi kararın insan onayı gerektirdiğini görünür biçimde ayırın.",
+    evidence: (heading, nextHeading, index) => `“${heading}” için ${index + 1}. kabul kaydını gerçek veriden önce sentetik bir örnekle oluşturun. Normal örneğin yanına bu adıma özgü eksik, bozuk ve sınır girdisini ekleyin; beklenen sonucu her biri için önceden yazın. Çıktıda doğrudan gözlenen alanı, kural çıkarımını ve insan onayı gereken kararı ayırdıktan sonra ancak “${nextHeading}” aşamasına geçin.`,
     walkthrough: "Uygulamalı örnek: girdiden doğrulanmış teslimata",
     walkthroughBody: "Önce güvenli bir örnek girdi hazırlayın ve kişisel veri, sır ya da lisanslı içeriği kaldırın. Ardından aşağıdaki üç kontrolü sırayla uygulayın; her aşamada çıktıyı önceki sürümle karşılaştırın ve yalnızca açık kabul ölçütü karşılandığında ilerleyin. Bir araç uyarı verirse sonucu zorla kullanmak yerine girdiyi küçültün, belirsizliği yazın ve son doğrulanmış aşamaya geri dönün.",
     walkthroughBullets: ["Başlangıç girdisini ve beklenen sonucu birlikte kaydedin.", "Her aşamadan sonra değişen alanları ve gerekçesini not edin.", "Son çıktıyı farklı bir örnek ve bağımsız bir gözden geçirenle yeniden sınayın.", "Paylaşılacak dosyada kaynak, tarih, sürüm ve bilinen sınırları koruyun."],
@@ -37,7 +37,7 @@ const depthCopy: Record<Locale, {
     qualityBullets: ["Başarı ölçütü gözlenebilir ve tekrar edilebilir mi?", "Boş, bozuk, aşırı büyük ve kötü niyetli girdi güvenli biçimde duruyor mu?", "Sonuç ile araç çıkarımı ve insan kararı birbirinden ayrılıyor mu?", "Hassas veri, dış bağlantı ve lisans koşulları son kez kontrol edildi mi?", "Değişiklik günlüğü ve geri dönüş kopyası hazır mı?"],
   },
   en: {
-    evidence: "Before using this step on real data, write the expected result for a small synthetic example. Test missing fields, malformed input, oversized content, and conflicting information as well as the happy path. In the output, clearly separate what came directly from the input, what was inferred by a rule, and what still requires human approval.",
+    evidence: (heading, nextHeading, index) => `Create acceptance record ${index + 1} for “${heading}” with synthetic data before touching a live record. Add a missing, malformed, and boundary input specific to this step and state the expected result in advance. Separate observed fields, rule-based inference, and human approval in the output before continuing to “${nextHeading}.”`,
     walkthrough: "Applied walkthrough: from input to verified handoff",
     walkthroughBody: "Begin with a safe sample and remove personal data, secrets, or licensed material. Apply the three checks below in order, compare every stage with the previous version, and continue only when an explicit acceptance criterion passes. If a tool raises a warning, reduce the input, record the uncertainty, and return to the last verified stage instead of forcing the result forward.",
     walkthroughBullets: ["Record the starting input and expected result together.", "After each stage, note changed fields and the reason for the change.", "Retest the final output with a different example and an independent reviewer.", "Keep source, date, version, and known limitations with the shared artifact."],
@@ -46,7 +46,7 @@ const depthCopy: Record<Locale, {
     qualityBullets: ["Is the success criterion observable and repeatable?", "Do empty, malformed, oversized, and adversarial inputs stop safely?", "Are result, tool inference, and human decision clearly separated?", "Were sensitive data, external links, and license conditions checked once more?", "Is a change log and rollback copy available?"],
   },
   de: {
-    evidence: "Vor der Anwendung auf echte Daten das erwartete Ergebnis an einem kleinen synthetischen Beispiel festhalten. Neben dem Normalfall auch fehlende Felder, fehlerhafte Formate, übergroße Inhalte und widersprüchliche Angaben testen. In der Ausgabe klar trennen, was direkt aus der Eingabe stammt, was eine Regel ableitet und was menschliche Freigabe benötigt.",
+    evidence: (heading, nextHeading, index) => `Für „${heading}“ den Abnahmenachweis ${index + 1} vor echten Daten mit einem synthetischen Beispiel anlegen. Einen fehlenden, fehlerhaften und grenzwertigen Fall speziell für diesen Schritt ergänzen und das erwartete Ergebnis vorher notieren. Beobachtung, Regelschluss und menschliche Freigabe trennen, bevor „${nextHeading}“ beginnt.`,
     walkthrough: "Praxisablauf: von der Eingabe zur geprüften Übergabe",
     walkthroughBody: "Mit einem sicheren Beispiel beginnen und Personendaten, Geheimnisse sowie lizenzierte Inhalte entfernen. Die drei Prüfungen in Reihenfolge anwenden, jede Stufe mit der Vorversion vergleichen und nur bei erfülltem Abnahmekriterium fortfahren. Bei einer Warnung Eingabe verkleinern, Unsicherheit dokumentieren und zur letzten geprüften Stufe zurückkehren.",
     walkthroughBullets: ["Ausgangseingabe und erwartetes Ergebnis gemeinsam speichern.", "Nach jeder Stufe geänderte Felder und Begründung notieren.", "Endausgabe mit anderem Beispiel und unabhängiger Prüfung erneut testen.", "Quelle, Datum, Version und bekannte Grenzen am geteilten Artefakt belassen."],
@@ -55,7 +55,7 @@ const depthCopy: Record<Locale, {
     qualityBullets: ["Ist das Erfolgskriterium beobachtbar und wiederholbar?", "Stoppen leere, fehlerhafte, übergroße und missbräuchliche Eingaben sicher?", "Sind Ergebnis, Werkzeugschluss und menschliche Entscheidung getrennt?", "Wurden sensible Daten, externe Links und Lizenzbedingungen erneut geprüft?", "Sind Änderungsprotokoll und Rücknahmekopie vorhanden?"],
   },
   zh: {
-    evidence: "在用于真实数据之前，先用小型合成示例写明预期结果。除正常情况外，还要测试缺失字段、错误格式、超大内容与矛盾信息。输出中应明确区分直接来自输入的内容、规则推断的内容，以及仍需人工批准的决定。",
+    evidence: (heading, nextHeading, index) => `在处理真实记录前，先为“${heading}”建立第 ${index + 1} 份合成验收记录。针对该步骤加入缺失、错误和边界输入，并预先写明各自的预期结果。输出中分开标记直接观察、规则推断和人工批准，确认后再进入“${nextHeading}”。`,
     walkthrough: "实操流程：从输入到经核验的交付",
     walkthroughBody: "先准备安全样例，移除个人数据、密钥与受许可限制的内容。按顺序执行下列三项检查，每一步都与上一版本比较，只有明确验收条件通过后才继续。工具发出警告时，应缩小输入、记录不确定性并返回最近一次已核验阶段，而不是强行推进结果。",
     walkthroughBullets: ["同时保存初始输入与预期结果。", "每一步记录变更字段及变更理由。", "使用不同样例和独立审核者重新测试最终输出。", "分享内容应保留来源、日期、版本与已知限制。"],
@@ -245,7 +245,7 @@ const specs: Spec[] = [
 function sections(locale: Locale, points: [Point, Point, Point]): ArticleSection[] {
   const depth = depthCopy[locale];
   return [
-    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], method[locale][index], depth.evidence], bullets: [bullets[locale][index]] })),
+    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], method[locale][index], depth.evidence(point.heading[locale], points[(index + 1) % points.length].heading[locale], index)], bullets: [bullets[locale][index]] })),
     { heading: depth.walkthrough, paragraphs: [depth.walkthroughBody, `${points[0].heading[locale]} → ${points[1].heading[locale]} → ${points[2].heading[locale]}`], bullets: depth.walkthroughBullets },
     { heading: depth.quality, paragraphs: [depth.qualityBody], bullets: depth.qualityBullets },
   ];
