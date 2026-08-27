@@ -115,6 +115,9 @@ test("workflow detection separates everyday chat from tool work", () => {
   assert.equal(isLikelyWorkflowRequest("把这些数据转换为 JSON"), true);
   assert.equal(isLikelyWorkflowRequest("Ben görseli PDF'e dönüştürmeni istiyorum"), true);
   assert.equal(isLikelyWorkflowRequest("Bu fotoğrafları tek PDF yapar mısın?"), true);
+  assert.equal(isLikelyWorkflowRequest("Bu görseli küçült, kırp ve WebP olarak hazırla"), true);
+  assert.equal(isLikelyWorkflowRequest("Bitte das Bild zuschneiden und skalieren"), true);
+  assert.equal(isLikelyWorkflowRequest("扫描并优化这份文件"), true);
 });
 
 test("fast fallback handles common conversation without inventing a tool", () => {
@@ -139,6 +142,9 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   const namedHistory = [{ locale: "tr", goal: "Benim adım Ada", answer: "Memnun oldum, Ada.", tools: [], time: 1, mode: "fast", intent: "conversation" }];
   assert.match(createFastConversationResponse("tr", "Benim adım ne?", namedHistory), /Ada/);
   assert.equal(didFastConversationUseHistory("Benim adım ne?", namedHistory), true);
+  assert.match(createFastConversationResponse("tr", "125 * 1.18 kaçtır?"), /147[,.]5/);
+  assert.match(createFastConversationResponse("de", "Wie viel ist 200 * 15%?"), /30/);
+  assert.match(createFastConversationResponse("zh", "计算 (12 + 8) * 3"), /60/);
 });
 
 test("image-to-PDF language routes to the dedicated local converter", () => {
@@ -148,6 +154,18 @@ test("image-to-PDF language routes to the dedicated local converter", () => {
   assert.equal(tr.steps[0]?.requiresFile, true);
   const en = createAgentPlan("Convert these photos into one PDF", publicTools, "en");
   assert.equal(en.steps[0]?.toolSlug, "gorselden-pdf");
+  const reverse = createAgentPlan("PDF sayfalarını JPG görsellere dönüştür", publicTools, "tr");
+  assert.equal(reverse.matchQuality, "review");
+  assert.ok(reverse.coverage.missing.length > 0);
+});
+
+test("model-free planning recognizes practical image and PDF operations", () => {
+  const resize = createAgentPlan("Fotoğrafın boyutunu küçült ve sıkıştır", publicTools, "tr");
+  assert.deepEqual(resize.steps.slice(0, 2).map((step) => step.toolSlug), ["gorsel-boyutlandirici", "gorsel-sikistirici"]);
+  const crop = createAgentPlan("Bilder zuschneiden und skalieren", publicTools, "de");
+  assert.equal(crop.steps[0]?.toolSlug, "gorsel-boyutlandirici");
+  const merge = createAgentPlan("Üç PDF dosyasını birleştir", publicTools, "tr");
+  assert.equal(merge.steps[0]?.toolSlug, "pdf-birlestirme");
 });
 
 test("conversation context keeps relevant pairs and isolates unrelated workflow history", () => {

@@ -105,11 +105,26 @@ const conceptGroups = [
   ["pico", "boolean search", "evidence gap", "kanıt boşluğu", "güncellik", "freshness", "evidenzlücke", "布尔检索", "证据缺口"],
   ["anonymisation", "anonymization", "anonimleştirme", "retention", "saklama süresi", "aufbewahrung", "匿名化", "保留期限"],
   ["cagr", "roas", "roi", "growth", "büyüme", "return on ad spend", "wachstum", "增长率", "广告回报"],
+  ["resize", "crop", "rotate", "boyutlandır", "kırp", "döndür", "skalieren", "zuschneiden", "drehen", "调整大小", "裁剪", "旋转"],
+  ["merge", "combine", "join", "birleştir", "tek dosya", "zusammenführen", "verbinden", "合并", "拼接"],
+  ["split", "extract pages", "böl", "sayfa ayır", "teilen", "seiten extrahieren", "拆分", "提取页面"],
+  ["compress", "reduce size", "küçült", "sıkıştır", "boyut azalt", "komprimieren", "verkleinern", "压缩", "减小体积"],
+  ["remove metadata", "clean exif", "meta veri sil", "exif temizle", "metadaten entfernen", "exif löschen", "删除元数据", "清除 exif"],
+  ["invoice", "receipt", "fatura", "makbuz", "rechnung", "quittung", "发票", "收据"],
+  ["citation", "bibliography", "kaynakça", "atıf", "zitat", "literaturverzeichnis", "引用", "参考文献"],
+  ["regex", "regular expression", "düzenli ifade", "regulärer ausdruck", "正则表达式"],
+  ["cron", "schedule", "zamanlama", "zeitplan", "定时", "计划任务"],
+  ["qr", "barcode", "karekod", "barkod", "二维码", "条形码"],
+  ["color", "renk", "farbe", "颜色", "hex", "rgb", "hsl"],
+  ["markdown", "html", "preview", "önizleme", "vorschau", "预览"],
+  ["jwt", "json web token", "bearer token"],
+  ["unix", "epoch", "timestamp", "zaman damgası", "zeitstempel", "时间戳"],
+  ["word count", "character count", "kelime say", "karakter say", "wörter zählen", "字数", "字符数"],
 ] as const;
 
 const fileTools = new Set([
   "arac-zinciri-pipeline", "exif-meta-veri-temizleyici", "gorsel-format-donusturucu", "gorsel-sikistirici",
-  "gorselden-pdf", "pdf-gorsele", "pdf-birlestirme", "pdf-bolme", "pdf-sifreleme", "heic-donusturucu",
+  "gorselden-pdf", "pdf-birlestirme", "pdf-bolme", "pdf-sifreleme", "heic-donusturucu",
   "svg-png-donusturucu", "dosya-risk-on-taramasi", "dosya-hash-karsilastirici",
 ]);
 
@@ -139,9 +154,20 @@ function tokens(value: string, locale: Locale) {
   return normalized.split(/\s+/).filter((item) => item.length > 1 || /\d/.test(item));
 }
 
+const stopWords: Record<Locale, Set<string>> = {
+  tr: new Set(["bir", "bu", "bunu", "icin", "ile", "ve", "veya", "ben", "bana", "istiyorum", "yapar", "misin", "miyim", "olan", "olarak"]),
+  en: new Set(["a", "an", "the", "this", "that", "for", "with", "and", "or", "me", "my", "please", "want", "need", "can", "could", "would"]),
+  de: new Set(["ein", "eine", "der", "die", "das", "dies", "fur", "mit", "und", "oder", "ich", "mein", "bitte", "mochte", "kann"]),
+  zh: new Set(["我", "的", "了", "和", "或", "请", "可以", "需要", "想要", "这个", "那个"]),
+};
+
+function meaningfulTokens(value: string, locale: Locale) {
+  return tokens(value, locale).filter((token) => !stopWords[locale].has(token));
+}
+
 function expandQuery(query: string, locale: Locale) {
   const normalized = normalize(query, locale);
-  const expanded = new Set(tokens(query, locale));
+  const expanded = new Set(meaningfulTokens(query, locale));
   conceptGroups.forEach((group) => {
     if (group.some((term) => normalized.includes(normalize(term, locale)))) {
       group.forEach((term) => tokens(term, locale).forEach((token) => expanded.add(token)));
@@ -164,34 +190,82 @@ function trigramSimilarity(left: string, right: string) {
   return shared / Math.max(1, a.size + b.size - shared);
 }
 
+type AgentSearchDocument = {
+  tool: Tool;
+  fields: Array<{ normalized: string; weight: number; direct?: boolean; tokens?: Set<string> }>;
+  titleTokens: string[];
+};
+
+const searchIndexCache = new WeakMap<Tool[], Map<Locale, AgentSearchDocument[]>>();
+
+const intentSearchHints: Array<{ tests: RegExp[]; slugs: string[] }> = [
+  { tests: [/(gorsel|resim|foto|image|picture|photo|bild|图片|照片)/u, /(boyutlandir|kucult|buyut|kirp|resize|scale|crop|skalier|zuschneid|调整大小|缩小|放大|裁剪)/u], slugs: ["gorsel-boyutlandirici"] },
+  { tests: [/(gorsel|resim|foto|image|picture|photo|bild|图片|照片)/u, /(sikistir|dosya boyut|compress|reduce size|komprimier|压缩|减小体积)/u], slugs: ["gorsel-sikistirici"] },
+  { tests: [/pdf/u, /(birlestir|merge|combine|zusammenfuhr|合并)/u], slugs: ["pdf-birlestirme"] },
+  { tests: [/pdf/u, /(bol|sayfa ayir|split|extract pages|teilen|拆分|提取页面)/u], slugs: ["pdf-bolme"] },
+  { tests: [/(kaynakca|atif|citation|bibliography|apa|mla|zitat|引用|参考文献)/u], slugs: ["kaynakca-atif-formatlayici"] },
+  { tests: [/cron/u], slugs: ["cron-ifadesi-aciklayici"] },
+  { tests: [/(qr|karekod|二维码)/u], slugs: ["qr-kod-olusturucu"] },
+  { tests: [/(jwt|json web token)/u], slugs: ["jwt-decoder"] },
+  { tests: [/(exif|metadata|meta veri|metadaten|元数据)/u], slugs: ["exif-meta-veri-temizleyici"] },
+];
+
+function searchDocuments(catalog: Tool[], locale: Locale) {
+  let localeIndex = searchIndexCache.get(catalog);
+  if (!localeIndex) { localeIndex = new Map(); searchIndexCache.set(catalog, localeIndex); }
+  const cached = localeIndex.get(locale);
+  if (cached) return cached;
+  const otherLocales = (["tr", "en", "de", "zh"] as Locale[]).filter((item) => item !== locale);
+  const documents = catalog.map((tool): AgentSearchDocument => {
+    const sourceFields = [
+      { value: tool.title[locale], weight: 10, direct: true }, { value: tool.slug, weight: 7, direct: true }, { value: tool.short[locale], weight: 5 },
+      { value: tool.description[locale], weight: 2.5 }, { value: tool.useCases[locale].join(" "), weight: 4 }, { value: tool.steps[locale].join(" "), weight: 1.5 },
+      { value: categoryTerms[tool.category].join(" "), weight: 2 },
+      ...otherLocales.map((item) => ({ value: `${tool.title[item]} ${tool.short[item]}`, weight: 1.25 })),
+    ];
+    return {
+      tool,
+      fields: sourceFields.map((field) => ({
+        normalized: normalize(field.value, locale), weight: field.weight, direct: field.direct,
+        tokens: field.direct ? new Set(meaningfulTokens(field.value, locale)) : undefined,
+      })),
+      titleTokens: meaningfulTokens(`${tool.title[locale]} ${tool.slug}`, locale),
+    };
+  });
+  localeIndex.set(locale, documents);
+  return documents;
+}
+
 export function semanticToolSearch(query: string, catalog: Tool[], locale: Locale, limit = 8): AgentSearchResult[] {
   const normalizedQuery = normalize(query, locale);
-  const directTokens = new Set(tokens(query, locale));
-  const queryTokens = expandQuery(query, locale);
+  const directTokens = new Set(meaningfulTokens(query, locale));
+  const expandedTokens = expandQuery(query, locale).filter((token) => !directTokens.has(token));
   if (!normalizedQuery) return [];
-  return catalog.map((tool) => {
-    const fields = [
-      { value: tool.title[locale], weight: 8, direct: true }, { value: tool.slug, weight: 6, direct: true }, { value: tool.short[locale], weight: 4 },
-      { value: tool.description[locale], weight: 2 }, { value: tool.useCases[locale].join(" "), weight: 3 },
-      { value: categoryTerms[tool.category].join(" "), weight: 2 }, { value: `${tool.title.tr} ${tool.title.en}`, weight: 1.5 },
-    ];
+  return searchDocuments(catalog, locale).map(({ tool, fields, titleTokens }) => {
     let score = 0; const matched = new Set<string>();
     fields.forEach((field) => {
-      const normalizedField = normalize(field.value, locale);
-      if (normalizedField.includes(normalizedQuery)) score += field.weight * 3;
+      const normalizedField = field.normalized;
+      if (normalizedField === normalizedQuery) score += field.weight * 5;
+      else if (normalizedQuery.length >= 3 && normalizedField.includes(normalizedQuery)) score += field.weight * 3;
       if (field.direct) {
-        const fieldTokens = new Set(tokens(field.value, locale));
         directTokens.forEach((token) => {
-          if (fieldTokens.has(token)) { score += field.weight * 2.5; matched.add(token); }
+          if (field.tokens?.has(token)) { score += field.weight * 2.5; matched.add(token); }
         });
       }
-      queryTokens.forEach((token) => {
-        if (normalizedField.includes(token)) { score += field.weight; matched.add(token); }
-        else if (token.length >= 4 && trigramSimilarity(token, normalizedField.slice(0, 120)) >= .42) score += field.weight * .35;
+      directTokens.forEach((token) => {
+        if (normalizedField.includes(token)) { score += field.weight * 1.35; matched.add(token); }
+      });
+      expandedTokens.forEach((token) => {
+        if (normalizedField.includes(token)) score += field.weight * .22;
       });
     });
+    directTokens.forEach((token) => {
+      if (!matched.has(token) && token.length >= 4 && titleTokens.some((candidate) => trigramSimilarity(token, candidate) >= .72)) score += 2.2;
+    });
+    if (directTokens.size > 1) score += ([...directTokens].filter((token) => matched.has(token)).length / directTokens.size) * 8;
+    intentSearchHints.forEach((hint) => { if (hint.slugs.includes(tool.slug) && hint.tests.every((test) => test.test(normalizedQuery))) score += 34; });
     return { tool, score, matched: [...matched].slice(0, 6) };
-  }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || Number(a.tool.mark) - Number(b.tool.mark)).slice(0, limit);
+  }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || a.tool.slug.localeCompare(b.tool.slug)).slice(0, limit);
 }
 
 function local(locale: Locale, values: Record<Locale, string>) { return values[locale]; }
@@ -261,7 +335,8 @@ const recipes: Recipe[] = [
   { test: [/(prompt|system|persona|talimat|提示词)/i, /(güven|security|injection|test|netlik|clarity|安全|测试)/i], steps: ["sistem-promptu-netlik-kontrolu", "prompt-enjeksiyon-on-taramasi", "prompt-test-vaka-matrisi"], signal: { tr: "Prompt netliği ve güvenlik doğrulama zinciri", en: "Prompt clarity and safety validation chain", de: "Prompt-Klarheits- und Sicherheitskette", zh: "提示词清晰度与安全验证链" } },
   { test: [/(seo|canonical|hreflang|robots|schema|index|sitemap)/i], steps: ["seo-slug-olusturucu", "robots-txt-olusturucu-denetleyici", "hreflang-etiket-olusturucu", "faq-json-ld-olusturucu"], signal: { tr: "Teknik SEO yayın öncesi kontrolü", en: "Pre-publication technical SEO review", de: "Technische SEO-Prüfung vor Veröffentlichung", zh: "发布前技术 SEO 检查" } },
   { test: [/(header|başlık|csp|hsts|http|tls|响应头)/i, /(security|güven|audit|denet|安全)/i], steps: ["http-guvenlik-basliklari-denetleyici", "csp-olusturucu-denetleyici"], signal: { tr: "HTTP güvenlik başlığı ve CSP ön denetimi", en: "HTTP security-header and CSP pre-audit", de: "HTTP-Sicherheitsheader- und CSP-Vorprüfung", zh: "HTTP 安全响应头与 CSP 预审" } },
-  { test: [/(pdf)/i, /(merge|birleştir|split|böl|image|görsel|resim|合并|拆分|图片)/i], steps: ["pdf-birlestirme", "pdf-bolme", "pdf-gorsele"], signal: { tr: "Yerel PDF iş akışı", en: "Local PDF workflow", de: "Lokaler PDF-Arbeitsablauf", zh: "本地 PDF 流程" } },
+  { test: [/(pdf)/i, /(merge|birlestir|combine|zusammenfuhr|合并)/i], steps: ["pdf-birlestirme"], signal: { tr: "Yerel PDF birleştirme akışı", en: "Local PDF merge workflow", de: "Lokaler PDF-Zusammenführungsablauf", zh: "本地 PDF 合并流程" } },
+  { test: [/(pdf)/i, /(split|bol|sayfa ayir|teilen|拆分|提取页面)/i], steps: ["pdf-bolme"], signal: { tr: "Yerel PDF sayfa ayırma akışı", en: "Local PDF split workflow", de: "Lokaler PDF-Trennablauf", zh: "本地 PDF 拆分流程" } },
   { test: [/(json)/i, /(compare|diff|fark|karşılaştır|比较)/i], steps: ["json-bicimlendirici", "json-diff-karsilastirma"], signal: { tr: "JSON doğrulama ve yapısal karşılaştırma", en: "JSON validation and structural comparison", de: "JSON-Prüfung und Strukturvergleich", zh: "JSON 验证与结构比较" } },
   { test: [/(url|link|网址)/i, /(security|risk|güven|şüpheli|安全)/i], steps: ["url-sorgu-parametresi-analizoru", "url-guvenlik-on-kontrolu"], signal: { tr: "URL yapısı ve risk ön taraması", en: "URL structure and risk pre-scan", de: "URL-Struktur- und Risiko-Vorprüfung", zh: "URL 结构与风险预扫描" } },
   { test: [/(rag|context|bağlam|retrieval|检索)/i], steps: ["rag-parcalama-butcesi-planlayici", "prompt-enjeksiyon-on-taramasi"], signal: { tr: "RAG kapasite ve talimat güveni ayrımı", en: "RAG capacity and instruction-trust separation", de: "RAG-Kapazität und Instruktionsvertrauen", zh: "RAG 容量与指令信任分离" } },
@@ -308,9 +383,15 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
   const pdfMention = has(/\bpdf\b/u);
   const conversion = has(/donustur|cevir|pdf yap|convert|turn into|umwandel|konvertier|转(?:为|成)|转换/u);
   if (imageMention && pdfMention && conversion) {
-    const pdfIsSource = has(/pdf(?:den| den|ten| ten)|from (?:a )?pdf|aus (?:einer )?pdf|从 pdf/u);
+    const pdfIsSource = has(/pdf(?:den| den|ten| ten)|pdf[\s\S]{0,28}(?:sayfa|page|seite|页面)|from (?:a )?pdf|aus (?:einer )?pdf|从 pdf/u);
     if (!pdfIsSource) add("gorselden-pdf", intentLabel("Görselleri tek bir PDF dosyasına dönüştür", "Convert images into one PDF file", "Bilder in eine PDF-Datei umwandeln", "将图像转换为一个 PDF 文件"));
+    else add("pdf-gorsele", intentLabel("PDF sayfalarını görsellere dönüştür", "Convert PDF pages into images", "PDF-Seiten in Bilder umwandeln", "将 PDF 页面转换为图像"));
   }
+  if (imageMention && has(/boyutlandir|kucult|buyut|resize|scale|skalier|verkleiner|vergrosser|vergrößer|调整大小|缩小|放大/u)) add("gorsel-boyutlandirici", intentLabel("Görsel boyutunu değiştir", "Resize the image", "Bildgröße ändern", "调整图像大小"));
+  if (imageMention && has(/sikistir|dosya boyut|compress|reduce size|komprimier|dateigrosse|dateigröße|压缩|减小体积/u)) add("gorsel-sikistirici", intentLabel("Görsel dosya boyutunu küçült", "Compress the image", "Bilddatei komprimieren", "压缩图像文件"));
+  if (imageMention && has(/kirp|crop|zuschneid|裁剪/u)) add("gorsel-boyutlandirici", intentLabel("Görseli kırp ve yeniden boyutlandır", "Crop and resize the image", "Bild zuschneiden und skalieren", "裁剪并调整图像大小"));
+  if (pdfMention && has(/birlestir|merge|combine|zusammenfuhr|合并/u)) add("pdf-birlestirme", intentLabel("PDF dosyalarını birleştir", "Merge PDF files", "PDF-Dateien zusammenführen", "合并 PDF 文件"));
+  if (pdfMention && has(/sayfa ayir|bol|split|extract pages|seiten trenn|teilen|拆分|提取页面/u)) add("pdf-bolme", intentLabel("PDF sayfalarını ayır", "Split PDF pages", "PDF-Seiten trennen", "拆分 PDF 页面"));
 
   if (has(/\bjwt\b|json web token/u) && has(/decode|coz|incele|oku|inspect|解析|解码/u)) {
     add("jwt-decoder", intentLabel("JWT içeriğini yerel olarak çöz", "Decode JWT content locally", "JWT-Inhalt lokal dekodieren", "在本地解码 JWT 内容"));

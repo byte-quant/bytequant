@@ -3925,3 +3925,41 @@ main{isolation:isolate}
   .agent-message-actions .agent-upgrade-answer{grid-column:1/-1;margin-left:0}
   .agent-message-actions button{min-height:42px;white-space:normal}
 }
+
+/* ByteQuant AI 7.1: keep the first useful action in the first viewport. */
+.experience-v3 .hero-section{min-height:auto;padding-block:0}
+.experience-v3 .hero-grid{padding-block:clamp(48px,4.5vw,72px)}
+.experience-v3 .agent-product-intro{padding-block:clamp(46px,4.5vw,66px)}
+.experience-v3 .agent-product-intro-grid{gap:clamp(28px,4vw,58px)}
+.experience-v3 .agent-console-section{padding-top:clamp(30px,4vw,54px)}
+.experience-v3 .page-hero,
+.experience-v3 .info-hero,
+.experience-v3 .editorial-hero,
+.experience-v3 .article-header,
+.experience-v3 .tool-hero{padding-block:clamp(46px,5vw,72px)}
+.experience-v3 .tool-library-hero{padding-block:clamp(46px,5vw,70px)}
+.experience-v3 .page-hero .breadcrumbs,
+.experience-v3 .info-hero .breadcrumbs,
+.experience-v3 .editorial-hero .breadcrumbs,
+.experience-v3 .article-header .breadcrumbs,
+.experience-v3 .tool-hero .breadcrumbs{min-height:40px;margin-bottom:24px}
+.experience-v3 .agent-capability-path{margin-block:0 12px}
+.experience-v3 .agent-local-ai-panel{margin-block:0 14px}
+.experience-v3 .agent-chat-stream{min-height:clamp(150px,23vh,270px)}
+.experience-v3 .agent-chat-bar strong{font-size:15px;line-height:1.35}
+.experience-v3 .agent-chat-bar small{line-height:1.5}
+.experience-v3 .agent-starter-grid button{align-content:start;text-align:left}
+.experience-v3 .agent-starter-grid strong{font-size:13px;line-height:1.35}
+
+@media(max-width:760px){
+  .experience-v3 .hero-grid{padding-block:38px 50px}
+  .experience-v3 .agent-product-intro{padding-block:38px 34px}
+  .experience-v3 .page-hero,
+  .experience-v3 .info-hero,
+  .experience-v3 .editorial-hero,
+  .experience-v3 .article-header,
+  .experience-v3 .tool-hero,
+  .experience-v3 .tool-library-hero{padding-block:40px 48px}
+  .experience-v3 .agent-console-section{padding-top:20px}
+  .experience-v3 .agent-chat-stream{min-height:132px}
+}

@@ -154,7 +154,7 @@ const localeNames: Record<Locale, string> = {
   zh: "Simplified Chinese",
 };
 
-const workflowActionTerms = /(?:\b(?:dönüştür\p{L}*|çevir\p{L}*|formatla\p{L}*|biçimlendir\p{L}*|maskele\p{L}*|temizle\p{L}*|ayı[kır]\p{L}*|sırala\p{L}*|doğrula\p{L}*|karşılaştır\p{L}*|birleştir\p{L}*|böl\p{L}*|sıkıştır\p{L}*|çöz\p{L}*|kodla\p{L}*|şifrele\p{L}*|hesapla\p{L}*|analiz et\p{L}*|özetle\p{L}*|düzenle\p{L}*|oluştur\p{L}*|convert\p{L}*|format\p{L}*|mask\p{L}*|clean\p{L}*|sort\p{L}*|validate\p{L}*|compare\p{L}*|merge\p{L}*|split\p{L}*|compress\p{L}*|decode\p{L}*|encode\p{L}*|encrypt\p{L}*|decrypt\p{L}*|calculate\p{L}*|analy[sz]e\p{L}*|summari[sz]e\p{L}*|edit\p{L}*|generate\p{L}*|prüfen\p{L}*|prüf\p{L}*|formatieren\p{L}*|formatier\p{L}*|umwandeln\p{L}*|umwandel\p{L}*|bereinigen\p{L}*|bereinig\p{L}*|sortieren\p{L}*|validieren\p{L}*|vergleichen\p{L}*|zusammenführen\p{L}*|teilen\p{L}*|komprimieren\p{L}*|dekodieren\p{L}*|kodieren\p{L}*|verschlüsseln\p{L}*|berechnen\p{L}*|analysieren\p{L}*|zusammenfassen\p{L}*|erstellen\p{L}*)\b|转换|格式化|清理|脱敏|排序|验证|比较|合并|拆分|压缩|解码|编码|加密|解密|计算|分析|总结|编辑|生成)/iu;
+const workflowActionTerms = /(?:\b(?:dönüştür\p{L}*|çevir\p{L}*|formatla\p{L}*|biçimlendir\p{L}*|maskele\p{L}*|temizle\p{L}*|ayı[kır]\p{L}*|sırala\p{L}*|doğrula\p{L}*|karşılaştır\p{L}*|birleştir\p{L}*|böl\p{L}*|sıkıştır\p{L}*|küçült\p{L}*|büyüt\p{L}*|boyutlandır\p{L}*|kırp\p{L}*|döndür\p{L}*|çıkar\p{L}*|kaldır\p{L}*|tara\p{L}*|ölç\p{L}*|denetle\p{L}*|optimize\p{L}*|çöz\p{L}*|kodla\p{L}*|şifrele\p{L}*|hesapla\p{L}*|analiz et\p{L}*|özetle\p{L}*|düzenle\p{L}*|oluştur\p{L}*|convert\p{L}*|format\p{L}*|mask\p{L}*|clean\p{L}*|sort\p{L}*|validate\p{L}*|compare\p{L}*|merge\p{L}*|split\p{L}*|compress\p{L}*|resize\p{L}*|crop\p{L}*|rotate\p{L}*|extract\p{L}*|remove\p{L}*|scan\p{L}*|measure\p{L}*|audit\p{L}*|optim(?:ize|ise)\p{L}*|decode\p{L}*|encode\p{L}*|encrypt\p{L}*|decrypt\p{L}*|calculate\p{L}*|analy[sz]e\p{L}*|summari[sz]e\p{L}*|edit\p{L}*|generate\p{L}*|prüfen\p{L}*|prüf\p{L}*|formatieren\p{L}*|formatier\p{L}*|umwandeln\p{L}*|umwandel\p{L}*|bereinigen\p{L}*|bereinig\p{L}*|sortieren\p{L}*|validieren\p{L}*|vergleichen\p{L}*|zusammenführen\p{L}*|teilen\p{L}*|komprimieren\p{L}*|skalieren\p{L}*|zuschneiden\p{L}*|drehen\p{L}*|extrahieren\p{L}*|entfernen\p{L}*|scannen\p{L}*|messen\p{L}*|optimieren\p{L}*|dekodieren\p{L}*|kodieren\p{L}*|verschlüsseln\p{L}*|berechnen\p{L}*|analysieren\p{L}*|zusammenfassen\p{L}*|erstellen\p{L}*)\b|转换|格式化|清理|脱敏|排序|验证|比较|合并|拆分|压缩|缩小|放大|调整大小|裁剪|旋转|提取|删除|扫描|测量|审计|优化|解码|编码|加密|解密|计算|分析|总结|编辑|生成)/iu;
 const explicitToolTerms = /(?:\b(?:open|run|use|tool|workflow|akış|araç|çalıştır|kullan|aç|werkzeug|ablauf|ausführen|öffnen)\b|工具|流程|运行|打开|使用)/i;
 const informationalTerms = /(?:\b(?:nedir|ne demek|ne zaman|neden|nasıl çalışır|what is|what are|when should|why|how does|was ist|was sind|wann|warum|wie funktioniert)\b|是什么|什么时候|为什么|如何工作)/i;
 const memoryReferenceTerms = /(?:\b(?:az önce|önceki|en son|bunu|şunu|onu|cevabın|yanıtın|ne demiş|hatırla|beni hatırlıyor|benim adım ne|devam et|detaylandır|örnek ver|just now|previous|last (?:answer|message)|that|it|what did (?:i|you) say|remember|my name|continue|expand|give an example|vorher|gerade|letzte antwort|das|daran|erinner|mein name|weiter|ausführlicher|beispiel)\b|刚才|上一条|之前|这个|那个|记得|我的名字|继续|详细|举例)/iu;
@@ -235,6 +235,61 @@ export function isLikelyWorkflowRequest(value: string) {
     || /(?:\b(?:pdf|json|csv|png|jpe?g|webp)\b[^.!?\n]{0,24}\b(?:yap\p{L}*|hazırla\p{L}*|make|create|erstell\p{L}*)\b|(?:制作|生成).{0,12}(?:PDF|JSON|CSV))/iu.test(text);
   if (informationalTerms.test(text) && !workflowActionTerms.test(text) && !structuredPayload) return false;
   return structuredPayload || requestsAction;
+}
+
+function solveArithmeticExpression(source: string) {
+  const compact = source.replace(/[×·]/g, "*").replace(/÷/g, "/").replace(/(?<=\d),(?=\d)/g, ".").replace(/\s+/g, "");
+  if (!compact || compact.length > 120 || /[^\d.+\-*/()%]/u.test(compact)) return null;
+  const values: Array<number | string> = [];
+  let index = 0;
+  while (index < compact.length) {
+    const number = compact.slice(index).match(/^\d+(?:\.\d+)?/u)?.[0];
+    if (number) { values.push(Number(number)); index += number.length; continue; }
+    values.push(compact[index]); index += 1;
+  }
+  let cursor = 0;
+  const peek = () => values[cursor];
+  const take = () => values[cursor++];
+  const factor = (): number => {
+    const unary = peek();
+    if (unary === "+" || unary === "-") { take(); const value = factor(); return unary === "-" ? -value : value; }
+    let value: number;
+    if (peek() === "(") { take(); value = expression(); if (take() !== ")") throw new Error("parenthesis"); }
+    else { const token = take(); if (typeof token !== "number" || !Number.isFinite(token)) throw new Error("number"); value = token; }
+    if (peek() === "%") { take(); value /= 100; }
+    return value;
+  };
+  const term = (): number => {
+    let value = factor();
+    while (peek() === "*" || peek() === "/") {
+      const operator = take(); const right = factor();
+      if (operator === "/" && right === 0) throw new Error("division");
+      value = operator === "*" ? value * right : value / right;
+    }
+    return value;
+  };
+  const expression = (): number => {
+    let value = term();
+    while (peek() === "+" || peek() === "-") { const operator = take(); const right = term(); value = operator === "+" ? value + right : value - right; }
+    return value;
+  };
+  try {
+    const result = expression();
+    return cursor === values.length && Number.isFinite(result) && Math.abs(result) <= 1e15 ? result : null;
+  } catch { return null; }
+}
+
+function createArithmeticResponse(locale: Locale, goal: string) {
+  const trigger = /(?:hesapla|kaçtır|sonucu|calculate|what is|result|berechne|wie viel|ergebnis|计算|结果)/iu.test(goal);
+  const expression = goal.match(/[-+]?(?:\d+(?:[.,]\d+)?|\([^)]{1,80}\))(?:\s*(?:[+\-*/×÷]|\b(?:x)\b)\s*[-+]?(?:\d+(?:[.,]\d+)?%?|\([^)]{1,80}\)))+/iu)?.[0]?.replace(/\bx\b/giu, "*");
+  if (!expression || (!trigger && expression.trim() !== goal.trim())) return null;
+  const result = solveArithmeticExpression(expression);
+  if (result === null) return null;
+  const formatted = new Intl.NumberFormat(locale === "zh" ? "zh-CN" : locale, { maximumFractionDigits: 10 }).format(result);
+  return locale === "tr" ? `Sonuç: ${formatted}\n\nİşlem: ${expression.trim()}. Bu hızlı hesap cihazınızda yapıldı; finansal veya hukuki bir karar için kullanılan sayıları ayrıca doğrulayın.`
+    : locale === "de" ? `Ergebnis: ${formatted}\n\nRechnung: ${expression.trim()}. Diese schnelle Berechnung lief auf Ihrem Gerät; prüfen Sie die Werte vor Finanz- oder Rechtsentscheidungen.`
+    : locale === "zh" ? `结果：${formatted}\n\n算式：${expression.trim()}。此快速计算在您的设备上完成；用于财务或法律决定前请复核输入值。`
+    : `Result: ${formatted}\n\nCalculation: ${expression.trim()}. This quick calculation ran on your device; verify the inputs before a financial or legal decision.`;
 }
 
 const quickReplies = {
@@ -378,6 +433,8 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (memoryReferenceTerms.test(text) && previous) {
     return `${copy.continued}\n\n${sliceAtBoundary(previous.answer, 420)}\n\n${copy.other}`;
   }
+  const arithmetic = createArithmeticResponse(locale, goal);
+  if (arithmetic) return arithmetic;
   if (/(beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(text)) return previous ? copy.remembered : copy.noMemory;
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
   if (/(teşekkür|sağ ol|thanks|thank you|danke|谢谢)/i.test(text)) return copy.thanks;
