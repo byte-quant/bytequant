@@ -8,8 +8,8 @@ import { AGENT_VERSION } from "../app/lib/agent-session.ts";
 
 const source = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("ByteQuant AI 7.2 keeps the complete catalog available to natural-language routing", () => {
-  assert.equal(AGENT_VERSION, "ByteQuant AI 7.2");
+test("ByteQuant AI 7.3 keeps the complete catalog available to natural-language routing", () => {
+  assert.equal(AGENT_VERSION, "ByteQuant AI 7.3");
   assert.equal(publicTools.length, 327);
   const examples = [
     ["Fotoğrafları tek bir PDF dosyası yap", "tr", "gorselden-pdf"],

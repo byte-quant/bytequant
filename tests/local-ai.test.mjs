@@ -110,6 +110,10 @@ test("workflow detection separates everyday chat from tool work", () => {
   assert.equal(isLikelyWorkflowRequest("Merhaba, bugün nasılsın?"), false);
   assert.equal(isLikelyWorkflowRequest("JSON nedir ve CSV yerine ne zaman kullanmalıyım?"), false);
   assert.equal(isLikelyWorkflowRequest("What is JSON and when should I use CSV?"), false);
+  assert.equal(isLikelyWorkflowRequest("React mi yoksa Vue mu? Küçük bir ekip için karşılaştır."), false);
+  assert.equal(isLikelyWorkflowRequest("Bir iş görüşmesi sonrası teşekkür e-postası yaz"), false);
+  assert.equal(isLikelyWorkflowRequest("Give me five product launch ideas"), false);
+  assert.equal(isLikelyWorkflowRequest("Bu iki JSON dosyasını karşılaştır"), true);
   assert.equal(isLikelyWorkflowRequest("Bu CSV listesini temizle ve JSON'a dönüştür"), true);
   assert.equal(isLikelyWorkflowRequest("Bu JSON'u biçimlendir"), true);
   assert.equal(isLikelyWorkflowRequest("Bitte diese JSON-Datei formatieren"), true);
@@ -159,7 +163,16 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("zh", "什么是人工智能？"), /语言模型|事实正确/);
   const insight = createFastConversationResponse("tr", "Metni analiz et:\nByteQuant araçları tarayıcıda çalışır. Araçlar veriyi uzak sunucuya göndermeden işler. Tarayıcı içi çalışma gizlilik sağlar.");
   assert.match(insight, /Kelime:|Öne çıkan terimler/);
+  assert.match(createFastConversationResponse("tr", "Bir iş görüşmesi sonrası teşekkür e-postası yaz"), /Konu:|Merhaba \[Ad\]/);
+  assert.match(createFastConversationResponse("en", "Create a launch checklist"), /checklist|□/i);
+  assert.match(createFastConversationResponse("de", "Lernplan für TypeScript"), /5 Schritten|Lernplan/i);
+  assert.match(createFastConversationResponse("zh", "给我五个隐私工具想法"), /五个不同|最快验证/);
+  assert.match(createFastConversationResponse("tr", "React mi yoksa Vue mu?"), /React|Vue|İki günlük deneme/);
+  assert.match(createFastConversationResponse("en", "Review this code for security:\n```js\neval(userInput)\n```"), /Dynamic code execution|static review/i);
+  assert.doesNotMatch(createFastConversationResponse("tr", "Kedim için sakin bir akşam rutini"), /^Buradayım/u);
   assert.equal(createFastFollowUpSuggestions("tr", "JWT nedir?", "JWT imzalı bir iddia paketidir.").length, 3);
+  assert.deepEqual(createFastFollowUpSuggestions("tr", "Bir teşekkür e-postası yaz", "Taslak hazır."), ["Bunu daha samimi yap", "Kısalt ve netleştir", "Alıcıya göre kişiselleştir"]);
+  assert.deepEqual(createFastFollowUpSuggestions("tr", "React mi Vue mu?", "Karşılaştırma hazır."), ["Bana net bir seçim öner", "Karar tablosu oluştur", "Riskleri karşılaştır"]);
 });
 
 test("image-to-PDF language routes to the dedicated local converter", () => {

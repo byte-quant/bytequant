@@ -597,26 +597,28 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     setActiveSort(false); setMineOnly(false); setSavedOnly(false); setFollowingOnly(false); setGroupFilter(""); setQuery("");
   }
 
-  return <section className="community-network" aria-labelledby="global-community-title">
+  return <section className="community-network community-x-app" aria-labelledby="global-community-title">
     <header className="community-network-head">
       <div>
         <span className="eyebrow"><i />{t.eyebrow}</span>
         <h2 id="global-community-title">{t.title}</h2>
-        <p>{t.intro}</p>
       </div>
       <div className={`community-network-status status-${network}`} aria-busy={network === "connecting"}>
         <span aria-hidden="true" />
         <strong role="status" aria-live="polite">{stateLabel}</strong>
         <small className="community-status-summary">{network === "connected" || network === "partial" ? networkText.liveSummary : networkText.guestSummary}</small>
-        <details className="community-connection-details"><summary>{networkText.connectionDetails}</summary><p>{t.relayDisclosure}</p><p>{networkText.relayHealth}: {relaySummary}</p></details>
         {network === "connected" || network === "partial" ? <>
           <div className="community-network-stats"><b>{connectedRelays}</b><small>{networkText.connectedRelays}</small><b>{events.length}</b><small>{networkText.visiblePosts}</small></div>
           <div className="community-network-buttons"><button type="button" onClick={() => void connect()}>{t.refresh}</button><button type="button" onClick={disconnect}>{networkText.disconnect}</button></div>
         </> : <button className="primary-button" type="button" disabled={network === "connecting"} onClick={consentAndConnect}>{network === "connecting" ? t.connecting : `${t.connect} →`}</button>}
       </div>
     </header>
-    <div className="community-network-disclosure"><span aria-hidden="true">ⓘ</span><p><strong>{networkText.readStep}</strong> {networkText.readStepBody} <strong>{networkText.shareStep}</strong> {networkText.shareStepBody}</p><details><summary>{t.explain}</summary><p>{networkText.consent} {t.explainBody}</p></details></div>
-    <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
+    <details className="community-trust-drawer">
+      <summary><span aria-hidden="true">✓</span><strong>{t.moderation}</strong><small>{networkText.connectionDetails}</small><b aria-hidden="true">+</b></summary>
+      <div className="community-network-disclosure"><span aria-hidden="true">ⓘ</span><p><strong>{networkText.readStep}</strong> {networkText.readStepBody} <strong>{networkText.shareStep}</strong> {networkText.shareStepBody}</p><details><summary>{t.explain}</summary><p>{networkText.consent} {t.explainBody}</p></details></div>
+      <details className="community-connection-details"><summary>{networkText.connectionDetails}</summary><p>{t.relayDisclosure}</p><p>{networkText.relayHealth}: {relaySummary}</p></details>
+      <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
+    </details>
     <nav className="community-mobile-tabs" aria-label={t.feed}><a href="#community-feed"><span>⌂</span>{frame.feed}</a><a href="#community-compose"><span>＋</span>{frame.compose}</a><a href="#community-topics"><span>#</span>{frame.topics}</a><a href="#community-profile"><span>◎</span>{frame.profile}</a></nav>
 
     <div className="community-social-layout">
@@ -633,10 +635,6 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
             {identity && <><div className="community-public-key"><small>{t.npub}</small><code>{identity.pubkey.slice(0, 12)}…{identity.pubkey.slice(-8)}</code><button type="button" onClick={async () => { const { nip19 } = await import("nostr-tools"); try { await navigator.clipboard.writeText(nip19.npubEncode(identity.pubkey)); setStatus(t.copied); } catch { setStatus(t.error); } }}>{t.copyId}</button></div><div className="community-backup-actions"><button type="button" onClick={backupIdentity}>{t.backup}</button><button type="button" onClick={() => importRef.current?.click()}>{t.restore}</button><input aria-label={t.restore} ref={importRef} hidden type="file" accept="application/json" onChange={(event) => { void restoreIdentity(event.target.files?.[0]); event.currentTarget.value = ""; }} /></div><details className="community-danger-zone"><summary>{t.resetIdentity}</summary><button type="button" onClick={() => { if (!window.confirm(t.resetConfirm)) return; try { localStorage.removeItem(identityKey); } catch { /* state can still be cleared for this session */ } setIdentity(null); setSecret((current) => { current?.fill(0); return null; }); setProfileDraft({ name: "", about: "", passphrase: "" }); }}>{t.resetIdentity}</button></details></>}
           </details>
         </section>
-      </aside>
-
-      <section className="community-social-main" id="community-feed" aria-label={t.feed}>
-        <header className="community-feed-masthead"><div><span className="eyebrow"><i />{frame.publicLabel}</span><h3>{frame.feedTitle}</h3><p>{frame.feedBody}</p></div><span className={`community-feed-state status-${network}`}>{network === "connected" || network === "partial" ? "●" : "○"} {stateLabel}</span></header>
         <nav className="community-social-nav" aria-label={t.feed}>
           <button type="button" aria-pressed={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter} className={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter ? "active" : ""} onClick={clearFeedFilters}>⌂ {networkText.newest}</button>
           <button type="button" aria-pressed={activeSort && !mineOnly && !savedOnly && !followingOnly} className={activeSort && !mineOnly && !savedOnly && !followingOnly ? "active" : ""} onClick={() => { setActiveSort(true); setMineOnly(false); setFollowingOnly(false); setQuery(""); setGroupFilter(""); setSavedOnly(false); }}>◉ {networkText.active}</button>
@@ -644,6 +642,10 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
           <button type="button" aria-pressed={mineOnly} className={mineOnly ? "active" : ""} disabled={!identity} title={!identity ? networkText.profileFirst : undefined} onClick={() => { setMineOnly(true); setFollowingOnly(false); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}>◎ {networkText.myPosts}</button>
           <button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setFollowingOnly(false); setMineOnly(false); setGroupFilter(""); setQuery(""); }}>☆ {networkText.savedLabel}</button>
         </nav>
+      </aside>
+
+      <section className="community-social-main" id="community-feed" aria-label={t.feed}>
+        <header className="community-feed-masthead"><div><span className="eyebrow"><i />{frame.publicLabel}</span><h3>{frame.feedTitle}</h3><p>{frame.feedBody}</p></div><span className={`community-feed-state status-${network}`}>{network === "connected" || network === "partial" ? "●" : "○"} {stateLabel}</span></header>
         <p className="community-feed-hint">{followingOnly ? networkText.localFollow : networkText.feedHint}</p>
         <section className={`community-global-composer${composerOpen ? " open" : ""}`} id="community-compose">
           <button type="button" className="community-compose-launch" aria-expanded={composerOpen} aria-controls="community-composer-fields" onClick={() => { if (!secret) { const profile = document.querySelector<HTMLDetailsElement>("#community-profile .community-profile-setup"); if (profile) profile.open = true; document.getElementById("community-profile")?.scrollIntoView({ behavior: "smooth", block: "center" }); return; } setComposerOpen((value) => !value); }}><span className="community-avatar">{(identity?.name || "BQ").slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><span><strong>{editingId ? actions.editing : composerOpen ? t.closeComposer : t.startPost}</strong><small>{secret ? t.composeHint : networkText.profileFirst}</small></span><b aria-hidden="true">{composerOpen ? "×" : "+"}</b></button>
@@ -670,11 +672,11 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
             <h3>{content.title}</h3><p>{content.body}</p>
             {content.source && <aside className="community-source-quote"><small>{actions.quoted} · {content.source.source}</small><strong>{content.source.title}</strong><a href={content.source.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}
             <footer aria-label={networkText.postActions}>
-              <button type="button" aria-label={`${t.like}: ${likes}`} aria-pressed={likedByMe} className={likedByMe ? "active" : ""} disabled={!secret || likedByMe || isExample} title={interactionTitle} onClick={() => void react(event, 7)}>♡ {t.like}{likes ? ` · ${likes}` : ""}</button>
-              <button type="button" aria-label={`${t.comment}: ${comments.length}`} aria-controls={repliesId} aria-expanded={reply[event.id] !== undefined} disabled={isExample} title={isExample ? networkText.exampleNoActions : undefined} onClick={() => setReply((current) => { const next = { ...current }; if (Object.hasOwn(next, event.id)) delete next[event.id]; else next[event.id] = ""; return next; })}>◌ {t.comment}{comments.length ? ` · ${comments.length}` : ""}</button>
-              <button type="button" aria-label={`${t.repost}: ${reposts}`} disabled={!secret || isExample} title={interactionTitle} onClick={() => void react(event, 6)}>↻ {t.repost}{reposts ? ` · ${reposts}` : ""}</button>
-              {!isExample && <button type="button" aria-label={networkText.savedLabel} aria-pressed={saved.includes(event.id)} className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}>☆</button>}
-              <button type="button" disabled={isExample} title={isExample ? networkText.exampleNoActions : undefined} onClick={() => void share(event)}>↗ {t.share}</button>
+              <button type="button" aria-label={`${t.like}: ${likes}`} aria-pressed={likedByMe} className={likedByMe ? "active" : ""} disabled={!secret || likedByMe || isExample} title={interactionTitle} onClick={() => void react(event, 7)}><span aria-hidden="true">♡</span><span>{t.like}</span>{likes ? <b>{likes}</b> : null}</button>
+              <button type="button" aria-label={`${t.comment}: ${comments.length}`} aria-controls={repliesId} aria-expanded={reply[event.id] !== undefined} disabled={isExample} title={isExample ? networkText.exampleNoActions : undefined} onClick={() => setReply((current) => { const next = { ...current }; if (Object.hasOwn(next, event.id)) delete next[event.id]; else next[event.id] = ""; return next; })}><span aria-hidden="true">◌</span><span>{t.comment}</span>{comments.length ? <b>{comments.length}</b> : null}</button>
+              <button type="button" aria-label={`${t.repost}: ${reposts}`} disabled={!secret || isExample} title={interactionTitle} onClick={() => void react(event, 6)}><span aria-hidden="true">↻</span><span>{t.repost}</span>{reposts ? <b>{reposts}</b> : null}</button>
+              {!isExample && <button type="button" aria-label={networkText.savedLabel} aria-pressed={saved.includes(event.id)} className={saved.includes(event.id) ? "active" : ""} onClick={() => toggleSaved(event.id)}><span aria-hidden="true">☆</span></button>}
+              <button type="button" aria-label={t.share} disabled={isExample} title={isExample ? networkText.exampleNoActions : undefined} onClick={() => void share(event)}><span aria-hidden="true">↗</span><span>{t.share}</span></button>
             </footer>
             {reply[event.id] !== undefined && <section className="community-global-comments" id={repliesId} aria-label={t.comments}>{comments.map((comment) => <p key={comment.id}><strong>{profiles[comment.pubkey]?.name ?? `${comment.pubkey.slice(0, 8)}…`}</strong>{clean(comment.content, 800)}</p>)}<div><textarea aria-label={t.commentPlaceholder} value={reply[event.id]} rows={2} maxLength={800} placeholder={t.commentPlaceholder} onChange={(change) => setReply((current) => ({ ...current, [event.id]: change.target.value }))} /><button type="button" disabled={!secret || !(reply[event.id] ?? "").trim()} title={!secret ? networkText.profileFirst : undefined} onClick={() => void react(event, 1)}>{t.sendComment}</button></div></section>}
           </article>;

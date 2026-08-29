@@ -230,6 +230,14 @@ export function isLikelyWorkflowRequest(value: string) {
   const structuredPayload = /^\s*[\[{<][\s\S]{12,}[\]}>]\s*$/.test(text)
     || /(?:^|\n)[^|\n]{0,120}\|[^|\n]{0,120}(?:\n|$)/.test(text)
     || /(?:^|\n)\s*(?:[-*]|\d+[.)])\s+\S+/.test(text);
+  const hasFileOrDataTarget = /(?:\b(?:dosya\p{L}*|veri\p{L}*|metin\p{L}*|fotoğraf\p{L}*|görsel\p{L}*|files?|data|texts?|photos?|images?|datei\p{L}*|daten|texte?|fotos?|bilder?)\b|文件|数据|文本|照片|图片)/iu.test(text);
+  const directComparison = /(?:\b(?:mi|mı|mu|mü)\s+yoksa\b|\bvs\.?\b|\bversus\b|\boder\b|还是)/iu.test(text)
+    || /\b(?:mi|mı|mu|mü)\b[\s\S]{1,40}\b(?:mi|mı|mu|mü)\b/iu.test(text)
+    || (/(?:karşılaştır|compare|vergleich|比较)/iu.test(text) && !hasFileOrDataTarget);
+  const directCreation = /(?:\b(?:e-?posta|mail|email|fikir|öneri|brainstorm|idea|checklist|kontrol listesi|öğrenme planı|çalışma planı|lernplan|ideen?)\b|邮件|想法|建议|清单|学习计划)/iu.test(text);
+  const directCodeReview = /```[\s\S]{12,}```/u.test(text)
+    && /(?:incele|hata|güvenlik|iyileştir|review|bug|security|improve|prüf|fehler|sicherheit|检查|错误|安全|改进)/iu.test(text);
+  if (!explicitToolTerms.test(text) && (directCodeReview || ((!structuredPayload || directCreation) && (directComparison || directCreation)))) return false;
   const requestsAction = workflowActionTerms.test(text)
     || explicitToolTerms.test(text)
     || /(?:\b(?:pdf|json|csv|png|jpe?g|webp)\b[^.!?\n]{0,24}\b(?:yap\p{L}*|hazırla\p{L}*|make|create|erstell\p{L}*)\b|(?:制作|生成).{0,12}(?:PDF|JSON|CSV))/iu.test(text);
@@ -640,6 +648,86 @@ const quickReplies = {
   },
 } as const;
 
+function fastTopic(goal: string, locale: Locale) {
+  const patterns: Record<Locale, RegExp> = {
+    tr: /\b(?:bana|lütfen|bir|için|hakkında|yazar mısın|yaz|hazırla|oluştur|üret|fikir ver|öner|karşılaştır|kontrol listesi|öğrenme planı|nasıl)\b/giu,
+    en: /\b(?:please|for me|a|an|the|about|write|draft|create|generate|suggest|ideas?|compare|checklist|learning plan|how to)\b/giu,
+    de: /\b(?:bitte|für mich|ein|eine|über|schreib\w*|entwurf|erstell\w*|ideen?|vergleich\w*|checkliste|lernplan|wie)\b/giu,
+    zh: /(?:请|帮我|关于|写|撰写|创建|生成|提供|想法|比较|清单|学习计划|如何)/gu,
+  };
+  const cleaned = goal.replace(patterns[locale], " ").replace(/[?.!。！？:：]+/gu, " ").replace(/\s+/gu, " ").trim();
+  return sliceAtBoundary(cleaned || goal.trim(), 120);
+}
+
+function createFastComparisonResponse(locale: Locale, goal: string) {
+  const match = goal.match(/^(.{2,80}?)\s+(?:(?:mi|mı|mu|mü)\s+yoksa|vs\.?|versus|oder|还是)\s+([^?!.。！？\n]{2,80})/iu)
+    ?? goal.match(/^(.{2,60}?)\s+(?:mi|mı|mu|mü)\s+([^?!.。！？\n]{2,60}?)\s+(?:mi|mı|mu|mü)(?:\b|[?!.。！？])/iu);
+  if (!match) return null;
+  const left = match[1].trim();
+  const right = match[2].replace(/\s+(?:için|for|für)\b[\s\S]*$/iu, "").trim();
+  const pair = `${left} ${right}`.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
+  if (/\breact\b/u.test(pair) && /\bvue\b/u.test(pair)) {
+    if (locale === "tr") return "Küçük bir ekip için kısa karar: Ekip React biliyorsa React; ikisine de sıfırdan başlayacaksa daha az başlangıç kararı ve bütünleşik resmi araçları nedeniyle Vue genellikle daha hızlı öğrenilir.\n\n• React: daha geniş ekosistem ve işe alım havuzu; ancak yönlendirme, durum yönetimi ve proje yapısı için daha çok seçim gerekir.\n• Vue: tek dosyalı bileşenler, resmi router/state araçları ve daha yumuşak öğrenme eğrisi; bazı özel kurumsal ihtiyaçlarda ekosistem daha dar olabilir.\n• İki günlük deneme: aynı küçük ekranı ikisiyle kurun; kurulum süresi, okunabilirlik, paket boyutu ve ekibin hata sayısını ölçün.\n\nMevcut ekibin deneyimini ve uygulama türünü yazarsanız net bir seçim önerebilirim.";
+    if (locale === "de") return "Kurzentscheidung für ein kleines Team: Kennt das Team React, ist React meist die risikoärmere Wahl. Beginnen alle neu, lässt sich Vue wegen weniger Anfangsentscheidungen und integrierter offizieller Werkzeuge häufig schneller erlernen.\n\n• React: sehr großes Ökosystem und breiter Arbeitsmarkt, aber mehr Entscheidungen für Routing, State und Projektstruktur.\n• Vue: Single-File Components, offizielle Router-/State-Werkzeuge und sanftere Lernkurve; bei speziellen Unternehmensanforderungen kann das Ökosystem schmaler sein.\n• Zweitägiger Test: denselben kleinen Bildschirm bauen und Einrichtungszeit, Lesbarkeit, Paketgröße und Fehlerzahl messen.\n\nMit Teamerfahrung und Anwendungstyp kann ich eine klare Empfehlung ableiten.";
+    if (locale === "zh") return "小团队的简短结论：团队已经熟悉 React，就优先 React；如果所有人都从零开始，Vue 因初始决策更少、官方工具更集中，通常更快上手。\n\n• React：生态和招聘池更大，但路由、状态管理和项目结构需要做更多选择。\n• Vue：单文件组件、官方路由/状态工具和较平缓的学习曲线；某些专门的企业场景中生态可能更窄。\n• 两天试验：用两者实现同一个小页面，比较搭建时间、可读性、包体积和团队错误数。\n\n告诉我团队经验和应用类型后，我可以给出明确建议。";
+    return "Short answer for a small team: choose React when the team already knows it; if everyone is starting fresh, Vue is often quicker to learn because it presents fewer early architectural choices and a more integrated official toolset.\n\n• React: a broader ecosystem and hiring pool, but more choices around routing, state, and project structure.\n• Vue: single-file components, official routing/state tools, and a gentler entry path; the ecosystem can be narrower for some specialised enterprise needs.\n• Two-day trial: build the same small screen in both and measure setup time, readability, bundle size, and team errors.\n\nShare the team’s experience and application type and I can make a firm recommendation.";
+  }
+  if (locale === "tr") return `${left} ve ${right} arasında tek başına “daha iyi” yok; doğru seçim hedefe bağlıdır.\n\n• ${left}: önce kurulum süresi, öğrenme eğrisi ve mevcut düzeninizle uyumu kontrol edin.\n• ${right}: aynı işi yaparken maliyet, bakım yükü ve geri dönüş kolaylığını karşılaştırın.\n• Karar kuralı: En önemli üç ölçüte 1–5 puan verin; geri döndürmesi daha kolay olan seçeneği küçük bir denemede sınayın.\n\nHedefinizi ve iki önceliğinizi yazarsanız bu matrisi sizin koşullarınıza göre doldurabilirim.`;
+  if (locale === "de") return `Zwischen ${left} und ${right} gibt es ohne Ziel kein pauschales „besser“.\n\n• ${left}: Einrichtungszeit, Lernkurve und Anschluss an den bestehenden Ablauf prüfen.\n• ${right}: Kosten, Wartungsaufwand und Rückkehrmöglichkeit unter derselben Aufgabe vergleichen.\n• Entscheidungsregel: Die drei wichtigsten Kriterien mit 1–5 bewerten und die leichter rücknehmbare Wahl klein testen.\n\nMit Ihrem Ziel und zwei Prioritäten kann ich die Matrix konkret ausfüllen.`;
+  if (locale === "zh") return `${left} 与 ${right} 并不存在脱离目标的绝对优劣。\n\n• ${left}：检查部署时间、学习成本以及与现有流程的兼容性。\n• ${right}：在同一任务下比较成本、维护负担和回退难度。\n• 决策规则：给最重要的三个标准各打 1–5 分，先小规模测试更容易撤回的选项。\n\n告诉我目标和两个优先级后，我可以替您填好这份比较表。`;
+  return `There is no universal winner between ${left} and ${right}; the right choice depends on the outcome.\n\n• ${left}: check setup time, learning curve, and fit with your current workflow.\n• ${right}: compare cost, maintenance burden, and reversibility on the same task.\n• Decision rule: score the three criteria that matter most from 1–5, then test the easier-to-reverse option on a small case.\n\nShare the outcome and two priorities and I can fill in the matrix for your situation.`;
+}
+
+function createFastCreationResponse(locale: Locale, goal: string) {
+  const topic = fastTopic(goal, locale);
+  const wantsEmail = /(?:e-?posta|mail|email|nachricht|邮件)/iu.test(goal) && /(?:yaz|hazırla|draft|write|schreib|entwurf|写|撰写)/iu.test(goal);
+  if (wantsEmail) {
+    if (locale === "tr") return `Konu: ${topic}\n\nMerhaba [Ad],\n\n${topic} konusunda size ulaşmak istedim. Beklediğim sonuç: [istenen sonucu tek cümlede yazın]. Uygunsa [tarih/zaman] öncesinde kısa bir yanıt paylaşabilir misiniz?\n\nTeşekkür ederim,\n[Adınız]\n\nBu taslak kısa ve doğrudan tutuldu. Alıcıyı, hedefi ve tonu yazarsanız resmî, samimi veya ikna edici biçimde yeniden düzenleyebilirim.`;
+    if (locale === "de") return `Betreff: ${topic}\n\nHallo [Name],\n\nich melde mich wegen ${topic}. Das gewünschte Ergebnis ist: [Ergebnis in einem Satz]. Könnten Sie mir bitte bis [Datum/Uhrzeit] kurz antworten?\n\nVielen Dank\n[Ihr Name]\n\nMit Empfänger, Ziel und gewünschtem Ton kann ich den Entwurf formell, freundlich oder überzeugend zuschneiden.`;
+    if (locale === "zh") return `主题：${topic}\n\n您好，[姓名]：\n\n我想就“${topic}”与您联系。希望达成的结果是：[用一句话写明结果]。方便的话，请在[日期/时间]前简短回复。\n\n谢谢！\n[您的姓名]\n\n告诉我收件人、目标和语气后，我可以把草稿改成正式、友好或更有说服力的版本。`;
+    return `Subject: ${topic}\n\nHello [Name],\n\nI’m reaching out about ${topic}. The outcome I’m looking for is: [state the outcome in one sentence]. Could you send a short reply by [date/time]?\n\nThank you,\n[Your name]\n\nShare the audience, outcome, and tone and I can tailor this into a formal, friendly, or persuasive version.`;
+  }
+  const wantsIdeas = /(?:fikir|öneri|brainstorm|ideas?|suggest|ideen?|vorschl|想法|点子|建议)/iu.test(goal);
+  if (wantsIdeas) {
+    const angles = locale === "tr" ? [["En hızlı deneme", `${topic} fikrinin en küçük çalışan sürümünü 24 saatte hazırlayın ve üç kişiden tek soruluk geri bildirim alın.`], ["Kullanıcı yararı", `Belirli bir kullanıcının ${topic} sırasında yaşadığı en pahalı veya en sık sorunu seçip yalnızca onu çözün.`], ["Daha özgün açı", `${topic} deneyimini hız, gizlilik veya erişilebilirlik gibi tek bir güçlü ilke etrafında yeniden düşünün.`], ["Düşük riskli seçenek", `Yeni altyapı kurmadan, mevcut araçlarla elle yürütülebilen bir ${topic} prototipi hazırlayın.`], ["Ölçülebilir deney", `Başarıyı süre, hata oranı veya tamamlanma oranından biriyle ölçen iki farklı ${topic} yaklaşımını karşılaştırın.`]] : locale === "de" ? [["Schnellster Test", `Eine kleinste funktionierende Version von ${topic} in 24 Stunden bauen und drei Personen eine einzige Feedbackfrage stellen.`], ["Nutzwert", `Das häufigste oder teuerste Problem einer konkreten Person bei ${topic} auswählen und nur dieses lösen.`], ["Eigenständiger Blickwinkel", `${topic} konsequent um ein Prinzip wie Geschwindigkeit, Datenschutz oder Barrierefreiheit neu denken.`], ["Risikoarme Variante", `Einen manuell ausführbaren Prototyp für ${topic} mit vorhandenen Werkzeugen und ohne neue Infrastruktur erstellen.`], ["Messbares Experiment", `Zwei Ansätze für ${topic} anhand von Zeit, Fehlerquote oder Abschlussrate vergleichen.`]] : locale === "zh" ? [["最快验证", `在 24 小时内完成“${topic}”的最小可用版本，并向三位用户只询问一个反馈问题。`], ["用户价值", `找出特定用户在“${topic}”中最频繁或代价最高的问题，只解决这一点。`], ["独特角度", `围绕速度、隐私或无障碍中的一个原则，重新设计“${topic}”体验。`], ["低风险方案", `不增加新基础设施，使用现有工具制作一个可手工运行的“${topic}”原型。`], ["可衡量实验", `用耗时、错误率或完成率比较两种不同的“${topic}”方案。`]] : [["Fastest test", `Build the smallest working version of ${topic} in 24 hours and ask three people one feedback question.`], ["User value", `Choose the most frequent or costly problem one specific user faces with ${topic}, and solve only that.`], ["Distinctive angle", `Redesign ${topic} around one strong principle such as speed, privacy, or accessibility.`], ["Low-risk option", `Create a manually operated ${topic} prototype with existing tools and no new infrastructure.`], ["Measurable experiment", `Compare two ${topic} approaches using time, error rate, or completion rate as the measure.`]];
+    const intro = locale === "tr" ? `${topic} için birbirinden farklı beş başlangıç:` : locale === "de" ? `Fünf unterschiedliche Ansätze für ${topic}:` : locale === "zh" ? `围绕“${topic}”的五个不同起点：` : `Five distinct starting points for ${topic}:`;
+    const body = angles.map(([label, description], index) => `${index + 1}. ${label}: ${description}`).join("\n");
+    return `${intro}\n\n${body}`;
+  }
+  const wantsChecklist = /(?:kontrol listesi|checklist|prüfliste|checkliste|清单|检查表)/iu.test(goal);
+  if (wantsChecklist) {
+    const items = locale === "tr" ? ["Amaç ve başarı ölçütü açık mı?", "Gerekli girdi hazır ve doğru biçimde mi?", "Kişisel veya gizli veri çıkarıldı mı?", "Sonuç gerçek bir örnekle doğrulandı mı?", "Hata ve geri alma yolu belirlendi mi?", "Teslimden önce son kullanıcı gözüyle okundu mu?"] : locale === "de" ? ["Sind Ziel und Erfolgskriterium eindeutig?", "Liegt die nötige Eingabe im richtigen Format vor?", "Wurden personenbezogene oder geheime Daten entfernt?", "Wurde das Ergebnis an einem echten Beispiel geprüft?", "Sind Fehler- und Rückweg festgelegt?", "Wurde die Übergabe aus Nutzersicht gelesen?"] : locale === "zh" ? ["目标和成功标准是否明确？", "所需输入是否齐全且格式正确？", "是否移除了个人或机密数据？", "是否用真实示例验证了结果？", "是否明确了错误处理和回退方式？", "交付前是否以最终用户视角检查？"] : ["Are the outcome and success measure explicit?", "Is the required input ready and correctly formatted?", "Has personal or secret data been removed?", "Was the result verified on a real example?", "Is there a defined error and rollback path?", "Was the final result reviewed from the user’s perspective?"];
+    return `${locale === "tr" ? `${topic} kontrol listesi` : locale === "de" ? `Checkliste: ${topic}` : locale === "zh" ? `${topic}检查清单` : `${topic} checklist`}\n\n${items.map((item) => `□ ${item}`).join("\n")}`;
+  }
+  const wantsLearning = /(?:öğren(?:mek|me)|çalışma planı|öğrenme planı|learn|study plan|lern(?:en|plan)|学习|学习计划)/iu.test(goal);
+  if (wantsLearning) {
+    const lines = locale === "tr" ? ["Temel kavramları tek sayfada haritalayın.", "Küçük, çalışan bir örneği kendiniz kurun.", "Örneği bozup hata nedenini açıklayın.", "Gerçek bir ihtiyaca uyarlayın.", "Bir başkasına kısa biçimde anlatarak eksikleri bulun."] : locale === "de" ? ["Grundbegriffe auf einer Seite abbilden.", "Ein kleines funktionierendes Beispiel selbst bauen.", "Das Beispiel bewusst brechen und den Fehler erklären.", "Auf einen echten Bedarf übertragen.", "Kurz erklären und dabei Wissenslücken finden."] : locale === "zh" ? ["在一页内画出核心概念。", "亲手完成一个可运行的小示例。", "主动破坏示例并解释错误原因。", "把方法应用到真实需求。", "向别人简要讲解并找出知识空白。"] : ["Map the core concepts on one page.", "Build one small working example yourself.", "Break the example and explain the failure.", "Adapt it to a real need.", "Teach it briefly to expose remaining gaps."];
+    return `${locale === "tr" ? `${topic} için 5 adımlı öğrenme planı` : locale === "de" ? `Lernplan in 5 Schritten: ${topic}` : locale === "zh" ? `${topic}五步学习计划` : `Five-step learning plan for ${topic}`}\n\n${lines.map((line, index) => `${index + 1}. ${line}`).join("\n")}\n\n${locale === "tr" ? "Her adım için 25–40 dakika ayırın; sonraki adıma geçmeden önce tek bir somut çıktı kaydedin." : locale === "de" ? "Je Schritt 25–40 Minuten einplanen und vor dem Wechsel ein konkretes Ergebnis festhalten." : locale === "zh" ? "每一步安排 25–40 分钟，进入下一步前保存一个具体成果。" : "Reserve 25–40 minutes per step and save one concrete output before moving on."}`;
+  }
+  return null;
+}
+
+function createFastCodeReviewResponse(locale: Locale, goal: string) {
+  if (!/```[\s\S]{12,}```/u.test(goal) || !/(?:incele|hata|güvenlik|iyileştir|review|bug|security|improve|prüf|fehler|sicherheit|检查|错误|安全|改进)/iu.test(goal)) return null;
+  const code = goal.match(/```(?:[\w.+-]+)?\n?([\s\S]*?)```/u)?.[1] ?? "";
+  const findings = [
+    /innerHTML|dangerouslySetInnerHTML/u.test(code) ? ({ tr: "HTML doğrudan yazılıyor; güvenilmeyen veri varsa XSS için kaçış veya güvenilir temizleme gerekir.", en: "HTML is written directly; untrusted data needs escaping or trusted sanitisation to prevent XSS.", de: "HTML wird direkt geschrieben; nicht vertrauenswürdige Daten brauchen Escaping oder verlässliche Bereinigung gegen XSS.", zh: "代码直接写入 HTML；若数据不可信，需要转义或可靠清洗以防 XSS。" } as const)[locale] : "",
+    /\beval\s*\(|new Function\s*\(/u.test(code) ? ({ tr: "Dinamik kod çalıştırma tespit edildi; veriyle kod arasındaki sınırı kaldırdığı için bundan kaçının.", en: "Dynamic code execution was detected; avoid it because it collapses the boundary between data and code.", de: "Dynamische Codeausführung erkannt; vermeiden, da sie die Grenze zwischen Daten und Code aufhebt.", zh: "检测到动态代码执行；它会破坏数据与代码的边界，应避免使用。" } as const)[locale] : "",
+    /console\.log|TODO|FIXME/u.test(code) ? ({ tr: "Teslim öncesi günlük/TODO işaretlerini gözden geçirin; gizli veri yazdırılmadığını doğrulayın.", en: "Review logs and TODO markers before release, and confirm no secret data is printed.", de: "Logs und TODO-Markierungen vor der Freigabe prüfen; sicherstellen, dass keine Geheimnisse ausgegeben werden.", zh: "发布前检查日志与 TODO 标记，并确认没有输出机密数据。" } as const)[locale] : "",
+  ].filter(Boolean);
+  const base = locale === "tr" ? `Hızlı ön inceleme: ${code.split(/\r?\n/u).length} satır okudum. Bu statik kontroldür; kodu çalıştırmadım.` : locale === "de" ? `Schnelle Vorprüfung: ${code.split(/\r?\n/u).length} Zeilen gelesen. Dies ist eine statische Prüfung; der Code wurde nicht ausgeführt.` : locale === "zh" ? `快速预检：已读取 ${code.split(/\r?\n/u).length} 行。这是静态检查，没有运行代码。` : `Fast review: I read ${code.split(/\r?\n/u).length} lines. This is a static review; I did not execute the code.`;
+  const safe = ({ tr: "Belirgin yüksek riskli kalıp görmedim. Yine de tür kontrolü, testler, bağımlılık denetimi ve gerçek girdi sınırlarını çalıştırarak doğrulayın.", en: "I did not see an obvious high-risk pattern. Still verify type checks, tests, dependency audit, and real input boundaries.", de: "Kein offensichtliches Hochrisikomuster gefunden. Trotzdem Typprüfung, Tests, Abhängigkeiten und echte Eingabegrenzen prüfen.", zh: "未发现明显高风险模式，但仍需通过类型检查、测试、依赖审计和真实输入边界进行验证。" } as const)[locale];
+  return `${base}\n\n${findings.length ? findings.map((item) => `• ${item}`).join("\n") : safe}`;
+}
+
+function createFastActionableFallback(locale: Locale, goal: string) {
+  const topic = fastTopic(goal, locale);
+  if (locale === "tr") return `${topic} konusunda hemen ilerleyebiliriz. Elinizdeki ifadeden çıkarabildiğim en güvenli başlangıç şu:\n\n1. İstenen sonucu tek cümlede tanımlayın.\n2. Kullanılacak gerçek girdiyi veya küçük bir örneği ekleyin.\n3. Sonucun nasıl doğrulanacağını belirtin.\n\nGüncel veya uzmanlık gerektiren bir gerçeği doğrulamadan uydurmam. Metni, veriyi ya da seçenekleri paylaşırsanız doğrudan analiz eder, taslak üretir veya uygun ByteQuant aracını hazırlayabilirim.`;
+  if (locale === "de") return `Zu ${topic} können wir sofort konkret werden. Der sicherste Start aus Ihrer Nachricht ist:\n\n1. Gewünschtes Ergebnis in einem Satz festlegen.\n2. Reale Eingabe oder ein kleines Beispiel ergänzen.\n3. Beschreiben, wie das Ergebnis geprüft wird.\n\nAktuelle oder fachkritische Tatsachen erfinde ich nicht ohne Verifikation. Mit Text, Daten oder Optionen kann ich direkt analysieren, entwerfen oder das passende ByteQuant-Werkzeug vorbereiten.`;
+  if (locale === "zh") return `关于“${topic}”，我们可以立即具体推进。根据当前信息，最稳妥的起点是：\n\n1. 用一句话定义所需结果。\n2. 提供真实输入或一个小示例。\n3. 说明如何验证结果。\n\n对于实时或专业事实，我不会在未核实的情况下编造。提供文本、数据或选项后，我可以直接分析、起草，或准备合适的 ByteQuant 工具。`;
+  return `We can make ${topic} concrete now. The safest useful start from your message is:\n\n1. Define the desired result in one sentence.\n2. Add the real input or a small example.\n3. State how the result will be verified.\n\nI will not invent current or specialist facts without verification. Share the text, data, or options and I can analyse them directly, produce a draft, or prepare the matching ByteQuant tool.`;
+}
+
 export function createFastConversationResponse(locale: Locale, goal: string, history: LocalAIConversationTurn[] = []) {
   const text = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
   const copy = quickReplies[locale];
@@ -695,8 +783,14 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (unitConversion) return unitConversion;
   const localClock = createLocalClockResponse(locale, goal);
   if (localClock) return localClock;
-  if (/(beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(text)) return previous ? copy.remembered : copy.noMemory;
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
+  const codeReview = createFastCodeReviewResponse(locale, goal);
+  if (codeReview) return codeReview;
+  const comparison = createFastComparisonResponse(locale, goal);
+  if (comparison) return comparison;
+  const creation = createFastCreationResponse(locale, goal);
+  if (creation) return creation;
+  if (/(beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(text)) return previous ? copy.remembered : copy.noMemory;
   if (/(teşekkür|sağ ol|thanks|thank you|danke|谢谢)/i.test(text)) return copy.thanks;
   if (/(hava|weather|wetter|新闻|haber|news|nachricht|天气|fiyat|price|preis|价格)/i.test(text)) return copy.current;
   if (/(ne yapabilirsin|yardım|help|was kannst|hilfe|能做什么|帮助)/i.test(text)) return copy.help;
@@ -712,18 +806,33 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (/(yaz|taslak|metin oluştur|write|draft|compose|schreib|entwurf|撰写|草稿|写一)/i.test(text)) return copy.write;
   if (/(karar|seçenek|hangisini|decid|choose|option|entscheid|wahl|决定|选择)/i.test(text)) return copy.decide;
   if (/(açıkla|anlat|nedir|neden|explain|what is|why|erklär|warum|was ist|解释|为什么|是什么)/i.test(text)) return copy.explain;
-  return copy.other;
+  return createFastActionableFallback(locale, goal);
 }
 
 export function createFastFollowUpSuggestions(locale: Locale, goal: string, answer: string) {
+  const goalText = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
   const text = `${goal} ${answer}`.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
-  const options = /(?:sonuç|result|ergebnis|结果|hesap|calculation|rechnung|计算)/iu.test(text)
+  const options = /(?:hesapla|kaçtır|yüzde|calculate|calculation|percent|berechne|rechnung|prozent|计算|百分比)/iu.test(goalText)
     ? {
         tr: ["Bu hesabı adım adım doğrula", "Benzer bir örnek çöz", "Uygun hesaplama aracını aç"],
         en: ["Verify that calculation step by step", "Solve a similar example", "Open the matching calculator"],
         de: ["Diese Rechnung Schritt für Schritt prüfen", "Ein ähnliches Beispiel lösen", "Passenden Rechner öffnen"],
         zh: ["逐步核验这项计算", "解答一个类似示例", "打开合适的计算工具"],
       }
+    : /(?:e-?posta|mail|email|yaz|taslak|write|draft|compose|schreib|entwurf|邮件|撰写|草稿)/iu.test(goalText)
+      ? {
+          tr: ["Bunu daha samimi yap", "Kısalt ve netleştir", "Alıcıya göre kişiselleştir"],
+          en: ["Make it warmer", "Shorten and clarify it", "Tailor it to the recipient"],
+          de: ["Wärmer formulieren", "Kürzen und präzisieren", "An den Empfänger anpassen"],
+          zh: ["改得更亲切", "缩短并说得更清楚", "根据收件人定制"],
+        }
+      : /(?:karşılaştır|compare|vergleich|\bvs\.?\b|yoksa|oder|比较|还是)/iu.test(goalText) || /\b(?:mi|mı|mu|mü)\b[\s\S]{1,40}\b(?:mi|mı|mu|mü)\b/iu.test(goalText)
+        ? {
+            tr: ["Bana net bir seçim öner", "Karar tablosu oluştur", "Riskleri karşılaştır"],
+            en: ["Recommend one clear choice", "Create a decision table", "Compare the risks"],
+            de: ["Eine klare Wahl empfehlen", "Entscheidungstabelle erstellen", "Risiken vergleichen"],
+            zh: ["给出明确选择", "创建决策表", "比较风险"],
+          }
     : /(?:jwt|api|http|pwa|base64|regex|hash|git|sql|dns|csp|cors|yapay zek|artificial intelligence|künstliche intelligenz|人工智能)/iu.test(text)
       ? {
           tr: ["Bunu basit bir örnekle açıkla", "En önemli riskleri 3 maddede özetle", "İlgili ByteQuant aracını bul"],
