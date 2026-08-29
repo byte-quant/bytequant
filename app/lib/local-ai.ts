@@ -292,6 +292,255 @@ function createArithmeticResponse(locale: Locale, goal: string) {
     : `Result: ${formatted}\n\nCalculation: ${expression.trim()}. This quick calculation ran on your device; verify the inputs before a financial or legal decision.`;
 }
 
+function formatFastNumber(locale: Locale, value: number) {
+  return new Intl.NumberFormat(locale === "zh" ? "zh-CN" : locale, { maximumFractionDigits: 10 }).format(value);
+}
+
+function createNaturalPercentageResponse(locale: Locale, goal: string) {
+  const normalized = goal.replace(/(\d),(\d)/g, "$1.$2");
+  const patterns = [
+    { expression: /(\d+(?:\.\d+)?)\s*['’]?(?:in|ın|un|ün)?\s+(?:yüzde\s+|%\s*)(\d+(?:\.\d+)?)/iu, baseIndex: 1, rateIndex: 2 },
+    { expression: /(\d+(?:\.\d+)?)\s*%\s*(?:of|von)\s*(\d+(?:\.\d+)?)/iu, baseIndex: 2, rateIndex: 1 },
+    { expression: /(\d+(?:\.\d+)?)\s*(?:的)\s*(\d+(?:\.\d+)?)\s*%/u, baseIndex: 1, rateIndex: 2 },
+  ];
+  const percentage = patterns
+    .map((pattern) => ({ pattern, match: normalized.match(pattern.expression) }))
+    .find((candidate) => candidate.match);
+  if (percentage?.match) {
+    const base = Number(percentage.match[percentage.pattern.baseIndex]);
+    const rate = Number(percentage.match[percentage.pattern.rateIndex]);
+    if (Number.isFinite(base) && Number.isFinite(rate)) {
+      const result = base * rate / 100;
+      const expression = `${formatFastNumber(locale, base)} × ${formatFastNumber(locale, rate)} ÷ 100`;
+      return locale === "tr" ? `Sonuç: ${formatFastNumber(locale, result)}\n\nHesap: ${expression}. Yüzdeyi ondalığa çevirip temel değerle çarptım; işlem cihazınızda yapıldı.`
+        : locale === "de" ? `Ergebnis: ${formatFastNumber(locale, result)}\n\nRechnung: ${expression}. Der Prozentsatz wurde in eine Dezimalzahl umgewandelt und mit dem Grundwert multipliziert; die Berechnung lief auf Ihrem Gerät.`
+        : locale === "zh" ? `结果：${formatFastNumber(locale, result)}\n\n计算：${expression}。先把百分比换成小数，再乘以基数；计算在您的设备上完成。`
+        : `Result: ${formatFastNumber(locale, result)}\n\nCalculation: ${expression}. I converted the percentage to a decimal and multiplied it by the base value; the calculation ran on your device.`;
+    }
+  }
+  const change = normalized.match(/(\d+(?:\.\d+)?)\s*(?:['’]?(?:den|dan)\s+|(?:to|auf|到)\s*)(\d+(?:\.\d+)?)\s*['’]?(?:e|a)?[\s\S]{0,36}(?:yüzde değiş|percent change|prozent|变化率)/iu);
+  if (!change) return null;
+  const from = Number(change[1]); const to = Number(change[2]);
+  if (!Number.isFinite(from) || !Number.isFinite(to) || from === 0) return null;
+  const result = (to - from) / Math.abs(from) * 100;
+  const direction = result >= 0
+    ? ({ tr: "artış", en: "increase", de: "Anstieg", zh: "增长" } as const)[locale]
+    : ({ tr: "azalış", en: "decrease", de: "Rückgang", zh: "下降" } as const)[locale];
+  return locale === "tr" ? `Sonuç: %${formatFastNumber(locale, Math.abs(result))} ${direction}.\n\nFormül: (${formatFastNumber(locale, to)} − ${formatFastNumber(locale, from)}) ÷ |${formatFastNumber(locale, from)}| × 100.`
+    : locale === "de" ? `Ergebnis: ${formatFastNumber(locale, Math.abs(result))} % ${direction}.\n\nFormel: (${formatFastNumber(locale, to)} − ${formatFastNumber(locale, from)}) ÷ |${formatFastNumber(locale, from)}| × 100.`
+    : locale === "zh" ? `结果：${formatFastNumber(locale, Math.abs(result))}% ${direction}。\n\n公式：(${formatFastNumber(locale, to)} − ${formatFastNumber(locale, from)}) ÷ |${formatFastNumber(locale, from)}| × 100。`
+    : `Result: ${formatFastNumber(locale, Math.abs(result))}% ${direction}.\n\nFormula: (${formatFastNumber(locale, to)} − ${formatFastNumber(locale, from)}) ÷ |${formatFastNumber(locale, from)}| × 100.`;
+}
+
+const unitAliases: Record<string, { dimension: "length" | "mass"; factor: number; label: string }> = {
+  mm: { dimension: "length", factor: .001, label: "mm" }, cm: { dimension: "length", factor: .01, label: "cm" }, m: { dimension: "length", factor: 1, label: "m" }, km: { dimension: "length", factor: 1_000, label: "km" },
+  in: { dimension: "length", factor: .0254, label: "in" }, inch: { dimension: "length", factor: .0254, label: "in" }, inc: { dimension: "length", factor: .0254, label: "in" }, ft: { dimension: "length", factor: .3048, label: "ft" }, feet: { dimension: "length", factor: .3048, label: "ft" },
+  g: { dimension: "mass", factor: .001, label: "g" }, kg: { dimension: "mass", factor: 1, label: "kg" }, lb: { dimension: "mass", factor: .45359237, label: "lb" }, lbs: { dimension: "mass", factor: .45359237, label: "lb" }, pound: { dimension: "mass", factor: .45359237, label: "lb" },
+};
+
+function createUnitConversionResponse(locale: Locale, goal: string) {
+  const normalized = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale).replace(/(\d),(\d)/g, "$1.$2");
+  const temperature = normalized.match(/(-?\d+(?:\.\d+)?)\s*°?\s*(c|f)(?:elsius|ahrenheit)?\s*(?:kaç|to|in|nach|等于|转(?:为|成))?\s*°?\s*(c|f)(?:elsius|ahrenheit)?/iu);
+  if (temperature && temperature[2] !== temperature[3]) {
+    const value = Number(temperature[1]);
+    const result = temperature[2] === "c" ? value * 9 / 5 + 32 : (value - 32) * 5 / 9;
+    return `${({ tr: "Sonuç", en: "Result", de: "Ergebnis", zh: "结果" } as const)[locale]}: ${formatFastNumber(locale, result)} °${temperature[3].toUpperCase()}\n\n${({ tr: "Dönüşüm cihazınızda hesaplandı.", en: "The conversion was calculated on your device.", de: "Die Umrechnung wurde auf Ihrem Gerät berechnet.", zh: "换算在您的设备上完成。" } as const)[locale]}`;
+  }
+  const match = normalized.match(/(-?\d+(?:\.\d+)?)\s*(mm|cm|km|m|inch|inc|in|ft|feet|kg|g|lbs?|pound)\s*(?:kaç|to|in|nach|等于|转(?:为|成))?\s*(mm|cm|km|m|inch|inc|in|ft|feet|kg|g|lbs?|pound)/iu);
+  if (!match) return null;
+  const from = unitAliases[match[2]]; const to = unitAliases[match[3]]; const value = Number(match[1]);
+  if (!from || !to || from.dimension !== to.dimension || !Number.isFinite(value)) return null;
+  const result = value * from.factor / to.factor;
+  return `${({ tr: "Sonuç", en: "Result", de: "Ergebnis", zh: "结果" } as const)[locale]}: ${formatFastNumber(locale, result)} ${to.label}\n\n${formatFastNumber(locale, value)} ${from.label} × ${from.factor} ÷ ${to.factor}. ${({ tr: "Dönüşüm cihazınızda hesaplandı.", en: "The conversion was calculated on your device.", de: "Die Umrechnung wurde auf Ihrem Gerät berechnet.", zh: "换算在您的设备上完成。" } as const)[locale]}`;
+}
+
+function createInlineSummaryResponse(locale: Locale, goal: string) {
+  if (!/(?:özetle|kısalt|summari[sz]e|shorten|zusammenfassen|kurzfassen|总结|缩短)/iu.test(goal)) return null;
+  const payload = goal.match(/(?:[:：]\s*|\r?\n)([\s\S]{80,})/u)?.[1]?.trim();
+  if (!payload) return null;
+  const requested = Math.min(5, Math.max(2, Number(goal.match(/\b([2-5])\b/u)?.[1] ?? 3)));
+  const sentences = (payload.match(/[^.!?。！？]+[.!?。！？]?/gu) ?? []).map((item) => item.trim()).filter((item) => item.length >= 12);
+  if (!sentences.length) return null;
+  const selected = [sentences[0], ...sentences.slice(1).sort((a, b) => b.length - a.length)].slice(0, requested);
+  const title = ({ tr: "Kısa özet", en: "Short summary", de: "Kurzfassung", zh: "简要总结" } as const)[locale];
+  return `${title}:\n\n${selected.map((item) => `• ${sliceAtBoundary(item, 220)}`).join("\n")}\n\n${({ tr: "Bu özet yalnızca verdiğiniz metinden çıkarıldı; yeni bilgi eklenmedi.", en: "This extractive summary uses only the text you supplied and adds no new facts.", de: "Diese extraktive Zusammenfassung verwendet nur Ihren Text und ergänzt keine neuen Fakten.", zh: "该提取式总结只使用您提供的文字，不添加新事实。" } as const)[locale]}`;
+}
+
+function createTextInsightResponse(locale: Locale, goal: string) {
+  if (!/(?:metni analiz et|metin analizi|anahtar kelime|analy[sz]e (?:this )?text|text analysis|keywords?|text analysieren|schlüsselwörter|分析文本|关键词)/iu.test(goal)) return null;
+  const payload = goal.match(/(?:[:：]\s*|\r?\n)([\s\S]{40,})/u)?.[1]?.trim();
+  if (!payload) return null;
+  const words = payload.match(/[\p{L}\p{M}\p{N}]+(?:['’_-][\p{L}\p{M}\p{N}]+)*/gu) ?? [];
+  const sentences = payload.match(/[^.!?。！？]+[.!?。！？]?/gu)?.filter((item) => item.trim().length > 2) ?? [];
+  const stop = new Set("ve veya bir bu şu için ile de da çok daha gibi the and or this that with from for are was were und oder der die das ein eine mit für von ist sind 和 的 了 在 是 与 或".split(/\s+/u));
+  const counts = new Map<string, number>();
+  for (const word of words) {
+    const token = word.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
+    if (token.length < 3 || stop.has(token) || /^\d+$/u.test(token)) continue;
+    counts.set(token, (counts.get(token) ?? 0) + 1);
+  }
+  const keywords = [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length).slice(0, 6).map(([word]) => word);
+  const readingMinutes = Math.max(1, Math.ceil(words.length / (locale === "zh" ? 350 : 200)));
+  const labels = ({
+    tr: { title: "Metin görünümü", words: "Kelime", sentences: "Cümle", chars: "Karakter", read: "Tahmini okuma", minute: "dk", key: "Öne çıkan terimler", note: "Bu sonuç dil modeli yorumu değil; yalnızca verdiğiniz metindeki ölçülebilir örüntülerden üretildi." },
+    en: { title: "Text snapshot", words: "Words", sentences: "Sentences", chars: "Characters", read: "Estimated reading", minute: "min", key: "Prominent terms", note: "This is not a language-model judgement; it is calculated only from measurable patterns in the text you supplied." },
+    de: { title: "Textübersicht", words: "Wörter", sentences: "Sätze", chars: "Zeichen", read: "Geschätzte Lesezeit", minute: "Min.", key: "Auffällige Begriffe", note: "Das ist kein Sprachmodell-Urteil, sondern wird nur aus messbaren Mustern Ihres Textes berechnet." },
+    zh: { title: "文本概览", words: "词项", sentences: "句子", chars: "字符", read: "预计阅读", minute: "分钟", key: "突出词语", note: "这不是语言模型判断；结果只依据您提供文本中的可测量模式计算。" },
+  } as const)[locale];
+  return `${labels.title}\n\n• ${labels.words}: ${words.length}\n• ${labels.sentences}: ${sentences.length}\n• ${labels.chars}: ${[...payload].length}\n• ${labels.read}: ${readingMinutes} ${labels.minute}\n• ${labels.key}: ${keywords.length ? keywords.join(", ") : "—"}\n\n${labels.note}`;
+}
+
+const fastKnowledge = [
+  {
+    test: /\b(jwt|json web token)\b/iu,
+    answer: {
+      tr: "JWT, noktayla ayrılmış `header.payload.signature` bölümlerinden oluşan taşınabilir bir iddia paketidir. İlk iki bölüm Base64URL ile kodlanır; kod çözmek imzayı doğrulamak değildir. Güven kararı için beklenen algoritma, doğru anahtar, issuer, audience, `exp` ve `nbf` alanları birlikte doğrulanmalıdır.",
+      en: "A JWT is a portable claim package with dot-separated `header.payload.signature` sections. The first two sections use Base64URL; decoding them does not verify the signature. A trust decision also needs the expected algorithm and key plus issuer, audience, `exp`, and `nbf` checks.",
+      de: "Ein JWT ist ein übertragbares Paket von Angaben mit den Abschnitten `header.payload.signature`. Die ersten beiden Teile sind Base64URL-kodiert; Dekodieren prüft die Signatur nicht. Für Vertrauen müssen erwarteter Algorithmus und Schlüssel sowie Issuer, Audience, `exp` und `nbf` geprüft werden.",
+      zh: "JWT 是由点号分隔的 `header.payload.signature` 声明包。前两段采用 Base64URL；解码并不等于验证签名。作出信任判断还必须核对预期算法与密钥，以及 issuer、audience、`exp` 和 `nbf`。",
+    },
+  },
+  {
+    test: /\b(base64)\b/iu,
+    answer: {
+      tr: "Base64, ikili veriyi metin karakterleriyle taşıyan bir kodlamadır; şifreleme veya güvenlik sağlamaz. E-posta, Data URI ve metin tabanlı protokollerde kullanışlıdır. Gizli bilgi için Base64 değil, uygun anahtar yönetimiyle doğrulanmış şifreleme kullanın.",
+      en: "Base64 represents binary data with text characters; it is encoding, not encryption, and provides no confidentiality. It is useful in email, Data URIs, and text-only transports. Protect secrets with authenticated encryption and sound key management instead.",
+      de: "Base64 stellt Binärdaten mit Textzeichen dar. Es ist eine Kodierung, keine Verschlüsselung, und bietet keine Vertraulichkeit. Es eignet sich für E-Mail, Data-URIs und Texttransporte; Geheimnisse brauchen authentifizierte Verschlüsselung und sichere Schlüsselverwaltung.",
+      zh: "Base64 用文本字符表示二进制数据；它是编码，不是加密，也不提供保密性。它适用于电子邮件、Data URI 和纯文本传输。保护秘密应使用带认证的加密与可靠的密钥管理。",
+    },
+  },
+  {
+    test: /\b(regex|regular expression|düzenli ifade|regul[aä]rer ausdruck|正则)\b/iu,
+    answer: {
+      tr: "Regex, metin desenlerini bulmak ve doğrulamak için kullanılan bir dildir. İyi bir desen yalnızca olumlu örneği değil; eşleşmemesi gereken örnekleri, Unicode davranışını ve uzun girdide geri izleme riskini de test eder. Karmaşık iç içe tekrarlar performans sorunu yaratabilir.",
+      en: "A regular expression is a language for finding and validating text patterns. A sound pattern tests positive and negative examples, Unicode behaviour, and backtracking risk on long input. Complex nested repetitions can cause severe performance problems.",
+      de: "Reguläre Ausdrücke beschreiben Such- und Prüfregeln für Text. Ein belastbares Muster testet Treffer und Nichttreffer, Unicode-Verhalten sowie Backtracking bei langen Eingaben. Komplex verschachtelte Wiederholungen können große Laufzeitprobleme verursachen.",
+      zh: "正则表达式用于查找和验证文本模式。可靠的模式要同时测试应匹配与不应匹配的样本、Unicode 行为，以及长输入下的回溯风险。复杂的嵌套重复可能造成严重性能问题。",
+    },
+  },
+  {
+    test: /(?:sha-?256|\bhash\b|özet değeri|prüfsumme|哈希)/iu,
+    answer: {
+      tr: "Kriptografik özet, girdiden sabit uzunlukta tek yönlü bir değer üretir. Aynı dosyanın değişip değişmediğini karşılaştırmaya yardım eder; içeriği gizlemez ve tek başına kaynağın güvenilir olduğunu kanıtlamaz. Parola saklamak için düz SHA-256 yerine tuzlu, yavaş bir parola türetme algoritması gerekir.",
+      en: "A cryptographic hash maps input to a fixed-length one-way value. It helps detect whether a file changed, but does not hide content or prove the source trustworthy. Password storage requires a salted, slow password-hashing scheme rather than plain SHA-256.",
+      de: "Ein kryptografischer Hash bildet Eingaben auf einen festen Einwegwert ab. Er hilft, Dateiänderungen zu erkennen, verbirgt aber keine Inhalte und beweist keine vertrauenswürdige Herkunft. Passwörter benötigen ein gesalzenes langsames Passwort-Hashverfahren statt einfachem SHA-256.",
+      zh: "密码学哈希把输入映射为固定长度的单向值，可帮助判断文件是否变化，但不会隐藏内容，也不能单独证明来源可信。存储密码应使用带盐的慢速密码哈希方案，而不是直接使用 SHA-256。",
+    },
+  },
+  {
+    test: /(?:core web vitals|\blcp\b|\binp\b|\bcls\b)/iu,
+    answer: {
+      tr: "Core Web Vitals, gerçek kullanıcı deneyiminin üç yönünü izler: LCP ana içeriğin görünme hızını, INP etkileşim yanıtını, CLS ise beklenmedik yerleşim kaymasını ölçer. Laboratuvar testi tanı koyar; alan verisi gerçek cihaz ve ağlardaki deneyimi gösterir. Önce ölçümdeki öğeyi bulun, sonra en büyük darboğazı düzeltin.",
+      en: "Core Web Vitals cover three parts of real-user experience: LCP measures main-content visibility, INP interaction responsiveness, and CLS unexpected layout movement. Lab tests diagnose; field data shows real devices and networks. Identify the measured element first, then remove the largest bottleneck.",
+      de: "Core Web Vitals betrachten drei Teile realer Nutzung: LCP misst die Sichtbarkeit des Hauptinhalts, INP die Reaktion auf Interaktionen und CLS unerwartete Layoutverschiebungen. Labordaten helfen bei der Diagnose, Felddaten zeigen reale Geräte und Netze.",
+      zh: "Core Web Vitals 衡量真实用户体验的三个方面：LCP 衡量主要内容显示速度，INP 衡量交互响应，CLS 衡量意外布局偏移。实验室数据用于诊断，现场数据反映真实设备与网络；应先定位被测元素，再消除最大瓶颈。",
+    },
+  },
+  {
+    test: /(?:\bapi\b|application programming interface|uygulama programlama arayüzü|programmierschnittstelle|应用程序接口)/iu,
+    answer: {
+      tr: "API, iki yazılım parçasının hangi istek ve yanıt biçimiyle konuşacağını belirleyen sözleşmedir. İyi bir API; kimlik doğrulama, sürümleme, hata biçimi, hız sınırı ve veri şemasını açıkça tanımlar. Bir API anahtarını tarayıcı koduna gömmek onu gizli tutmaz; yetkiyi sunucu veya güvenli aracı katmanında sınırlamak gerekir.",
+      en: "An API is a contract that defines how two pieces of software exchange requests and responses. A dependable API documents authentication, versions, errors, rate limits, and data schemas. Embedding an API key in browser code does not keep it secret; authority must be constrained in a trusted service or broker.",
+      de: "Eine API ist ein Vertrag für Anfragen und Antworten zwischen Softwareteilen. Eine belastbare API beschreibt Authentifizierung, Versionen, Fehlerformat, Limits und Datenschema. Ein im Browsercode eingebetteter API-Schlüssel ist nicht geheim; Berechtigungen müssen in einer vertrauenswürdigen Schicht begrenzt werden.",
+      zh: "API 是两个软件组件交换请求与响应的契约。可靠的 API 会明确认证、版本、错误格式、速率限制和数据结构。把 API 密钥写入浏览器代码并不能保密；权限必须在可信服务或代理层中受到限制。",
+    },
+  },
+  {
+    test: /(?:\bhttps?\b|hypertext transfer protocol|http durum|http status|http-status|超文本传输)/iu,
+    answer: {
+      tr: "HTTP, web istemcisi ile sunucunun istek ve yanıt değişimini tanımlar; HTTPS bu trafiği TLS ile şifreler ve sunucu kimliğini sertifikayla doğrular. Durum kodları sonucu sınıflandırır: 2xx başarı, 3xx yönlendirme, 4xx istemci isteği, 5xx sunucu tarafı sorundur. HTTPS içerik kalitesini veya sunucunun güvenilirliğini tek başına garanti etmez.",
+      en: "HTTP defines request and response exchange between a web client and server; HTTPS adds TLS encryption and certificate-based server authentication. Status families describe the outcome: 2xx success, 3xx redirection, 4xx request-side failure, and 5xx server-side failure. HTTPS alone does not guarantee content quality or a trustworthy operator.",
+      de: "HTTP beschreibt Anfragen und Antworten zwischen Webclient und Server; HTTPS ergänzt TLS-Verschlüsselung und zertifikatsbasierte Serverprüfung. 2xx steht für Erfolg, 3xx für Umleitung, 4xx für Anfragefehler und 5xx für Serverfehler. HTTPS allein garantiert weder Inhaltsqualität noch einen vertrauenswürdigen Betreiber.",
+      zh: "HTTP 定义网页客户端与服务器之间的请求和响应；HTTPS 再加入 TLS 加密与证书式服务器身份验证。状态码中，2xx 表示成功、3xx 表示重定向、4xx 表示请求方错误、5xx 表示服务器错误。HTTPS 本身并不能保证内容质量或运营方可信。",
+    },
+  },
+  {
+    test: /(?:\bpwa\b|progressive web app|ilerlemeli web uygulaması|progressive web-app|渐进式网页应用)/iu,
+    answer: {
+      tr: "PWA, kurulabilirlik ve çevrimdışı dayanıklılık gibi uygulama davranışlarını web teknolojileriyle sunar. Temel parçalar HTTPS, doğru web manifesti, simgeler ve kontrollü bir service worker önbelleğidir. Kurulum görünümü tarayıcıya göre değişir; service worker güncelleme stratejisi hatalıysa eski dosyalar beklenenden uzun süre kalabilir.",
+      en: "A PWA uses web technology to provide app-like installation and offline resilience. Its core pieces are HTTPS, a valid web manifest, icons, and a deliberately managed service-worker cache. Installation UI differs by browser, and a poor service-worker update strategy can keep stale assets longer than intended.",
+      de: "Eine PWA bietet Installation und Offline-Fähigkeit mit Webtechnik. Grundlage sind HTTPS, ein gültiges Webmanifest, Symbole und ein bewusst verwalteter Service-Worker-Cache. Der Installationsweg unterscheidet sich je Browser; eine schlechte Update-Strategie kann alte Dateien zu lange behalten.",
+      zh: "PWA 用网页技术提供类似应用的安装与离线韧性。核心包括 HTTPS、有效的 Web Manifest、图标和受控的 Service Worker 缓存。不同浏览器的安装入口不同；更新策略不当时，旧资源可能被保留过久。",
+    },
+  },
+  {
+    test: /(?:cookie|localstorage|sessionstorage|indexeddb|çerez|浏览器存储|本地存储)/iu,
+    answer: {
+      tr: "Çerezler her uygun HTTP isteğine eklenebilir; localStorage alan adı altında kalıcı anahtar–değer verisi, sessionStorage ise sekme oturumuna bağlı veri tutar. IndexedDB daha büyük ve yapılandırılmış cihaz içi kayıtlar içindir. XSS bu depolardaki okunabilir veriyi ele geçirebilir; gizli anahtarlar ve uzun ömürlü erişim belirteçleri için varsayılan güvenli yer değildir.",
+      en: "Cookies can accompany matching HTTP requests; localStorage keeps persistent origin-scoped key–value data, while sessionStorage is scoped to a tab session. IndexedDB fits larger structured on-device records. XSS can expose script-readable storage, so these are not safe defaults for secret keys or long-lived bearer tokens.",
+      de: "Cookies können passende HTTP-Anfragen begleiten. localStorage speichert dauerhafte Schlüssel-Wert-Daten pro Origin, sessionStorage nur für die Tab-Sitzung; IndexedDB eignet sich für größere strukturierte lokale Daten. XSS kann skriptlesbare Speicher offenlegen, daher gehören geheime Schlüssel oder langlebige Tokens nicht standardmäßig dorthin.",
+      zh: "Cookie 可随匹配的 HTTP 请求发送；localStorage 持久保存同源键值数据，sessionStorage 只属于当前标签页会话，IndexedDB 适合更大的结构化设备端记录。XSS 能读取脚本可访问的存储，因此不应默认用它们保存密钥或长期持有者令牌。",
+    },
+  },
+  {
+    test: /(?:encryption|encrypt|şifreleme|verschlüsselung|加密).*(?:encoding|hash|kodlama|hash|编码|哈希)|(?:encoding|hash|kodlama|编码|哈希).*(?:encryption|şifreleme|verschlüsselung|加密)/iu,
+    answer: {
+      tr: "Kodlama, veriyi başka bir gösterime taşır ve anahtar gerektirmez; Base64 buna örnektir. Şifreleme, doğru anahtarı olan tarafın geri açabileceği gizlilik sağlar. Hash ise girdiden tek yönlü özet üretir. Gizlilik için şifreleme, bütünlük karşılaştırması için hash, taşıma uyumluluğu için kodlama seçilir.",
+      en: "Encoding changes representation and needs no secret key; Base64 is an example. Encryption provides confidentiality that an authorised key holder can reverse. Hashing creates a one-way digest. Use encryption for secrecy, a hash for integrity comparison, and encoding for transport compatibility.",
+      de: "Kodierung ändert die Darstellung ohne geheimen Schlüssel, etwa Base64. Verschlüsselung schafft Vertraulichkeit und ist mit berechtigtem Schlüssel umkehrbar. Hashing erzeugt einen Einweg-Prüfwert. Für Geheimhaltung Verschlüsselung, für Integritätsvergleich Hashing und für Transport Kodierung verwenden.",
+      zh: "编码只改变表示形式，不需要密钥，Base64 就是例子；加密提供只有授权密钥持有者才能还原的保密性；哈希则生成单向摘要。保密用加密，完整性比较用哈希，传输兼容用编码。",
+    },
+  },
+  {
+    test: /(?:\bcsp\b|content security policy|content-security-policy|içerik güvenlik politikası|内容安全策略|\bcors\b|cross-origin resource sharing)/iu,
+    answer: {
+      tr: "CSP, tarayıcının hangi script, stil, görsel ve bağlantı kaynaklarına izin vereceğini sınırlar; XSS etkisini azaltan savunma katmanıdır. CORS ise başka origin'deki tarayıcı kodunun bir yanıtı okuyup okuyamayacağını sunucunun bildirmesidir. CORS kimlik doğrulama değildir, CSP de hatalı girdiyi düzeltmez; ikisi farklı tehdit sınırlarını yönetir.",
+      en: "CSP limits which script, style, image, frame, and connection sources a browser may use, reducing the impact of injection. CORS lets a server state whether browser code from another origin may read a response. CORS is not authentication and CSP does not repair unsafe input; they address different boundaries.",
+      de: "CSP begrenzt zulässige Script-, Stil-, Bild-, Frame- und Verbindungsquellen und mindert so Injection-Folgen. CORS teilt mit, ob Browsercode einer anderen Origin eine Antwort lesen darf. CORS ist keine Authentifizierung und CSP bereinigt keine Eingaben; beide schützen unterschiedliche Grenzen.",
+      zh: "CSP 限制浏览器可使用的脚本、样式、图片、框架与连接来源，以减轻注入攻击影响。CORS 则由服务器声明其他源的浏览器代码能否读取响应。CORS 不是身份验证，CSP 也不会修复不安全输入；两者解决的是不同边界。",
+    },
+  },
+  {
+    test: /(?:large language model|\bllm\b|yapay zek[aâ]|machine learning|künstliche intelligenz|sprachmodell|人工智能|大语言模型)/iu,
+    answer: {
+      tr: "Bir dil modeli, metindeki örüntülere göre sonraki parçayı tahmin ederek yanıt üretir; akıcı olması doğruluğu garanti etmez. Kaliteyi model boyutu kadar güncel bağlam, açık görev, doğrulama araçları ve çıktı denetimi belirler. Önemli kararlarda kaynak kontrolü ve insan incelemesi gerekir; hassas veride çalıştırma sınırı ayrıca değerlendirilmelidir.",
+      en: "A language model produces text by predicting likely continuations from learned patterns; fluency is not proof of correctness. Quality also depends on current context, a clear task, verification tools, and output review—not only model size. Consequential answers need source checking and human review, with a separate privacy decision for sensitive data.",
+      de: "Ein Sprachmodell erzeugt Text aus erlernten Fortsetzungsmustern; flüssige Sprache beweist keine Richtigkeit. Qualität hängt neben der Modellgröße von aktuellem Kontext, klarer Aufgabe, Prüfwerkzeugen und Ergebniskontrolle ab. Wichtige Antworten brauchen Quellenprüfung, menschliche Kontrolle und eine gesonderte Datenschutzentscheidung.",
+      zh: "语言模型根据已学习的模式预测后续文本；表达流畅并不等于事实正确。质量不仅取决于模型大小，也取决于当前语境、清晰任务、验证工具和输出审查。重要结论需要核对来源并由人复审，敏感数据还要单独评估隐私边界。",
+    },
+  },
+  {
+    test: /(?:\bgit\b|github|sürüm kontrol|versionskontrolle|版本控制)/iu,
+    answer: {
+      tr: "Git, dosya değişikliklerini commit'ler halinde yerelde izleyen dağıtık sürüm kontrolüdür; GitHub ise Git depolarını barındıran ve inceleme, issue ve CI iş akışları sunan bir platformdur. Küçük, açıklayıcı commit'ler ve korumalı ana dal geri almayı kolaylaştırır. Parola, anahtar veya kişisel veri commit geçmişine hiç eklenmemelidir.",
+      en: "Git is distributed version control that records file changes as local commits; GitHub hosts Git repositories and adds reviews, issues, and CI workflows. Small descriptive commits and a protected main branch make review and rollback safer. Passwords, keys, and personal data should never enter repository history.",
+      de: "Git ist eine verteilte Versionsverwaltung, die Dateiänderungen als lokale Commits festhält. GitHub hostet Git-Repositories und ergänzt Reviews, Issues und CI. Kleine beschreibende Commits sowie ein geschützter Hauptzweig erleichtern Prüfung und Rücknahme; Geheimnisse gehören nie in die Historie.",
+      zh: "Git 是把文件变更记录为本地提交的分布式版本控制；GitHub 托管 Git 仓库，并提供审查、议题和 CI 工作流。小而清晰的提交与受保护的主分支更便于审查和回滚。密码、密钥和个人数据绝不应进入仓库历史。",
+    },
+  },
+  {
+    test: /(?:\bsql\b|\bnosql\b|database|veritabanı|datenbank|数据库)/iu,
+    answer: {
+      tr: "İlişkisel veritabanı, şemalı tabloları ve tablolar arası ilişkileri SQL ile yönetir; güçlü bütünlük ve çok kayıtlı işlemler için uygundur. NoSQL tek bir teknoloji değildir: belge, anahtar–değer, sütun ve grafik depolarını kapsar. Seçimi moda göre değil veri ilişkileri, sorgular, tutarlılık ihtiyacı ve işletme maliyetine göre yapın.",
+      en: "A relational database manages schema-defined tables and relationships with SQL, fitting strong integrity and multi-record transactions. NoSQL is not one technology; it includes document, key–value, wide-column, and graph stores. Choose from data relationships, query patterns, consistency needs, and operating cost rather than fashion.",
+      de: "Relationale Datenbanken verwalten schematische Tabellen und Beziehungen mit SQL und eignen sich für starke Integrität sowie Transaktionen über mehrere Datensätze. NoSQL umfasst Dokument-, Schlüssel-Wert-, Spalten- und Graphspeicher. Entscheidend sind Beziehungen, Abfragen, Konsistenz und Betriebskosten statt Trends.",
+      zh: "关系数据库用 SQL 管理有结构的表及其关系，适合强完整性和多记录事务。NoSQL 并非单一技术，而包括文档、键值、宽列和图数据库。应依据数据关系、查询模式、一致性需求与运营成本选择，而不是追随潮流。",
+    },
+  },
+  {
+    test: /(?:\bdns\b|domain name system|alan adı sistemi|domain-name-system|域名系统)/iu,
+    answer: {
+      tr: "DNS, alan adını IP adresi ve diğer kayıtlarla eşleştiren dağıtık dizindir. A/AAAA adresi, CNAME takma adı, MX posta yönünü, TXT ise doğrulama ve politika metnini taşır. Değişikliklerin görünmesi TTL ve önbelleklere bağlıdır; DNSSEC kayıt bütünlüğünü destekler ama trafiği şifrelemez.",
+      en: "DNS is the distributed directory that maps domain names to IP addresses and other records. A/AAAA carry addresses, CNAME an alias, MX mail routing, and TXT verification or policy text. Visibility after a change depends on TTL and caches; DNSSEC protects record integrity but does not encrypt traffic.",
+      de: "DNS ist das verteilte Verzeichnis für Domainnamen, IP-Adressen und weitere Einträge. A/AAAA enthalten Adressen, CNAME einen Alias, MX Mail-Routing und TXT Prüf- oder Richtlinientext. Änderungen hängen von TTL und Caches ab; DNSSEC schützt Einträge, verschlüsselt aber keinen Verkehr.",
+      zh: "DNS 是把域名映射到 IP 地址及其他记录的分布式目录。A/AAAA 保存地址，CNAME 保存别名，MX 指定邮件路由，TXT 承载验证或策略文本。变更可见时间受 TTL 和缓存影响；DNSSEC 保护记录完整性，但不加密流量。",
+    },
+  },
+] as const;
+
+function createFastKnowledgeResponse(locale: Locale, goal: string) {
+  const record = fastKnowledge.find((item) => item.test.test(goal));
+  return record?.answer[locale] ?? null;
+}
+
+function createLocalClockResponse(locale: Locale, goal: string) {
+  if (!/(?:saat kaç|bugün tarih|tarih ne|what time|what(?:'s| is) the date|uhrzeit|welches datum|几点|日期)/iu.test(goal)) return null;
+  const now = new Date();
+  const tag = locale === "zh" ? "zh-CN" : locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-US";
+  const value = new Intl.DateTimeFormat(tag, { dateStyle: "full", timeStyle: "short" }).format(now);
+  return `${({ tr: "Cihazınızdaki yerel tarih ve saat", en: "Local date and time on your device", de: "Lokales Datum und Uhrzeit auf Ihrem Gerät", zh: "您设备上的本地日期和时间" } as const)[locale]}: ${value}.\n\n${({ tr: "Saat dilimi tarayıcınızdan alınır; başka bir şehir için saat dilimini ayrıca belirtin.", en: "The time zone comes from your browser; name the time zone when asking about another city.", de: "Die Zeitzone stammt aus dem Browser; nennen Sie für eine andere Stadt die gewünschte Zeitzone.", zh: "时区来自浏览器；查询其他城市时请注明时区。" } as const)[locale]}`;
+}
+
 const quickReplies = {
   tr: {
     hello: "Merhaba! İyiyim, teşekkür ederim; sizin için buradayım. İsterseniz biraz sohbet edelim, isterseniz bir işi birlikte sonuçlandıralım. Bugün nasıl yardımcı olayım?",
@@ -431,19 +680,32 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
     return `${copy.contextExample}\n\n${sliceAtBoundary(previous.answer, 280)}\n\n${locale === "tr" ? "Örnek kabul kaydı: amaç → girdi → işlem → beklenen sonuç → doğrulama → bilinen sınır. Bu sırayı kendi verinize uyarlayın." : locale === "de" ? "Beispiel-Abnahme: Ziel → Eingabe → Verarbeitung → erwartetes Ergebnis → Prüfung → bekannte Grenze. Diese Folge an Ihren Fall anpassen." : locale === "zh" ? "示例验收记录：目标 → 输入 → 处理 → 预期结果 → 验证 → 已知边界。请按自己的数据调整。" : "Example acceptance record: goal → input → processing → expected result → verification → known limitation. Adapt that sequence to your data."}`;
   }
   if (memoryReferenceTerms.test(text) && previous) {
-    return `${copy.continued}\n\n${sliceAtBoundary(previous.answer, 420)}\n\n${copy.other}`;
+    const nextStep = ({ tr: "Bir sonraki uygulanabilir adım: önceki yanıttaki ilk eylemi küçük bir örnek üzerinde deneyin; sonucu ve takıldığınız noktayı yazarsanız oradan devam ederim.", en: "Next practical step: try the first action from the previous answer on a small example, then share the result or the point where you got stuck.", de: "Nächster praktischer Schritt: Die erste Handlung aus der vorigen Antwort an einem kleinen Beispiel testen und anschließend Ergebnis oder Blockade nennen.", zh: "下一步：先用小样本执行上一条回答中的第一个动作，再告诉我结果或卡住的位置。" } as const)[locale];
+    return `${copy.continued}\n\n${sliceAtBoundary(previous.answer, 420)}\n\n${nextStep}`;
   }
+  const inlineSummary = createInlineSummaryResponse(locale, goal);
+  if (inlineSummary) return inlineSummary;
+  const textInsight = createTextInsightResponse(locale, goal);
+  if (textInsight) return textInsight;
+  const naturalPercentage = createNaturalPercentageResponse(locale, goal);
+  if (naturalPercentage) return naturalPercentage;
   const arithmetic = createArithmeticResponse(locale, goal);
   if (arithmetic) return arithmetic;
+  const unitConversion = createUnitConversionResponse(locale, goal);
+  if (unitConversion) return unitConversion;
+  const localClock = createLocalClockResponse(locale, goal);
+  if (localClock) return localClock;
   if (/(beni hatırlıyor musun|do you remember me|erinnerst du dich an mich|你记得我吗)/iu.test(text)) return previous ? copy.remembered : copy.noMemory;
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
   if (/(teşekkür|sağ ol|thanks|thank you|danke|谢谢)/i.test(text)) return copy.thanks;
-  if (/(hava|weather|wetter|新闻|haber|news|nachricht|天气|fiyat|price|preis|价格|bugün kaç|what time|uhrzeit|几点)/i.test(text)) return copy.current;
+  if (/(hava|weather|wetter|新闻|haber|news|nachricht|天气|fiyat|price|preis|价格)/i.test(text)) return copy.current;
   if (/(ne yapabilirsin|yardım|help|was kannst|hilfe|能做什么|帮助)/i.test(text)) return copy.help;
   if (/(ad[ıi]n ne|sen kimsin|who are you|what(?:'s| is) your name|wie hei(?:ß|ss)t du|wer bist du|你是谁|你叫什么)/iu.test(text)) return copy.identity;
   if (/(nas[ıi]ls[ıi]n|ne haber|how are you|how(?:'s| is) it going|wie geht(?: es)? dir|你好吗|最近怎么样)/iu.test(text)) return copy.wellbeing;
   if (/(merh(?:a|e)(?:ba|na)|selam|hello|\bhi\b|hallo|guten tag|你好|您好)/iu.test(text)) return copy.hello;
   if (/(json).*(nedir|ne zaman|csv)|(?:what is|when should).*(json|csv)|(?:was ist|wann).*(json|csv)|(json|csv).*(是什么|什么时候)/i.test(text)) return copy.json;
+  const knowledge = createFastKnowledgeResponse(locale, goal);
+  if (knowledge) return knowledge;
   if (/(seo|hreflang|canonical|arama motor|search engine|suchmaschine|搜索引擎|索引|indexing)/i.test(text)) return copy.seo;
   if (/(gizlilik|privacy|datenschutz|隐私|kvkk|gdpr|kişisel veri|personal data)/i.test(text)) return copy.privacy;
   if (/(planla|plan yap|yol haritası|roadmap|make a plan|plane|fahrplan|计划|路线图)/i.test(text)) return copy.plan;
@@ -451,6 +713,31 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (/(karar|seçenek|hangisini|decid|choose|option|entscheid|wahl|决定|选择)/i.test(text)) return copy.decide;
   if (/(açıkla|anlat|nedir|neden|explain|what is|why|erklär|warum|was ist|解释|为什么|是什么)/i.test(text)) return copy.explain;
   return copy.other;
+}
+
+export function createFastFollowUpSuggestions(locale: Locale, goal: string, answer: string) {
+  const text = `${goal} ${answer}`.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
+  const options = /(?:sonuç|result|ergebnis|结果|hesap|calculation|rechnung|计算)/iu.test(text)
+    ? {
+        tr: ["Bu hesabı adım adım doğrula", "Benzer bir örnek çöz", "Uygun hesaplama aracını aç"],
+        en: ["Verify that calculation step by step", "Solve a similar example", "Open the matching calculator"],
+        de: ["Diese Rechnung Schritt für Schritt prüfen", "Ein ähnliches Beispiel lösen", "Passenden Rechner öffnen"],
+        zh: ["逐步核验这项计算", "解答一个类似示例", "打开合适的计算工具"],
+      }
+    : /(?:jwt|api|http|pwa|base64|regex|hash|git|sql|dns|csp|cors|yapay zek|artificial intelligence|künstliche intelligenz|人工智能)/iu.test(text)
+      ? {
+          tr: ["Bunu basit bir örnekle açıkla", "En önemli riskleri 3 maddede özetle", "İlgili ByteQuant aracını bul"],
+          en: ["Explain that with a simple example", "Summarise the main risks in 3 points", "Find the related ByteQuant tool"],
+          de: ["Mit einem einfachen Beispiel erklären", "Wichtigste Risiken in 3 Punkten zusammenfassen", "Passendes ByteQuant-Werkzeug finden"],
+          zh: ["用简单例子解释", "用 3 点总结主要风险", "查找相关 ByteQuant 工具"],
+        }
+      : {
+          tr: ["Bunu 3 maddede özetle", "Somut bir örnek ver", "Bana uygulanabilir sonraki adımı söyle"],
+          en: ["Summarise that in 3 points", "Give me a concrete example", "Give me the next practical step"],
+          de: ["In 3 Punkten zusammenfassen", "Ein konkretes Beispiel geben", "Den nächsten praktischen Schritt nennen"],
+          zh: ["用 3 点总结", "给出具体示例", "告诉我下一项可执行步骤"],
+        };
+  return options[locale];
 }
 
 /** Whether the visible response actually depended on earlier tab-scoped turns. */

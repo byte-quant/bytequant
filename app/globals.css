@@ -3950,6 +3950,9 @@ main{isolation:isolate}
 .experience-v3 .agent-chat-bar small{line-height:1.5}
 .experience-v3 .agent-starter-grid button{align-content:start;text-align:left}
 .experience-v3 .agent-starter-grid strong{font-size:13px;line-height:1.35}
+.experience-v3 .agent-fast-capabilities{margin:0 0 13px;padding:11px 13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid color-mix(in srgb,var(--violet) 20%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--surface-soft) 88%,var(--violet) 12%)}
+.experience-v3 .agent-fast-capabilities strong{margin-right:2px;color:var(--navy);font-size:12px;line-height:1.35}
+.experience-v3 .agent-fast-capabilities span{padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--surface);font-size:11px;font-weight:750;line-height:1.35}
 
 @media(max-width:760px){
   .experience-v3 .hero-grid{padding-block:38px 50px}
@@ -3962,4 +3965,86 @@ main{isolation:isolate}
   .experience-v3 .tool-library-hero{padding-block:40px 48px}
   .experience-v3 .agent-console-section{padding-top:20px}
   .experience-v3 .agent-chat-stream{min-height:132px}
+  .experience-v3 .agent-fast-capabilities{align-items:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .experience-v3 .agent-fast-capabilities strong{grid-column:1/-1}
+  .experience-v3 .agent-fast-capabilities span{border-radius:10px;text-align:center}
+}
+
+/* ByteQuant AI 7.2 and tool contract v3: clearer first-run decisions across all tools. */
+.experience-v3 .tool-workbench-stack{display:grid;gap:18px;padding-top:8px}
+.experience-v3 .tool-runtime-anchor{min-width:0;scroll-margin-top:110px}
+.experience-v3 .tool-run-brief{
+  min-width:0;
+  padding:clamp(20px,3vw,30px);
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--teal) 28%,var(--line));
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 92% 8%,color-mix(in srgb,var(--teal) 11%,transparent),transparent 34%),
+    linear-gradient(145deg,color-mix(in srgb,var(--surface) 96%,var(--teal) 4%),var(--surface));
+  box-shadow:0 18px 54px color-mix(in srgb,var(--navy) 9%,transparent)
+}
+.experience-v3 .tool-run-brief>header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.experience-v3 .tool-run-brief>header>div{min-width:0;max-width:78ch}
+.experience-v3 .tool-run-brief h2{margin:7px 0 9px;color:var(--navy);font-size:clamp(24px,2.8vw,36px);line-height:1.15;letter-spacing:-.035em;overflow-wrap:anywhere}
+.experience-v3 .tool-run-brief>header p{margin:0;color:var(--muted);font-size:14px;line-height:1.72}
+.experience-v3 .tool-run-brief>header>a{flex:0 0 auto;min-height:44px;white-space:normal;text-align:center}
+.experience-v3 .tool-run-brief>ol{margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;list-style:none;counter-reset:none}
+.experience-v3 .tool-run-brief>ol>li{position:relative;min-width:0;padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr);align-content:start;gap:11px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--surface) 88%,transparent)}
+.experience-v3 .tool-run-brief>ol>li:not(:last-child)::after{content:"→";position:absolute;z-index:1;right:-9px;top:22px;width:18px;height:18px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--teal-dark);background:var(--surface);font:800 10px/1 var(--font-mono)}
+.experience-v3 .tool-run-brief>ol>li>span{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;color:var(--teal-dark);background:var(--teal-soft);font:800 10px/1 var(--font-mono)}
+.experience-v3 .tool-run-brief li small{display:block;color:var(--teal-dark);font-size:10px;font-weight:850;line-height:1.35;letter-spacing:.045em;text-transform:uppercase}
+.experience-v3 .tool-run-brief li h3{margin:5px 0 7px;color:var(--navy);font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.experience-v3 .tool-run-brief li p{margin:0;color:var(--muted);font-size:12px;line-height:1.66;overflow-wrap:anywhere}
+.experience-v3 .tool-run-brief-path{margin-top:12px;padding:14px 16px;display:grid;grid-template-columns:minmax(150px,.32fr) minmax(0,1fr);gap:14px;border:1px dashed color-mix(in srgb,var(--teal) 34%,var(--line));border-radius:14px;background:color-mix(in srgb,var(--surface-soft) 82%,transparent)}
+.experience-v3 .tool-run-brief-path strong{color:var(--navy);font-size:12px;line-height:1.5}
+.experience-v3 .tool-run-brief-path p{margin:0;color:var(--muted);font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.experience-v3 .tool-run-brief-note{margin:12px 0 0;padding:12px 14px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px;border-radius:13px;color:var(--text);background:color-mix(in srgb,var(--teal-soft) 68%,var(--surface));font-size:12px;line-height:1.6}
+.experience-v3 .tool-run-brief-note>span{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;color:var(--surface);background:var(--teal);font:800 11px/1 var(--font-mono)}
+
+/* Actual input and output surfaces share a stable, readable interaction rhythm. */
+.experience-v3 .tool-runtime-anchor :where(.workbench,.frontier-workbench,.specialized-workbench,.tool-shell){margin:0}
+.experience-v3 .tool-runtime-anchor :where(.workbench-inputs,.frontier-input-panel,.essential-form,.studio-form) :where(label,.field-label){min-width:0;color:var(--text);font-size:13px;line-height:1.5}
+.experience-v3 .tool-runtime-anchor :where(input,textarea,select){min-height:46px;border-color:var(--line-strong);background:color-mix(in srgb,var(--surface) 96%,var(--surface-soft));font-size:14px;line-height:1.65}
+.experience-v3 .tool-runtime-anchor textarea{min-height:150px;resize:vertical;scrollbar-gutter:stable}
+.experience-v3 .tool-runtime-anchor :where(input,textarea,select):focus-visible{outline:3px solid color-mix(in srgb,var(--teal) 22%,transparent);outline-offset:1px;border-color:var(--teal)}
+.experience-v3 .tool-runtime-anchor :where(.result-panel,.frontier-result-panel,.workbench-output){min-width:0;background:color-mix(in srgb,var(--surface) 97%,var(--teal) 3%)}
+.experience-v3 .tool-runtime-anchor :where(.result-header,.workbench-output>header){min-height:58px}
+.experience-v3 .tool-runtime-anchor :where(.result-panel pre,.frontier-result-panel pre,.workbench-output pre,.structured-tool-output){font-size:13px;line-height:1.72}
+.experience-v3 .tool-runtime-anchor button:disabled{cursor:not-allowed;opacity:.58}
+.experience-v3 .tool-runtime-frame{min-width:0}
+.experience-v3 .tool-runtime-frame :where(.workbench-grid,.workbench-body,.frontier-workbench-grid,.studio-workbench-grid,.tool-shell-grid)>*{min-width:0}
+.experience-v3 .tool-runtime-guided :where(input,select){min-height:50px}
+.experience-v3 .tool-runtime-guided :where(.field-grid,.guided-field-grid,.essential-fields){gap:12px}
+.experience-v3 .tool-runtime-structured :where(pre,.structured-tool-output,.result-panel){max-width:100%;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.experience-v3 .tool-runtime-structured :where(pre,.structured-tool-output){white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+.experience-v3 .tool-runtime-file :where(.drop-zone,.file-drop,.upload-zone,input[type="file"]){min-height:68px}
+.experience-v3 .tool-runtime-editor :where(textarea,pre,code){font-family:var(--font-mono);font-variant-ligatures:none}
+.experience-v3 .tool-runtime-classic :where(.workbench-output,.result-panel){min-height:180px}
+
+.experience-v3 .agent-context-actions{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
+.experience-v3 .agent-context-actions button{min-height:36px;padding:7px 10px;border:1px solid color-mix(in srgb,var(--teal) 25%,var(--line));border-radius:999px;color:var(--text);background:color-mix(in srgb,var(--teal-soft) 62%,var(--surface));font-size:11px;font-weight:750;line-height:1.4;text-align:left;cursor:pointer}
+.experience-v3 .agent-context-actions button:hover,.experience-v3 .agent-context-actions button:focus-visible{border-color:var(--teal);background:var(--teal-soft);transform:translateY(-1px)}
+
+/* Site-wide reading polish: consistent paragraph measure and predictable controls. */
+.experience-v3 main :where(.section-heading,.info-section,.editorial-section,.article-content)>p{max-width:72ch}
+.experience-v3 main :where(p,li,dd){text-wrap:pretty}
+.experience-v3 :where(button,.primary-button,.secondary-button,.ghost-button){font-synthesis:none}
+
+@media(max-width:1080px){
+  .experience-v3 .tool-run-brief>ol{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .experience-v3 .tool-run-brief>ol>li:nth-child(2)::after{display:none}
+}
+@media(max-width:760px){
+  .experience-v3 .tool-workbench-stack{gap:14px}
+  .experience-v3 .tool-run-brief{padding:18px 15px;border-radius:19px}
+  .experience-v3 .tool-run-brief>header{align-items:stretch;flex-direction:column;gap:15px}
+  .experience-v3 .tool-run-brief>header>a{width:100%;justify-content:center}
+  .experience-v3 .tool-run-brief>ol{grid-template-columns:minmax(0,1fr);margin-top:17px}
+  .experience-v3 .tool-run-brief>ol>li:not(:last-child)::after{content:"↓";right:20px;top:auto;bottom:-9px}
+  .experience-v3 .tool-run-brief>ol>li:nth-child(2)::after{display:grid}
+  .experience-v3 .tool-run-brief-path{grid-template-columns:minmax(0,1fr);gap:5px}
+  .experience-v3 .tool-runtime-anchor textarea{min-height:132px}
+  .experience-v3 .agent-context-actions{display:grid;grid-template-columns:minmax(0,1fr)}
+  .experience-v3 .agent-context-actions button{border-radius:11px;min-height:42px}
 }

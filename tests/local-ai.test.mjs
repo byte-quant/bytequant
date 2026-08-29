@@ -8,6 +8,7 @@ import {
   clearLocalAIResponseCache,
   compactLocalAIConversationHistory,
   createFastConversationResponse,
+  createFastFollowUpSuggestions,
   didFastConversationUseHistory,
   estimateLocalAITokens,
   explainLocalAIError,
@@ -145,6 +146,20 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "125 * 1.18 kaçtır?"), /147[,.]5/);
   assert.match(createFastConversationResponse("de", "Wie viel ist 200 * 15%?"), /30/);
   assert.match(createFastConversationResponse("zh", "计算 (12 + 8) * 3"), /60/);
+  assert.match(createFastConversationResponse("tr", "200'ün yüzde 15'i kaçtır?"), /30/);
+  assert.match(createFastConversationResponse("en", "What is 18% of 250?"), /45/);
+  assert.match(createFastConversationResponse("tr", "10 kg kaç lb"), /22[,.]046/);
+  assert.match(createFastConversationResponse("de", "20 C in F"), /68/);
+  assert.match(createFastConversationResponse("tr", "JWT nedir?"), /imza|Base64URL/);
+  assert.match(createFastConversationResponse("en", "Explain Base64"), /encoding, not encryption/i);
+  assert.match(createFastConversationResponse("tr", "Bunu 2 maddede özetle:\nBirinci cümle önemli bir hedefi açıklar. İkinci cümle uygulanabilir kontrolü tanımlar. Üçüncü cümle sınırı görünür yapar."), /• .*\n• /s);
+  assert.match(createFastConversationResponse("tr", "API nedir?"), /sözleşme|kimlik doğrulama/i);
+  assert.match(createFastConversationResponse("en", "What is a PWA?"), /manifest|service-worker/i);
+  assert.match(createFastConversationResponse("de", "Was ist DNS?"), /IP-Adresse|TTL/i);
+  assert.match(createFastConversationResponse("zh", "什么是人工智能？"), /语言模型|事实正确/);
+  const insight = createFastConversationResponse("tr", "Metni analiz et:\nByteQuant araçları tarayıcıda çalışır. Araçlar veriyi uzak sunucuya göndermeden işler. Tarayıcı içi çalışma gizlilik sağlar.");
+  assert.match(insight, /Kelime:|Öne çıkan terimler/);
+  assert.equal(createFastFollowUpSuggestions("tr", "JWT nedir?", "JWT imzalı bir iddia paketidir.").length, 3);
 });
 
 test("image-to-PDF language routes to the dedicated local converter", () => {

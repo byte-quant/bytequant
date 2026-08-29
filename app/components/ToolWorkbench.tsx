@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import type { Locale } from "../lib/site";
 import { SpecializedWorkbench, specializedSlugs } from "./SpecializedWorkbench";
@@ -368,21 +368,30 @@ function explainCron(expression: string, locale: Locale) {
 
 export function ToolWorkbench({ slug, locale }: { slug: string; locale: Locale }) {
   const family = getToolRuntimeFamily(slug);
-  if (family === "studio") return <StudioWorkbench slug={slug} locale={locale} />;
-  if (family === "stageTwo") return <StageTwoWorkbench slug={slug} locale={locale} />;
-  if (family === "frontier") return <FrontierWorkbench slug={slug} locale={locale} />;
-  if (family === "precision") return <PrecisionWorkbench slug={slug} locale={locale} />;
-  if (family === "essential") return <EssentialWorkbench slug={slug} locale={locale} />;
-  if (family === "expansion") return <ExpansionWorkbench slug={slug} locale={locale} />;
-  if (family === "discovery") return <DiscoveryWorkbench slug={slug} locale={locale} />;
-  if (family === "productivity") return <ProductivityWorkbench slug={slug} locale={locale} />;
-  if (family === "demand") return <DemandWorkbench slug={slug} locale={locale} />;
-  if (family === "growth") return <GrowthWorkbench slug={slug} locale={locale} />;
-  if (family === "converter") return <ConverterWorkbench slug={slug} locale={locale} />;
-  if (family === "new") return <NewToolWorkbench slug={slug} locale={locale} />;
-  if (family === "specialized") return <SpecializedWorkbench slug={slug} locale={locale} />;
-  if (family === "advanced") return <AdvancedWorkbench slug={slug} locale={locale} />;
   if (family === "generic") return <GenericToolWorkbench slug={slug} locale={locale} />;
+  const experience = family === "converter" || family === "studio" ? "file"
+    : family === "advanced" || family === "essential" || family === "productivity" || family === "demand" ? "guided"
+      : family === "frontier" || family === "precision" || family === "stageTwo" ? "structured"
+        : family === "specialized" || family === "new" || family === "growth" ? "editor"
+          : "classic";
+  let runtime: ReactNode = null;
+  switch (family) {
+    case "studio": runtime = <StudioWorkbench slug={slug} locale={locale} />; break;
+    case "stageTwo": runtime = <StageTwoWorkbench slug={slug} locale={locale} />; break;
+    case "frontier": runtime = <FrontierWorkbench slug={slug} locale={locale} />; break;
+    case "precision": runtime = <PrecisionWorkbench slug={slug} locale={locale} />; break;
+    case "essential": runtime = <EssentialWorkbench slug={slug} locale={locale} />; break;
+    case "expansion": runtime = <ExpansionWorkbench slug={slug} locale={locale} />; break;
+    case "discovery": runtime = <DiscoveryWorkbench slug={slug} locale={locale} />; break;
+    case "productivity": runtime = <ProductivityWorkbench slug={slug} locale={locale} />; break;
+    case "demand": runtime = <DemandWorkbench slug={slug} locale={locale} />; break;
+    case "growth": runtime = <GrowthWorkbench slug={slug} locale={locale} />; break;
+    case "converter": runtime = <ConverterWorkbench slug={slug} locale={locale} />; break;
+    case "new": runtime = <NewToolWorkbench slug={slug} locale={locale} />; break;
+    case "specialized": runtime = <SpecializedWorkbench slug={slug} locale={locale} />; break;
+    case "advanced": runtime = <AdvancedWorkbench slug={slug} locale={locale} />; break;
+  }
+  if (runtime) return <div className={`tool-runtime-frame tool-runtime-${experience}`} data-runtime-family={family} data-input-experience={experience}>{runtime}</div>;
   const text = ui(locale, {
     tr: "Bu araç için çalışma motoru bulunamadı. Sayfayı yenileyin; sorun sürerse araç bağlantısını GitHub hata kaydına ekleyin.",
     en: "No processing engine is registered for this tool. Refresh the page; if the issue remains, include the tool link in a GitHub issue.",
@@ -748,7 +757,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const privacyConfirmation = ui(locale, { tr: "Bu işlem tamamen cihazınızda gerçekleşti; girdi ByteQuant sunucusuna gönderilmedi.", en: "This operation happened entirely on your device; input was not sent to ByteQuant servers.", de: "Dieser Vorgang fand vollständig auf Ihrem Gerät statt; Eingaben wurden nicht an ByteQuant gesendet.", zh: "此操作完全在您的设备上完成；输入未发送到 ByteQuant 服务器。" });
 
   return (
-    <section className="workbench" data-workbench-quality="stage-3" aria-label={ui(locale, { tr: "Araç çalışma alanı", en: "Tool workbench", de: "Werkzeug-Arbeitsbereich", zh: "工具工作区" })} aria-busy={busy} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); void run(); } }}>
+    <section className="workbench tool-runtime-frame tool-runtime-classic" data-runtime-family="generic" data-input-experience="classic" data-workbench-quality="stage-3" aria-label={ui(locale, { tr: "Araç çalışma alanı", en: "Tool workbench", de: "Werkzeug-Arbeitsbereich", zh: "工具工作区" })} aria-busy={busy} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); void run(); } }}>
       <div className="workbench-bar"><span className="local-status"><i />{labels.local}<small>{labels.shortcut}</small></span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo} disabled={busy}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench} disabled={busy}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
