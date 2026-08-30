@@ -27,6 +27,15 @@ test("describes a concrete input, method, output, verification, and boundary for
   }
 });
 
+test("keeps the full input-to-verification guidance distinct for every tool", () => {
+  for (const locale of locales) {
+    for (const field of ["input", "method", "output", "verification", "boundary"]) {
+      const values = publicTools.map((tool) => getToolGuidanceDetails(tool)[field][locale]);
+      assert.equal(new Set(values).size, publicTools.length, `${locale}/${field}: repeated guidance`);
+    }
+  }
+});
+
 test("publishes hand-reviewed worked examples for high-intent tools in every locale", () => {
   const expected = [
     "cron-ifadesi-aciklayici", "csv-inceleyici", "curl-kod-donusturucu", "exif-meta-veri-temizleyici",

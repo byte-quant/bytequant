@@ -151,6 +151,41 @@ function choose(tool: GuidanceSource): Profile {
 const clean = (value: string) => value.trim().replace(/[.!?。！？]+$/u, "");
 const lowerFirst = (value: string, locale: Locale) => value.charAt(0).toLocaleLowerCase(locale === "tr" ? "tr-TR" : locale) + value.slice(1);
 
+function contextualizeDetails(tool: GuidanceSource, goal: L, details: ToolGuidanceDetails): ToolGuidanceDetails {
+  return {
+    input: l(
+      `${tool.title.tr} için başlangıç girdisi: ${lowerFirst(clean(details.input.tr), "tr")}. Araç bu girdiyi “${goal.tr}” amacıyla kullanır.`,
+      `For ${tool.title.en}, provide ${lowerFirst(clean(details.input.en), "en")}. The requested outcome is to ${goal.en}.`,
+      `Für ${tool.title.de} verwenden Sie ${lowerFirst(clean(details.input.de), "de")}. Das konkrete Ziel lautet: ${goal.de}.`,
+      `${tool.title.zh}的输入应为${clean(details.input.zh)}。本次处理目标是：${goal.zh}。`,
+    ),
+    method: l(
+      `${tool.title.tr}, “${goal.tr}” hedefi için şu açıklanabilir yöntemi uygular: ${lowerFirst(clean(details.method.tr), "tr")}.`,
+      `${tool.title.en} uses this disclosed method to ${goal.en}: ${lowerFirst(clean(details.method.en), "en")}.`,
+      `${tool.title.de} nutzt für das Ziel „${goal.de}“ diese nachvollziehbare Methode: ${lowerFirst(clean(details.method.de), "de")}.`,
+      `${tool.title.zh}为实现“${goal.zh}”采用以下可解释方法：${clean(details.method.zh)}。`,
+    ),
+    output: l(
+      `${tool.title.tr} tamamlandığında ${lowerFirst(clean(details.output.tr), "tr")} sunar; bu çıktı “${goal.tr}” ihtiyacına göre düzenlenir.`,
+      `When ${tool.title.en} finishes, it returns ${lowerFirst(clean(details.output.en), "en")}, organised around the goal to ${goal.en}.`,
+      `${tool.title.de} liefert ${lowerFirst(clean(details.output.de), "de")}; die Ausgabe ist auf das Ziel „${goal.de}“ ausgerichtet.`,
+      `${tool.title.zh}完成后会提供${clean(details.output.zh)}，并围绕“${goal.zh}”组织结果。`,
+    ),
+    verification: l(
+      `${tool.title.tr} sonucunu kabul etmeden önce ${lowerFirst(clean(details.verification.tr), "tr")} kontrolünü tamamlayın; beklenen amaç “${goal.tr}” olmalıdır.`,
+      `Before accepting a ${tool.title.en} result, complete ${lowerFirst(clean(details.verification.en), "en")}; the evidence should support the goal to ${goal.en}.`,
+      `Vor der Abnahme eines Ergebnisses von ${tool.title.de} führen Sie ${lowerFirst(clean(details.verification.de), "de")} durch; der Nachweis muss zum Ziel „${goal.de}“ passen.`,
+      `接受${tool.title.zh}的结果前，请完成${clean(details.verification.zh)}；核验证据应与“${goal.zh}”这一目标一致。`,
+    ),
+    boundary: l(
+      `${tool.title.tr} için kullanım sınırı: ${clean(details.boundary.tr)}.`,
+      `${tool.title.en} limitation: ${clean(details.boundary.en)}.`,
+      `Nutzungsgrenze von ${tool.title.de}: ${clean(details.boundary.de)}.`,
+      `${tool.title.zh}的使用边界：${clean(details.boundary.zh)}。`,
+    ),
+  };
+}
+
 function formatSpecificInput(tool: GuidanceSource, fallback: L): L {
   const slug = tool.slug;
   if (/(jsonl|ndjson|json-lines)/.test(slug)) return l(
@@ -184,19 +219,20 @@ export function buildToolGuidance(tool: GuidanceSource) {
   const workflow = specific?.workflow ?? p.workflow;
   const goal = { tr: clean(tool.short.tr), en: lowerFirst(clean(tool.short.en), "en"), de: clean(tool.short.de), zh: clean(tool.short.zh) } satisfies L;
   const boundary = specific?.boundary ?? specificBoundaries[tool.slug] ?? boundaries[tool.category];
+  const details = contextualizeDetails(tool, goal, { input, method, output, verification, boundary });
   const useCases: Record<Locale, string[]> = {
-    tr: [`İhtiyaç: ${goal.tr}`, `${workflow.tr} öncesinde ${output.tr} hazırlama`, `${tool.title.tr} sonucunu ${verification.tr} ile doğrulama`],
-    en: [`Use ${tool.title.en} when you need to ${goal.en}`, `Prepare ${output.en} before ${workflow.en}`, `Verify ${tool.title.en} results through ${verification.en}`],
-    de: [`${tool.title.de} einsetzen, wenn das Ziel lautet: ${goal.de}`, `${output.de} vor ${workflow.de} vorbereiten`, `Ergebnisse von ${tool.title.de} anhand folgender Prüfung abnehmen: ${verification.de}`],
-    zh: [`使用${tool.title.zh}完成：${goal.zh}`, `在${workflow.zh}前准备${output.zh}`, `依据${verification.zh}核验${tool.title.zh}的结果`],
+    tr: [`İhtiyaç: ${goal.tr}`, `${workflow.tr} öncesinde ${details.output.tr}`, details.verification.tr],
+    en: [`Use ${tool.title.en} when you need to ${goal.en}`, `Before ${workflow.en}, ${details.output.en}`, details.verification.en],
+    de: [`${tool.title.de} einsetzen, wenn das Ziel lautet: ${goal.de}`, `Vor ${workflow.de}: ${details.output.de}`, details.verification.de],
+    zh: [`使用${tool.title.zh}完成：${goal.zh}`, `在${workflow.zh}前：${details.output.zh}`, details.verification.zh],
   };
   const steps: Record<Locale, string[]> = {
-    tr: [`Girdiyi hazırlayın: ${input.tr}. Hassas gerçek veri yerine önce sentetik bir örnekle biçimi doğrulayın.`, `Cihaz içi işlemi çalıştırın. Hedef: ${goal.tr}. ${method.tr}`, `Kabul kontrolü: ${verification.tr}. ${boundary.tr}`],
-    en: [`Prepare the input: ${input.en}. Confirm the format with a synthetic example before using sensitive real data.`, `Run the on-device operation. Goal: ${goal.en}. ${method.en}`, `Acceptance check: ${verification.en}. ${boundary.en}`],
-    de: [`Eingabe vorbereiten: ${input.de}. Prüfen Sie das Format zuerst mit einem synthetischen Beispiel statt mit sensiblen Echtdaten.`, `Lokale Verarbeitung starten. Ziel: ${goal.de}. ${method.de}`, `Abnahmekriterium: ${verification.de}. ${boundary.de}`],
-    zh: [`准备输入：${input.zh}。处理敏感真实数据前，请先用合成示例确认格式。`, `运行设备端处理。目标：${goal.zh}。${method.zh}`, `验收检查：${verification.zh}。${boundary.zh}`],
+    tr: [`${details.input.tr} Hassas gerçek veri yerine önce sentetik bir örnekle biçimi doğrulayın.`, `Cihaz içi işlemi çalıştırın. ${details.method.tr}`, `Kabul kontrolü: ${details.verification.tr} ${details.boundary.tr}`],
+    en: [`${details.input.en} Confirm the format with a synthetic example before using sensitive real data.`, `Run the on-device operation. ${details.method.en}`, `Acceptance check: ${details.verification.en} ${details.boundary.en}`],
+    de: [`${details.input.de} Prüfen Sie das Format zuerst mit einem synthetischen Beispiel statt mit sensiblen Echtdaten.`, `Lokale Verarbeitung starten. ${details.method.de}`, `Abnahmekriterium: ${details.verification.de} ${details.boundary.de}`],
+    zh: [`${details.input.zh}处理敏感真实数据前，请先用合成示例确认格式。`, `运行设备端处理。${details.method.zh}`, `验收检查：${details.verification.zh}${details.boundary.zh}`],
   };
-  return { useCases, steps, details: { input, method, output, verification, boundary } satisfies ToolGuidanceDetails };
+  return { useCases, steps, details };
 }
 
 export function getToolGuidanceDetails(tool: GuidanceSource) {

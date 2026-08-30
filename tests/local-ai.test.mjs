@@ -168,6 +168,13 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("de", "Lernplan für TypeScript"), /5 Schritten|Lernplan/i);
   assert.match(createFastConversationResponse("zh", "给我五个隐私工具想法"), /五个不同|最快验证/);
   assert.match(createFastConversationResponse("tr", "React mi yoksa Vue mu?"), /React|Vue|İki günlük deneme/);
+  assert.match(createFastConversationResponse("tr", "Moralim bozuk, biraz konuşalım"), /zor olmalı|Dinlenmemi/i);
+  assert.match(createFastConversationResponse("tr", "Yeni açılan kahve dükkanım için samimi Instagram açıklaması yaz"), /Mahallenin yeni kahve molası|#YeniKahveDurağı/);
+  assert.match(createFastConversationResponse("tr", "Evde üç günlük düşük bütçeli yemek planı hazırla"), /3 günlük düşük bütçeli|mercimek|Ortak alışveriş/i);
+  assert.match(createFastConversationResponse("tr", "TypeError cannot read properties of undefined ne demek?"), /undefined|güvenli erişim|hata satırı/i);
+  assert.match(createFastConversationResponse("tr", "Bu metni daha ikna edici yap: Ürünümüz hızlıdır"), /Daha ikna edici sürüm|kullanıcı yararı/i);
+  assert.match(createFastConversationResponse("tr", "Müşteriye gecikme için özür e-postası yaz"), /Gecikme için özür|yeni teslim tarihi/i);
+  assert.match(createFastConversationResponse("tr", "Freelance mi yoksa tam zamanlı iş mi, riskleriyle karşılaştır"), /4–6 aylık|tahsilat|düzenli maaş/i);
   assert.match(createFastConversationResponse("en", "Review this code for security:\n```js\neval(userInput)\n```"), /Dynamic code execution|static review/i);
   assert.doesNotMatch(createFastConversationResponse("tr", "Kedim için sakin bir akşam rutini"), /^Buradayım/u);
   assert.equal(createFastFollowUpSuggestions("tr", "JWT nedir?", "JWT imzalı bir iddia paketidir.").length, 3);

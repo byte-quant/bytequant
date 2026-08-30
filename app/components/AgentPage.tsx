@@ -44,8 +44,48 @@ const content = {
   },
 } as const;
 
+const scenarioContent = {
+  tr: {
+    kicker: "GERÇEK KULLANIM ÖRNEKLERİ", title: "Bir cümleden kullanılabilir sonuca nasıl gider?", intro: "Aşağıdaki örnekler, model indirmeden çalışan hızlı yanıt katmanı ile araç otomasyonunun sınırlarını somutlaştırır. ByteQuant AI güncel bilgiyi uydurmaz; elinizdeki metni, seçeneği veya dosyayı işler.",
+    items: [
+      ["Yazı ve iletişim", "“Müşteriye gecikme için kısa bir özür e-postası yaz.”", "Alıcı, sorumluluk, yeni tarih ve telafi adımını içeren gönderilebilir bir taslak üretir; tonu tek tıkla samimi veya resmî hâle getirebilirsiniz."],
+      ["Karar desteği", "“Freelance ve tam zamanlı işi riskleriyle karşılaştır.”", "Gelir düzeni, özgürlük, yan haklar, müşteri bulma ve mali tampon gibi konuya özgü ölçütleri ayırır; doğrulanabilir bir geçiş deneyi önerir."],
+      ["Hata açıklama", "“TypeError: cannot read properties of undefined ne demek?”", "Hatanın nedenini günlük dille açıklar, güvenli erişim örneği verir ve yalnız gerekli kod bağlamını ister."],
+      ["Araç otomasyonu", "“Bu fotoğrafları tek PDF yap ve sayfaları sırala.”", "Görselden PDF aracını seçer, dosya gereksinimini açıklar, girdiyi hazırlar ve çalıştırmadan önce onayınızı bekler."],
+    ],
+  },
+  en: {
+    kicker: "REAL USE CASES", title: "How one sentence becomes a usable result", intro: "These examples show what the download-free fast layer and tool automation actually do. ByteQuant AI does not invent live facts; it works with the text, choices, or files you provide.",
+    items: [
+      ["Writing and communication", "“Write a short apology email for a delayed delivery.”", "Produces a sendable draft with accountability, a revised date, and a corrective action; you can then make the tone warmer or more formal."],
+      ["Decision support", "“Compare freelance and full-time work by risk.”", "Separates domain-specific criteria such as income stability, autonomy, benefits, client acquisition, and financial runway, then suggests a reversible test."],
+      ["Error explanation", "“What does TypeError: cannot read properties of undefined mean?”", "Explains the cause in plain language, shows safe access, and asks only for the code context needed for a concrete fix."],
+      ["Tool automation", "“Combine these photos into one ordered PDF.”", "Selects the image-to-PDF tool, explains the file requirement, prepares the handoff, and waits for approval before processing."],
+    ],
+  },
+  de: {
+    kicker: "ECHTE ANWENDUNGSFÄLLE", title: "Vom Satz zum nutzbaren Ergebnis", intro: "Die Beispiele zeigen die konkrete Leistung der schnellen Ebene ohne Download und der Werkzeugautomatisierung. ByteQuant AI erfindet keine Live-Fakten, sondern arbeitet mit Ihren Texten, Optionen und Dateien.",
+    items: [
+      ["Text und Kommunikation", "„Kurze Entschuldigungsmail wegen verspäteter Lieferung schreiben.“", "Erstellt einen versandfertigen Entwurf mit Verantwortung, neuem Termin und Korrekturmaßnahme; der Ton lässt sich danach freundlich oder formell anpassen."],
+      ["Entscheidungshilfe", "„Freelancing und Festanstellung nach Risiken vergleichen.“", "Ordnet Einkommensstabilität, Freiheit, Leistungen, Akquise und Rücklagen als passende Kriterien und schlägt einen rücknehmbaren Test vor."],
+      ["Fehler erklären", "„Was bedeutet TypeError: cannot read properties of undefined?“", "Erklärt die Ursache verständlich, zeigt sicheren Zugriff und fragt nur den nötigen Codekontext für eine konkrete Korrektur ab."],
+      ["Werkzeugautomatisierung", "„Diese Fotos in ein sortiertes PDF zusammenführen.“", "Wählt Bild-zu-PDF, erklärt die Dateianforderung, bereitet die Übergabe vor und wartet vor der Verarbeitung auf Ihre Freigabe."],
+    ],
+  },
+  zh: {
+    kicker: "真实使用示例", title: "如何从一句话得到可用结果", intro: "以下示例说明无需下载的快速回答层与工具自动化究竟能做什么。ByteQuant AI 不会编造实时事实，而是处理您提供的文字、选项或文件。",
+    items: [
+      ["写作与沟通", "“为延期交付写一封简短道歉邮件。”", "生成包含责任说明、新日期和改进措施的可发送草稿，并可继续调整为更亲切或更正式的语气。"],
+      ["决策支持", "“比较自由职业与全职工作的风险。”", "按收入稳定、自由度、福利、获客和资金缓冲等相关标准拆解，并建议可撤回的小规模验证。"],
+      ["错误解释", "“TypeError: cannot read properties of undefined 是什么意思？”", "用简单语言解释原因，给出安全访问示例，并只询问完成具体修复所需的代码上下文。"],
+      ["工具自动化", "“把这些照片按顺序合成一个 PDF。”", "匹配图片转 PDF 工具，说明文件要求，准备交接，并在处理前等待您的确认。"],
+    ],
+  },
+} as const;
+
 export function AgentPage({ locale }: { locale: Locale }) {
   const c = content[locale];
+  const scenarios = scenarioContent[locale];
   const visualPrompt = { tr: "Bir görsel oluşturmak veya yüklediğim resmi düzenlemek istiyorum", en: "I want to create a visual or edit an image I upload", de: "Ich möchte ein Bild erstellen oder ein hochgeladenes Bild bearbeiten", zh: "我想创建视觉内容或编辑我上传的图片" }[locale];
   const pageUrl = absoluteUrl(pathFor(locale, "agent"));
   const agentName = "ByteQuant AI";
@@ -56,10 +96,11 @@ export function AgentPage({ locale }: { locale: Locale }) {
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "agent")} languageHrefs={{ tr: pathFor("tr", "agent"), en: pathFor("en", "agent"), de: pathFor("de", "agent"), zh: pathFor("zh", "agent") }}>
     <SchemaScript data={schemas} />
-    <section className="agent-product-intro agent-product-intro-compact"><div className="container agent-product-intro-grid"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="agent-intro-actions"><a className="primary-button" href="#local-agent">{c.start} <span aria-hidden="true">↓</span></a><Link className="secondary-button" href={`${pathFor(locale, "agent")}?q=${encodeURIComponent(visualPrompt)}#local-agent`}>{c.visual} <span aria-hidden="true">→</span></Link><Link className="secondary-button" href={pathFor(locale, "workstation")}>{c.workspace} <span aria-hidden="true">→</span></Link></div></div><aside className="agent-simple-promise"><span>01</span><strong>{c.steps[0][1]}</strong><i>→</i><span>02</span><strong>{c.steps[1][1]}</strong><i>→</i><span>03</span><strong>{c.steps[2][1]}</strong></aside></div></section>
+    <section className="agent-product-intro agent-product-intro-compact agent-product-intro-v74"><div className="container agent-product-intro-grid"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="agent-intro-actions"><a className="primary-button" href="#local-agent">{c.start} <span aria-hidden="true">↓</span></a><Link className="secondary-button" href={`${pathFor(locale, "agent")}?q=${encodeURIComponent(visualPrompt)}#local-agent`}>{c.visual} <span aria-hidden="true">→</span></Link><Link className="secondary-button" href={pathFor(locale, "workstation")}>{c.workspace} <span aria-hidden="true">→</span></Link></div></div><aside className="agent-simple-promise"><span>01</span><strong>{c.steps[0][1]}</strong><i>→</i><span>02</span><strong>{c.steps[1][1]}</strong><i>→</i><span>03</span><strong>{c.steps[2][1]}</strong></aside></div></section>
     <section id="local-agent" className="section agent-console-section"><div className="container"><AgentConversation locale={locale} /></div></section>
     <section id="agent-visual" className="section agent-visual-section"><div className="container"><AgentVisualStudioLoader locale={locale} /></div></section>
     <section className="section agent-how"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">LOCAL-FIRST</span><h2>{c.howTitle}</h2></div><p>{c.howIntro}</p></div><div className="agent-how-grid">{c.cards.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>
+    <section className="section agent-scenarios"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">{scenarios.kicker}</span><h2>{scenarios.title}</h2></div><p>{scenarios.intro}</p></div><div className="agent-scenario-grid">{scenarios.items.map(([label, prompt, result], index) => <article key={label}><span>{String(index + 1).padStart(2, "0")}</span><div><small>{label}</small><h3>{prompt}</h3><p>{result}</p></div></article>)}</div></div></section>
     <section className="section agent-privacy"><div className="container agent-privacy-grid"><div><span className="kicker">PRIVACY BY DESIGN</span><h2>{c.privacyTitle}</h2><p>{siteUrl.replace("https://", "")} · HTTPS · {agentName}</p></div><ul>{c.privacy.map((item) => <li key={item}><span>✓</span><p>{item}</p></li>)}</ul></div></section>
     <section className="section compact-faq"><div className="container"><div className="section-heading centered"><span className="kicker">FAQ</span><h2>{locale === "tr" ? "Kısa ve açık yanıtlar" : locale === "de" ? "Kurze, klare Antworten" : locale === "zh" ? "简明解答" : "Short, clear answers"}</h2></div><div className="faq-list narrow">{c.faq.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>
   </SiteShell>;

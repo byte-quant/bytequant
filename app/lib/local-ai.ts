@@ -659,6 +659,85 @@ function fastTopic(goal: string, locale: Locale) {
   return sliceAtBoundary(cleaned || goal.trim(), 120);
 }
 
+function createFastSupportiveResponse(locale: Locale, goal: string) {
+  const isCrisis = /(?:kendime zarar|intihar|yaşamak istemiyorum|kill myself|suicid|self[- ]harm|mich umbringen|selbstmord|自杀|伤害自己)/iu.test(goal);
+  if (isCrisis) {
+    if (locale === "tr") return "Bunu tek başınıza taşımayın. Şu anda kendinize zarar verme tehlikesi varsa 112’yi arayın veya yanınızdaki güvendiğiniz birine hemen haber verin. Mümkünse yalnız kalmayın ve zarar verebilecek nesnelerden uzaklaşın. Burada sizinle kalabilirim; şu an güvende misiniz?";
+    if (locale === "de") return "Bitte tragen Sie das nicht allein. Wenn Sie sich gerade verletzen könnten, rufen Sie den Notruf 112 oder informieren Sie sofort eine vertraute Person in Ihrer Nähe. Bleiben Sie möglichst nicht allein und entfernen Sie sich von Dingen, mit denen Sie sich verletzen könnten. Ich kann hier bei Ihnen bleiben: Sind Sie im Moment sicher?";
+    if (locale === "zh") return "请不要独自承受。如果您现在可能伤害自己，请立即拨打当地急救电话，或马上联系身边可信任的人。尽量不要独处，并远离可能造成伤害的物品。我可以继续陪您聊：您现在安全吗？";
+    return "Please do not carry this alone. If you might hurt yourself now, call your local emergency number or tell a trusted person nearby immediately. Try not to stay alone and move away from anything you could use to hurt yourself. I can stay with you here: are you safe right now?";
+  }
+  if (!/(?:moralim bozuk|kötü hissediyorum|bunaldım|yalnızım|kaygılıyım|stresliyim|üzgünüm|feeling (?:down|sad|anxious|overwhelmed|lonely)|stressed|mir geht es schlecht|traurig|überfordert|einsam|焦虑|难过|压力很大|孤独)/iu.test(goal)) return null;
+  if (locale === "tr") return "Bunu yaşamanız zor olmalı. Hemen çözüm dayatmayacağım. İsterseniz önce neyin ağır geldiğini bir cümleyle anlatın; birlikte ayırıp daha taşınabilir hâle getirebiliriz. Şu an için küçük bir adım: omuzlarınızı gevşetin, yavaşça nefes verin ve bugün kontrol edebildiğiniz tek şeyi seçin. Dinlenmemi mi, seçenekleri birlikte düşünmemizi mi istersiniz?";
+  if (locale === "de") return "Das klingt belastend. Ich werde Ihnen nicht sofort eine Lösung aufzwingen. Wenn Sie möchten, beschreiben Sie in einem Satz, was gerade am schwersten wiegt; wir können es gemeinsam sortieren. Ein kleiner Schritt für jetzt: Schultern lockern, langsam ausatmen und eine Sache wählen, die Sie heute beeinflussen können. Soll ich erst zuhören oder mit Ihnen Optionen ordnen?";
+  if (locale === "zh") return "听起来这段时间很难熬。我不会马上强行给出解决方案。如果愿意，可以用一句话告诉我此刻最沉重的部分，我们一起把它拆开。现在先做一个很小的动作：放松肩膀、慢慢呼气，再选出今天唯一能掌控的一件事。您希望我先听您说，还是一起整理可行选择？";
+  return "That sounds difficult, and I will not rush to impose a solution. If you want, tell me in one sentence what feels heaviest; we can separate it into something more manageable. One small step for now: loosen your shoulders, breathe out slowly, and choose one thing you can influence today. Would you rather be heard first, or think through options together?";
+}
+
+function extractRequestedText(goal: string) {
+  const fenced = goal.match(/```(?:\w+)?\s*([\s\S]*?)```/u)?.[1]?.trim();
+  if (fenced) return fenced;
+  const quoted = goal.match(/[“"]([^”"]{4,1200})[”"]/u)?.[1]?.trim();
+  if (quoted) return quoted;
+  const afterColon = goal.match(/[:：]\s*([\s\S]{4,1200})$/u)?.[1]?.trim();
+  return afterColon || null;
+}
+
+function createFastRewriteResponse(locale: Locale, goal: string) {
+  if (!/(?:yeniden yaz|düzelt|iyileştir|ikna edici|samimi yap|resmîleştir|kısalt|rewrite|improve|make (?:it|this)|more persuasive|warmer|shorten|umschreib|verbesser|überzeugender|kürz|改写|润色|更有说服力|简短)/iu.test(goal)) return null;
+  const source = extractRequestedText(goal);
+  if (!source) return null;
+  const persuasive = /(?:ikna edici|persuasive|überzeug|有说服力)/iu.test(goal);
+  const warm = /(?:samimi|sıcak|warmer|friendly|freundlich|warm|亲切|友好)/iu.test(goal);
+  const concise = /(?:kısalt|öz|short|concise|kürz|knapp|简短|精简)/iu.test(goal);
+  const cleaned = source.replace(/\s+/gu, " ").trim().replace(/[.!?。！？]+$/u, "");
+  if (locale === "tr") {
+    if (persuasive) return `Daha ikna edici sürüm:\n\n“${cleaned}; böylece daha az bekler, işinizi daha hızlı tamamlarsınız. Bugün deneyin ve farkı ilk kullanımda görün.”\n\nNeyi güçlendirdim: yalnızca “hızlı” iddiasını tekrarlamak yerine kullanıcı yararı ve net bir eylem çağrısı ekledim. Kanıtlanamayacak bir sayı kullanmadım.`;
+    if (warm) return `Daha samimi sürüm:\n\n“${cleaned}. Size gerçekten yardımcı olmasını istiyoruz; deneyiminizi paylaşırsanız birlikte daha da iyileştirebiliriz.”`;
+    return `${concise ? "Kısa ve net sürüm" : "Düzenlenmiş sürüm"}:\n\n“${cleaned}.”\n\nAnlamı korudum; tekrarları ve dolgu ifadelerini çıkardım.`;
+  }
+  if (locale === "de") return `${persuasive ? "Überzeugendere Fassung" : concise ? "Kurze, klare Fassung" : "Überarbeitete Fassung"}:\n\n„${cleaned}${persuasive ? "; damit sparen Sie Wartezeit und kommen schneller zum Ergebnis. Probieren Sie es heute aus." : "."}“\n\nDie Aussage bleibt überprüfbar; unbelegte Zahlen habe ich vermieden.`;
+  if (locale === "zh") return `${persuasive ? "更有说服力的版本" : concise ? "精简版本" : "润色版本"}：\n\n“${cleaned}${persuasive ? "；这样可以减少等待，更快完成任务。现在就试一试。" : "。"}”\n\n我保留了原意，并避免加入无法证明的数字。`;
+  return `${persuasive ? "More persuasive version" : concise ? "Short, clear version" : "Rewritten version"}:\n\n“${cleaned}${persuasive ? "; so you spend less time waiting and reach the result sooner. Try it today." : "."}”\n\nI preserved the meaning and avoided adding unsupported numbers.`;
+}
+
+function createFastSocialCopyResponse(locale: Locale, goal: string) {
+  if (!/(?:instagram|linkedin|sosyal medya|social (?:post|caption)|gönderi açıklaması|caption|beitrag|社交媒体|小红书|朋友圈)/iu.test(goal) || !/(?:yaz|hazırla|oluştur|draft|write|create|schreib|erstell|写|生成)/iu.test(goal)) return null;
+  const coffee = /(?:kahve|coffee|café|cafe|kaffee|咖啡)/iu.test(goal);
+  if (locale === "tr") return coffee
+    ? "Mahallenin yeni kahve molası hazır. ☕\n\nÖzenle seçtiğimiz çekirdekler, sıcak bir ortam ve günün temposuna kısa bir ara… İlk fincanınızı birlikte içmek için kapımız açık.\n\n📍 [Konum]\n🕒 [Çalışma saatleri]\n\nBugün uğrayın; ilk favorinizi beraber bulalım.\n\n#YeniKahveDurağı #MahalleKahvesi #KahveMolası"
+    : `Paylaşmaya hazır taslak:\n\n${fastTopic(goal, locale)} için yeni bir başlangıç yaptık. Amacımız, günlük işi daha anlaşılır ve daha kolay hâle getirmek. Deneyin, en çok hangi bölümün işinize yaradığını yorumlarda anlatın.\n\n#Yeni #Pratik #Birlikte`;
+  if (locale === "de") return coffee ? "Die neue Kaffeepause im Viertel ist bereit. ☕\n\nSorgfältig ausgewählte Bohnen, eine warme Atmosphäre und ein kurzer Moment zum Durchatmen. Unsere Tür steht für Ihre erste Tasse offen.\n\n📍 [Ort]\n🕒 [Öffnungszeiten]\n\nKommen Sie heute vorbei – wir finden gemeinsam Ihren Favoriten.\n\n#NeuesCafé #Kaffeepause #Nachbarschaft" : `Fertiger Entwurf:\n\nWir starten mit ${fastTopic(goal, locale)}. Unser Ziel: den Alltag verständlicher und einfacher machen. Probieren Sie es aus und schreiben Sie, was Ihnen am meisten geholfen hat.`;
+  if (locale === "zh") return coffee ? "街区里的新咖啡时光已经准备好了。☕\n\n认真挑选的咖啡豆、温暖自在的空间，还有忙碌生活中的片刻停留。欢迎来和我们一起喝第一杯。\n\n📍［地址］\n🕒［营业时间］\n\n今天就来，找到属于您的那杯咖啡。\n\n#新咖啡店 #咖啡时光 #街区生活" : `可直接发布的文案：\n\n我们为“${fastTopic(goal, locale)}”开启了新的尝试，希望让日常任务更清楚、更容易。欢迎体验，并在评论中告诉我们最有帮助的部分。`;
+  return coffee ? "Your new neighbourhood coffee break is ready. ☕\n\nThoughtfully selected beans, a warm space, and a welcome pause in the day. Our door is open for your first cup.\n\n📍 [Location]\n🕒 [Opening hours]\n\nDrop in today and let’s find your favourite.\n\n#NewCafe #CoffeeBreak #Neighbourhood" : `Ready-to-post draft:\n\nWe are starting something new around ${fastTopic(goal, locale)}. The goal is simple: make everyday work clearer and easier. Try it, then tell us which part helped most.`;
+}
+
+function createFastPracticalPlanResponse(locale: Locale, goal: string) {
+  const planIntent = /(?:günlük|günlük plan|haftalık|\d+ günlük|yemek planı|program hazırla|plan hazırla|daily plan|weekly plan|\d+[- ]day|meal plan|schedule|tagesplan|wochenplan|speiseplan|\d+ tage|每日计划|每周计划|天计划|餐食计划)/iu.test(goal);
+  if (!planIntent) return null;
+  const meal = /(?:yemek|öğün|meal|food|speise|essen|餐|饭)/iu.test(goal);
+  const days = Math.min(7, Math.max(1, Number(goal.match(/\b([1-7])\s*(?:gün|day|tage?|天)/iu)?.[1] ?? (meal ? 3 : 1))));
+  if (meal) {
+    const menus = locale === "tr" ? ["Kahvaltı: yulaf + yoğurt + mevsim meyvesi · Akşam: mercimek çorbası + bulgur + salata", "Kahvaltı: yumurta + tam tahıllı ekmek · Akşam: sebzeli makarna + cacık", "Kahvaltı: peynirli tost + domates · Akşam: nohut yemeği + pirinç/bulgur + yoğurt", "Kahvaltı: yoğurtlu meyve kasesi · Akşam: fırın sebze + yumurta", "Kahvaltı: menemen · Akşam: kuru fasulye + bulgur", "Kahvaltı: yulaf lapası · Akşam: tavuklu/sebzeli sote", "Kahvaltı: peynir + meyve · Akşam: kalanlarla sebze çorbası"] : locale === "de" ? ["Frühstück: Haferflocken, Joghurt, Saisonobst · Abend: Linsensuppe, Bulgur, Salat", "Frühstück: Ei und Vollkornbrot · Abend: Gemüsenudeln und Joghurt", "Frühstück: Käsetoast und Tomate · Abend: Kichererbsen, Reis/Bulgur, Joghurt"] : locale === "zh" ? ["早餐：燕麦、酸奶、时令水果 · 晚餐：扁豆汤、粗麦饭、沙拉", "早餐：鸡蛋、全麦面包 · 晚餐：蔬菜意面、酸奶", "早餐：奶酪吐司、番茄 · 晚餐：鹰嘴豆、米饭/粗麦、酸奶"] : ["Breakfast: oats, yoghurt, seasonal fruit · Dinner: lentil soup, bulgur, salad", "Breakfast: eggs and wholegrain toast · Dinner: vegetable pasta and yoghurt", "Breakfast: cheese toast and tomato · Dinner: chickpeas, rice/bulgur, yoghurt"];
+    const label = locale === "tr" ? `${days} günlük düşük bütçeli yemek planı` : locale === "de" ? `Preiswerter Speiseplan für ${days} Tage` : locale === "zh" ? `${days} 天低预算餐食计划` : `${days}-day low-budget meal plan`;
+    const shopping = locale === "tr" ? "Ortak alışveriş: yulaf, yumurta, yoğurt, mercimek/nohut, bulgur, makarna, mevsim sebzesi ve meyvesi. Bakliyatı toplu pişirip iki öğünde kullanın; porsiyonu kişi sayısına göre ayarlayın." : locale === "de" ? "Gemeinsamer Einkauf: Hafer, Eier, Joghurt, Linsen/Kichererbsen, Bulgur, Nudeln sowie Saisonobst und -gemüse. Hülsenfrüchte vorkochen und für zwei Mahlzeiten nutzen." : locale === "zh" ? "统一采购：燕麦、鸡蛋、酸奶、扁豆/鹰嘴豆、粗麦、意面和时令果蔬。豆类一次煮好，分两餐使用；请按人数调整份量。" : "Shared shopping list: oats, eggs, yoghurt, lentils/chickpeas, bulgur, pasta, and seasonal produce. Batch-cook legumes for two meals and adjust portions for your household.";
+    return `${label}\n\n${Array.from({ length: days }, (_, index) => `${index + 1}. ${menus[index % menus.length]}`).join("\n")}\n\n${shopping}`;
+  }
+  if (locale === "tr") return `${days} günlük uygulanabilir plan\n\n1. Başlangıç (10 dk): sonucu ve bitti sayılma ölçütünü yazın.\n2. Odak bloğu (25 dk): en küçük tamamlanabilir parçayı yapın.\n3. Kontrol (10 dk): çıktıyı gerçek bir örnekle sınayın.\n4. Kapanış (5 dk): sonucu kaydedin ve yarının tek ilk adımını yazın.\n\nProgramı hangi konu için istediğinizi yazarsanız saat ve görevleri doğrudan doldururum.`;
+  if (locale === "de") return `${days}-Tage-Plan\n\n1. Start (10 Min.): Ergebnis und Abnahmekriterium notieren.\n2. Fokus (25 Min.): den kleinsten abschließbaren Teil erledigen.\n3. Prüfung (10 Min.): Ergebnis an einem echten Beispiel testen.\n4. Abschluss (5 Min.): Resultat sichern und den ersten Schritt für morgen notieren.`;
+  if (locale === "zh") return `${days} 天可执行计划\n\n1. 开始（10 分钟）：写下目标与完成标准。\n2. 专注（25 分钟）：完成最小可交付部分。\n3. 检查（10 分钟）：用真实示例验证结果。\n4. 收尾（5 分钟）：保存结果，并写下明天的第一个动作。`;
+  return `${days}-day practical plan\n\n1. Start (10 min): write the outcome and definition of done.\n2. Focus (25 min): complete the smallest finishable part.\n3. Check (10 min): test the output on a real example.\n4. Close (5 min): save the result and write tomorrow’s first action.`;
+}
+
+function createFastDebugExplanationResponse(locale: Locale, goal: string) {
+  const typeError = /(?:typeerror|cannot read propert(?:y|ies) of undefined|undefined.*(?:property|özellik)|ist keine eigenschaft|无法读取.*undefined)/iu.test(goal);
+  if (!typeError) return null;
+  if (locale === "tr") return "Bu hata, kodun bir değeri nesne sanıp alanına erişmeye çalıştığını; fakat o anda değerin `undefined` olduğunu söyler.\n\nÖrnek: `user.profile.name` ifadesinde `user.profile` gelmediyse `.name` okunamaz.\n\nDüzeltme sırası:\n1. Hata satırından hemen önce değeri ve verinin nereden geldiğini kontrol edin.\n2. Veri zorunluysa kaynağı düzeltin ve eksik durumda açık hata verin.\n3. Veri isteğe bağlıysa `user.profile?.name ?? \"Bilinmiyor\"` gibi güvenli erişim kullanın.\n4. Yüklenen veride, istek tamamlanmadan ekranın alanı okumadığını test edin.\n\nHata satırını ve 10–15 satırlık çevresini paylaşırsanız doğrudan düzeltmeyi gösterebilirim.";
+  if (locale === "de") return "Der Fehler bedeutet: Der Code greift auf eine Eigenschaft zu, aber der Wert davor ist in diesem Moment `undefined`. Beispiel: Bei `user.profile.name` kann `.name` nicht gelesen werden, wenn `user.profile` fehlt. Prüfen Sie den Wert direkt vor der Fehlerzeile, beheben Sie die Datenquelle bei Pflichtdaten oder nutzen Sie bei optionalen Daten `user.profile?.name ?? \"Unbekannt\"`. Teilen Sie die Fehlerzeile plus 10–15 Zeilen Kontext für eine konkrete Korrektur.";
+  if (locale === "zh") return "该错误表示：代码把某个值当作对象读取属性，但当时这个值是 `undefined`。例如在 `user.profile.name` 中，如果 `user.profile` 不存在，就无法读取 `.name`。先检查报错行之前的值；必填数据应修正来源并明确报错，可选数据可使用 `user.profile?.name ?? \"未知\"`。提供报错行及上下 10–15 行代码后，我可以给出具体修改。";
+  return "This error means the code tried to read a property from a value that was `undefined` at that moment. For example, `user.profile.name` fails when `user.profile` is missing. Check the value immediately before the failing line; fix the data source and fail clearly when it is required, or use safe access such as `user.profile?.name ?? \"Unknown\"` when it is optional. Share the error line plus 10–15 surrounding lines for a concrete fix.";
+}
+
 function createFastComparisonResponse(locale: Locale, goal: string) {
   const match = goal.match(/^(.{2,80}?)\s+(?:(?:mi|mı|mu|mü)\s+yoksa|vs\.?|versus|oder|还是)\s+([^?!.。！？\n]{2,80})/iu)
     ?? goal.match(/^(.{2,60}?)\s+(?:mi|mı|mu|mü)\s+([^?!.。！？\n]{2,60}?)\s+(?:mi|mı|mu|mü)(?:\b|[?!.。！？])/iu);
@@ -672,6 +751,12 @@ function createFastComparisonResponse(locale: Locale, goal: string) {
     if (locale === "zh") return "小团队的简短结论：团队已经熟悉 React，就优先 React；如果所有人都从零开始，Vue 因初始决策更少、官方工具更集中，通常更快上手。\n\n• React：生态和招聘池更大，但路由、状态管理和项目结构需要做更多选择。\n• Vue：单文件组件、官方路由/状态工具和较平缓的学习曲线；某些专门的企业场景中生态可能更窄。\n• 两天试验：用两者实现同一个小页面，比较搭建时间、可读性、包体积和团队错误数。\n\n告诉我团队经验和应用类型后，我可以给出明确建议。";
     return "Short answer for a small team: choose React when the team already knows it; if everyone is starting fresh, Vue is often quicker to learn because it presents fewer early architectural choices and a more integrated official toolset.\n\n• React: a broader ecosystem and hiring pool, but more choices around routing, state, and project structure.\n• Vue: single-file components, official routing/state tools, and a gentler entry path; the ecosystem can be narrower for some specialised enterprise needs.\n• Two-day trial: build the same small screen in both and measure setup time, readability, bundle size, and team errors.\n\nShare the team’s experience and application type and I can make a firm recommendation.";
   }
+  if (/(?:freelance|serbest|freiberuf|自由职业)/iu.test(pair) && /(?:tam zaman|full[- ]?time|festanstellung|全职)/iu.test(pair)) {
+    if (locale === "tr") return "Kısa karar: Gelir düzeni, yan haklar ve düşük satış yükü önceliğinizse tam zamanlı iş; çalışma özgürlüğü, müşteri seçimi ve gelir tavanı önceliğinizse freelance daha uygundur.\n\n• Tam zamanlı: düzenli maaş, izin/yan haklar ve ekip desteği; karşılığında daha az zaman esnekliği ve tek işverene bağımlılık.\n• Freelance: saat ve proje seçme özgürlüğü, birden çok gelir kaynağı; karşılığında müşteri bulma, tahsilat, vergi ve boş dönem riski.\n• Güvenli geçiş: aylık zorunlu giderlerinizi hesaplayın, 4–6 aylık tampon oluşturmadan işi bırakmayın ve önce iki ücretli küçük proje ile talebi sınayın.\n\nAylık giderinizi, risk toleransınızı ve alanınızı yazarsanız size net bir eşik hesabı çıkarabilirim.";
+    if (locale === "de") return "Kurzentscheidung: Eine Festanstellung passt besser bei Priorität auf regelmäßiges Einkommen, Leistungen und geringe Akquise; Freelancing bei Priorität auf Zeitautonomie, Kundenauswahl und Einkommensspielraum. Festanstellung bringt Planbarkeit, aber Arbeitgeberabhängigkeit. Freelancing bringt Freiheit, aber Akquise-, Zahlungs-, Steuer- und Leerlaufrisiko. Sicherer Übergang: Pflichtausgaben berechnen, 4–6 Monatsreserven aufbauen und Nachfrage zuerst mit zwei bezahlten Kleinprojekten testen.";
+    if (locale === "zh") return "简短结论：如果更看重稳定收入、福利和较少获客压力，优先全职；如果更看重时间自由、客户选择和收入上限，可考虑自由职业。全职更稳定，但依赖单一雇主；自由职业更灵活，但要承担获客、回款、税务和空档期风险。稳妥做法是先算出每月必要支出，准备 4–6 个月缓冲金，并用两个付费小项目验证需求。";
+    return "Short answer: choose full-time work when stable income, benefits, and low sales overhead matter most; choose freelance work when schedule control, client choice, and income upside matter more. Full-time work is predictable but creates single-employer dependence. Freelancing is flexible but adds sales, payment, tax, and quiet-period risk. A safer transition is to calculate essential monthly costs, build a 4–6 month buffer, and validate demand with two paid small projects first.";
+  }
   if (locale === "tr") return `${left} ve ${right} arasında tek başına “daha iyi” yok; doğru seçim hedefe bağlıdır.\n\n• ${left}: önce kurulum süresi, öğrenme eğrisi ve mevcut düzeninizle uyumu kontrol edin.\n• ${right}: aynı işi yaparken maliyet, bakım yükü ve geri dönüş kolaylığını karşılaştırın.\n• Karar kuralı: En önemli üç ölçüte 1–5 puan verin; geri döndürmesi daha kolay olan seçeneği küçük bir denemede sınayın.\n\nHedefinizi ve iki önceliğinizi yazarsanız bu matrisi sizin koşullarınıza göre doldurabilirim.`;
   if (locale === "de") return `Zwischen ${left} und ${right} gibt es ohne Ziel kein pauschales „besser“.\n\n• ${left}: Einrichtungszeit, Lernkurve und Anschluss an den bestehenden Ablauf prüfen.\n• ${right}: Kosten, Wartungsaufwand und Rückkehrmöglichkeit unter derselben Aufgabe vergleichen.\n• Entscheidungsregel: Die drei wichtigsten Kriterien mit 1–5 bewerten und die leichter rücknehmbare Wahl klein testen.\n\nMit Ihrem Ziel und zwei Prioritäten kann ich die Matrix konkret ausfüllen.`;
   if (locale === "zh") return `${left} 与 ${right} 并不存在脱离目标的绝对优劣。\n\n• ${left}：检查部署时间、学习成本以及与现有流程的兼容性。\n• ${right}：在同一任务下比较成本、维护负担和回退难度。\n• 决策规则：给最重要的三个标准各打 1–5 分，先小规模测试更容易撤回的选项。\n\n告诉我目标和两个优先级后，我可以替您填好这份比较表。`;
@@ -682,6 +767,13 @@ function createFastCreationResponse(locale: Locale, goal: string) {
   const topic = fastTopic(goal, locale);
   const wantsEmail = /(?:e-?posta|mail|email|nachricht|邮件)/iu.test(goal) && /(?:yaz|hazırla|draft|write|schreib|entwurf|写|撰写)/iu.test(goal);
   if (wantsEmail) {
+    const apology = /(?:özür|gecik|apology|apolog|delay|entschuldig|verspät|道歉|延迟)/iu.test(goal);
+    if (apology) {
+      if (locale === "tr") return "Konu: Gecikme için özür ve yeni teslim tarihi\n\nMerhaba [Ad],\n\nTeslimattaki gecikme için özür dilerim. Planlanan tarihi karşılayamadım ve bunu daha erken haber vermem gerekirdi. Çalışmayı [yeni tarih ve saat] tarihinde tamamlayacağım. Aynı sorunun tekrarlanmaması için [aldığınız somut önlem] adımını ekledim.\n\nBu değişiklik sizin planınızı etkiliyorsa lütfen yazın; önceliği birlikte yeniden düzenleyelim.\n\nAnlayışınız için teşekkür ederim.\n[Adınız]";
+      if (locale === "de") return "Betreff: Entschuldigung für die Verzögerung und neuer Liefertermin\n\nHallo [Name],\n\nbitte entschuldigen Sie die verspätete Lieferung. Ich habe den geplanten Termin nicht eingehalten und hätte Sie früher informieren müssen. Ich werde die Arbeit bis [neues Datum und Uhrzeit] abschließen. Um eine Wiederholung zu vermeiden, habe ich [konkrete Maßnahme] ergänzt.\n\nFalls dies Ihre Planung beeinträchtigt, lassen Sie es mich bitte wissen; dann ordnen wir die Priorität gemeinsam neu.\n\nVielen Dank für Ihr Verständnis.\n[Ihr Name]";
+      if (locale === "zh") return "主题：关于延期的致歉与新的交付时间\n\n您好，[姓名]：\n\n很抱歉本次交付出现延迟。我未能按原计划完成，也应该更早通知您。我会在［新的日期和时间］前完成工作。为避免再次发生，我已经增加了［具体改进措施］。\n\n如果延期影响了您的安排，请告诉我，我们可以一起重新调整优先级。\n\n感谢理解。\n［您的姓名］";
+      return "Subject: Apology for the delay and revised delivery time\n\nHello [Name],\n\nI’m sorry for the delayed delivery. I missed the planned date and should have told you sooner. I will complete the work by [new date and time]. To prevent a repeat, I have added [specific corrective action].\n\nIf this change affects your plans, please let me know and we can reset the priority together.\n\nThank you for your understanding,\n[Your name]";
+    }
     if (locale === "tr") return `Konu: ${topic}\n\nMerhaba [Ad],\n\n${topic} konusunda size ulaşmak istedim. Beklediğim sonuç: [istenen sonucu tek cümlede yazın]. Uygunsa [tarih/zaman] öncesinde kısa bir yanıt paylaşabilir misiniz?\n\nTeşekkür ederim,\n[Adınız]\n\nBu taslak kısa ve doğrudan tutuldu. Alıcıyı, hedefi ve tonu yazarsanız resmî, samimi veya ikna edici biçimde yeniden düzenleyebilirim.`;
     if (locale === "de") return `Betreff: ${topic}\n\nHallo [Name],\n\nich melde mich wegen ${topic}. Das gewünschte Ergebnis ist: [Ergebnis in einem Satz]. Könnten Sie mir bitte bis [Datum/Uhrzeit] kurz antworten?\n\nVielen Dank\n[Ihr Name]\n\nMit Empfänger, Ziel und gewünschtem Ton kann ich den Entwurf formell, freundlich oder überzeugend zuschneiden.`;
     if (locale === "zh") return `主题：${topic}\n\n您好，[姓名]：\n\n我想就“${topic}”与您联系。希望达成的结果是：[用一句话写明结果]。方便的话，请在[日期/时间]前简短回复。\n\n谢谢！\n[您的姓名]\n\n告诉我收件人、目标和语气后，我可以把草稿改成正式、友好或更有说服力的版本。`;
@@ -722,10 +814,10 @@ function createFastCodeReviewResponse(locale: Locale, goal: string) {
 
 function createFastActionableFallback(locale: Locale, goal: string) {
   const topic = fastTopic(goal, locale);
-  if (locale === "tr") return `${topic} konusunda hemen ilerleyebiliriz. Elinizdeki ifadeden çıkarabildiğim en güvenli başlangıç şu:\n\n1. İstenen sonucu tek cümlede tanımlayın.\n2. Kullanılacak gerçek girdiyi veya küçük bir örneği ekleyin.\n3. Sonucun nasıl doğrulanacağını belirtin.\n\nGüncel veya uzmanlık gerektiren bir gerçeği doğrulamadan uydurmam. Metni, veriyi ya da seçenekleri paylaşırsanız doğrudan analiz eder, taslak üretir veya uygun ByteQuant aracını hazırlayabilirim.`;
-  if (locale === "de") return `Zu ${topic} können wir sofort konkret werden. Der sicherste Start aus Ihrer Nachricht ist:\n\n1. Gewünschtes Ergebnis in einem Satz festlegen.\n2. Reale Eingabe oder ein kleines Beispiel ergänzen.\n3. Beschreiben, wie das Ergebnis geprüft wird.\n\nAktuelle oder fachkritische Tatsachen erfinde ich nicht ohne Verifikation. Mit Text, Daten oder Optionen kann ich direkt analysieren, entwerfen oder das passende ByteQuant-Werkzeug vorbereiten.`;
-  if (locale === "zh") return `关于“${topic}”，我们可以立即具体推进。根据当前信息，最稳妥的起点是：\n\n1. 用一句话定义所需结果。\n2. 提供真实输入或一个小示例。\n3. 说明如何验证结果。\n\n对于实时或专业事实，我不会在未核实的情况下编造。提供文本、数据或选项后，我可以直接分析、起草，或准备合适的 ByteQuant 工具。`;
-  return `We can make ${topic} concrete now. The safest useful start from your message is:\n\n1. Define the desired result in one sentence.\n2. Add the real input or a small example.\n3. State how the result will be verified.\n\nI will not invent current or specialist facts without verification. Share the text, data, or options and I can analyse them directly, produce a draft, or prepare the matching ByteQuant tool.`;
+  if (locale === "tr") return `Sizi şöyle anladım: ${topic} konusunda kullanılabilir bir sonuç istiyorsunuz. Şu anki mesajla yapabileceğim en yararlı başlangıç, hedefi küçük ve doğrulanabilir bir çıktıya çevirmek.\n\nÖnerim: önce tek bir örnek üzerinde “girdi → beklenen sonuç” çiftini yazın; ben aradaki işlemi, kontrol adımını ve gerekiyorsa doğru ByteQuant aracını hazırlayayım.\n\nTek netleştirme sorum: Sonunda elinizde bir açıklama mı, hazır metin mi, karar mı, yoksa işlenmiş bir dosya mı olmasını istiyorsunuz?`;
+  if (locale === "de") return `Ich verstehe Ihre Anfrage so: Sie möchten zu ${topic} ein direkt nutzbares Ergebnis. Der sinnvollste Start ist, das Ziel in eine kleine prüfbare Ausgabe zu übersetzen.\n\nMein Vorschlag: Nennen Sie an einem Beispiel „Eingabe → erwartetes Ergebnis“; ich ergänze Verarbeitung, Prüfung und bei Bedarf das passende ByteQuant-Werkzeug.\n\nEine klare Rückfrage: Soll am Ende eine Erklärung, ein fertiger Text, eine Entscheidung oder eine verarbeitete Datei vorliegen?`;
+  if (locale === "zh") return `我的理解是：您希望围绕“${topic}”得到一个可以直接使用的结果。当前最有价值的起点，是把目标变成一个小而可验证的输出。\n\n建议先给出一组“输入 → 预期结果”，我会补齐处理步骤、检查方法，并在需要时准备合适的 ByteQuant 工具。\n\n只确认一点：您最终需要的是解释、可直接使用的文字、明确决定，还是处理后的文件？`;
+  return `I understand the request as: you want a usable result for ${topic}. The most useful start is to turn that goal into one small, verifiable output.\n\nMy suggestion: share one “input → expected result” example; I will fill in the processing, the review step, and the matching ByteQuant tool when one is useful.\n\nOne focused question: should the final result be an explanation, ready-to-use copy, a decision, or a processed file?`;
 }
 
 export function createFastConversationResponse(locale: Locale, goal: string, history: LocalAIConversationTurn[] = []) {
@@ -783,9 +875,19 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   if (unitConversion) return unitConversion;
   const localClock = createLocalClockResponse(locale, goal);
   if (localClock) return localClock;
+  const supportive = createFastSupportiveResponse(locale, goal);
+  if (supportive) return supportive;
   if (/(odak|focus|concentrat|fokus|konzentr|专注|集中)/i.test(text)) return copy.focus;
   const codeReview = createFastCodeReviewResponse(locale, goal);
   if (codeReview) return codeReview;
+  const debugExplanation = createFastDebugExplanationResponse(locale, goal);
+  if (debugExplanation) return debugExplanation;
+  const rewrite = createFastRewriteResponse(locale, goal);
+  if (rewrite) return rewrite;
+  const socialCopy = createFastSocialCopyResponse(locale, goal);
+  if (socialCopy) return socialCopy;
+  const practicalPlan = createFastPracticalPlanResponse(locale, goal);
+  if (practicalPlan) return practicalPlan;
   const comparison = createFastComparisonResponse(locale, goal);
   if (comparison) return comparison;
   const creation = createFastCreationResponse(locale, goal);

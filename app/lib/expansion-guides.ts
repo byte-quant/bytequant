@@ -242,12 +242,23 @@ const specs: Spec[] = [
   },
 ];
 
-function sections(locale: Locale, points: [Point, Point, Point]): ArticleSection[] {
+function contextSentence(locale: Locale, spec: Spec, focus: string) {
+  const tools = spec.relatedTools.join(", ");
+  return ({
+    tr: `Bu kontrol “${spec.title.tr}” rehberindeki ${focus} adımına ve şu araçların ürettiği gözlenebilir kanıta uygulanır: ${tools}.`,
+    en: `Apply this check to the ${focus} stage in “${spec.title.en}” and to observable evidence produced by: ${tools}.`,
+    de: `Diese Prüfung gilt für den Schritt „${focus}“ in „${spec.title.de}“ und für beobachtbare Nachweise aus: ${tools}.`,
+    zh: `此项检查用于《${spec.title.zh}》中的“${focus}”步骤，并核对以下工具生成的可观察证据：${tools}。`,
+  } as const)[locale];
+}
+
+function sections(locale: Locale, spec: Spec): ArticleSection[] {
   const depth = depthCopy[locale];
+  const points = spec.points;
   return [
-    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], method[locale][index], depth.evidence(point.heading[locale], points[(index + 1) % points.length].heading[locale], index)], bullets: [bullets[locale][index]] })),
-    { heading: depth.walkthrough, paragraphs: [depth.walkthroughBody, `${points[0].heading[locale]} → ${points[1].heading[locale]} → ${points[2].heading[locale]}`], bullets: depth.walkthroughBullets },
-    { heading: depth.quality, paragraphs: [depth.qualityBody], bullets: depth.qualityBullets },
+    ...points.map((point, index) => ({ heading: point.heading[locale], paragraphs: [point.body[locale], `${method[locale][index]} ${contextSentence(locale, spec, point.heading[locale])}`, depth.evidence(point.heading[locale], points[(index + 1) % points.length].heading[locale], index)], bullets: [bullets[locale][index]] })),
+    { heading: depth.walkthrough, paragraphs: [`${depth.walkthroughBody} ${contextSentence(locale, spec, depth.walkthrough)}`, `${points[0].heading[locale]} → ${points[1].heading[locale]} → ${points[2].heading[locale]}`], bullets: depth.walkthroughBullets },
+    { heading: depth.quality, paragraphs: [`${depth.qualityBody} ${contextSentence(locale, spec, depth.quality)}`], bullets: depth.qualityBullets },
   ];
 }
 
@@ -257,13 +268,13 @@ export const expansionPosts: Post[] = specs.map((spec) => ({
   title: { tr: spec.title.tr, en: spec.title.en }, excerpt: { tr: spec.excerpt.tr, en: spec.excerpt.en },
   description: { tr: `${spec.excerpt.tr} Yöntem, sınır, örnek iş akışı ve doğrulama adımlarıyla ayrıntılı ByteQuant rehberi.`, en: `${spec.excerpt.en} A detailed ByteQuant guide with method, boundaries, workflow, and verification steps.` },
   category: { tr: spec.category.tr, en: spec.category.en }, visualSuggestion: { tr: "Girdi, yerel işlem, doğrulama ve teslim sınırlarını gösteren sade iş akışı.", en: "A clear workflow showing input, local processing, verification, and delivery boundaries." },
-  sections: { tr: sections("tr", spec.points), en: sections("en", spec.points) },
+  sections: { tr: sections("tr", spec), en: sections("en", spec) },
 }));
 
 export const expansionLocalizedGuides: LocalizedGuide[] = specs.map((spec) => ({
   slug: spec.slug, relatedTools: spec.relatedTools, date: "2026-07-25", updated: "2026-07-26",
   copy: {
-    de: { title: spec.title.de, excerpt: spec.excerpt.de, description: `${spec.excerpt.de} Ausführlicher ByteQuant-Leitfaden mit Methode, Grenzen, Ablauf und Prüfung.`, category: spec.category.de, readTime: "15 Min.", sections: sections("de", spec.points) },
-    zh: { title: spec.title.zh, excerpt: spec.excerpt.zh, description: `${spec.excerpt.zh}包含方法、边界、工作流与核验步骤的详细 ByteQuant 指南。`, category: spec.category.zh, readTime: "约 15 分钟", sections: sections("zh", spec.points) },
+    de: { title: spec.title.de, excerpt: spec.excerpt.de, description: `${spec.excerpt.de} Ausführlicher ByteQuant-Leitfaden mit Methode, Grenzen, Ablauf und Prüfung.`, category: spec.category.de, readTime: "15 Min.", sections: sections("de", spec) },
+    zh: { title: spec.title.zh, excerpt: spec.excerpt.zh, description: `${spec.excerpt.zh}包含方法、边界、工作流与核验步骤的详细 ByteQuant 指南。`, category: spec.category.zh, readTime: "约 15 分钟", sections: sections("zh", spec) },
   },
 }));

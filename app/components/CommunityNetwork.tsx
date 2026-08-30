@@ -314,6 +314,12 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const actions = postActionCopy[locale];
   const networkText = { ...networkCopy[locale], ...socialExperienceCopy[locale], ...communityPolishCopy[locale] };
   const frame = socialFrameCopy[locale];
+  const offlinePreview = {
+    tr: { topics: "Örnek akışta öne çıkanlar", author: "ByteQuant Rehberleri", authorNote: "Bağlantı öncesi editoryal örnekler", badge: "Örnek", body: "Global Nostr profilleri yalnızca açık onayınızla relay bağlantısı kurulduktan sonra burada görünür." },
+    en: { topics: "Featured in the example feed", author: "ByteQuant Guides", authorNote: "Editorial examples before connecting", badge: "Example", body: "Global Nostr profiles appear here only after you explicitly approve a relay connection." },
+    de: { topics: "Im Beispiel-Feed hervorgehoben", author: "ByteQuant-Leitfäden", authorNote: "Redaktionelle Beispiele vor der Verbindung", badge: "Beispiel", body: "Globale Nostr-Profile erscheinen hier erst nach Ihrer ausdrücklichen Zustimmung zur Relay-Verbindung." },
+    zh: { topics: "示例动态中的热门主题", author: "ByteQuant 指南", authorNote: "连接前的编辑示例", badge: "示例", body: "只有在您明确同意连接中继后，这里才会显示全球 Nostr 资料。" },
+  }[locale];
   const [network, setNetwork] = useState<NetworkState>("idle");
   const [connectedRelays, setConnectedRelays] = useState(0);
   const [relayHealth, setRelayHealth] = useState<Record<string, boolean>>({});
@@ -583,6 +589,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const filtersActive = Boolean(query || groupFilter || savedOnly || mineOnly || followingOnly);
   const showingStarterFeed = events.length === 0 && !filtersActive;
   const visiblePosts = showingStarterFeed ? starters[locale].map((content) => ({ event: { id: content.id, pubkey: "bytequant", created_at: 0, kind: 1, tags: [], content: JSON.stringify(content), sig: "" } as NostrEvent, content })) : socialPosts;
+  const starterGroups = [...new Set(starters[locale].map((item) => item.group).filter(Boolean))].slice(0, 4);
   const displayedPosts = visiblePosts.slice(0, feedLimit);
   const stateLabel = network === "connected" ? t.connected : network === "partial" ? t.partial : network === "connecting" ? t.connecting : network === "error" ? t.error : t.connect;
   const starterExplanation = network === "connected" || network === "partial" ? networkText.examplesEmpty : networkText.examplesOffline;
@@ -597,7 +604,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     setActiveSort(false); setMineOnly(false); setSavedOnly(false); setFollowingOnly(false); setGroupFilter(""); setQuery("");
   }
 
-  return <section className="community-network community-x-app" aria-labelledby="global-community-title">
+  return <section className="community-network community-x-app community-social-v6" aria-labelledby="global-community-title">
     <header className="community-network-head">
       <div>
         <span className="eyebrow"><i />{t.eyebrow}</span>
@@ -636,11 +643,11 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
           </details>
         </section>
         <nav className="community-social-nav" aria-label={t.feed}>
-          <button type="button" aria-pressed={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter} className={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter ? "active" : ""} onClick={clearFeedFilters}>⌂ {networkText.newest}</button>
-          <button type="button" aria-pressed={activeSort && !mineOnly && !savedOnly && !followingOnly} className={activeSort && !mineOnly && !savedOnly && !followingOnly ? "active" : ""} onClick={() => { setActiveSort(true); setMineOnly(false); setFollowingOnly(false); setQuery(""); setGroupFilter(""); setSavedOnly(false); }}>◉ {networkText.active}</button>
-          <button type="button" aria-pressed={followingOnly} className={followingOnly ? "active" : ""} onClick={() => { setFollowingOnly(true); setActiveSort(false); setMineOnly(false); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}>＋ {networkText.following}</button>
-          <button type="button" aria-pressed={mineOnly} className={mineOnly ? "active" : ""} disabled={!identity} title={!identity ? networkText.profileFirst : undefined} onClick={() => { setMineOnly(true); setFollowingOnly(false); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}>◎ {networkText.myPosts}</button>
-          <button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setFollowingOnly(false); setMineOnly(false); setGroupFilter(""); setQuery(""); }}>☆ {networkText.savedLabel}</button>
+          <button type="button" aria-pressed={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter} className={!activeSort && !mineOnly && !savedOnly && !followingOnly && !groupFilter ? "active" : ""} onClick={clearFeedFilters}><span aria-hidden="true">⌂</span><b>{networkText.newest}</b></button>
+          <button type="button" aria-pressed={activeSort && !mineOnly && !savedOnly && !followingOnly} className={activeSort && !mineOnly && !savedOnly && !followingOnly ? "active" : ""} onClick={() => { setActiveSort(true); setMineOnly(false); setFollowingOnly(false); setQuery(""); setGroupFilter(""); setSavedOnly(false); }}><span aria-hidden="true">◉</span><b>{networkText.active}</b></button>
+          <button type="button" aria-pressed={followingOnly} className={followingOnly ? "active" : ""} onClick={() => { setFollowingOnly(true); setActiveSort(false); setMineOnly(false); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}><span aria-hidden="true">＋</span><b>{networkText.following}</b></button>
+          <button type="button" aria-pressed={mineOnly} className={mineOnly ? "active" : ""} disabled={!identity} title={!identity ? networkText.profileFirst : undefined} onClick={() => { setMineOnly(true); setFollowingOnly(false); setSavedOnly(false); setGroupFilter(""); setQuery(""); }}><span aria-hidden="true">◎</span><b>{networkText.myPosts}</b></button>
+          <button type="button" aria-pressed={savedOnly} className={savedOnly ? "active" : ""} onClick={() => { setSavedOnly(true); setFollowingOnly(false); setMineOnly(false); setGroupFilter(""); setQuery(""); }}><span aria-hidden="true">☆</span><b>{networkText.savedLabel}</b></button>
         </nav>
       </aside>
 
@@ -684,8 +691,8 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       </section>
 
       <aside className="community-social-right">
-        <section id="community-topics"><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => { setGroupFilter(group); setMineOnly(false); setSavedOnly(false); }} key={group}><span>#{group}</span><small>{count}</small></button>) : <p>{networkText.connectFirst}</p>}</section>
-        <section id="community-people"><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => { setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8)); setMineOnly(false); setSavedOnly(false); }} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <p>{networkText.connectFirst}</p>}</section>
+        <section id="community-topics"><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => { setGroupFilter(group); setMineOnly(false); setSavedOnly(false); }} key={group}><span>#{group}</span><small>{count}</small></button>) : <div className="community-side-preview"><small>{offlinePreview.topics}</small>{starterGroups.map((group) => <span key={group}>#{group}</span>)}</div>}</section>
+        <section id="community-people"><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => { setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8)); setMineOnly(false); setSavedOnly(false); }} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <div className="community-side-author"><span className="community-avatar">BQ</span><div><strong>{offlinePreview.author}</strong><small>{offlinePreview.authorNote}</small></div><b>{offlinePreview.badge}</b><p>{offlinePreview.body}</p></div>}</section>
         <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); try { localStorage.removeItem(blockedKey); } catch { /* the in-memory list is still cleared */ } }}>{t.clearBlocked}</button>}</section>
         <details className="community-relay-settings"><summary>{t.relaySettings}<span aria-hidden="true">+</span></summary><p>{t.relayHelp}</p><textarea aria-label={t.relaySettings} value={relayDraft} rows={4} maxLength={2_500} onChange={(event) => setRelayDraft(event.target.value)} /><button type="button" onClick={() => { const next = validRelays(relayDraft); if (!next.length) { setStatus(t.error); return; } disconnect(); setRelays(next); setRelayDraft(next.join("\n")); try { localStorage.setItem(relayKey, JSON.stringify(next)); } catch { /* current-session relay choice still works */ } }}>{t.saveRelays}</button></details>
       </aside>

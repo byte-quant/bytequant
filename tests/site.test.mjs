@@ -43,7 +43,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /ByteQuant AI 7\.3/);
+    assert.match(page, /ByteQuant AI 7\.4/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -835,7 +835,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /ByteQuant AI 7\.3/);
+    assert.match(page, /ByteQuant AI 7\.4/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
