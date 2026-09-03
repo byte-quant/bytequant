@@ -24,6 +24,7 @@ import {
   LOCAL_AI_MODEL_LIB_REVISION,
   LOCAL_AI_MODEL_LIB_URL,
   LOCAL_AI_MODEL_LICENSE,
+  LOCAL_AI_MODEL_REVIEWED_AT,
   LOCAL_AI_PROFILES,
   LOCAL_AI_RUNTIME_PACKAGE_VERSION,
   LOCAL_AI_RUNTIME_MODEL_VERSION,
@@ -40,6 +41,7 @@ import { createAgentPlan } from "../app/lib/agent-core.ts";
 test("local AI runtime uses a pinned permissive multilingual model", () => {
   assert.equal(LOCAL_AI_MODEL_ID, "Qwen3-0.6B-q4f16_1-MLC");
   assert.equal(LOCAL_AI_MODEL_LICENSE, "Apache-2.0");
+  assert.equal(LOCAL_AI_MODEL_REVIEWED_AT, "2026-09-02");
   assert.match(LOCAL_AI_MODEL_LIB_REVISION, /^[a-f0-9]{40}$/);
   assert.match(LOCAL_AI_MODEL_LIB_URL, new RegExp(`/binary-mlc-llm-libs/${LOCAL_AI_MODEL_LIB_REVISION}/`));
   assert.doesNotMatch(LOCAL_AI_MODEL_LIB_URL, /\/main\//);
@@ -154,6 +156,9 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("en", "What is 18% of 250?"), /45/);
   assert.match(createFastConversationResponse("tr", "10 kg kaç lb"), /22[,.]046/);
   assert.match(createFastConversationResponse("de", "20 C in F"), /68/);
+  assert.match(createFastConversationResponse("tr", "2 litre kaç ml"), /2[.\s]?000 ml|2000 ml/);
+  assert.match(createFastConversationResponse("en", "2 hours to minutes"), /120 min/);
+  assert.match(createFastConversationResponse("tr", "10, 20 ve 30 sayılarının ortalaması kaç?"), /20/);
   assert.match(createFastConversationResponse("tr", "JWT nedir?"), /imza|Base64URL/);
   assert.match(createFastConversationResponse("en", "Explain Base64"), /encoding, not encryption/i);
   assert.match(createFastConversationResponse("tr", "Bunu 2 maddede özetle:\nBirinci cümle önemli bir hedefi açıklar. İkinci cümle uygulanabilir kontrolü tanımlar. Üçüncü cümle sınırı görünür yapar."), /• .*\n• /s);
@@ -177,6 +182,17 @@ test("fast fallback handles common conversation without inventing a tool", () =>
   assert.match(createFastConversationResponse("tr", "Freelance mi yoksa tam zamanlı iş mi, riskleriyle karşılaştır"), /4–6 aylık|tahsilat|düzenli maaş/i);
   assert.match(createFastConversationResponse("en", "Review this code for security:\n```js\neval(userInput)\n```"), /Dynamic code execution|static review/i);
   assert.doesNotMatch(createFastConversationResponse("tr", "Kedim için sakin bir akşam rutini"), /^Buradayım/u);
+  assert.match(createFastConversationResponse("tr", "Fotosentez nedir?"), /ışık enerjisini|glikoz/);
+  assert.match(createFastConversationResponse("tr", "Fotosentezi günlük dille ve bir örnekle açıkla."), /ışık enerjisini|glikoz/);
+  assert.match(createFastConversationResponse("en", "Explain gravity simply"), /continuous free fall|mass/i);
+  assert.match(createFastConversationResponse("de", "Was ist Inflation?"), /Kaufkraft|Preisniveau/i);
+  assert.match(createFastConversationResponse("zh", "什么是算法？"), /输入|边界/);
+  assert.match(createFastConversationResponse("tr", "6000 TL aylık bütçe yap"), /zorunlu gider|3.300|3300/);
+  assert.match(createFastConversationResponse("en", "Create a travel packing list"), /ID|charger|trip length/i);
+  assert.match(createFastConversationResponse("tr", "30 dakikalık toplantı gündemi hazırla"), /Amaç ve beklenen karar|sorumlu/);
+  assert.match(createFastConversationResponse("tr", "Uyuyamıyorum, uyku rutini öner"), /ışığı|sağlık uzmanına/);
+  assert.match(createFastConversationResponse("en", "I want to start exercising as a beginner"), /sustainable beginner week|walking/i);
+  assert.match(createFastConversationResponse("tr", "Ateşim var, ilaç dozu söyle"), /teşhis|acil yardım|sağlık uzmanı/);
   assert.equal(createFastFollowUpSuggestions("tr", "JWT nedir?", "JWT imzalı bir iddia paketidir.").length, 3);
   assert.deepEqual(createFastFollowUpSuggestions("tr", "Bir teşekkür e-postası yaz", "Taslak hazır."), ["Bunu daha samimi yap", "Kısalt ve netleştir", "Alıcıya göre kişiselleştir"]);
   assert.deepEqual(createFastFollowUpSuggestions("tr", "React mi Vue mu?", "Karşılaştırma hazır."), ["Bana net bir seçim öner", "Karar tablosu oluştur", "Riskleri karşılaştır"]);
@@ -187,6 +203,9 @@ test("image-to-PDF language routes to the dedicated local converter", () => {
   assert.equal(tr.matchQuality, "strong");
   assert.equal(tr.steps[0]?.toolSlug, "gorselden-pdf");
   assert.equal(tr.steps[0]?.requiresFile, true);
+  const naturalTr = createAgentPlan("Fotoğraflarımı tek PDF dosyasında birleştirmek istiyorum.", publicTools, "tr");
+  assert.equal(naturalTr.steps[0]?.toolSlug, "gorselden-pdf");
+  assert.doesNotMatch(naturalTr.response, /PDF Birleştirme/u);
   const en = createAgentPlan("Convert these photos into one PDF", publicTools, "en");
   assert.equal(en.steps[0]?.toolSlug, "gorselden-pdf");
   const reverse = createAgentPlan("PDF sayfalarını JPG görsellere dönüştür", publicTools, "tr");

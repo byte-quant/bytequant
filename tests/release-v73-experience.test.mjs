@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const source = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("AI 7.4 presents conversation before optional model controls without removing capabilities", async () => {
+test("AI 7.5 presents conversation before optional model controls without removing capabilities", async () => {
   const [conversation, styles] = await Promise.all([
     source("app/components/AgentConversation.tsx"),
     source("app/globals.css"),
@@ -12,10 +12,10 @@ test("AI 7.4 presents conversation before optional model controls without removi
   assert.match(conversation, /agent-conversation-welcome/);
   assert.match(conversation, /agent-model-drawer/);
   assert.match(conversation, /agent-local-ai-panel/);
-  assert.match(conversation, /327 aracı çalıştır/);
+  assert.match(conversation, /Dosya, görsel ve 327 araç/);
   assert.match(conversation, /AgentVisualStudioLoader/);
   assert.match(conversation, /WORKSPACE_AGENT_PLAN_KEY/);
-  assert.match(styles, /ByteQuant AI 7\.4: conversation first/);
+  assert.match(styles, /ByteQuant AI 7\.5 — compact, conversation-first layout/);
   assert.match(styles, /\.agent-model-drawer/);
   assert.match(styles, /\.agent-composer\{position:sticky/);
 });

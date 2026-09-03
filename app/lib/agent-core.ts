@@ -382,15 +382,16 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
   const imageMention = has(/gorsel|resim|foto|png|jpe?g|webp|image|picture|photo|bild|图片|照片/u);
   const pdfMention = has(/\bpdf\b/u);
   const conversion = has(/donustur|cevir|pdf yap|convert|turn into|umwandel|konvertier|转(?:为|成)|转换/u);
-  if (imageMention && pdfMention && conversion) {
-    const pdfIsSource = has(/pdf(?:den| den|ten| ten)|pdf[\s\S]{0,28}(?:sayfa|page|seite|页面)|from (?:a )?pdf|aus (?:einer )?pdf|从 pdf/u);
+  const combine = has(/birlestir|bir araya getir|tek (?:bir )?pdf|merge|combine|one pdf|zusammenfuhr|eine pdf|合并|一个 pdf/u);
+  const pdfIsSource = has(/pdf(?:den| den|ten| ten)|pdf[\s\S]{0,28}(?:sayfa|page|seite|页面)|from (?:a )?pdf|aus (?:einer )?pdf|从 pdf/u);
+  if (imageMention && pdfMention && (conversion || combine)) {
     if (!pdfIsSource) add("gorselden-pdf", intentLabel("Görselleri tek bir PDF dosyasına dönüştür", "Convert images into one PDF file", "Bilder in eine PDF-Datei umwandeln", "将图像转换为一个 PDF 文件"));
     else add("pdf-gorsele", intentLabel("PDF sayfalarını görsellere dönüştür", "Convert PDF pages into images", "PDF-Seiten in Bilder umwandeln", "将 PDF 页面转换为图像"));
   }
   if (imageMention && has(/boyutlandir|kucult|buyut|resize|scale|skalier|verkleiner|vergrosser|vergrößer|调整大小|缩小|放大/u)) add("gorsel-boyutlandirici", intentLabel("Görsel boyutunu değiştir", "Resize the image", "Bildgröße ändern", "调整图像大小"));
   if (imageMention && has(/sikistir|dosya boyut|compress|reduce size|komprimier|dateigrosse|dateigröße|压缩|减小体积/u)) add("gorsel-sikistirici", intentLabel("Görsel dosya boyutunu küçült", "Compress the image", "Bilddatei komprimieren", "压缩图像文件"));
   if (imageMention && has(/kirp|crop|zuschneid|裁剪/u)) add("gorsel-boyutlandirici", intentLabel("Görseli kırp ve yeniden boyutlandır", "Crop and resize the image", "Bild zuschneiden und skalieren", "裁剪并调整图像大小"));
-  if (pdfMention && has(/birlestir|merge|combine|zusammenfuhr|合并/u)) add("pdf-birlestirme", intentLabel("PDF dosyalarını birleştir", "Merge PDF files", "PDF-Dateien zusammenführen", "合并 PDF 文件"));
+  if (pdfMention && combine && (!imageMention || pdfIsSource)) add("pdf-birlestirme", intentLabel("PDF dosyalarını birleştir", "Merge PDF files", "PDF-Dateien zusammenführen", "合并 PDF 文件"));
   if (pdfMention && has(/sayfa ayir|bol|split|extract pages|seiten trenn|teilen|拆分|提取页面/u)) add("pdf-bolme", intentLabel("PDF sayfalarını ayır", "Split PDF pages", "PDF-Seiten trennen", "拆分 PDF 页面"));
 
   if (has(/\bjwt\b|json web token/u) && has(/decode|coz|incele|oku|inspect|解析|解码/u)) {

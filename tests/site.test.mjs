@@ -43,7 +43,7 @@ test("exports the complete four-language site", async () => {
     assert.match(page, /GitHub/);
     assert.match(page, /open-source|açık kaynak|Open Source|开源/i);
     assert.match(page, /og:locale:alternate/);
-    assert.match(page, /ByteQuant AI 7\.4/);
+    assert.match(page, /ByteQuant AI 7\.5/);
   }
   assert.match(home, /<title>ByteQuant ·/);
   assert.match(home, /og\.png/);
@@ -835,7 +835,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotThrow(() => jsonLd(page));
     assert.match(page, /WebApplication/);
     assert.match(page, /FAQPage/);
-    assert.match(page, /ByteQuant AI 7\.4/);
+    assert.match(page, /ByteQuant AI 7\.5/);
     assert.match(page, /hrefLang="tr-TR"/);
     assert.match(page, /hrefLang="en-US"/);
     assert.match(page, /hrefLang="de-DE"/);
@@ -844,7 +844,7 @@ test("exports the four-language local agent, domain integrity, and security head
     assert.doesNotMatch(page, /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com/);
     assert.doesNotMatch(page, /211 (?:araçlık|tools|Werkzeuge|个工具)/);
   }
-  assert.match(turkish, /uzak AI API'si kullanılmaz|uzak çıkarım yok/i);
+  assert.match(turkish, /uzak bir AI API(?:'|&#x27;)sine gönderilmez|uzak AI API'si kullanılmaz|uzak çıkarım yok/i);
   assert.match(english, /no remote AI API|no remote inference/i);
   assert.match(headers, /Content-Security-Policy:/);
   assert.match(headers, /frame-ancestors 'none'/);
