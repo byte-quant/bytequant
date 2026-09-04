@@ -4223,7 +4223,7 @@ main{isolation:isolate}
   .experience-v3 .agent-chat-v74>.agent-composer>div:last-child>span{width:100%}
 }
 
-/* ByteQuant AI 7.5 — compact, conversation-first layout with mobile-safe controls. */
+/* ByteQuant AI 7.6 — compact, conversation-first layout with mobile-safe controls. */
 .experience-v3 .agent-product-intro-v75{padding-block:18px 14px}
 .experience-v3 .agent-product-intro-v75 .agent-product-intro-grid{grid-template-columns:minmax(0,1.45fr) minmax(250px,.55fr);gap:20px}
 .experience-v3 .agent-product-intro-v75 h1{max-width:25ch;font-size:clamp(28px,2.8vw,38px);line-height:1.08;text-wrap:balance}
