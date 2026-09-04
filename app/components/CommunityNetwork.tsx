@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Event as NostrEvent, SimplePool as SimplePoolType } from "nostr-tools";
 import { reviewCommunityText } from "../lib/community-safety";
-import type { Locale } from "../lib/site";
+import { pathFor, type Locale } from "../lib/site";
 
 type SocialKind = "workflow" | "tip" | "question" | "idea";
 type SourceQuote = { title: string; url: string; source: string };
@@ -15,6 +15,7 @@ type NetworkState = "idle" | "connecting" | "connected" | "partial" | "error";
 const identityKey = "bytequant:nostr-identity:v1";
 const relayKey = "bytequant:nostr-relays:v1";
 const blockedKey = "bytequant:nostr-blocked:v1";
+const reportedKey = "bytequant:nostr-reported:v1";
 const followingKey = "bytequant:nostr-following:v1";
 const newsQuoteKey = "bytequant:community-news-quote:v1";
 const defaultRelays = ["wss://relay.damus.io", "wss://nos.lol"];
@@ -22,6 +23,13 @@ const MAX_EVENT_BYTES = 6_000;
 const MAX_CLOCK_SKEW_SECONDS = 5 * 60;
 const AUTO_LOCK_MS = 15 * 60 * 1000;
 const localeTags: Record<Locale, string> = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
+
+const reportingCopy = {
+  tr: { report: "Bildir ve gizle", confirm: "Bu gönderi olası spam veya uygunsuz içerik olarak bu cihazda gizlensin mi? ByteQuant relay işletmediği için bildirim relay'e gönderilmez.", hidden: "Gönderi bildirildi ve bu cihazdaki akıştan kaldırıldı.", reported: "bildirilen gönderi", clear: "Bildirimleri temizle", safety: "Güvenli görünüm açık", safetyBody: "İmzalı olsa bile içerik uyarısı taşıyan, sır veya kişisel veri içeren, spam ve kısıtlı içerikler akışa alınmaz.", rules: "Topluluk ve yayın ilkeleri" },
+  en: { report: "Report and hide", confirm: "Hide this post on this device as possible spam or restricted content? ByteQuant does not operate a relay, so no report is sent to the relay.", hidden: "The post was reported and removed from this device's feed.", reported: "reported posts", clear: "Clear reports", safety: "Safer view on", safetyBody: "Posts with a content warning, exposed secrets or personal data, spam, and restricted content are excluded even when cryptographically signed.", rules: "Community and publishing standards" },
+  de: { report: "Melden und ausblenden", confirm: "Diesen Beitrag als möglichen Spam oder unzulässigen Inhalt auf diesem Gerät ausblenden? ByteQuant betreibt kein Relay; die Meldung wird daher nicht an das Relay gesendet.", hidden: "Der Beitrag wurde gemeldet und aus dem Feed dieses Geräts entfernt.", reported: "gemeldete Beiträge", clear: "Meldungen löschen", safety: "Sichere Ansicht aktiv", safetyBody: "Beiträge mit Inhaltswarnung, offengelegten Geheimnissen oder Personendaten, Spam und unzulässigen Inhalten werden trotz gültiger Signatur ausgeschlossen.", rules: "Community- und Publikationsstandards" },
+  zh: { report: "举报并隐藏", confirm: "是否将此帖作为可能的垃圾或受限内容在本设备隐藏？ByteQuant 不运营中继，因此不会向中继发送举报。", hidden: "帖子已举报，并从本设备动态中移除。", reported: "条已举报帖子", clear: "清除举报", safety: "安全视图已开启", safetyBody: "即使签名有效，带有内容警告、泄露机密或个人数据、垃圾及受限内容的帖子也不会进入动态。", rules: "社区与发布规范" },
+} as const;
 
 const copy = {
   tr: {
@@ -256,6 +264,11 @@ function safeSource(value: unknown): SourceQuote | undefined {
 function bytesToBase64(value: Uint8Array) { let binary = ""; value.forEach((byte) => { binary += String.fromCharCode(byte); }); return btoa(binary); }
 function base64ToBytes(value: string) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 function tagValue(event: NostrEvent, name: string) { return event.tags.find((tag) => tag[0] === name)?.[1] ?? ""; }
+function hasRestrictedNostrTags(event: NostrEvent) {
+  const warning = event.tags.some((tag) => tag[0] === "content-warning" && Boolean(tag[1]?.trim()));
+  const restrictedLabels = new Set(["adult", "nsfw", "sexual", "violence", "gore", "drugs", "gambling", "hate"]);
+  return warning || event.tags.some((tag) => (tag[0] === "t" || tag[0] === "l") && restrictedLabels.has((tag[1] ?? "").toLocaleLowerCase()));
+}
 function plausibleEvent(event: NostrEvent, now = Math.floor(Date.now() / 1000), allowHistorical = false) {
   return /^[0-9a-f]{64}$/i.test(event.id) && /^[0-9a-f]{64}$/i.test(event.pubkey) && /^[0-9a-f]{128}$/i.test(event.sig)
     && event.created_at <= now + MAX_CLOCK_SKEW_SECONDS && (allowHistorical || event.created_at >= now - 60 * 60 * 24 * 46)
@@ -314,6 +327,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const actions = postActionCopy[locale];
   const networkText = { ...networkCopy[locale], ...socialExperienceCopy[locale], ...communityPolishCopy[locale] };
   const frame = socialFrameCopy[locale];
+  const reporting = reportingCopy[locale];
   const offlinePreview = {
     tr: { topics: "Örnek akışta öne çıkanlar", author: "ByteQuant Rehberleri", authorNote: "Bağlantı öncesi editoryal örnekler", badge: "Örnek", body: "Global Nostr profilleri yalnızca açık onayınızla relay bağlantısı kurulduktan sonra burada görünür." },
     en: { topics: "Featured in the example feed", author: "ByteQuant Guides", authorNote: "Editorial examples before connecting", badge: "Example", body: "Global Nostr profiles appear here only after you explicitly approve a relay connection." },
@@ -340,6 +354,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
   const [blocked, setBlocked] = useState<string[]>([]);
+  const [reported, setReported] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [savedOnly, setSavedOnly] = useState(false);
   const [mineOnly, setMineOnly] = useState(false);
@@ -366,6 +381,9 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
 
       const hidden = readStoredJson("localStorage", blockedKey);
       if (Array.isArray(hidden)) setBlocked(hidden.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-100));
+
+      const reports = readStoredJson("localStorage", reportedKey);
+      if (Array.isArray(reports)) setReported(reports.filter((item): item is string => typeof item === "string" && /^[0-9a-f]{64}$/i.test(item)).slice(-200));
 
       const kept = readStoredJson("localStorage", "bytequant:nostr-saved:v1");
       if (Array.isArray(kept)) setSaved(kept.filter((item): item is string => typeof item === "string" && (/^[0-9a-f]{64}$/i.test(item) || /^starter-[1-9]\d?$/.test(item))).slice(-200));
@@ -424,7 +442,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       if (generation !== connectionGenerationRef.current) { pool.destroy(); return; }
       const verified = initial.filter((event) => plausibleEvent(event) && verifyEvent(event));
       const deleted = new Set(verified.filter((event) => event.kind === 5).flatMap((event) => event.tags.filter((tag) => tag[0] === "e").map((tag) => `${event.pubkey}:${tag[1]}`)));
-      const accepted = verified.filter((event) => event.kind === 1 && parsePost(event) && !deleted.has(`${event.pubkey}:${event.id}`) && !blocked.includes(event.pubkey));
+      const accepted = verified.filter((event) => event.kind === 1 && parsePost(event) && !hasRestrictedNostrTags(event) && !deleted.has(`${event.pubkey}:${event.id}`) && !blocked.includes(event.pubkey) && !reported.includes(event.id));
       setEvents(accepted.sort((a, b) => b.created_at - a.created_at));
       setInteractions(verified.filter((event) => (event.kind === 6 || event.kind === 7 || (event.kind === 1 && !parsePost(event))) && Boolean(tagValue(event, "e"))));
       subscriptionRef.current?.close("refresh");
@@ -433,7 +451,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
         if (event.kind === 5) { const ids = new Set(event.tags.filter((tag) => tag[0] === "e").map((tag) => tag[1])); setEvents((current) => current.filter((item) => item.pubkey !== event.pubkey || !ids.has(item.id))); return; }
         const content = event.kind === 1 ? parsePost(event) : null;
         if (!content && Boolean(tagValue(event, "e"))) { setInteractions((current) => [event, ...current.filter((item) => item.id !== event.id)].slice(0, 400)); return; }
-        if (!content || blocked.includes(event.pubkey)) return;
+        if (!content || hasRestrictedNostrTags(event) || blocked.includes(event.pubkey) || reported.includes(event.id)) return;
         setEvents((current) => [event, ...current.filter((item) => item.id !== event.id)].sort((a, b) => b.created_at - a.created_at).slice(0, 120));
       }, maxWait: 6500 });
       const authors = [...new Set(accepted.map((event) => event.pubkey))].slice(0, 80);
@@ -560,14 +578,15 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
   }
 
   const interactionCounts = useMemo(() => interactions.reduce<Record<string, number>>((counts, event) => { const target = tagValue(event, "e"); if (target) counts[target] = (counts[target] ?? 0) + 1; return counts; }, {}), [interactions]);
-  const socialPosts = useMemo(() => events.flatMap((event) => { const content = parsePost(event); return content ? [{ event, content }] : []; }).filter(({ event, content }) => !blocked.includes(event.pubkey) && (!savedOnly || saved.includes(event.id)) && (!mineOnly || event.pubkey === identity?.pubkey) && (!followingOnly || following.includes(event.pubkey)) && (!groupFilter || content.group === groupFilter) && `${content.title} ${content.body} ${content.group} ${profiles[event.pubkey]?.name ?? ""}`.toLocaleLowerCase(localeTags[locale]).includes(query.trim().toLocaleLowerCase(localeTags[locale]))).sort((a, b) => {
+  const socialPosts = useMemo(() => events.flatMap((event) => { const content = parsePost(event); return content ? [{ event, content }] : []; }).filter(({ event, content }) => !blocked.includes(event.pubkey) && !reported.includes(event.id) && !hasRestrictedNostrTags(event) && (!savedOnly || saved.includes(event.id)) && (!mineOnly || event.pubkey === identity?.pubkey) && (!followingOnly || following.includes(event.pubkey)) && (!groupFilter || content.group === groupFilter) && `${content.title} ${content.body} ${content.group} ${profiles[event.pubkey]?.name ?? ""}`.toLocaleLowerCase(localeTags[locale]).includes(query.trim().toLocaleLowerCase(localeTags[locale]))).sort((a, b) => {
     if (!activeSort) return b.event.created_at - a.event.created_at;
     return (interactionCounts[b.event.id] ?? 0) - (interactionCounts[a.event.id] ?? 0) || b.event.created_at - a.event.created_at;
-  }), [activeSort, blocked, events, following, followingOnly, groupFilter, identity?.pubkey, interactionCounts, locale, mineOnly, profiles, query, saved, savedOnly]);
+  }), [activeSort, blocked, events, following, followingOnly, groupFilter, identity?.pubkey, interactionCounts, locale, mineOnly, profiles, query, reported, saved, savedOnly]);
   const groupCounts = useMemo(() => Object.entries(events.reduce<Record<string, number>>((result, event) => { const group = parsePost(event)?.group; if (group) result[group] = (result[group] ?? 0) + 1; return result; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 8), [events]);
   const authorCounts = useMemo(() => Object.entries(events.reduce<Record<string, number>>((result, event) => { result[event.pubkey] = (result[event.pubkey] ?? 0) + 1; return result; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 6), [events]);
 
   function setHidden(pubkey: string) { if (!window.confirm(networkText.hideConfirm)) return; const next = [...new Set([...blocked, pubkey])].slice(-100); setBlocked(next); try { localStorage.setItem(blockedKey, JSON.stringify(next)); } catch { /* optional local moderation preference */ } }
+  function reportPost(event: NostrEvent) { if (!window.confirm(reporting.confirm)) return; const next = [...new Set([...reported, event.id])].slice(-200); setReported(next); setEvents((current) => current.filter((item) => item.id !== event.id)); setSaved((current) => current.filter((id) => id !== event.id)); setStatus(reporting.hidden); try { localStorage.setItem(reportedKey, JSON.stringify(next)); } catch { /* current-session reporting still works */ } }
   function toggleSaved(id: string) { const next = saved.includes(id) ? saved.filter((item) => item !== id) : [...saved, id].slice(-200); setSaved(next); try { localStorage.setItem("bytequant:nostr-saved:v1", JSON.stringify(next)); } catch { /* optional saved-post preference */ } }
   function toggleFollowing(pubkey: string) { const next = following.includes(pubkey) ? following.filter((item) => item !== pubkey) : [...following, pubkey].slice(-200); setFollowing(next); try { localStorage.setItem(followingKey, JSON.stringify(next)); } catch { /* optional device-only preference */ } }
   async function share(event: NostrEvent) { const { nip19 } = await import("nostr-tools"); const value = `nostr:${nip19.neventEncode({ id: event.id, author: event.pubkey, relays })}`; if (navigator.share) { try { await navigator.share({ title: "ByteQuant Community", text: value }); return; } catch (error) { if (error instanceof DOMException && error.name === "AbortError") return; } } try { await navigator.clipboard.writeText(value); setStatus(networkText.copiedLink); } catch { setStatus(t.error); } }
@@ -604,7 +623,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
     setActiveSort(false); setMineOnly(false); setSavedOnly(false); setFollowingOnly(false); setGroupFilter(""); setQuery("");
   }
 
-  return <section className="community-network community-x-app community-social-v6" aria-labelledby="global-community-title">
+  return <section className="community-network community-x-app community-social-v6 community-social-v61" aria-labelledby="global-community-title">
     <header className="community-network-head">
       <div>
         <span className="eyebrow"><i />{t.eyebrow}</span>
@@ -625,6 +644,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       <div className="community-network-disclosure"><span aria-hidden="true">ⓘ</span><p><strong>{networkText.readStep}</strong> {networkText.readStepBody} <strong>{networkText.shareStep}</strong> {networkText.shareStepBody}</p><details><summary>{t.explain}</summary><p>{networkText.consent} {t.explainBody}</p></details></div>
       <details className="community-connection-details"><summary>{networkText.connectionDetails}</summary><p>{t.relayDisclosure}</p><p>{networkText.relayHealth}: {relaySummary}</p></details>
       <div className="community-security-strip" aria-label={t.moderation}>{t.security.map((item, index) => <span key={item}><i>{index === 0 ? "✓" : index === 1 ? "◎" : "⌁"}</i>{item}</span>)}</div>
+      <div className="community-safety-live" role="note"><span aria-hidden="true">◉</span><p><strong>{reporting.safety}</strong>{reporting.safetyBody}</p><a href={pathFor(locale, "standards")}>{reporting.rules} →</a></div>
     </details>
     <nav className="community-mobile-tabs" aria-label={t.feed}><a href="#community-feed"><span>⌂</span>{frame.feed}</a><a href="#community-compose"><span>＋</span>{frame.compose}</a><a href="#community-topics"><span>#</span>{frame.topics}</a><a href="#community-profile"><span>◎</span>{frame.profile}</a></nav>
 
@@ -674,7 +694,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
           const repliesId = `community-replies-${event.id}`;
           const interactionTitle = isExample ? networkText.exampleNoActions : !secret ? networkText.profileFirst : undefined;
           return <article className={`community-global-post${owned ? " owned" : ""}`} data-origin={isExample ? "editorial-example" : "nostr-relay"} key={event.id}>
-            <header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div>{owned ? <div className="community-owner-actions" role="group" aria-label={networkText.ownerActions}><button type="button" onClick={() => editPost(event, content)}>{actions.edit}</button><button type="button" disabled={busy} onClick={() => void deletePost(event)}>{actions.remove}</button></div> : <div className="community-post-author-actions">{!isExample && <button type="button" className="community-follow-button" aria-pressed={following.includes(event.pubkey)} onClick={() => toggleFollowing(event.pubkey)}>{following.includes(event.pubkey) ? networkText.unfollow : networkText.follow}</button>}<button type="button" disabled={isExample} onClick={() => setHidden(event.pubkey)} aria-label={t.block} title={isExample ? networkText.exampleNoActions : t.block}>×</button></div>}</header>
+            <header><span className="community-avatar">{profile.name.slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><div><strong>{profile.name}</strong><small>{event.created_at ? new Date(event.created_at * 1000).toLocaleString(localeTags[locale], { dateStyle: "medium", timeStyle: "short" }) : t.editorial}</small></div>{owned ? <div className="community-owner-actions" role="group" aria-label={networkText.ownerActions}><button type="button" onClick={() => editPost(event, content)}>{actions.edit}</button><button type="button" disabled={busy} onClick={() => void deletePost(event)}>{actions.remove}</button></div> : <div className="community-post-author-actions">{!isExample && <button type="button" className="community-follow-button" aria-pressed={following.includes(event.pubkey)} onClick={() => toggleFollowing(event.pubkey)}>{following.includes(event.pubkey) ? networkText.unfollow : networkText.follow}</button>}{!isExample && <button type="button" className="community-report-button" onClick={() => reportPost(event)} aria-label={reporting.report} title={reporting.report}>!</button>}<button type="button" disabled={isExample} onClick={() => setHidden(event.pubkey)} aria-label={t.block} title={isExample ? networkText.exampleNoActions : t.block}>×</button></div>}</header>
             <div className="community-post-meta">{isExample && <span>{networkText.exampleBadge}</span>}<span>{t.kinds[content.kind]}</span>{content.group && <button type="button" onClick={() => { setGroupFilter(content.group); setMineOnly(false); setSavedOnly(false); }}>#{content.group}</button>}</div>
             <h3>{content.title}</h3><p>{content.body}</p>
             {content.source && <aside className="community-source-quote"><small>{actions.quoted} · {content.source.source}</small><strong>{content.source.title}</strong><a href={content.source.url} target="_blank" rel="nofollow noreferrer noopener">{actions.source} ↗</a></aside>}
@@ -693,7 +713,7 @@ export function CommunityNetwork({ locale }: { locale: Locale }) {
       <aside className="community-social-right">
         <section id="community-topics"><header><span>#</span><strong>{t.activeGroups}</strong></header>{groupCounts.length ? groupCounts.map(([group, count]) => <button type="button" onClick={() => { setGroupFilter(group); setMineOnly(false); setSavedOnly(false); }} key={group}><span>#{group}</span><small>{count}</small></button>) : <div className="community-side-preview"><small>{offlinePreview.topics}</small>{starterGroups.map((group) => <span key={group}>#{group}</span>)}</div>}</section>
         <section id="community-people"><header><span>◎</span><strong>{t.liveProfiles}</strong></header>{authorCounts.length ? authorCounts.map(([pubkey, count]) => <button type="button" onClick={() => { setQuery(profiles[pubkey]?.name ?? pubkey.slice(0, 8)); setMineOnly(false); setSavedOnly(false); }} key={pubkey}><span className="community-avatar">{(profiles[pubkey]?.name ?? pubkey).slice(0, 2).toLocaleUpperCase(localeTags[locale])}</span><span>{profiles[pubkey]?.name ?? `${pubkey.slice(0, 8)}…`}<small>{count}</small></span></button>) : <div className="community-side-author"><span className="community-avatar">BQ</span><div><strong>{offlinePreview.author}</strong><small>{offlinePreview.authorNote}</small></div><b>{offlinePreview.badge}</b><p>{offlinePreview.body}</p></div>}</section>
-        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><small>{blocked.length} · {t.blocked}</small>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); try { localStorage.removeItem(blockedKey); } catch { /* the in-memory list is still cleared */ } }}>{t.clearBlocked}</button>}</section>
+        <section className="community-moderation-card"><header><span>◉</span><strong>{t.moderation}</strong></header><p>{t.moderationBody}</p><div className="community-moderation-counts"><small>{blocked.length} · {t.blocked}</small><small>{reported.length} · {reporting.reported}</small></div>{blocked.length > 0 && <button type="button" onClick={() => { setBlocked([]); try { localStorage.removeItem(blockedKey); } catch { /* the in-memory list is still cleared */ } }}>{t.clearBlocked}</button>}{reported.length > 0 && <button type="button" onClick={() => { setReported([]); try { localStorage.removeItem(reportedKey); } catch { /* the in-memory list is still cleared */ } }}>{reporting.clear}</button>}</section>
         <details className="community-relay-settings"><summary>{t.relaySettings}<span aria-hidden="true">+</span></summary><p>{t.relayHelp}</p><textarea aria-label={t.relaySettings} value={relayDraft} rows={4} maxLength={2_500} onChange={(event) => setRelayDraft(event.target.value)} /><button type="button" onClick={() => { const next = validRelays(relayDraft); if (!next.length) { setStatus(t.error); return; } disconnect(); setRelays(next); setRelayDraft(next.join("\n")); try { localStorage.setItem(relayKey, JSON.stringify(next)); } catch { /* current-session relay choice still works */ } }}>{t.saveRelays}</button></details>
       </aside>
     </div>

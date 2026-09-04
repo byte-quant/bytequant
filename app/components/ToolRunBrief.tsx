@@ -16,6 +16,8 @@ const copy = {
     verify: "4 · Kabul edin veya düzeltin",
     verifyAction: "Kabul ölçütü",
     start: "Çalışma alanına geç",
+    summary: "Girdi ve sonuç rehberi",
+    summaryHint: "Biçim, yöntem ve kabul ölçütünü gerektiğinde açın",
     scenario: "Bu araca özgü örnek yol",
     note: "İpucu: Örnek veri düğmesi varsa önce onu çalıştırın. Sonuç, kabul ölçütünü karşılamıyorsa gerçek süreçte kullanmayın.",
   },
@@ -32,6 +34,8 @@ const copy = {
     verify: "4 · Accept or correct",
     verifyAction: "Acceptance check",
     start: "Go to the workbench",
+    summary: "Input and result guide",
+    summaryHint: "Open the format, method, and acceptance check when needed",
     scenario: "A tool-specific example path",
     note: "Tip: when an example-data button is available, run it first. Do not use the result in a live process unless it passes the acceptance check.",
   },
@@ -48,6 +52,8 @@ const copy = {
     verify: "4 · Abnehmen oder korrigieren",
     verifyAction: "Abnahmekriterium",
     start: "Zum Arbeitsbereich",
+    summary: "Eingabe- und Ergebnisleitfaden",
+    summaryHint: "Format, Methode und Abnahmeprüfung bei Bedarf öffnen",
     scenario: "Werkzeugspezifischer Beispielweg",
     note: "Tipp: Falls Beispieldaten verfügbar sind, führen Sie diese zuerst aus. Ein Ergebnis ohne bestandene Abnahmeprüfung nicht in einem echten Prozess verwenden.",
   },
@@ -64,6 +70,8 @@ const copy = {
     verify: "4 · 验收或修正",
     verifyAction: "验收标准",
     start: "前往工作区",
+    summary: "输入与结果指南",
+    summaryHint: "需要时查看格式、方法与验收标准",
     scenario: "该工具的专属示例路径",
     note: "提示：如果有示例数据按钮，请先运行示例。结果未通过验收标准时，不要用于真实流程。",
   },
@@ -81,16 +89,14 @@ export function ToolRunBrief({ tool, locale, guidance }: { tool: Tool; locale: L
     { number: "04", title: t.verify, label: t.verifyAction, body: `${name} — ${guidance.verification[locale]}. ${steps[2]}` },
   ];
   return (
-    <section className="tool-run-brief" data-tool-run-brief={tool.slug} data-content-depth="tool-specific-run-contract" aria-labelledby={`run-brief-${tool.slug}`}>
-      <header>
-        <div><span className="kicker">{t.eyebrow}</span><h2 id={`run-brief-${tool.slug}`}>{t.title(tool.title[locale])}</h2><p>{t.intro(tool.title[locale], tool.useCases[locale][0])}</p></div>
-        <a className="secondary-button" href={`#run-${tool.slug}`}>{t.start} ↓</a>
-      </header>
-      <ol>
-        {stages.map((stage) => <li key={stage.number}><span aria-hidden="true">{stage.number}</span><div><small>{stage.label}</small><h3>{stage.title}</h3><p>{stage.body}</p></div></li>)}
-      </ol>
-      <div className="tool-run-brief-path"><strong>{t.scenario}</strong><p>{useCases.map((useCase, index) => `${index + 1}. ${useCase}`).join(" → ")}</p></div>
-      <p className="tool-run-brief-note"><span aria-hidden="true">i</span>{t.note}</p>
-    </section>
+    <details className="tool-run-brief tool-run-guide" data-tool-run-brief={tool.slug} data-content-depth="tool-specific-run-contract">
+      <summary><span><span className="kicker">{t.eyebrow}</span><strong>{name}: {t.summary}</strong><small>{t.summaryHint}</small></span><b aria-hidden="true">+</b></summary>
+      <div className="tool-run-guide-body">
+        <header><div><h2 id={`run-brief-${tool.slug}`}>{t.title(name)}</h2><p>{t.intro(name, useCases[0])}</p></div></header>
+        <ol>{stages.map((stage) => <li key={stage.number}><span aria-hidden="true">{stage.number}</span><div><small>{stage.label}</small><h3>{stage.title}</h3><p>{stage.body}</p></div></li>)}</ol>
+        <div className="tool-run-brief-path"><strong>{t.scenario}</strong><p>{useCases.map((useCase, index) => `${index + 1}. ${useCase}`).join(" → ")}</p></div>
+        <p className="tool-run-brief-note"><span aria-hidden="true">i</span>{t.note}</p>
+      </div>
+    </details>
   );
 }

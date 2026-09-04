@@ -86,3 +86,20 @@ test("social feed supports device-local following and bounded progressive render
   assert.match(styles, /\.community-load-more/);
   assert.match(styles, /\.community-post-author-actions/);
 });
+
+test("community safer view rejects warning-tagged events and supports local report-and-hide", async () => {
+  const [source, styles] = await Promise.all([
+    read("app/components/CommunityNetwork.tsx"),
+    read("app/globals.css"),
+  ]);
+
+  assert.match(source, /bytequant:nostr-reported:v1/);
+  assert.match(source, /function hasRestrictedNostrTags/);
+  assert.match(source, /tag\[0\] === "content-warning"/);
+  assert.match(source, /function reportPost\(event: NostrEvent\)/);
+  assert.match(source, /className="community-report-button"/);
+  assert.match(source, /Community and publishing standards/);
+  assert.match(source, /pathFor\(locale, "standards"\)/);
+  assert.match(styles, /\.community-social-v61 \.community-safety-live/);
+  assert.match(styles, /\.community-social-v61 \.community-report-button/);
+});

@@ -8,8 +8,8 @@ import { AGENT_VERSION } from "../app/lib/agent-session.ts";
 
 const source = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("ByteQuant AI 7.5 keeps the complete catalog available to natural-language routing", () => {
-  assert.equal(AGENT_VERSION, "ByteQuant AI 7.5");
+test("ByteQuant AI 7.6 keeps the complete catalog available to natural-language routing", () => {
+  assert.equal(AGENT_VERSION, "ByteQuant AI 7.6");
   assert.equal(publicTools.length, 327);
   const examples = [
     ["Fotoğrafları tek bir PDF dosyası yap", "tr", "gorselden-pdf"],
@@ -45,13 +45,14 @@ test("the tool-specific run brief and runtime families improve every workbench w
     source("app/components/ToolWorkbench.tsx"),
     source("app/globals.css"),
   ]);
-  assert.match(page, /data-input-output-contract="guided-v3"/);
-  assert.match(page, /<ToolRunBrief[\s\S]*<ToolWorkbench/);
+  assert.match(page, /data-input-output-contract="guided-v4"/);
+  assert.match(page, /<ToolWorkbench[\s\S]*<ToolRunBrief/);
   assert.match(brief, /tool-specific-run-contract/);
   assert.match(brief, /guidance\.input\[locale\]/);
   assert.match(brief, /guidance\.output\[locale\]/);
   assert.match(brief, /guidance\.verification\[locale\]/);
   assert.match(brief, /tool\.steps\[locale\]/);
+  assert.match(brief, /<details className="tool-run-brief tool-run-guide"/);
   assert.match(workbench, /data-input-experience=\{experience\}/);
   assert.match(workbench, /tool-runtime-\$\{experience\}/);
   assert.match(css, /\.tool-run-brief/);

@@ -40,10 +40,10 @@ const templates = {
 } as const;
 
 const issueCopy = {
-  tr: { abusive: "Hakaret veya tehdit dili", privateKey: "Özel anahtar", credential: "API anahtarı veya erişim belirteci", email: "E-posta adresi", identity: "Telefon veya kimlik numarası", external: "ByteQuant dışı bağlantı", spam: "Tekrarlı veya bağlantı ağırlıklı spam" },
-  en: { abusive: "Abusive or threatening language", privateKey: "Private key", credential: "API key or access token", email: "Email address", identity: "Phone or identity number", external: "Non-ByteQuant link", spam: "Repeated or link-heavy spam" },
-  de: { abusive: "Beleidigende oder drohende Sprache", privateKey: "Privater Schlüssel", credential: "API-Schlüssel oder Zugriffstoken", email: "E-Mail-Adresse", identity: "Telefon- oder Identitätsnummer", external: "Externer Link außerhalb ByteQuant", spam: "Wiederholter oder linklastiger Spam" },
-  zh: { abusive: "侮辱或威胁性语言", privateKey: "私钥", credential: "API 密钥或访问令牌", email: "电子邮件地址", identity: "电话号码或身份号码", external: "非 ByteQuant 链接", spam: "重复或链接密集型垃圾内容" },
+  tr: { abusive: "Hakaret veya tehdit dili", restricted: "Kısıtlı veya zararlı içerik", privateKey: "Özel anahtar", credential: "API anahtarı veya erişim belirteci", email: "E-posta adresi", identity: "Telefon veya kimlik numarası", external: "ByteQuant dışı bağlantı", spam: "Tekrarlı veya bağlantı ağırlıklı spam" },
+  en: { abusive: "Abusive or threatening language", restricted: "Restricted or harmful content", privateKey: "Private key", credential: "API key or access token", email: "Email address", identity: "Phone or identity number", external: "Non-ByteQuant link", spam: "Repeated or link-heavy spam" },
+  de: { abusive: "Beleidigende oder drohende Sprache", restricted: "Unzulässiger oder schädlicher Inhalt", privateKey: "Privater Schlüssel", credential: "API-Schlüssel oder Zugriffstoken", email: "E-Mail-Adresse", identity: "Telefon- oder Identitätsnummer", external: "Externer Link außerhalb ByteQuant", spam: "Wiederholter oder linklastiger Spam" },
+  zh: { abusive: "侮辱或威胁性语言", restricted: "受限或有害内容", privateKey: "私钥", credential: "API 密钥或访问令牌", email: "电子邮件地址", identity: "电话号码或身份号码", external: "非 ByteQuant 链接", spam: "重复或链接密集型垃圾内容" },
 } as const;
 const audienceCopy = {
   tr: { label: "Kimler görebilir?", public: "Bağlantıyla herkese açık", private: "Yalnızca bu cihazda özel", group: "Özel grup panosu", groupName: "Grup adı", privateNote: "Özel gönderiler paylaşım bağlantısına veya herkese açık pakete eklenmez." },
