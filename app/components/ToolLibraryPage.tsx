@@ -11,6 +11,7 @@ const text = {
     eyebrow: "ARAÇ KÜTÜPHANESİ",
     title: "Yapmak istediğiniz işi bulun, hemen başlayın",
     intro: "Metin, veri, dosya, hesaplama, kod ve gizlilik işleri için ücretsiz araçları tek yerde keşfedin. Arama yapabilir veya aşağıdaki kategorilerden birini seçebilirsiniz.",
+    selection: "Her araç sayfası kabul ettiği girdi biçimini, uyguladığı yöntemi, ürettiği çıktıyı ve doğrulama sınırını açıklar. Önce örnek veriyle deneyin; sonucu gerçek işinize taşımadan önce sayfadaki kabul kontrolünü tamamlayın.",
     search: "Bir araç arayın: JSON, PDF, maskeleme…",
     categories: "İhtiyacınıza göre göz atın",
     count: "araç",
@@ -23,6 +24,7 @@ const text = {
     eyebrow: "TOOL LIBRARY",
     title: "Find the task you need and get started",
     intro: "Explore free tools for text, data, files, calculations, code, and privacy in one place. Search directly or choose a category below.",
+    selection: "Every tool page states its accepted input, processing method, output, and verification boundary. Start with sample data, then complete the page-specific acceptance check before moving a result into live work.",
     search: "Search for a tool: JSON, PDF, masking…",
     categories: "Browse by need",
     count: "tools",
@@ -35,6 +37,7 @@ const text = {
     eyebrow: "WERKZEUGBIBLIOTHEK",
     title: "Finden Sie die passende Aufgabe und legen Sie los",
     intro: "Entdecken Sie kostenlose Werkzeuge für Text, Daten, Dateien, Berechnungen, Code und Datenschutz. Suchen Sie direkt oder wählen Sie eine Kategorie.",
+    selection: "Jede Werkzeugseite nennt Eingabeformat, Verarbeitungsmethode, Ausgabe und Prüfgrenze. Beginnen Sie mit Beispieldaten und schließen Sie die werkzeugspezifische Abnahmekontrolle ab, bevor Sie ein Ergebnis im echten Ablauf verwenden.",
     search: "Werkzeug suchen: JSON, PDF, Maskierung…",
     categories: "Nach Bedarf durchsuchen",
     count: "Werkzeuge",
@@ -47,6 +50,7 @@ const text = {
     eyebrow: "工具库",
     title: "找到所需任务，立即开始",
     intro: "在一个页面中查找文本、数据、文件、计算、代码和隐私工具。您可以直接搜索，也可以按类别浏览。",
+    selection: "每个工具页面都会说明可接受的输入、处理方法、输出与核验边界。请先用示例数据试用，并在把结果用于真实工作前完成该页面的验收检查。",
     search: "搜索工具：JSON、PDF、数据遮蔽…",
     categories: "按需求浏览",
     count: "个工具",
@@ -96,6 +100,7 @@ export function ToolLibraryPage({ locale }: { locale: Locale }) {
             <span className="kicker">{t.eyebrow}</span>
             <h1>{t.title}</h1>
             <p>{t.intro}</p>
+            <p>{t.selection}</p>
             <div className="tool-library-search"><HeroToolSearch locale={locale} tools={searchTools} placeholder={t.search} /></div>
           </div>
           <aside className="tool-library-trust-card">

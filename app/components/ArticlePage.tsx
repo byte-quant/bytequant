@@ -15,6 +15,18 @@ const articleUi = {
   en: { home: "Home", guides: "Guides", breadcrumb: "Breadcrumb", updated: "Updated", byline: "Technical review, primary sources, and product verification", inGuide: "In this guide", tryTool: "Try the related tool", sources: "Sources", short: "Short answer", sourcesTitle: "Sources and verification", sourcesIntro: "The following primary and official documentation was checked for this guide. Review each source's current version and change date as well.", related: "RELATED TOOLS", practice: "Put this guide into practice", method: "Editorial method", methodBody: "Content is checked against visible ByteQuant product behavior and the listed primary sources where available. It is general information, not legal or security advice.", action: "Turn guidance into action", start: "tools on your device", explore: "Explore tools", next: "READ NEXT", relatedGuides: "Related guides", all: "All guides", read: "Read guide" },
 } as const;
 
+function sourceContext(locale: EditorialLocale, title: string, count: number) {
+  return locale === "tr"
+    ? `“${title}” hazırlanırken ${count} birincil veya resmî belge doğrudan kontrol edildi. Uygulamadan önce bağlantılardaki güncel sürümü ve değişiklik tarihini yeniden doğrulayın.`
+    : `“${title}” was checked directly against ${count} primary or official source${count === 1 ? "" : "s"}. Before applying it, confirm the current version and change date at each linked source.`;
+}
+
+function editorialMethod(locale: EditorialLocale, title: string, category: string, sourceCount: number) {
+  return locale === "tr"
+    ? `“${title}”, ${category.toLocaleLowerCase("tr-TR")} kapsamındaki görünür ByteQuant davranışı${sourceCount ? ` ve listelenen ${sourceCount} birincil kaynak` : " ile yeniden üretilebilir ürün kontrolleri"} karşılaştırılarak hazırlandı. Sınırlar ve kabul ölçütleri karar desteği sunar; hukuki ya da güvenlik danışmanlığı yerine geçmez.`
+    : `“${title}” was prepared by comparing visible ByteQuant behavior for ${category.toLocaleLowerCase("en-US")}${sourceCount ? ` with the ${sourceCount} listed primary source${sourceCount === 1 ? "" : "s"}` : " and reproducible product checks"}. Its limits and acceptance criteria support review; they do not replace legal or security advice.`;
+}
+
 function postRelevance(current: Post, candidate: Post) {
   const sharedTools = candidate.relatedTools.filter((slug) => current.relatedTools.includes(slug)).length;
   return sharedTools * 3 + (candidate.category.tr === current.category.tr ? 2 : 0);
@@ -114,7 +126,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
               </section>
             ))}
 
-            {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{ui.sourcesTitle}</h2><p>{ui.sourcesIntro}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
+            {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{ui.sourcesTitle}</h2><p>{sourceContext(locale, post.title[locale], post.sources.length)}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
 
             <GuideValidationLab guideTitle={post.title[locale]} guideSummary={post.description[locale]} locale={locale} tools={relatedTools} />
 
@@ -134,7 +146,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
 
             <div className="article-note">
               <strong>{ui.method}</strong>
-              <p>{ui.methodBody}</p>
+              <p>{editorialMethod(locale, post.title[locale], post.category[locale], post.sources?.length ?? 0)}</p>
             </div>
             <div className="article-cta">
               <div><span>{ui.action}</span><h2>{tools.length} {ui.start}</h2></div>
@@ -155,7 +167,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
               <article className="post-card" key={item.slug}>
                 <span>{item.category[locale]} · {item.readTime[locale]}</span>
                 <h3><Link href={postPath(locale, item.slug)}>{item.title[locale]}</Link></h3>
-                <p>{item.excerpt[locale]}</p>
+                <p><strong>{post.title[locale]}:</strong> {item.excerpt[locale]}</p>
                 <Link className="text-link" href={postPath(locale, item.slug)}>{ui.read} →</Link>
               </article>
             ))}

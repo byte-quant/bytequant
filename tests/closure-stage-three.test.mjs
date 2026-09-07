@@ -21,7 +21,8 @@ test("tool decision guidance is specific, multilingual, and scenario based", asy
   assert.equal(publicTools.length, 342);
   assert.match(source, /data-content-depth="task-specific"/);
   assert.match(source, /tool\.useCases\[locale\]\.map/);
-  assert.match(source, /scenarioNarrative\(locale, index, useCase, guidance\)/);
+  assert.match(source, /scenarioNarrative\(locale, index, useCase, guidance, tool\.title\[locale\]\)/);
+  assert.match(source, /same “\$\{useCase\}” input/);
   assert.match(source, /guidance\.input\[locale\]/);
   assert.match(source, /guidance\.output\[locale\]/);
   assert.match(source, /guidance\.verification\[locale\]/);

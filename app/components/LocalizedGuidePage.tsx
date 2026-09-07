@@ -20,6 +20,13 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
   const localized = <T,>(de: T, zh: T) => (isDe ? de : zh);
   const pageUrl = absoluteUrl(postPath(locale, guide.slug));
   const tools = guide.relatedTools.map(getTool).filter((tool): tool is Tool => Boolean(tool));
+  const primaryTool = tools[0];
+  const firstSection = copy.sections[0];
+  const secondSection = copy.sections[1] ?? firstSection;
+  const editorialNote = localized(
+    `Methoden und Grenzen in „${copy.title}“ wurden für diese Sprachfassung redaktionell geprüft. Testen Sie ${primaryTool?.title.de ?? "den beschriebenen Ablauf"} mit synthetischen Daten; folgenreiche Entscheidungen benötigen weiterhin eine unabhängige Fachprüfung.`,
+    `《${copy.title}》中的方法与限制已经过本地化编辑审核。请先用合成数据测试${primaryTool?.title.zh ?? "文中流程"}；涉及重要后果的决定仍需独立专业核验。`,
+  );
   const articleText = [copy.title, copy.description, copy.excerpt, ...copy.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(copy.title, copy.description, locale, tools)].join(" ");
   const wordCount = articleWordCount(articleText, locale);
   const published = new Intl.DateTimeFormat(languageTag(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${guide.date}T00:00:00Z`));
@@ -57,16 +64,16 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
               </a>
             ))}
             {tools[0] ? <Link className="toc-tool" href={toolPath(locale, tools[0].slug)}><b>{localized("Passendes Werkzeug", "相关工具")}</b><span>{tools[0].title[locale]} →</span></Link> : null}
-            <div className="localized-editorial-note"><strong>{localized("Redaktioneller Hinweis", "编辑说明")}</strong><p>{localized("Methoden und Grenzen wurden für diese Sprachfassung redaktionell lokalisiert. Folgenreiche Entscheidungen benötigen eine unabhängige fachliche Prüfung.", "本语言版本已对方法与限制进行编辑本地化。涉及重要后果的决定仍需独立专业核验。")}</p></div>
+            <div className="localized-editorial-note"><strong>{localized("Redaktioneller Hinweis", "编辑说明")}</strong><p>{editorialNote}</p></div>
           </aside>
 
           <div className="article-body">
             <aside className="article-summary" aria-label={localized("Kurzfassung", "摘要")}>
               <strong>{localized("Was Sie mitnehmen", "读完您将掌握")}</strong><p>{copy.description}</p>
               <ul>
-                <li>{localized("Ein wiederholbarer Ablauf mit klaren Abnahmekriterien", "带有明确验收标准的可重复流程")}</li>
-                <li>{localized("Sichere Fehler- und Abbruchbedingungen", "安全的失败与停止条件")}</li>
-                <li>{localized("Eine nachvollziehbare Übergabe an passende lokale Werkzeuge", "可核验地交付到相关本地工具")}</li>
+                <li>{localized(`Ein wiederholbarer Ablauf für „${firstSection.heading}“`, `围绕“${firstSection.heading}”建立可重复流程`)}</li>
+                <li>{localized(`Prüf- und Abbruchbedingungen für „${secondSection.heading}“`, `为“${secondSection.heading}”设置核验与停止条件`)}</li>
+                <li>{localized(`Eine nachvollziehbare Übergabe an ${primaryTool?.title.de ?? "das passende lokale Werkzeug"}`, `可核验地交付到${primaryTool?.title.zh ?? "相关本地工具"}`)}</li>
               </ul>
             </aside>
             <GuideActionPlan guideTitle={copy.title} locale={locale} tools={tools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />

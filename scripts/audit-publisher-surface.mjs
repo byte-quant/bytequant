@@ -61,11 +61,17 @@ for (const route of routes) {
   const html = await readFile(file, "utf8");
   const mainMarkup = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/iu)?.[1] ?? "";
   const visible = text(mainMarkup);
-  const paragraphs = [...mainMarkup.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/giu)]
-    .map((match) => text(match[1]))
+  const paragraphs = [...mainMarkup.matchAll(/<p\b([^>]*)>([\s\S]*?)<\/p>/giu)]
+    // Reusable card summaries are navigational labels, not the page's primary
+    // publisher copy. Their source is still audited for uniqueness separately.
+    .filter((match) => !/\bdata-reusable-summary=/iu.test(match[1]))
+    .map((match) => text(match[2]))
     .filter(Boolean);
   const substantial = paragraphs.filter((paragraph) => units(paragraph, locale) >= (locale === "zh" ? 18 : 16));
-  const long = paragraphs.filter((paragraph) => units(paragraph, locale) >= (locale === "zh" ? 35 : 42));
+  // Catch meaningful repeated copy before it becomes a site-wide template. The
+  // former 42-word floor missed most visible cards and notices, even when the
+  // same paragraph appeared on every tool or guide page.
+  const long = paragraphs.filter((paragraph) => paragraph.length >= 80 && units(paragraph, locale) >= (locale === "zh" ? 18 : 12));
   for (const paragraph of long) {
     const key = paragraph.toLocaleLowerCase(languageTag[locale]);
     const owners = paragraphOwners.get(key) ?? [];
@@ -106,7 +112,7 @@ for (const record of records) {
   const minimumHeadings = ["tool", "guide", "reference", "product", "home"].includes(record.family) ? 3 : 1;
   if (record.headings < minimumHeadings) failures.push(`${record.route}: shallow heading hierarchy`);
 }
-for (const [paragraph, owners] of duplicates) if (owners.length >= 50) failures.push(`boilerplate paragraph appears on ${owners.length} pages: ${paragraph.slice(0, 90)}…`);
+for (const [paragraph, owners] of duplicates) if (owners.length >= 24) failures.push(`boilerplate paragraph appears on ${owners.length} pages: ${paragraph.slice(0, 90)}…`);
 const familySummary = [...new Set(records.map((record) => record.family))].sort().map((family) => {
   const items = records.filter((record) => record.family === family);
   const average = Math.round(items.reduce((total, item) => total + item.units, 0) / items.length);

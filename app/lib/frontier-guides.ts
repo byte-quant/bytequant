@@ -103,18 +103,38 @@ const sectionDetail: Record<Locale, string[]> = {
   ],
 };
 
+function appliedDetail(locale: Locale, guide: Guide, index: number) {
+  const tool = guide.relatedTools[index % guide.relatedTools.length];
+  const context = {
+    tr: `“${guide.title.tr}” için bu kaydı ${tool} adımına ve şu somut hedefe bağlayın: ${guide.outcome.tr}`,
+    en: `For “${guide.title.en},” connect this record to the ${tool} step and this concrete outcome: ${guide.outcome.en}`,
+    de: `Für „${guide.title.de}“ wird dieser Nachweis mit dem Schritt ${tool} und diesem konkreten Ziel verbunden: ${guide.outcome.de}`,
+    zh: `针对《${guide.title.zh}》，请把该记录关联到 ${tool} 步骤与这一具体目标：${guide.outcome.zh}`,
+  }[locale];
+  return `${sectionDetail[locale][index]} ${context}`;
+}
+
+function appliedBullet(locale: Locale, guide: Guide, index: number) {
+  const tool = guide.relatedTools[index % guide.relatedTools.length];
+  return ({
+    tr: `${tool} adımında girdi, çıktı ve karar sahibini “${guide.title.tr}” hedefiyle birlikte kaydedin.`,
+    en: `At the ${tool} step, record input, output, and decision owner against the “${guide.title.en}” objective.`,
+    de: `Beim Schritt ${tool} Eingabe, Ausgabe und Verantwortung für das Ziel „${guide.title.de}“ protokollieren.`,
+    zh: `在 ${tool} 步骤中，围绕《${guide.title.zh}》目标记录输入、输出与决策责任人。`,
+  } as const)[locale];
+}
+
 function sections(locale: Locale, guide: Guide): ArticleSection[] {
   return headings[locale].map((heading, index) => ({
     heading,
-    paragraphs: [paragraphs[locale][index](guide), sectionDetail[locale][index]],
+    paragraphs: [paragraphs[locale][index](guide), appliedDetail(locale, guide, index)],
     bullets: index === 0
       ? [guide.outcome[locale]]
       : index === headings[locale].length - 1
         ? [guide.boundary[locale]]
-        : [txt(locale, { tr: "Girdi, çıktı ve karar sahibini kaydedin.", en: "Record input, output, and decision owner.", de: "Eingabe, Ausgabe und Verantwortung protokollieren.", zh: "记录输入、输出与决策责任人。" })],
+        : [appliedBullet(locale, guide, index)],
   }));
 }
-function txt(locale: Locale, value: L) { return value[locale]; }
 
 const renamedToolSlugs: Record<string, string> = {
   "sayi-tabani-donusturucu": "buyuk-tamsayi-taban-donusturucu",

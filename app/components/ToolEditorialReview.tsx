@@ -90,7 +90,7 @@ const copy = {
   },
 } as const;
 
-function scenarioNarrative(locale: Locale, index: number, useCase: string, guidance: ReturnType<typeof getToolGuidanceDetails>) {
+function scenarioNarrative(locale: Locale, index: number, useCase: string, guidance: ReturnType<typeof getToolGuidanceDetails>, name: string) {
   const action = {
     tr: [
       `Önce bu ihtiyacı temsil eden küçük ve sentetik bir örnek hazırlayın. Beklenen girdi: ${guidance.input.tr}.`,
@@ -114,10 +114,10 @@ function scenarioNarrative(locale: Locale, index: number, useCase: string, guida
     ],
   }[locale][index] ?? "";
   const check = {
-    tr: [`Örnek, “${useCase}” ihtiyacını gerçek kişisel veri kullanmadan yeniden üretebilmelidir.`, `Aynı girdi aynı sonucu vermeli; yöntemin dışındaki hiçbir ağ veya dosya işlemi varsayılmamalıdır.`, `Kabul için ${guidance.verification.tr}; aksi durumda sonucu ilerletmeyin.`],
-    en: [`The fixture should reproduce “${useCase}” without real personal data.`, `Identical input should return the same result, with no network or file action assumed beyond the disclosed method.`, `Acceptance requires ${guidance.verification.en}; otherwise do not move the result forward.`],
-    de: [`Das Beispiel soll „${useCase}“ ohne echte Personendaten reproduzieren.`, `Dieselbe Eingabe soll dasselbe Ergebnis liefern; keine nicht offengelegte Netz- oder Dateiaktion annehmen.`, `Für die Abnahme gilt: ${guidance.verification.de}; andernfalls nicht weitergeben.`],
-    zh: [`样本应在不使用真实个人数据的情况下复现“${useCase}”。`, `相同输入应得到相同结果，不得假设公开方法之外的网络或文件操作。`, `验收要求：${guidance.verification.zh}；否则不要继续传递结果。`],
+    tr: [`Örnek, “${useCase}” ihtiyacını gerçek kişisel veri kullanmadan yeniden üretebilmelidir.`, `${name} aynı “${useCase}” girdisiyle aynı sonucu vermeli; açıklanan yöntemin dışında ağ veya dosya işlemi varsayılmamalıdır.`, `Kabul için ${guidance.verification.tr}; aksi durumda sonucu ilerletmeyin.`],
+    en: [`The fixture should reproduce “${useCase}” without real personal data.`, `${name} should return the same result for the same “${useCase}” input, with no network or file action assumed beyond the disclosed method.`, `Acceptance requires ${guidance.verification.en}; otherwise do not move the result forward.`],
+    de: [`Das Beispiel soll „${useCase}“ ohne echte Personendaten reproduzieren.`, `${name} soll für dieselbe „${useCase}“-Eingabe dasselbe Ergebnis liefern; keine nicht offengelegte Netz- oder Dateiaktion annehmen.`, `Für die Abnahme gilt: ${guidance.verification.de}; andernfalls nicht weitergeben.`],
+    zh: [`样本应在不使用真实个人数据的情况下复现“${useCase}”。`, `${name}对相同的“${useCase}”输入应给出相同结果，不得假设公开方法之外的网络或文件操作。`, `验收要求：${guidance.verification.zh}；否则不要继续传递结果。`],
   }[locale][index] ?? "";
   return { action, check };
 }
@@ -140,7 +140,7 @@ export function ToolEditorialReview({ tool, locale }: { tool: Tool; locale: Loca
       </div>
       <div className="tool-editorial-scenarios" data-tool-acceptance="three-scenario">
         <h3>{t.scenarios}</h3>
-        <div>{tool.useCases[locale].map((useCase, index) => { const scenario = scenarioNarrative(locale, index, useCase, guidance); return <article key={useCase}><span>{String(index + 1).padStart(2, "0")}</span><h4>{useCase}</h4><p><b>{t.action}:</b> {scenario.action}</p><p><b>{t.check}:</b> {scenario.check}</p></article>; })}</div>
+        <div>{tool.useCases[locale].map((useCase, index) => { const scenario = scenarioNarrative(locale, index, useCase, guidance, tool.title[locale]); return <article key={useCase}><span>{String(index + 1).padStart(2, "0")}</span><h4>{useCase}</h4><p><b>{t.action}:</b> {scenario.action}</p><p><b>{t.check}:</b> {scenario.check}</p></article>; })}</div>
       </div>
       <div className="tool-editorial-decision">
         <article><strong>{t.boundary}</strong><p>{({ tr: "Sonuç aşağıdaki sınırı aşan bir karar için kullanılmamalıdır: ", en: "Do not use the result for a decision beyond this boundary: ", de: "Das Ergebnis nicht für Entscheidungen außerhalb dieser Grenze nutzen: ", zh: "不要将结果用于超出以下边界的决策：" } as const)[locale]}{guidance.boundary[locale]}</p></article>
