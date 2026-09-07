@@ -12,7 +12,7 @@ test("AI 7.6 presents conversation before optional model controls without removi
   assert.match(conversation, /agent-conversation-welcome/);
   assert.match(conversation, /agent-model-drawer/);
   assert.match(conversation, /agent-local-ai-panel/);
-  assert.match(conversation, /Dosya, görsel ve 327 araç/);
+  assert.match(conversation, /Dosya, görsel ve 342 araç/);
   assert.match(conversation, /AgentVisualStudioLoader/);
   assert.match(conversation, /WORKSPACE_AGENT_PLAN_KEY/);
   assert.match(conversation, /agent-chat-v76/);

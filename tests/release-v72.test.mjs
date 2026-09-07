@@ -10,7 +10,7 @@ const source = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8"
 
 test("ByteQuant AI 7.6 keeps the complete catalog available to natural-language routing", () => {
   assert.equal(AGENT_VERSION, "ByteQuant AI 7.6");
-  assert.equal(publicTools.length, 327);
+  assert.equal(publicTools.length, 342);
   const examples = [
     ["Fotoğrafları tek bir PDF dosyası yap", "tr", "gorselden-pdf"],
     ["Format and validate this JSON", "en", "json-bicimlendirici"],
@@ -23,7 +23,7 @@ test("ByteQuant AI 7.6 keeps the complete catalog available to natural-language 
   }
 });
 
-test("all 327 tool pages receive a localized input, method, output, verification, and boundary contract", () => {
+test("all 342 tool pages receive a localized input, method, output, verification, and boundary contract", () => {
   for (const tool of publicTools) {
     const guidance = getToolGuidanceDetails(tool);
     for (const locale of ["tr", "en", "de", "zh"]) {

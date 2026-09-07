@@ -8,11 +8,11 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 
 | Measure | Count |
 | --- | ---: |
-| Public canonical tools | 327 |
+| Public canonical tools | 342 |
 | Supported locales per tool | 4 |
 | Tool categories | 10 |
 | Legacy alias URLs (noindex + canonical) | 12 |
-| Canonical tools mapped to an implemented runtime family | 327 |
+| Canonical tools mapped to an implemented runtime family | 342 |
 | Deep four-locale runtime-demo tools | 110 |
 
 ## Category distribution
@@ -21,14 +21,14 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | --- | --- | ---: |
 | P | Prompt tools | 25 |
 | T | Text & NLP | 45 |
-| D | Data & developer | 78 |
+| D | Data & developer | 81 |
 | C | Converters | 29 |
-| S | Privacy & security | 30 |
-| N | Calculation tools | 42 |
-| G | Everyday tools | 17 |
+| S | Privacy & security | 31 |
+| N | Calculation tools | 46 |
+| G | Everyday tools | 19 |
 | AI | AI tools | 19 |
-| CS | Code & file security | 30 |
-| R | Research & evidence | 12 |
+| CS | Code & file security | 32 |
+| R | Research & evidence | 15 |
 
 ## Automated checks applied to every public tool
 
@@ -375,3 +375,18 @@ This is an automated catalog, runtime-routing, and content-integrity inventory, 
 | 339 | `web-performans-butce-planlayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
 | 330 | `yedekleme-3-2-1-hazirlik-denetleyici` | Privacy & security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
 | 331 | `surum-notu-degisiklik-derleyici` | Everyday tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 340 | `csv-satir-fark-uzlastirici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 341 | `json-alan-tip-profilleyici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 342 | `web-vitals-ornek-analizoru` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 343 | `css-z-index-katman-haritasi` | Code & file security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 344 | `tarayici-depolama-butce-planlayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 345 | `api-oran-siniri-kapasite-planlayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 346 | `dosya-manifestosu-uzlastirici` | Privacy & security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 347 | `url-yonlendirme-zinciri-inceleyici` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 348 | `api-hata-zarfi-dogrulayici` | Data & developer | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 349 | `ozellik-bayragi-yayin-planlayici` | Everyday tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 350 | `yanit-suresi-yuzdelik-hesaplayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 351 | `kuyruk-kapasite-planlayici` | Calculation tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 352 | `dokunma-hedefi-boyut-denetleyici` | Code & file security | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 353 | `icerik-guncellik-portfoyu-planlayici` | Research & evidence | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |
+| 354 | `adr-karar-kaydi-olusturucu` | Everyday tools | TR · EN · DE · ZH | 3 × 4 | Runtime family + content audit |

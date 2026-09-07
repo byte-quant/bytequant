@@ -20,8 +20,8 @@ test("all legacy generic workbenches have native four-locale demos", async () =>
   }
 });
 
-test("all 327 tools publish a concrete three-scenario acceptance contract", () => {
-  assert.equal(publicTools.length, 327);
+test("all 342 tools publish a concrete three-scenario acceptance contract", () => {
+  assert.equal(publicTools.length, 342);
   for (const tool of publicTools) {
     const guidance = getToolGuidanceDetails(tool);
     for (const locale of locales) {

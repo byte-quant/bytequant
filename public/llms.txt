@@ -1,16 +1,16 @@
 # ByteQuant
 
-> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 327 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
+> ByteQuant is a four-language (Turkish, English, German, and Simplified Chinese), privacy-first collection of 342 distinct browser tools across ten categories. Each public tool has a unique canonical URL, localized guidance, sample input, disclosed method, and visible limitations. Twelve established legacy URLs remain available as canonical aliases so existing links do not break.
 
 ## Editorial quality model
 
-- All 327 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
+- All 342 distinct public tools remain indexable and appear in the sitemap. Their descriptions, sample inputs, error boundaries, disclosed methods, and automated behavior tests are version controlled.
 - Canonical aliases remain `noindex` and point to the matching unique tool; private or query-driven workspace URLs remain outside the search index.
 - High-impact legal, financial, medical, academic, identity, and security decisions always require an authoritative source or qualified human review.
 - Community and official-source update landing pages are indexable editorial entry points. Their dynamic surfaces remain recommended Auto Ads account exclusions until separately reviewed for ad placement.
 
 Canonical site: https://bytequant.org/
-Last editorial and interface review: 2026-08-24
+Last editorial and interface review: 2026-09-07
 
 Languages:
 - Turkish (default): https://bytequant.org/
@@ -67,7 +67,7 @@ Complete localized tool libraries:
 - English Local Agent: https://bytequant.org/en/agent
 - German Local Agent: https://bytequant.org/de/agent
 - Simplified Chinese Local Agent: https://bytequant.org/zh/agent
-- The planner can search all 327 distinct public tools and explain the method and limitations of the selected tool.
+- The planner can search all 342 distinct public tools and explain the method and limitations of the selected tool.
 - The optional local model uses a bounded, deterministically compressed context sized for its 4,096-token window. It throttles streamed UI updates and keeps the engine available while the Agent screen is open; leaving that screen starts a five-minute same-tab reuse window, while switching to Fast Agent or an inference failure unloads it immediately.
 - The tool bridge can fill an eligible text input or pass a visible result only after the user requests it. Password fields, file selectors, downloads, and execution controls remain manual.
 - Architecture guide: https://bytequant.org/en/blog/browser-only-agentic-ai-tool-orchestration
@@ -466,6 +466,21 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 - [Web Performance Budget Planner](https://bytequant.org/en/tools/web-performans-butce-planlayici): compares HTML, CSS, JavaScript, image, font, and other transfer sizes with a declared mobile budget.
 - [3-2-1 Backup Readiness Checker](https://bytequant.org/en/tools/yedekleme-3-2-1-hazirlik-denetleyici): checks copy count, media diversity, off-site storage, encryption, restore evidence, and recovery-time assumptions.
 - [Release Notes Change Compiler](https://bytequant.org/en/tools/surum-notu-degisiklik-derleyici): groups structured change lines into deduplicated release-note sections with an explicit publication checklist.
+- [CSV Row-Difference Reconciler](https://bytequant.org/en/tools/csv-satir-fark-uzlastirici): compares keyed before-and-after CSV files without mistaking row order for a data change.
+- [JSON Field-Type Profiler](https://bytequant.org/en/tools/json-alan-tip-profilleyici): reports field presence, null share, observed types, and examples without coercing mixed data.
+- [Web Vitals Sample Analyzer](https://bytequant.org/en/tools/web-vitals-ornek-analizoru): summarizes pasted LCP, INP, and CLS measurements by route with percentile and threshold distributions.
+- [CSS Z-index Layer Mapper](https://bytequant.org/en/tools/css-z-index-katman-haritasi): inventories numeric z-index declarations, shared levels, and values beyond a declared layer budget.
+- [Browser Storage Budget Planner](https://bytequant.org/en/tools/tarayici-depolama-butce-planlayici): compares local application storage items with a device budget and safety reserve.
+- [API Rate-Limit Capacity Planner](https://bytequant.org/en/tools/api-oran-siniri-kapasite-planlayici): models sustained and burst request demand against a quota window and headroom target.
+- [File Manifest Reconciler](https://bytequant.org/en/tools/dosya-manifestosu-uzlastirici): finds missing, added, size-changed, and digest-mismatched files across two manifests.
+- [URL Redirect-Chain Reviewer](https://bytequant.org/en/tools/url-yonlendirme-zinciri-inceleyici): inspects recorded redirect hops for loops, downgrade, mixed status policy, and avoidable length without making network requests.
+- [API Error-Envelope Validator](https://bytequant.org/en/tools/api-hata-zarfi-dogrulayici): checks machine-readable error contracts and flags likely stack, SQL, or secret leakage.
+- [Feature-Flag Rollout Planner](https://bytequant.org/en/tools/ozellik-bayragi-yayin-planlayici): turns audience size and percentage stages into an observable, reversible release plan.
+- [Response-Time Percentile Calculator](https://bytequant.org/en/tools/yanit-suresi-yuzdelik-hesaplayici): calculates nearest-rank latency percentiles and IQR-based outlier candidates from local samples.
+- [Work-Queue Capacity Planner](https://bytequant.org/en/tools/kuyruk-kapasite-planlayici): estimates utilization, backlog growth, and drain time from arrivals, workers, and processing duration.
+- [Touch-Target Size Auditor](https://bytequant.org/en/tools/dokunma-hedefi-boyut-denetleyici): reviews measured control size and spacing against explicit mobile usability thresholds.
+- [Content Freshness Portfolio Planner](https://bytequant.org/en/tools/icerik-guncellik-portfoyu-planlayici): prioritizes substantive content reviews by verification age, change risk, and audience importance.
+- [ADR Architecture Decision Record Builder](https://bytequant.org/en/tools/adr-karar-kaydi-olusturucu): creates a dated decision record with alternatives, consequences, evidence, and reconsideration triggers.
 
 ## Editorial guides and site resources
 
@@ -513,6 +528,13 @@ Localized tool pages use the same stable slug under `/en/tools/{slug}`, `/de/too
 20. Sitemap, robots meta, and hreflang release review: https://bytequant.org/en/blog/sitemap-robots-meta-indexleme-yayin-rehberi
 21. Email subject and preheader design: https://bytequant.org/en/blog/eposta-konu-preheader-icerik-kalite-rehberi
 22. Performance budgets, backup evidence, and release operations: https://bytequant.org/en/blog/performans-yedekleme-surum-operasyon-rehberi
+23. CSV and JSON reconciliation acceptance workflow: https://bytequant.org/en/blog/csv-json-veri-uzlastirma-kabul-rehberi
+24. Web Vitals and capacity decision workflow: https://bytequant.org/en/blog/web-vitals-kapasite-performans-karar-rehberi
+25. Mobile interface layers and touch-target workflow: https://bytequant.org/en/blog/mobil-arayuz-katman-dokunma-hedefi-rehberi
+26. Browser storage and file-manifest resilience workflow: https://bytequant.org/en/blog/tarayici-depolama-dosya-manifestosu-dayaniklilik-rehberi
+27. API errors, quotas, and redirect operations workflow: https://bytequant.org/en/blog/api-hata-kota-yonlendirme-operasyon-rehberi
+28. Feature flags and reversible ADR release workflow: https://bytequant.org/en/blog/feature-flag-adr-geri-alinabilir-yayin-rehberi
+29. Evidence-led content freshness portfolio workflow: https://bytequant.org/en/blog/icerik-guncellik-kanit-portfoyu-rehberi
 
 This file is a concise navigation aid for language models. Canonical HTML pages, visible editorial content, robots directives, and the XML sitemap remain the authoritative crawl and indexing sources. Neither this file nor structured data guarantees indexing, citation, ranking, AdSense approval, or inclusion in an AI-generated answer.
 

@@ -20,6 +20,7 @@ import { precisionToolSlugs } from "../lib/precision-tools";
 import { frontierToolSlugs } from "../lib/frontier-tools";
 import { stageTwoToolSlugs } from "../lib/stage-two-tools";
 import { studioToolSlugs } from "../lib/studio-tools";
+import { insightToolSlugs } from "../lib/insight-tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 import { csvToJson, jsonToCsv, parseCsv, detectCsvDelimiter } from "../lib/csv-conversion";
 
@@ -62,7 +63,7 @@ export const legacyGenericToolSlugs = new Set([
 export type ToolRuntimeFamily = "studio" | "stageTwo" | "frontier" | "precision" | "essential" | "expansion" | "discovery" | "productivity" | "demand" | "growth" | "converter" | "new" | "specialized" | "advanced" | "generic" | "unsupported";
 
 export function getToolRuntimeFamily(slug: string): ToolRuntimeFamily {
-  if (studioToolSlugs.has(slug)) return "studio";
+  if (studioToolSlugs.has(slug) || insightToolSlugs.has(slug)) return "studio";
   if (stageTwoToolSlugs.has(slug)) return "stageTwo";
   if (frontierToolSlugs.has(slug)) return "frontier";
   if (precisionToolSlugs.has(slug)) return "precision";

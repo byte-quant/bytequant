@@ -5,13 +5,17 @@ import type { Locale } from "../lib/site";
 import { getTool } from "../lib/tools";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 import { ToolNotice } from "./ToolNotice";
+import { insightDefinitions, runInsightTool } from "../lib/insight-runtime";
 
-type Values = Record<string, string | boolean>;
+export type StudioValues = Record<string, string | boolean>;
 type Metric = [string, string | number];
-type Result = { output: string; metrics: Metric[]; warning?: string };
+export type StudioResult = { output: string; metrics: Metric[]; warning?: string };
 type L = Record<Locale, string>;
-type Field = { key: string; label: L; type?: "text" | "number" | "date" | "textarea" | "checkbox" | "select"; help?: L; min?: number; max?: number; step?: number; options?: Array<[string, L]> };
-type Definition = { fields: Field[]; demo: Values };
+export type StudioField = { key: string; label: L; type?: "text" | "number" | "date" | "textarea" | "checkbox" | "select"; help?: L; min?: number; max?: number; step?: number; options?: Array<[string, L]> };
+export type StudioDefinition = { fields: StudioField[]; demo: StudioValues };
+type Values = StudioValues;
+type Result = StudioResult;
+type Definition = StudioDefinition;
 const l = (tr: string, en: string, de: string, zh: string): L => ({ tr, en, de, zh });
 const text = (locale: Locale, value: L) => value[locale];
 
@@ -23,6 +27,7 @@ const ui = {
 } as const;
 
 const definitions: Record<string, Definition> = {
+  ...insightDefinitions,
   "retry-after-geri-cekilme-planlayici": { fields: [
     { key: "method", label: l("HTTP yöntemi", "HTTP method", "HTTP-Methode", "HTTP 方法"), type: "select", options: [["GET", l("GET · güvenli", "GET · safe", "GET · sicher", "GET · 安全")], ["PUT", l("PUT · idempotent", "PUT · idempotent", "PUT · idempotent", "PUT · 幂等")], ["POST", l("POST · koşullu", "POST · conditional", "POST · bedingt", "POST · 需条件")]] },
     { key: "status", label: l("Yanıt durumu", "Response status", "Antwortstatus", "响应状态"), type: "select", options: [["429", l("429 · Çok fazla istek", "429 · Too many requests", "429 · Zu viele Anfragen", "429 · 请求过多")], ["503", l("503 · Geçici olarak kullanılamıyor", "503 · Temporarily unavailable", "503 · Vorübergehend nicht verfügbar", "503 · 暂时不可用")]] },
@@ -134,6 +139,7 @@ export function runStudioTool(slug: string, values: Values, locale: Locale): Res
     const raw = lines(String(values.changes ?? "")); if (!raw.length) throw new Error(text(locale, l("En az bir değişiklik satırı girin.", "Enter at least one change line.", "Mindestens eine Änderungszeile eingeben.", "请至少输入一行变更。"))); const headings: Record<string, L> = { breaking: l("Kırıcı değişiklikler", "Breaking changes", "Inkompatible Änderungen", "破坏性变更"), security: l("Güvenlik", "Security", "Sicherheit", "安全"), feat: l("Yeni", "Added", "Neu", "新增"), perf: l("Performans", "Performance", "Performance", "性能"), fix: l("Düzeltildi", "Fixed", "Behoben", "修复"), docs: l("Belgeler", "Documentation", "Dokumentation", "文档"), other: l("Diğer", "Other", "Sonstiges", "其他") }; const buckets = new Map<string, string[]>(); raw.forEach((line) => { const breaking = /^BREAKING CHANGE:/i.test(line) || /!\s*:/u.test(line); const match = line.match(/^(feat|fix|perf|security|docs)(?:\(([^)]+)\))?!?:\s*(.+)$/iu); const kind = breaking ? "breaking" : match?.[1]?.toLowerCase() ?? "other"; const scope = match?.[2]; const body = (match?.[3] ?? line.replace(/^BREAKING CHANGE:\s*/iu, "")).trim(); const item = scope ? `**${scope}:** ${body}` : body; const current = buckets.get(kind) ?? []; if (!current.some((value) => value.toLocaleLowerCase() === item.toLocaleLowerCase())) current.push(item); buckets.set(kind, current); }); const order = ["breaking", "security", "feat", "perf", "fix", "docs", "other"]; const output = order.filter((kind) => buckets.get(kind)?.length).map((kind) => `## ${text(locale, headings[kind])}\n${buckets.get(kind)?.map((item) => `- ${item}`).join("\n")}`).join("\n\n"); const missing = raw.filter((line) => !/^(feat|fix|perf|security|docs)(?:\([^)]+\))?!?:|^BREAKING CHANGE:/iu.test(line)).length;
     return { output: `# ${text(locale, l("Sürüm notları", "Release notes", "Versionshinweise", "发布说明"))}\n\n${output}\n\n---\n${text(locale, l("Yayın kontrolü: tarih, sürüm numarası, geçiş adımı ve ilgili destek bağlantılarını doğrulayın.", "Release check: confirm date, version number, migration steps, and relevant support links.", "Releaseprüfung: Datum, Version, Migrationsschritte und Supportlinks bestätigen.", "发布检查：确认日期、版本号、迁移步骤与相关支持链接。"))}`, metrics: [[text(locale, l("Benzersiz madde", "Unique items", "Eindeutige Punkte", "唯一条目")), [...buckets.values()].reduce((sum, items) => sum + items.length, 0)], [text(locale, l("Bölüm", "Sections", "Abschnitte", "章节")), buckets.size], [text(locale, l("Türsüz", "Unclassified", "Nicht klassifiziert", "未分类")), missing]] };
   }
+  if (insightDefinitions[slug]) return runInsightTool(slug, values, locale);
   throw new Error(text(locale, l("Bu araç çalışma alanına bağlanamadı.", "This tool could not be connected to its workbench.", "Dieses Werkzeug konnte nicht verbunden werden.", "该工具无法连接到工作区。")));
 }
 

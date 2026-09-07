@@ -54,7 +54,7 @@ test("progressive Three.js scene adapts by page and pauses in hidden tabs", asyn
 
 test("llms discovery file states canonical, locale, and claim boundaries", async () => {
   const source = await read("public/llms.txt");
-  assert.match(source, /Last editorial and interface review: 2026-08-24/);
+  assert.match(source, /Last editorial and interface review: 2026-09-07/);
   assert.match(source, /Authoritative discovery and citation rules/);
   assert.match(source, /Canonical HTML is the source of truth/);
   assert.match(source, /does not assert ratings/);

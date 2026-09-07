@@ -1,0 +1,122 @@
+import type { Locale } from "./site";
+import type { BaseTool } from "./tool-locales";
+
+type L<T> = Record<Locale, T>;
+const l = <T,>(tr: T, en: T, de: T, zh: T): L<T> => ({ tr, en, de, zh });
+const steps = l(
+  ["Alanları doğrudan doldurun veya örnek veriyi yükleyin.", "İncelemeyi cihazınızda çalıştırın ve işaretlenen satırları kontrol edin.", "Çıktıyı kaynak verinizle uzlaştırıp yalnızca doğrulanan sonucu kullanın."],
+  ["Complete the fields or load the worked example.", "Run the review on your device and inspect every flagged row.", "Reconcile the output with your source and use only the verified result."],
+  ["Felder ausfüllen oder das Arbeitsbeispiel laden.", "Prüfung auf dem Gerät ausführen und markierte Zeilen kontrollieren.", "Ausgabe mit der Quelle abgleichen und nur bestätigte Ergebnisse verwenden."],
+  ["填写字段或加载示例数据。", "在设备端运行检查并查看每个标记项。", "把输出与来源核对，仅使用已验证的结果。"],
+);
+
+export const insightTools: BaseTool[] = [
+  {
+    slug: "csv-satir-fark-uzlastirici", category: "data", mark: "340",
+    title: l("CSV Satır Farkı Uzlaştırıcı", "CSV Row-Difference Reconciler", "CSV-Zeilenabgleich", "CSV 行差异核对器"),
+    short: l("İki CSV sürümünü benzersiz anahtarla karşılaştırıp eklenen, kaldırılan ve değişen kayıtları bulun.", "Compare two CSV versions by a unique key and find added, removed, and changed records.", "Zwei CSV-Versionen per Schlüssel vergleichen und neue, entfernte sowie geänderte Datensätze finden.", "按唯一键比较两个 CSV 版本，找出新增、删除与变更记录。"),
+    description: l("Önce ve sonra tablolarını başlık, anahtar ve hücre düzeyinde yerel olarak uzlaştırır; değişen sütunları kayıt bazında gösterir. Satır sırası farkını veri değişikliği saymaz ve yinelenen anahtarları sessizce birleştirmez.", "Reconciles before-and-after tables locally at header, key, and cell level, showing changed columns per record. Row order is not treated as a data change, and duplicate keys are never silently merged.", "Gleicht Vorher-/Nachher-Tabellen lokal nach Kopfzeile, Schlüssel und Zelle ab. Reihenfolge gilt nicht als Änderung; doppelte Schlüssel werden nicht still zusammengeführt.", "在本地按表头、主键和单元格核对前后表格，逐记录显示变更列；行顺序不算数据变化，也不会静默合并重复键。"),
+    useCases: l(["İçe aktarma sonrası doğrulama", "CRM dışa aktarım farkı", "Veri taşıma kabul testi"], ["Post-import verification", "CRM export comparison", "Migration acceptance testing"], ["Import-Nachprüfung", "CRM-Exportvergleich", "Migrationsabnahme"], ["导入后验证", "CRM 导出对比", "数据迁移验收"]), steps,
+  },
+  {
+    slug: "json-alan-tip-profilleyici", category: "data", mark: "341",
+    title: l("JSON Alan Tipi Profilleyici", "JSON Field-Type Profiler", "JSON-Feldtyp-Profiler", "JSON 字段类型分析器"),
+    short: l("Nesne dizilerinde her alanın tip, boşluk ve bulunma dağılımını çıkarın.", "Profile type, null, and presence distributions for fields in object arrays.", "Typ-, Null- und Vorkommensverteilung von Feldern in Objektlisten analysieren.", "分析对象数组中每个字段的类型、空值与出现分布。"),
+    description: l("JSON nesne dizisini şema tahmini yapmadan inceler; alan başına gözlenen tipleri, eksik kayıtları, null oranını ve örnek değerleri raporlar. Karma tipleri görünür bırakır; otomatik veri türü dönüşümü yapmaz.", "Inspects a JSON object array without guessing a schema, reporting observed types, missing records, null share, and sample values per field. Mixed types stay visible; no automatic coercion is performed.", "Prüft JSON-Objektlisten ohne Schema-Raten und meldet Typen, fehlende Werte, Null-Anteil und Beispiele. Gemischte Typen bleiben sichtbar; keine automatische Konvertierung.", "无需猜测架构即可检查 JSON 对象数组，报告字段类型、缺失记录、null 比例与样例值；保留混合类型，不自动强制转换。"),
+    useCases: l(["API örneği inceleme", "Şema tasarımı hazırlığı", "Veri kalitesi keşfi"], ["API sample review", "Schema-design preparation", "Data-quality discovery"], ["API-Beispielprüfung", "Schema-Vorbereitung", "Datenqualitätsanalyse"], ["API 样例检查", "架构设计准备", "数据质量探索"]), steps,
+  },
+  {
+    slug: "web-vitals-ornek-analizoru", category: "research", mark: "342",
+    title: l("Web Vitals Örnek Analizörü", "Web Vitals Sample Analyzer", "Web-Vitals-Stichprobenanalyse", "Web Vitals 样本分析器"),
+    short: l("LCP, INP ve CLS ölçüm satırlarını rota bazında özetleyip yüzdelik ve eşik dağılımlarını görün.", "Summarise LCP, INP, and CLS samples by route with percentiles and threshold distributions.", "LCP-, INP- und CLS-Stichproben nach Route mit Perzentilen und Schwellen zusammenfassen.", "按路径汇总 LCP、INP 与 CLS 样本，查看百分位和阈值分布。"),
+    description: l("Yapıştırılan sentetik veya dışa aktarılmış ölçümleri metrik ve rota bazında gruplar; p50/p75/p95, en kötü örnek ve iyi/iyileştirilmeli/zayıf dağılımını hesaplar. Ölçüm toplamaz, kullanıcı kimliği işlemez ve küçük örnekten saha performansı iddiası üretmez.", "Groups pasted synthetic or exported measurements by metric and route, calculating p50/p75/p95, worst sample, and good/needs-improvement/poor distribution. It collects no telemetry and does not infer field performance from a small sample.", "Gruppiert eingefügte Messwerte nach Metrik und Route und berechnet p50/p75/p95 sowie Schwellenverteilungen. Es sammelt keine Telemetrie und verallgemeinert kleine Stichproben nicht.", "按指标和路径汇总粘贴的合成或导出测量，计算 p50/p75/p95、最差样本及阈值分布；不采集遥测，也不从小样本推断真实用户性能。"),
+    useCases: l(["Sürüm öncesi performans kıyası", "Rota bazlı regresyon inceleme", "RUM dışa aktarımı ön analizi"], ["Pre-release performance comparison", "Route-level regression review", "RUM export pre-analysis"], ["Performancevergleich vor Release", "Routenregression", "RUM-Export-Voranalyse"], ["发布前性能对比", "路径级回归检查", "RUM 导出预分析"]), steps,
+  },
+  {
+    slug: "css-z-index-katman-haritasi", category: "codeSecurity", mark: "343",
+    title: l("CSS Z-index Katman Haritası", "CSS Z-index Layer Mapper", "CSS-Z-Index-Ebenenkarte", "CSS Z-index 层级映射器"),
+    short: l("CSS seçicilerini z-index değerleriyle sıralayıp çakışan ve aşırı katmanları bulun.", "Order CSS selectors by z-index and find collisions and extreme layers.", "CSS-Selektoren nach z-index ordnen und Kollisionen sowie Extremwerte finden.", "按 z-index 排序 CSS 选择器，找出冲突与极端层级。"),
+    description: l("Yapıştırılan CSS içinde seçici ve sayısal z-index bildirimlerini çıkarır, aynı değeri kullanan katmanları ve belirlenen bütçeyi aşan değerleri listeler. Stacking context'i çalıştırmaz; transform, opacity ve portal davranışı tarayıcıda ayrıca doğrulanmalıdır.", "Extracts selectors and numeric z-index declarations from pasted CSS, listing shared levels and values above a chosen budget. It does not execute stacking contexts; transform, opacity, and portal behaviour still require browser review.", "Extrahiert Selektoren und numerische z-index-Werte, zeigt gemeinsame Ebenen und Budgetüberschreitungen. Stacking Contexts werden nicht ausgeführt.", "提取粘贴 CSS 中的选择器和数字 z-index，列出共享层级及超过预算的值；不会执行层叠上下文，仍需在浏览器中验证 transform、opacity 与 portal。"),
+    useCases: l(["Modal ve header çakışması", "Tasarım sistemi katman bütçesi", "CSS bakım öncesi envanter"], ["Modal/header collision review", "Design-system layer budget", "Pre-refactor CSS inventory"], ["Modal-/Header-Konflikte", "Layer-Budget im Designsystem", "CSS-Inventar vor Refactoring"], ["弹窗与页头冲突", "设计系统层级预算", "CSS 重构前盘点"]), steps,
+  },
+  {
+    slug: "tarayici-depolama-butce-planlayici", category: "calculation", mark: "344",
+    title: l("Tarayıcı Depolama Bütçesi Planlayıcı", "Browser Storage Budget Planner", "Browser-Speicherbudgetplaner", "浏览器存储预算规划器"),
+    short: l("localStorage, IndexedDB ve önbellek kullanımını cihaz bütçesi ve koruma payıyla planlayın.", "Plan localStorage, IndexedDB, and cache use against a device budget and safety margin.", "localStorage, IndexedDB und Cache gegen Gerätebudget und Reserve planen.", "依据设备预算与安全余量规划 localStorage、IndexedDB 和缓存使用。"),
+    description: l("Depolama kalemlerini MB cinsinden toplar, ayrılan bütçe ve koruma payıyla karşılaştırır ve en büyük tüketicileri sıralar. Tarayıcı kotasını sorgulamaz; gizli mod, temizleme politikası ve cihaz baskısı nedeniyle gerçek kapasite ayrıca ölçülmelidir.", "Totals storage items in MB, compares them with a selected budget and safety margin, and ranks the largest consumers. It does not query browser quota; private mode, eviction policy, and device pressure require real-device measurement.", "Summiert Speicherposten, vergleicht sie mit Budget und Reserve und ordnet größte Verbraucher. Browserquoten werden nicht abgefragt; reale Geräte müssen geprüft werden.", "汇总各存储项并与预算和安全余量比较，排序最大占用者；不查询浏览器配额，隐私模式、清理策略和设备压力需实机测量。"),
+    useCases: l(["Çevrimdışı uygulama planı", "Yerel AI model önbelleği", "PWA veri saklama bütçesi"], ["Offline app planning", "Local AI model caching", "PWA storage budgeting"], ["Offline-App-Planung", "Lokaler KI-Modellcache", "PWA-Speicherbudget"], ["离线应用规划", "本地 AI 模型缓存", "PWA 存储预算"]), steps,
+  },
+  {
+    slug: "api-oran-siniri-kapasite-planlayici", category: "calculation", mark: "345",
+    title: l("API Oran Sınırı Kapasite Planlayıcı", "API Rate-Limit Capacity Planner", "API-Rate-Limit-Kapazitätsplaner", "API 速率限制容量规划器"),
+    short: l("İstek hızı, eşzamanlı kullanıcı ve kota penceresini bir güvenlik payıyla karşılaştırın.", "Compare request rate, concurrent users, and quota windows with a safety margin.", "Anfragerate, gleichzeitige Nutzer und Quotenfenster mit Reserve vergleichen.", "将请求速率、并发用户与配额窗口连同安全余量进行比较。"),
+    description: l("Kullanıcı başına işlem sıklığı, tepe eşzamanlılık, pencere kotası ve hedef koruma payından beklenen yükü hesaplar; sürekli ve patlamalı senaryoyu ayrı gösterir. Canlı trafik üretmez ve sağlayıcının gizli adil kullanım kurallarını tahmin etmez.", "Calculates expected load from per-user frequency, peak concurrency, window quota, and target headroom, separating sustained and burst scenarios. It generates no traffic and does not guess a provider's undisclosed fair-use rules.", "Berechnet erwartete Last aus Nutzerfrequenz, Spitzenparallelität, Fensterquote und Reserve; Dauer- und Burstlast werden getrennt. Kein Live-Traffic.", "根据用户频率、峰值并发、窗口配额与目标余量计算预期负载，区分持续和突发场景；不产生真实流量，也不猜测服务商未公开规则。"),
+    useCases: l(["İstemci kota tasarımı", "Yoğun saat kapasite kontrolü", "Toplu iş zamanlama"], ["Client quota design", "Peak-hour capacity review", "Batch-job scheduling"], ["Client-Quota-Design", "Spitzenlastprüfung", "Batch-Planung"], ["客户端配额设计", "高峰容量检查", "批处理调度"]), steps,
+  },
+  {
+    slug: "dosya-manifestosu-uzlastirici", category: "security", mark: "346",
+    title: l("Dosya Manifestosu Uzlaştırıcı", "File Manifest Reconciler", "Dateimanifest-Abgleich", "文件清单核对器"),
+    short: l("İki dosya manifestosunu yol, boyut ve özet değerine göre karşılaştırın.", "Compare two file manifests by path, size, and digest.", "Zwei Dateimanifeste nach Pfad, Größe und Digest vergleichen.", "按路径、大小与摘要比较两个文件清单。"),
+    description: l("Kaynak ve hedef manifestolarındaki eklenen, eksilen, boyutu değişen ve özeti uyuşmayan dosyaları ayırır; yinelenen yolları hata olarak durdurur. Dosyaları açmaz veya hash üretmez; manifestodaki özetlerin güvenilirliği ayrı kaynaktan doğrulanmalıdır.", "Separates added, missing, size-changed, and digest-mismatched files across source and target manifests, rejecting duplicate paths. It neither opens files nor computes hashes; manifest digests need an independent trusted source.", "Trennt neue, fehlende, größenveränderte und Digest-abweichende Dateien und weist doppelte Pfade zurück. Dateien werden nicht geöffnet oder gehasht.", "区分源与目标清单中的新增、缺失、大小变化及摘要不匹配文件，并拒绝重复路径；不会打开文件或计算哈希，摘要可信度需独立验证。"),
+    useCases: l(["Yedek kopya kabulü", "Statik yayın paketi kontrolü", "Cihazlar arası arşiv uzlaştırma"], ["Backup-copy acceptance", "Static release package review", "Cross-device archive reconciliation"], ["Backup-Abnahme", "Statisches Releasepaket", "Archivabgleich zwischen Geräten"], ["备份副本验收", "静态发布包检查", "跨设备归档核对"]), steps,
+  },
+  {
+    slug: "url-yonlendirme-zinciri-inceleyici", category: "research", mark: "347",
+    title: l("URL Yönlendirme Zinciri İnceleyici", "URL Redirect-Chain Reviewer", "URL-Weiterleitungsketten-Prüfung", "URL 重定向链检查器"),
+    short: l("Kaydedilmiş yönlendirme adımlarında döngü, zincir uzunluğu, host ve protokol sapmasını bulun.", "Find loops, long chains, host drift, and protocol changes in recorded redirect hops.", "Schleifen, lange Ketten sowie Host- und Protokollwechsel in aufgezeichneten Redirects finden.", "在已记录的重定向步骤中查找循环、长链、主机与协议变化。"),
+    description: l("Her satırdaki durum kodu ve hedef URL'yi sıralı bir zincir olarak inceler; tekrar eden URL, HTTP'ye düşüş, geçici/kalıcı durum karışımı ve gereksiz ara adımları raporlar. Canlı URL'lere istek göndermez.", "Reviews status codes and destination URLs as an ordered chain, reporting repeated URLs, HTTPS downgrade, mixed temporary/permanent status, and avoidable hops. It sends no request to live URLs.", "Prüft Statuscodes und Ziel-URLs als Kette und meldet Wiederholungen, HTTPS-Downgrade, gemischte Redirecttypen und unnötige Schritte. Keine Live-Abfrage.", "按顺序检查状态码和目标 URL，报告重复 URL、HTTPS 降级、临时/永久状态混用及不必要中间跳转；不会请求线上 URL。"),
+    useCases: l(["Site taşıma kontrolü", "Canonical yönlendirme QA", "Kampanya bağlantısı temizliği"], ["Site-migration review", "Canonical redirect QA", "Campaign-link cleanup"], ["Website-Migration", "Canonical-Redirect-QA", "Kampagnenlink-Bereinigung"], ["网站迁移检查", "Canonical 重定向质检", "活动链接清理"]), steps,
+  },
+  {
+    slug: "api-hata-zarfi-dogrulayici", category: "data", mark: "348",
+    title: l("API Hata Zarfı Doğrulayıcı", "API Error-Envelope Validator", "API-Fehlerumschlag-Validator", "API 错误信封验证器"),
+    short: l("Hata JSON'unu kod, mesaj, izleme kimliği, alan hataları ve güvenli ayrıntı sözleşmesine göre denetleyin.", "Validate error JSON against code, message, trace id, field errors, and safe-detail contracts.", "Fehler-JSON auf Code, Nachricht, Trace-ID, Feldfehler und sichere Details prüfen.", "按代码、消息、追踪 ID、字段错误与安全详情契约验证错误 JSON。"),
+    description: l("Bir hata yanıtının makinece işlenebilir kod, kullanıcıya uygun mesaj, isteğe bağlı alan sorunları ve izleme kimliği taşıyıp taşımadığını kontrol eder; yığın izi, SQL ve sır sızıntısı sinyallerini işaretler. Sunucunun gerçek HTTP durumunu doğrulamaz.", "Checks whether an error response contains a machine-readable code, user-appropriate message, optional field issues, and trace id, while flagging stack, SQL, and secret leakage signals. It does not verify the server's actual HTTP status.", "Prüft maschinenlesbaren Code, verständliche Nachricht, Feldfehler und Trace-ID und markiert Stack-, SQL- oder Geheimnislecks. Der echte HTTP-Status wird nicht verifiziert.", "检查错误响应是否含机器可读代码、用户可理解消息、可选字段问题和追踪 ID，并标记堆栈、SQL 与秘密泄漏信号；不验证服务器真实 HTTP 状态。"),
+    useCases: l(["API sözleşme testi", "Form hata deneyimi", "Bilgi sızıntısı ön kontrolü"], ["API contract testing", "Form error experience", "Information-leakage pre-check"], ["API-Vertragstest", "Formularfehler-UX", "Informationsleck-Vorprüfung"], ["API 契约测试", "表单错误体验", "信息泄漏预检查"]), steps,
+  },
+  {
+    slug: "ozellik-bayragi-yayin-planlayici", category: "general", mark: "349",
+    title: l("Özellik Bayrağı Kademeli Yayın Planlayıcı", "Feature-Flag Rollout Planner", "Feature-Flag-Rollout-Planer", "功能开关分阶段发布规划器"),
+    short: l("Kullanıcı sayısı, yüzde adımları, bekleme süresi ve geri alma eşiğiyle kademeli yayın planı kurun.", "Build a staged rollout from audience size, percentage steps, observation time, and rollback thresholds.", "Stufenweisen Rollout aus Zielgruppe, Prozenten, Beobachtungszeit und Rollback-Schwellen planen.", "依据用户规模、百分比阶段、观察时间与回滚阈值制定分阶段发布计划。"),
+    description: l("Virgülle verilen benzersiz yüzde adımlarını hedef kullanıcı sayılarına dönüştürür; her aşama için gözlem süresi, başarı göstergesi, durdurma ve geri alma kaydı üretir. Bayrağı değiştirmez ve rastgele atamanın adilliğini kanıtlamaz.", "Converts unique comma-separated percentage stages into target user counts and creates observation, success, stop, and rollback records for every stage. It changes no flag and does not prove assignment fairness.", "Wandelt Prozentstufen in Zielnutzerzahlen um und erzeugt Beobachtungs-, Erfolgs-, Stopp- und Rollback-Einträge. Ändert kein Flag.", "把逗号分隔的唯一百分比阶段换算为目标用户数，并为各阶段生成观察、成功、停止与回滚记录；不会修改开关，也不证明分配公平。"),
+    useCases: l(["Riskli özellik yayını", "Mobil sürüm kademelendirme", "Geri alma provasını belgeleme"], ["Risky feature release", "Mobile rollout staging", "Rollback rehearsal documentation"], ["Riskanter Feature-Rollout", "Mobile Stufenfreigabe", "Rollback-Probe"], ["高风险功能发布", "移动端分阶段上线", "回滚演练记录"]), steps,
+  },
+  {
+    slug: "yanit-suresi-yuzdelik-hesaplayici", category: "calculation", mark: "350",
+    title: l("Yanıt Süresi Yüzdelik Hesaplayıcı", "Response-Time Percentile Calculator", "Antwortzeit-Perzentilrechner", "响应时间百分位计算器"),
+    short: l("Milisaniye örneklerinden p50, p75, p90, p95, p99 ve aykırı değer özetini hesaplayın.", "Calculate p50, p75, p90, p95, p99, and an outlier summary from millisecond samples.", "p50, p75, p90, p95, p99 und Ausreißer aus Millisekundenwerten berechnen.", "从毫秒样本计算 p50、p75、p90、p95、p99 与异常值摘要。"),
+    description: l("Satır veya virgülle girilen sonlu pozitif ölçümleri sıralar; nearest-rank yüzdelikleri, ortalama, minimum, maksimum ve IQR tabanlı aykırı adaylarını verir. Küçük veya yanlı örneklemi üretim SLO'su gibi sunmaz.", "Sorts finite positive samples entered by line or comma, returning nearest-rank percentiles, mean, range, and IQR-based outlier candidates. It does not present a small or biased sample as a production SLO.", "Sortiert positive Stichproben und berechnet Nearest-Rank-Perzentile, Mittelwert, Bereich und IQR-Ausreißer. Kleine Stichproben sind kein Produktions-SLO.", "排序按行或逗号输入的有限正值，返回 nearest-rank 百分位、平均值、范围与基于 IQR 的异常候选；不会把小型或偏倚样本当作生产 SLO。"),
+    useCases: l(["API gecikme özeti", "Önce/sonra performans kıyası", "Kuyruk bekleme analizi"], ["API latency summary", "Before/after performance comparison", "Queue-wait analysis"], ["API-Latenzübersicht", "Vorher-/Nachher-Vergleich", "Warteschlangenanalyse"], ["API 延迟摘要", "优化前后性能对比", "队列等待分析"]), steps,
+  },
+  {
+    slug: "kuyruk-kapasite-planlayici", category: "calculation", mark: "351",
+    title: l("İş Kuyruğu Kapasite Planlayıcı", "Work-Queue Capacity Planner", "Arbeitswarteschlangen-Kapazitätsplaner", "工作队列容量规划器"),
+    short: l("Geliş hızı, işçi sayısı, işlem süresi ve patlama yükünden kuyruk büyüme riskini hesaplayın.", "Estimate queue-growth risk from arrival rate, workers, processing time, and burst load.", "Warteschlangenwachstum aus Ankunftsrate, Workern, Bearbeitungszeit und Burstlast abschätzen.", "根据到达速率、工作线程、处理时长与突发负载估算队列增长风险。"),
+    description: l("Dakikadaki iş, ortalama işlem süresi, paralel işçi, başlangıç kuyruğu ve patlama süresini bir kapasite tablosunda birleştirir; kullanım oranı ve tahmini boşalma süresini hesaplar. Dağılım kuyruğu, yeniden deneme ve dış bağımlılık gecikmesini modellemez.", "Combines jobs per minute, mean processing time, parallel workers, starting backlog, and burst duration into a capacity table with utilisation and estimated drain time. It does not model distribution tails, retries, or external dependency latency.", "Verbindet Jobs/Minute, Bearbeitungszeit, Worker, Start-Backlog und Burstdauer zu Auslastung und Abbauzeit. Verteilungsschwänze und Retries sind nicht modelliert.", "把每分钟任务数、平均处理时间、并行工作线程、初始积压和突发时长汇总为容量表，计算利用率与预计清空时间；不模拟长尾、重试或外部依赖延迟。"),
+    useCases: l(["Worker sayısı planlama", "Toplu iş penceresi", "Yoğunluk öncesi kapasite kontrolü"], ["Worker-count planning", "Batch-window sizing", "Pre-peak capacity review"], ["Worker-Anzahl planen", "Batch-Fenster dimensionieren", "Kapazität vor Lastspitze"], ["工作线程数量规划", "批处理窗口估算", "高峰前容量检查"]), steps,
+  },
+  {
+    slug: "dokunma-hedefi-boyut-denetleyici", category: "codeSecurity", mark: "352",
+    title: l("Dokunma Hedefi Boyut Denetleyici", "Touch-Target Size Auditor", "Touch-Zielgrößen-Prüfung", "触控目标尺寸审计器"),
+    short: l("Arayüz hedeflerini genişlik, yükseklik ve aralıkla inceleyip mobil kullanım risklerini sıralayın.", "Review interface targets by width, height, and spacing to prioritise mobile usability risks.", "Bedienelemente nach Breite, Höhe und Abstand auf mobile Risiken prüfen.", "按宽度、高度与间距检查界面目标，排序移动端可用性风险。"),
+    description: l("Seçici, genişlik, yükseklik ve komşu aralığı içeren ölçüm satırlarını açıklanabilir eşiklerle karşılaştırır; küçük hedefleri ve sıkışık komşuları ayrı raporlar. DOM'u ölçmez; zoom, tarayıcı ölçeği ve gerçek parmak görevi cihazda test edilmelidir.", "Compares selector, width, height, and neighbour-gap measurements against explicit thresholds, reporting small targets and crowded neighbours separately. It does not measure the DOM; zoom, browser scaling, and real touch tasks need device testing.", "Vergleicht Selektor, Breite, Höhe und Abstand mit transparenten Schwellen und meldet kleine oder gedrängte Ziele. DOM und reale Touch-Nutzung werden nicht gemessen.", "将选择器、宽度、高度与相邻间距同明确阈值比较，分别报告过小目标与拥挤相邻项；不测量 DOM，缩放和真实触控任务需实机测试。"),
+    useCases: l(["Mobil QA", "Header ve araç çubuğu denetimi", "WCAG görev testi hazırlığı"], ["Mobile QA", "Header and toolbar audit", "WCAG task-test preparation"], ["Mobile QA", "Header-/Toolbar-Prüfung", "WCAG-Aufgabentest"], ["移动端质检", "页头与工具栏审计", "WCAG 任务测试准备"]), steps,
+  },
+  {
+    slug: "icerik-guncellik-portfoyu-planlayici", category: "research", mark: "353",
+    title: l("İçerik Güncellik Portföyü Planlayıcı", "Content Freshness Portfolio Planner", "Content-Aktualitätsportfolio", "内容新鲜度组合规划器"),
+    short: l("Yayınları tarih, değişim riski ve trafik önemiyle sıralayıp gerçekçi bir gözden geçirme kuyruğu kurun.", "Prioritise publications by date, change risk, and audience importance to build a realistic review queue.", "Publikationen nach Datum, Änderungsrisiko und Bedeutung für eine realistische Prüfliste priorisieren.", "按日期、变化风险与受众重要性排序内容，建立可执行的复核队列。"),
+    description: l("Başlık, son doğrulama tarihi, değişim riski ve önem puanını birleştirerek yaş, öncelik ve önerilen inceleme penceresi üretir. Canlı sayfayı taramaz, sıralama garantisi vermez ve yalnızca tarih değiştirerek içeriği güncel saymaz.", "Combines title, last-verified date, change risk, and importance to produce age, priority, and a suggested review window. It does not crawl live pages, guarantee rankings, or treat a date-only edit as substantive freshness.", "Kombiniert Titel, letztes Prüfdatum, Änderungsrisiko und Bedeutung zu Alter, Priorität und Prüffenster. Kein Crawling oder Rankingversprechen.", "结合标题、最后验证日期、变化风险与重要性生成内容年龄、优先级和建议复核窗口；不抓取页面、不保证排名，也不会把只改日期视作实质更新。"),
+    useCases: l(["Rehber bakım takvimi", "Ürün belgesi güncelliği", "Kaynak yenileme önceliği"], ["Guide maintenance calendar", "Product-document freshness", "Source-renewal prioritisation"], ["Leitfaden-Wartungsplan", "Produktdokument-Aktualität", "Quellenerneuerung"], ["指南维护日历", "产品文档更新", "来源刷新优先级"]), steps,
+  },
+  {
+    slug: "adr-karar-kaydi-olusturucu", category: "general", mark: "354",
+    title: l("ADR Mimari Karar Kaydı Oluşturucu", "ADR Architecture Decision Record Builder", "ADR-Architekturentscheidungsprotokoll", "ADR 架构决策记录生成器"),
+    short: l("Bağlam, seçenekler, karar, sonuçlar ve yeniden değerlendirme tetikleyicileriyle kalıcı bir ADR hazırlayın.", "Create a durable ADR with context, options, decision, consequences, and reconsideration triggers.", "Dauerhaften ADR mit Kontext, Optionen, Entscheidung, Folgen und Neubewertung erstellen.", "以背景、选项、决策、后果与重新评估触发条件生成可维护 ADR。"),
+    description: l("Dağınık karar notlarını tarihli Markdown kaydına dönüştürür; seçilmeyen seçenekleri, olumlu/olumsuz sonuçları, kanıtı ve kararın ne zaman yeniden açılacağını görünür yapar. Mimari doğruluğu seçmez ve ekip onayının yerine geçmez.", "Turns decision notes into a dated Markdown record that exposes rejected options, positive and negative consequences, evidence, and reopening triggers. It does not choose the correct architecture or replace team approval.", "Wandelt Entscheidungsnotizen in einen datierten Markdown-ADR mit Alternativen, Folgen, Nachweisen und Neubewertungsauslösern um. Wählt keine Architektur.", "把零散决策说明转为带日期的 Markdown 记录，明确未选方案、正负后果、证据与重新开启条件；不会替团队选择正确架构或替代审批。"),
+    useCases: l(["Teknoloji seçimi", "Güvenlik istisnası kaydı", "Performans ödünleşimi belgeleme"], ["Technology selection", "Security-exception recording", "Performance trade-off documentation"], ["Technologieauswahl", "Sicherheitsausnahme", "Performance-Kompromiss"], ["技术选型", "安全例外记录", "性能权衡文档"]), steps,
+  },
+];
+
+export const insightToolSlugs = new Set(insightTools.map((tool) => tool.slug));
+export const insightToolCount = insightTools.length;

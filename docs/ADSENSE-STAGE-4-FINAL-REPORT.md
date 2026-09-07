@@ -6,12 +6,12 @@ Generated: 2026-08-09
 
 | Measure | Verified |
 | --- | ---: |
-| Canonical indexable URLs | 1752 |
-| Reciprocal hreflang links checked | 14248 |
-| Valid JSON-LD blocks | 1760 |
-| Visible FAQ schema entries | 5362 |
-| Visible HowTo schema steps | 3956 |
-| Canonical tools represented in llms.txt | 327 |
+| Canonical indexable URLs | 1840 |
+| Reciprocal hreflang links checked | 14928 |
+| Valid JSON-LD blocks | 1848 |
+| Visible FAQ schema entries | 5602 |
+| Visible HowTo schema steps | 4136 |
+| Canonical tools represented in llms.txt | 342 |
 | Duplicate localized titles | 0 |
 | Duplicate localized descriptions | 0 |
 

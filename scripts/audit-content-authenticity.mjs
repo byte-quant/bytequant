@@ -19,7 +19,7 @@ const unfinished = /(?:lorem ipsum|coming soon|under construction|placeholder co
 const normalise = (value) => value.normalize("NFKC").replace(/\s+/gu, " ").trim();
 const localeText = (sections) => sections.map((section) => `${section.heading ?? section.title} ${section.paragraphs.join(" ")} ${(section.bullets ?? section.checks ?? []).join(" ")}`).join(" ");
 
-assert.equal(publicTools.length, 327, "canonical tool inventory changed without editorial review");
+assert.equal(publicTools.length, 342, "canonical tool inventory changed without editorial review");
 for (const locale of locales) {
   for (const field of ["title", "short", "description"]) {
     const values = publicTools.map((tool) => normalise(tool[field][locale]));

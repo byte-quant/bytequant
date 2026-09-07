@@ -6,6 +6,7 @@ import { frontierLocalizedGuides } from "./frontier-guides";
 import { stageTwoLocalizedGuides } from "./stage-two-guides";
 import { stageThreeLocalizedGuides } from "./stage-three-guides";
 import { studioLocalizedGuides } from "./studio-guides";
+import { insightLocalizedGuides } from "./insight-guides";
 import { canonicalGuideToolSlugs } from "./guide-tool-links";
 
 export type LocalizedGuideLocale = "de" | "zh";
@@ -505,7 +506,7 @@ localizedGuides.push(
   },
 );
 
-localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides, ...frontierLocalizedGuides, ...stageTwoLocalizedGuides, ...stageThreeLocalizedGuides, ...studioLocalizedGuides);
+localizedGuides.push(...expansionLocalizedGuides, ...essentialLocalizedGuides, ...precisionLocalizedGuides, ...frontierLocalizedGuides, ...stageTwoLocalizedGuides, ...stageThreeLocalizedGuides, ...studioLocalizedGuides, ...insightLocalizedGuides);
 for (const guide of localizedGuides) guide.relatedTools = canonicalGuideToolSlugs(guide.relatedTools);
 
 export const legacyLocalizedGuideSlugs = {
