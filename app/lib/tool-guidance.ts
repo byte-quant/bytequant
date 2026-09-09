@@ -1,6 +1,7 @@
 import type { Locale } from "./site";
 import type { ToolCategory } from "./tools";
 import { studioToolGuidance } from "./studio-tool-guidance";
+import { reviewedToolGuidance } from "./reviewed-tool-guidance";
 
 type L = Record<Locale, string>;
 type GuidanceSource = { slug: string; category: ToolCategory; title: L; short: L };
@@ -219,7 +220,7 @@ export function buildToolGuidance(tool: GuidanceSource) {
   const workflow = specific?.workflow ?? p.workflow;
   const goal = { tr: clean(tool.short.tr), en: lowerFirst(clean(tool.short.en), "en"), de: clean(tool.short.de), zh: clean(tool.short.zh) } satisfies L;
   const boundary = specific?.boundary ?? specificBoundaries[tool.slug] ?? boundaries[tool.category];
-  const details = contextualizeDetails(tool, goal, { input, method, output, verification, boundary });
+  const details = reviewedToolGuidance[tool.slug] ?? contextualizeDetails(tool, goal, { input, method, output, verification, boundary });
   const useCases: Record<Locale, string[]> = {
     tr: [`İhtiyaç: ${goal.tr}`, `${workflow.tr} öncesinde ${details.output.tr}`, details.verification.tr],
     en: [`Use ${tool.title.en} when you need to ${goal.en}`, `Before ${workflow.en}, ${details.output.en}`, details.verification.en],

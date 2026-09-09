@@ -2,20 +2,20 @@
 
 This file separates owner-only account evidence from repository-verifiable facts. It prevents ByteQuant from guessing a rejection reason or claiming that approval is guaranteed.
 
-## Owner evidence required before AdSense resubmission
+## Rejection notice supplied by the owner
 
-Copy the exact text shown in AdSense → Sites → ByteQuant → policy/status details. Do not paraphrase it and do not include account email, payment data, identity documents, or screenshots containing private identifiers.
+The previous conversation contains the owner's pasted Google notice. Recovered on 2026-09-09; this records the supplied notice, not a fresh reading of the current AdSense account.
 
 - Decision date: **not supplied**
-- Exact reason heading: **not supplied**
-- Exact explanatory text: **not supplied**
+- Exact reason headings: **Yetersiz içerik**; **İçerik kalitesi sorunları**
+- Supplied explanatory text: “Sitenizde çok az metin olduğu ve/veya sitenizin \"yapım aşamasında\" olduğu belirlendi.” The notice also asks for complete sentences and paragraphs, a finished published site, and valuable, sufficiently original and rich content.
 - Affected URL example, if Google provides one: **not supplied**
 - Whether Google requests a review after changes: **not supplied**
 
 ## Repository facts verified across Stages 1–4
 
-- 309 canonical tools remain public and indexable in Turkish, English, German, and Simplified Chinese.
-- The production export contains 1,236 canonical localized tool pages with WebApplication, HowTo, and FAQ structured data.
+- 342 canonical tools remain public and indexable in Turkish, English, German, and Simplified Chinese.
+- The production export contains 1,368 canonical localized tool pages with WebApplication, HowTo, and FAQ structured data.
 - 110 high-risk tools complete 440 executable localized demo runs with unique, measurable output.
 - ByteQuant does not publish manual imitation ad boxes; the owner-provided Auto Ads tag remains in place.
 - `public/ads.txt` and the publisher identity are protected by exact-content and SHA-256 audit gates.
@@ -33,4 +33,4 @@ Copy the exact text shown in AdSense → Sites → ByteQuant → policy/status d
 | Site unavailable / code missing | Live reachability, HTTPS, Auto Ads tag, ads.txt, deployment history | Repository evidence: Stages 1 and 4; verify the deployed origin immediately before resubmission |
 | Unsupported language / localization | Language routing, hreflang, localized content and UI | Repository evidence: Stages 1–4; compare with Search Console indexing data |
 
-The repository cannot infer the rejection reason from a generic rejection notice. The exact account wording and any affected URL examples remain owner-supplied evidence. An audit pass is evidence of implementation quality, not a guarantee of acceptance. Google retains the final review decision.
+The supplied rejection themes guide this repair. Current Policy Center state, any affected URL examples, and account/CMP settings have not been inspected. An audit pass is evidence of implementation quality, not a guarantee of acceptance. Google retains the final review decision.

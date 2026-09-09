@@ -1,10 +1,10 @@
 # AdSense remediation — Stage 1 quality report
 
-Generated: 2026-08-09
+Evidence refreshed: 2026-09-09
 
 ## Decision boundary
 
-This report does not invent an AdSense rejection reason. The exact Policy Center message is account-only evidence and must be copied verbatim into `docs/ADSENSE-REJECTION-EVIDENCE.md` by the site owner. Stage 1 therefore verifies every condition that can be proven from the repository and production export, while leaving account-side evidence explicitly unresolved.
+The owner-supplied rejection notice is recorded in `docs/ADSENSE-REJECTION-EVIDENCE.md`: insufficient content and content quality. This gate verifies repository and export facts. Current Policy Center status and account configuration remain unverified.
 
 ## Protected advertising identity
 
@@ -38,8 +38,8 @@ The audit fails immediately if the seller record, hash, publisher ID, or exact A
 
 ## Measured Stage 2 editorial backlog
 
-Stage 2 follow-through is present: no canonical tools share an identical English use-case set or three-step set. The separate Stage 2 gate verifies all four locales and visible intent-specific page content.
+Stage 1 deliberately records rather than conceals template repetition. 179 tools currently share at least one identical English use-case set and 204 tools share at least one identical English three-step set. Their titles, summaries, descriptions, runnable processors, outputs, and canonical pages are distinct, but Stage 2 must replace repeated instructional copy with tool-specific input, method, acceptance, failure, and verification guidance.
 
 ## Gate result
 
-Repository-verifiable Stage 1 checks: **PASS**. Account-side rejection wording: **OWNER EVIDENCE REQUIRED**. Passing this gate is not a promise of AdSense approval; Google alone decides approval after reviewing the live site and account.
+Repository-verifiable Stage 1 checks: **PASS**. Previous rejection themes: **OWNER NOTICE RECOVERED**. Current account status: **NOT INSPECTED**. Passing this gate is not a promise of AdSense approval; Google alone decides approval after reviewing the live site and account.

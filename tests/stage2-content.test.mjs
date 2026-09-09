@@ -8,11 +8,17 @@ import { studioToolSlugs } from "../app/lib/studio-tools.ts";
 
 const locales = ["tr", "en", "de", "zh"];
 
-test("publishes tool-specific use cases and acceptance steps in every locale", () => {
+test("preserves complete localized usage instructions without padding short steps", () => {
   assert.equal(publicTools.length, 342);
   for (const locale of locales) {
-    assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.useCases[locale]))).size, publicTools.length);
-    assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.steps[locale]))).size, publicTools.length);
+    for (const tool of publicTools) {
+      assert.equal(tool.useCases[locale].length, 3);
+      assert.ok(tool.useCases[locale].every((value) => value.trim().length > 0));
+    }
+    for (const tool of publicTools) {
+      assert.equal(tool.steps[locale].length, 3);
+      assert.ok(tool.steps[locale].every((value) => value.trim().length > 0));
+    }
   }
 });
 

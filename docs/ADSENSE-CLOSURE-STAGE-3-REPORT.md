@@ -24,12 +24,12 @@ The gate fails immediately if any protected value changes.
 | Indexable localized tool decision guides inspected | 1368 |
 | TR/EN editorial guides with applied tool-specific review | 232 |
 | DE/ZH editorial guides with applied tool-specific review | 176 |
-| Smallest TR/EN/DE/ZH tool decision guide | TR 527 · EN 602 · DE 582 · ZH 706 words |
-| Smallest TR/EN/DE/ZH applied guide review | TR 634 · EN 677 · DE 615 · ZH 782 words |
+| Smallest TR/EN/DE/ZH tool decision guide | TR 306 · EN 345 · DE 301 · ZH 362 words |
+| Smallest TR/EN/DE/ZH applied guide review | TR 301 · EN 327 · DE 295 · ZH 368 words |
 
 ## Editorial repairs
 
-- Every canonical tool now explains its accepted input, disclosed method, expected output, three real use cases, acceptance signals, tool-specific stop condition, and safe next step in all four languages.
+- Every canonical tool explains its accepted input, disclosed method, expected output, practical steps, verification, boundary, and next step in all four languages. Shared short instructions are not treated as proof of originality; title padding and fabricated scenario narratives are excluded.
 - Generic “unique canonical URL” copy was removed from the visible quality passport. The replacement is written around the actual tool task and remains unique across all 342 tools per locale.
 - Guide validation blocks now use the real related tools and their input, method, output, verification, and boundary text. The same broad legal/medical/financial warning is no longer repeated on unrelated guides.
 - BlogPosting word counts now include the visible applied verification material, so structured data reflects the article readers actually receive.

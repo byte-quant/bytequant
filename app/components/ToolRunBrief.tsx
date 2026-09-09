@@ -94,7 +94,6 @@ export function ToolRunBrief({ tool, locale, guidance }: { tool: Tool; locale: L
       <div className="tool-run-guide-body">
         <header><div><h2 id={`run-brief-${tool.slug}`}>{t.title(name)}</h2><p>{t.intro(name, useCases[0])}</p></div></header>
         <ol>{stages.map((stage) => <li key={stage.number}><span aria-hidden="true">{stage.number}</span><div><small>{stage.label}</small><h3>{stage.title}</h3><p>{stage.body}</p></div></li>)}</ol>
-        <div className="tool-run-brief-path"><strong>{t.scenario}</strong><p>{useCases.map((useCase, index) => `${index + 1}. ${useCase}`).join(" → ")}</p></div>
         <p className="tool-run-brief-note"><span aria-hidden="true">i</span>{({ tr: `${name} için örnek veri varsa önce onu çalıştırın. Gerçek süreçte kullanmadan önce şu kabul ölçütünü doğrulayın: ${guidance.verification.tr}`, en: `Run the sample data for ${name} first when it is available. Before using the result in a live workflow, verify this acceptance criterion: ${guidance.verification.en}`, de: `Führen Sie für ${name} zuerst die Beispieldaten aus, sofern verfügbar. Prüfen Sie vor dem Einsatz im echten Ablauf dieses Abnahmekriterium: ${guidance.verification.de}`, zh: `如果${name}提供示例数据，请先运行示例。用于真实流程前，请核验此验收标准：${guidance.verification.zh}` } as const)[locale]}</p>
       </div>
     </details>

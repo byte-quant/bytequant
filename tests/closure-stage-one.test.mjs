@@ -20,12 +20,12 @@ test("all legacy generic workbenches have native four-locale demos", async () =>
   }
 });
 
-test("all 342 tools publish a concrete three-scenario acceptance contract", () => {
+test("all 342 tools publish usage steps and input/verification boundaries", () => {
   assert.equal(publicTools.length, 342);
   for (const tool of publicTools) {
     const guidance = getToolGuidanceDetails(tool);
     for (const locale of locales) {
-      assert.ok(tool.steps[locale][1].length >= (locale === "zh" ? 12 : 35), `${tool.slug}/${locale}: normal scenario`);
+      assert.ok(tool.steps[locale].length === 3 && tool.steps[locale].every((step) => step.trim().length > 0), `${tool.slug}/${locale}: normal scenario`);
       assert.ok(guidance.input[locale].length >= (locale === "zh" ? 12 : 35), `${tool.slug}/${locale}: malformed-input contract`);
       assert.ok(guidance.verification[locale].length >= (locale === "zh" ? 12 : 35), `${tool.slug}/${locale}: verification contract`);
       assert.ok(guidance.boundary[locale].length >= (locale === "zh" ? 12 : 35), `${tool.slug}/${locale}: boundary contract`);

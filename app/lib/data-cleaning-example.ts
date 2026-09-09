@@ -1,0 +1,25 @@
+import type { Locale } from "./site";
+import type { ArticleSection } from "./posts";
+
+export const dataCleaningExample: Record<Locale, ArticleSection> = {
+  tr: { heading: "Çalışılmış örnek: iki adres ve korunması gereken bir kimlik", paragraphs: [
+    'Başlangıç listeniz “Ada <ada@example.test>”, aynı adresin ikinci kopyası ve “deniz@example.test” olsun. E-posta temizleyicide beklenen sonuç iki benzersiz adrestir. Satır sayısıyla adres sayısını karıştırmayın: bir satır birden fazla adres içerebilir. Büyük/küçük harf veya boşluk normalizasyonundan önce kaynak kopyayı saklayın; tekilleştirme yapıldıktan sonra hangi satırların birleştiğini geri çıkarmak zor olabilir.',
+    'CSV aşamasında id,email,consent başlıklarını ve 007,ada@example.test,false kaydını kullanın. Yalnız email sütununu seçerseniz id ve consent bilinçli olarak kaybolur. Bir sonraki iş için izin durumuna ihtiyaç varsa bu sütunu çıkarmayın. “Gereksiz sütun” kararını araç vermez; aktarım amacı belirler. Başlıkta virgül veya satır sonu varsa alanı tırnaklayın; metni düz virgüllere bölmek geçerli bir CSV ayrıştırması değildir.',
+    'JSON kaydında {"id":"007","consent":false,"tags":[]} değerlerini karşılaştırın. id metin olarak kalmalı, false boş değerle karıştırılmamalı, tags boş dizi olmalıdır. JSON yol listesi alanların yerini gösterir; değerlerin doğru olduğunu kanıtlamaz. E-posta adresinin sözdiziminin doğru görünmesi de hesabın varlığını veya ileti gönderme iznini kanıtlamaz. Son dosyayı hedef uygulamada açıp baştaki sıfırları ve satır sayısını yeniden kontrol edin.'
+  ]},
+  en: { heading: "Worked example: two addresses and an identifier worth preserving", paragraphs: [
+    'Start with “Ada <ada@example.test>”, a second copy of that address, and “deniz@example.test”. The email cleaner should produce two unique addresses. Do not confuse line count with address count: one line can contain several addresses. Retain a source copy before normalizing whitespace or letter case; after deduplication it may be difficult to reconstruct which original rows were combined.',
+    'For the CSV stage, use id,email,consent as headers and 007,ada@example.test,false as one row. Selecting only email deliberately discards id and consent. Keep the consent column if the next task needs it. The tool cannot decide which columns are unnecessary; the purpose of the transfer determines that. Quote fields containing commas or line breaks. Splitting text at every comma is not a valid CSV parser.',
+    'In JSON, compare {"id":"007","consent":false,"tags":[]}. The identifier should remain a string, false must not become an empty value, and tags should be an empty array. A JSON path list locates fields; it does not prove their values correct. A plausible email address also proves neither mailbox existence nor permission to send messages. Open the final file in the destination application and check leading zeros and record count again.'
+  ]},
+  de: { heading: "Praxisbeispiel: zwei Adressen und eine zu erhaltende Kennung", paragraphs: [
+    'Beginnen Sie mit „Ada <ada@example.test>“, einer zweiten Kopie dieser Adresse und „deniz@example.test“. Der E-Mail-Bereiniger sollte zwei unterschiedliche Adressen liefern. Zeilenzahl und Adresszahl sind nicht identisch: Eine Zeile kann mehrere Adressen enthalten. Bewahren Sie vor der Normalisierung von Leerzeichen oder Großschreibung eine Rohkopie auf. Nach dem Entfernen von Duplikaten lässt sich möglicherweise nicht mehr erkennen, welche ursprünglichen Zeilen zusammengeführt wurden.',
+    'Verwenden Sie in der CSV-Stufe die Kopfzeile id,email,consent und den Datensatz 007,ada@example.test,false. Wenn Sie nur email auswählen, verwerfen Sie id und consent absichtlich. Benötigt der nächste Arbeitsschritt den Einwilligungsstatus, muss diese Spalte erhalten bleiben. Welche Felder entbehrlich sind, entscheidet der Verwendungszweck, nicht das Werkzeug. Felder mit Kommas oder Zeilenumbrüchen müssen korrekt zitiert werden; einfaches Aufteilen an jedem Komma ist kein verlässlicher CSV-Parser.',
+    'Vergleichen Sie anschließend {"id":"007","consent":false,"tags":[]} im JSON. Die Kennung muss ein String bleiben, false darf nicht zum Leerwert werden und tags muss ein leeres Array sein. Eine JSON-Pfadliste beschreibt Fundstellen, bestätigt aber nicht die Richtigkeit der Werte. Eine syntaktisch plausible E-Mail-Adresse beweist weder die Existenz des Postfachs noch eine Versandberechtigung. Öffnen Sie die fertige Datei in der Zielanwendung und kontrollieren Sie führende Nullen sowie Datensatzanzahl erneut.'
+  ]},
+  zh: { heading: "实践示例：两个地址与需要保留的标识符", paragraphs: [
+    '从“Ada <ada@example.test>”、该地址的重复副本以及“deniz@example.test”开始。邮件列表清理工具应得到两个不同地址。不要将行数当作地址数：一行可能包含多个地址。规范化空格或大小写前保留原始副本；去重后可能难以还原哪些原始行被合并。',
+    'CSV 阶段使用 id,email,consent 表头和 007,ada@example.test,false 记录。如果只选择 email 列，就会主动丢弃 id 与 consent。后续工作需要许可状态时，应保留 consent 列。工具无法替您判断哪些列没有用途，这取决于数据交付目的。含逗号或换行的字段需要正确加引号，简单按每个逗号切分不是可靠的 CSV 解析方法。',
+    '在 JSON 中比较 {"id":"007","consent":false,"tags":[]}。id 应保留为字符串，false 不能变为空值，tags 应是空数组。JSON 路径列表只能定位字段，不能证明字段值正确。邮件地址语法看似正确也不证明邮箱存在或有权发送消息。最后在目标应用中打开文件，再次检查前导零和记录数量。'
+  ]},
+};

@@ -53,7 +53,7 @@ assert.equal(adsTxt, expectedAds, "protected ads.txt seller record changed");
 assert.equal(hash(adsTxt), expectedAdsHash, "protected ads.txt hash changed");
 assert.ok(layout.includes(expectedScript), "protected AdSense Auto Ads script changed");
 assert.match(editorialSource, /data-content-depth="task-specific"/);
-assert.match(editorialSource, /tool\.useCases\[locale\]\.map/);
+assert.match(editorialSource, /tool\.steps\[locale\]\.map/);
 assert.match(editorialSource, /guidance\.boundary\[locale\]/);
 assert.match(validationSource, /data-guide-content-depth="tool-specific"/);
 assert.match(validationSource, /getToolGuidanceDetails\(tool\)/);
@@ -74,7 +74,7 @@ for (const locale of locales) {
     const text = decode(section);
     const count = words(text, locale);
     assert.ok(count >= toolMinimum[locale], `${locale}/${tool.slug} task-specific guide is too thin (${count})`);
-    for (const useCase of tool.useCases[locale]) assert.ok(text.includes(useCase), `${locale}/${tool.slug} omits use case: ${useCase}`);
+    for (const step of tool.steps[locale]) assert.ok(text.includes(step), `${locale}/${tool.slug} omits practical step: ${step}`);
     assert.ok(text.includes(tool.title[locale]), `${locale}/${tool.slug} omits its own title`);
     signatures.add(hash(text));
     minimum = Math.min(minimum, count);
@@ -139,7 +139,7 @@ The gate fails immediately if any protected value changes.
 
 ## Editorial repairs
 
-- Every canonical tool now explains its accepted input, disclosed method, expected output, three real use cases, acceptance signals, tool-specific stop condition, and safe next step in all four languages.
+- Every canonical tool explains its accepted input, disclosed method, expected output, practical steps, verification, boundary, and next step in all four languages. Shared short instructions are not treated as proof of originality; title padding and fabricated scenario narratives are excluded.
 - Generic “unique canonical URL” copy was removed from the visible quality passport. The replacement is written around the actual tool task and remains unique across all 342 tools per locale.
 - Guide validation blocks now use the real related tools and their input, method, output, verification, and boundary text. The same broad legal/medical/financial warning is no longer repeated on unrelated guides.
 - BlogPosting word counts now include the visible applied verification material, so structured data reflects the article readers actually receive.

@@ -1,4 +1,5 @@
 import type { Locale } from "./site";
+import { dataCleaningExample } from "./data-cleaning-example";
 import type { ArticleSection, Post } from "./posts";
 import type { LocalizedGuide } from "./localized-guides";
 import { getTool } from "./tools";
@@ -38,6 +39,7 @@ function sections(locale: Locale, guide: Guide): ArticleSection[] {
   });
   const checksFor = (index: number) => [guide.checks[locale][index % guide.checks[locale].length]];
   return [
+    ...(guide.slug === "liste-csv-json-cihazda-temizleme" ? [dataCleaningExample[locale]] : []),
     { heading: t.prepare, paragraphs: [paragraphs[locale][0], guide.excerpt[locale]], bullets: checksFor(0) },
     { heading: t.run, paragraphs: [scenario, paragraphs[locale][1]], bullets: toolSteps },
     { heading: t.verify, paragraphs: [locale === "tr" ? "Girdi ile çıktıyı yan yana tutun; değişen alanı, dönüşüm kuralını ve insan onayı gereken noktayı işaretleyin. İyi örneğin yanında boş, bozuk, aşırı büyük ve beklenmeyen Unicode içeren girdileri de deneyin." : locale === "de" ? "Eingabe und Ausgabe nebeneinander halten; geänderte Felder, Regel und menschliche Freigabe markieren. Neben gültigen Beispielen auch leere, fehlerhafte, übergroße und unerwartete Unicode-Eingaben testen." : locale === "zh" ? "并排保留输入与输出；标记变化字段、转换规则和需要人工批准的环节。除正常示例外，还应测试空值、格式错误、超大内容和异常 Unicode。" : "Keep input and output side by side; mark changed fields, the applied rule, and where human approval remains. Test empty, malformed, oversized, and unexpected Unicode inputs as well as the happy path."], bullets: checksFor(1) },

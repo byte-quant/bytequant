@@ -104,11 +104,11 @@ const stageTwoStatus = repeatedUseCaseTools || repeatedStepTools
 
 const report = `# AdSense remediation — Stage 1 quality report
 
-Generated: 2026-08-09
+Evidence refreshed: 2026-09-09
 
 ## Decision boundary
 
-This report does not invent an AdSense rejection reason. The exact Policy Center message is account-only evidence and must be copied verbatim into \`docs/ADSENSE-REJECTION-EVIDENCE.md\` by the site owner. Stage 1 therefore verifies every condition that can be proven from the repository and production export, while leaving account-side evidence explicitly unresolved.
+The owner-supplied rejection notice is recorded in \`docs/ADSENSE-REJECTION-EVIDENCE.md\`: insufficient content and content quality. This gate verifies repository and export facts. Current Policy Center status and account configuration remain unverified.
 
 ## Protected advertising identity
 
@@ -146,7 +146,7 @@ ${stageTwoStatus}
 
 ## Gate result
 
-Repository-verifiable Stage 1 checks: **PASS**. Account-side rejection wording: **OWNER EVIDENCE REQUIRED**. Passing this gate is not a promise of AdSense approval; Google alone decides approval after reviewing the live site and account.
+Repository-verifiable Stage 1 checks: **PASS**. Previous rejection themes: **OWNER NOTICE RECOVERED**. Current account status: **NOT INSPECTED**. Passing this gate is not a promise of AdSense approval; Google alone decides approval after reviewing the live site and account.
 `;
 
 if (process.argv.includes("--write")) {

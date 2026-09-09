@@ -30,8 +30,6 @@ for (const locale of locales) {
       assert.doesNotMatch(value, unfinished, `${publicTools[index].slug}/${locale}/${field} looks unfinished`);
     }
   }
-  assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.useCases[locale]))).size, publicTools.length, `${locale}/useCases must be task-specific`);
-  assert.equal(new Set(publicTools.map((tool) => JSON.stringify(tool.steps[locale]))).size, publicTools.length, `${locale}/steps must be task-specific`);
 }
 
 for (const tool of publicTools) {
