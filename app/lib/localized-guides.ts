@@ -1,3 +1,4 @@
+import { exampleGuideTools } from "./editorial-examples";
 import type { ArticleSection } from "./posts";
 import { expansionLocalizedGuides } from "./expansion-guides";
 import { essentialLocalizedGuides } from "./essential-guides";
@@ -524,3 +525,5 @@ export function getLocalizedGuide(slug: string) {
   const canonicalSlug = legacyLocalizedGuideSlugs[slug as keyof typeof legacyLocalizedGuideSlugs] ?? slug;
   return localizedGuides.find((guide) => guide.slug === canonicalSlug);
 }
+
+for (const guide of localizedGuides) if (guide.slug in exampleGuideTools) guide.updated = "2026-09-17";

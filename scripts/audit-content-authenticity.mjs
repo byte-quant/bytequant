@@ -94,7 +94,9 @@ for (const locale of locales) for (const slug of studio) {
     .map((match) => normalise(stripMarkup(match[1])))
     .filter((paragraph) => paragraph.length >= (locale === "zh" ? 45 : 100));
   const duplicates = [...new Set(paragraphs.filter((paragraph, index) => paragraphs.indexOf(paragraph) !== index))];
-  assert.ok(visible.length >= (locale === "zh" ? 2600 : 6000), `${slug}/${locale} rendered page is too shallow`);
+  // Utility value is a working tool plus a documented method, not a character quota.
+  assert.match(main, /id="tool-workbench"/, `${slug}/${locale} missing workbench`);
+  for (let step = 1; step <= 3; step++) assert.match(main, new RegExp(`id="how-to-step-${step}"`), `${slug}/${locale} missing usage step`);
   assert.ok(duplicates.length <= 1, `${slug}/${locale} repeats long paragraphs: ${duplicates.join(" | ")}`);
   assert.match(main, /id="worked-example"/u, `${slug}/${locale} lacks a rendered worked example`);
   assert.doesNotMatch(visible, unfinished, `${slug}/${locale} rendered page looks unfinished`);

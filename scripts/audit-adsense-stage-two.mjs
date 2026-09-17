@@ -109,9 +109,9 @@ Stage 2 replaces repeated instructional copy with intent-aware guidance. It does
 
 - Generic privacy boilerplate no longer occupies three of four tool FAQs. Each page answers the tool-specific input, expected output, verification method, and on-device data boundary.
 - HowTo copy now names the accepted data shape, the actual local method, a concrete acceptance check, and the relevant category limitation.
-- The quick-answer panel exposes input, output, method, and verification as separate visible fields; matching FAQ and HowTo structured data are generated from the same source.
+- The compact answer leads to the workbench. Method, input, output, verification, and usage steps appear together in the editorial section; FAQ and HowTo structured data use the same source.
 - Tool-to-guide links remain visible and every guide is tied to working tool routes. Canonical tool URLs remain indexable.
-- Shared technical profiles are intentional only where input contracts genuinely match; tool goals, use cases, steps, titles, descriptions, and verification sentences remain distinct.
+- Shared technical profiles are measured without inserting the tool title or goal to manufacture different strings. Titles and descriptions remain distinct; common guidance is not counted as evidence of original reporting.
 
 ## Gate result
 

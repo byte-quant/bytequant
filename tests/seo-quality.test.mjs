@@ -13,7 +13,8 @@ test("tool pages expose visible answer-first content that matches richer structu
   assert.match(source, /id="tool-workbench"/);
   assert.match(source, /id="how-to"/);
   assert.match(source, /id="tool-faq"/);
-  assert.match(source, /Input.*Output.*Verification/s);
+  const editorial = await read("app/components/ToolEditorialReview.tsx");
+  for (const field of ["input", "output", "verification"]) assert.ok(editorial.includes(`guidance.${field}[locale]`));
 });
 
 test("home discovery schema stays useful without serializing the full catalog twice", async () => {
@@ -36,7 +37,8 @@ test("review dates are synchronized across sitemap, visible tools, and schema", 
   assert.match(review, /CONTENT_REVIEW_DATE = "2026-08-24"/);
   assert.match(sitemap, /CONTENT_REVIEW_DATE_TIME/);
   assert.match(toolPage, /schemaDate\(CONTENT_REVIEW_DATE\)/);
-  assert.match(experience, /dateTime=\{CONTENT_REVIEW_DATE\}/);
+  assert.match(experience, /dateTime=\{TOOL_PAGE_UPDATED\}/);
+  assert.match(toolPage, /schemaDate\(TOOL_PAGE_UPDATED\)/);
 });
 
 test("progressive Three.js scene adapts by page and pauses in hidden tabs", async () => {

@@ -39,7 +39,7 @@ test("tool pages expose tool-specific limits and the acceptance marker", async (
     readFile(new URL("../app/components/ToolEditorialReview.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/ToolWorkbench.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(toolPage, /guidance\.boundary\[locale\]/);
+  assert.match(editorial, /guidance\.boundary\[locale\]/);
   assert.doesNotMatch(toolPage, /Automated output is a preliminary assessment/);
   assert.match(editorial, /data-tool-acceptance="three-scenario"/);
   assert.match(editorial, /guidance\.verification\[locale\]/);

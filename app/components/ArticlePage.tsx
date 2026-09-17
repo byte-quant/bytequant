@@ -1,3 +1,4 @@
+import { GuideExamples, guideExampleText } from "./EditorialExample";
 import Link from "next/link";
 import type { EditorialLocale, Post } from "../lib/posts";
 import { posts } from "../lib/posts";
@@ -55,7 +56,7 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
   }).format(new Date(`${post.date}T00:00:00.000Z`));
   const modifiedDate = post.updated ?? post.date;
   const formattedModifiedDate = new Intl.DateTimeFormat(currentLanguage, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${modifiedDate}T00:00:00.000Z`));
-  const visibleArticleText = [post.title[locale], post.description[locale], post.excerpt[locale], ...post.sections[locale].flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(post.title[locale], post.description[locale], locale, relatedTools)].join(" ");
+  const visibleArticleText = [guideExampleText(post.slug, locale), post.title[locale], post.description[locale], post.excerpt[locale], ...post.sections[locale].flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(post.title[locale], post.description[locale], locale, relatedTools)].join(" ");
   const wordCount = visibleArticleText.trim().split(/\s+/).length;
   const schema = [
     {
@@ -116,7 +117,6 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
 
           <div className="article-body">
             <div className="article-summary"><strong>{ui.short}</strong><p>{post.description[locale]}</p></div>
-            <GuideActionPlan guideTitle={post.title[locale]} locale={locale} tools={relatedTools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
             {post.sections[locale].map((section, index) => (
               <section id={`section-${index + 1}`} key={section.heading}>
                 <span className="section-index">{String(index + 1).padStart(2, "0")}</span>
@@ -125,6 +125,9 @@ export function ArticlePage({ post, locale }: { post: Post; locale: EditorialLoc
                 {section.bullets && <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
               </section>
             ))}
+
+            <GuideExamples slug={post.slug} locale={locale} />
+            <GuideActionPlan guideTitle={post.title[locale]} locale={locale} tools={relatedTools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
 
             {post.sources && <section id="sources" className="article-sources"><span className="section-index">↗</span><h2>{ui.sourcesTitle}</h2><p>{sourceContext(locale, post.title[locale], post.sources.length)}</p><ol>{post.sources.map((source) => <li key={source.url}><a href={source.url} rel="noopener noreferrer">{source.title[locale]} <span aria-hidden="true">↗</span></a></li>)}</ol></section>}
 

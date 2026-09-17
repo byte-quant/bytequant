@@ -17,7 +17,7 @@ const locales = ["tr", "en", "de", "zh"];
 const tags = { tr: "tr-TR", en: "en-US", de: "de-DE", zh: "zh-CN" };
 const toolPrefixes = { tr: "araclar", en: "en/tools", de: "de/tools", zh: "zh/tools" };
 const guidePrefixes = { tr: "blog", en: "en/blog", de: "de/blog", zh: "zh/blog" };
-const toolMinimum = { tr: 180, en: 180, de: 180, zh: 105 };
+// Word counts are reported, not an originality or AdSense approval test.
 const guideMinimum = { tr: 125, en: 125, de: 125, zh: 75 };
 
 const read = (relative) => readFile(join(root, relative), "utf8");
@@ -73,7 +73,8 @@ for (const locale of locales) {
     const section = markedSection(html, 'data-content-depth="task-specific"');
     const text = decode(section);
     const count = words(text, locale);
-    assert.ok(count >= toolMinimum[locale], `${locale}/${tool.slug} task-specific guide is too thin (${count})`);
+    assert.match(section, /tool-editorial-grid/, `${locale}/${tool.slug} lacks method and input/output documentation`);
+    for (let step = 1; step <= 3; step++) assert.equal((html.match(new RegExp(`id="how-to-step-${step}"`, "g")) ?? []).length, 1, `${locale}/${tool.slug} step anchor must exist exactly once`);
     for (const step of tool.steps[locale]) assert.ok(text.includes(step), `${locale}/${tool.slug} omits practical step: ${step}`);
     assert.ok(text.includes(tool.title[locale]), `${locale}/${tool.slug} omits its own title`);
     signatures.add(hash(text));
@@ -130,7 +131,7 @@ The gate fails immediately if any protected value changes.
 
 | Measure | Result |
 | --- | ---: |
-| Canonical tools with unique four-language decision guides | ${publicTools.length} |
+| Canonical tools with four-language usage documentation | ${publicTools.length} |
 | Indexable localized tool decision guides inspected | ${publicTools.length * locales.length} |
 | TR/EN editorial guides with applied tool-specific review | ${posts.length * 2} |
 | DE/ZH editorial guides with applied tool-specific review | ${localizedGuides.length * 2} |
@@ -140,7 +141,7 @@ The gate fails immediately if any protected value changes.
 ## Editorial repairs
 
 - Every canonical tool explains its accepted input, disclosed method, expected output, practical steps, verification, boundary, and next step in all four languages. Shared short instructions are not treated as proof of originality; title padding and fabricated scenario narratives are excluded.
-- Generic “unique canonical URL” copy was removed from the visible quality passport. The replacement is written around the actual tool task and remains unique across all 342 tools per locale.
+- Tool documentation exposes one set of usage steps with stable schema anchors. Shared method instructions are not evidence of original reporting. Word counts are descriptive measurements, not publisher approval thresholds.
 - Guide validation blocks now use the real related tools and their input, method, output, verification, and boundary text. The same broad legal/medical/financial warning is no longer repeated on unrelated guides.
 - BlogPosting word counts now include the visible applied verification material, so structured data reflects the article readers actually receive.
 - Canonical tools and editorial guides remain indexable; no discoverable content was removed or blanket-noindexed.

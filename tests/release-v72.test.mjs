@@ -46,7 +46,7 @@ test("the tool-specific run brief and runtime families improve every workbench w
     source("app/globals.css"),
   ]);
   assert.match(page, /data-input-output-contract="guided-v4"/);
-  assert.match(page, /<ToolWorkbench[\s\S]*<ToolRunBrief/);
+  assert.match(page, /<ToolWorkbench[\s\S]*<ToolEditorialReview/);
   assert.match(brief, /tool-specific-run-contract/);
   assert.match(brief, /guidance\.input\[locale\]/);
   assert.match(brief, /guidance\.output\[locale\]/);

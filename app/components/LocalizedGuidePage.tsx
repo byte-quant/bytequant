@@ -1,3 +1,4 @@
+import { GuideExamples, guideExampleText } from "./EditorialExample";
 import Link from "next/link";
 import type { LocalizedGuide, LocalizedGuideLocale } from "../lib/localized-guides";
 import { getTool, type Tool } from "../lib/tools";
@@ -27,7 +28,7 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
     `Methoden und Grenzen in „${copy.title}“ wurden für diese Sprachfassung redaktionell geprüft. Testen Sie ${primaryTool?.title.de ?? "den beschriebenen Ablauf"} mit synthetischen Daten; folgenreiche Entscheidungen benötigen weiterhin eine unabhängige Fachprüfung.`,
     `《${copy.title}》中的方法与限制已经过本地化编辑审核。请先用合成数据测试${primaryTool?.title.zh ?? "文中流程"}；涉及重要后果的决定仍需独立专业核验。`,
   );
-  const articleText = [copy.title, copy.description, copy.excerpt, ...copy.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(copy.title, copy.description, locale, tools)].join(" ");
+  const articleText = [guideExampleText(guide.slug, locale), copy.title, copy.description, copy.excerpt, ...copy.sections.flatMap((section) => [section.heading, ...section.paragraphs, ...(section.bullets ?? [])]), guideValidationText(copy.title, copy.description, locale, tools)].join(" ");
   const wordCount = articleWordCount(articleText, locale);
   const published = new Intl.DateTimeFormat(languageTag(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${guide.date}T00:00:00Z`));
   const updated = new Intl.DateTimeFormat(languageTag(locale), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${guide.updated ?? guide.date}T00:00:00Z`));
@@ -76,7 +77,6 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
                 <li>{localized(`Eine nachvollziehbare Übergabe an ${primaryTool?.title.de ?? "das passende lokale Werkzeug"}`, `可核验地交付到${primaryTool?.title.zh ?? "相关本地工具"}`)}</li>
               </ul>
             </aside>
-            <GuideActionPlan guideTitle={copy.title} locale={locale} tools={tools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
             {copy.sections.map((section, index) => (
               <section id={`guide-section-${index + 1}`} key={section.heading}>
                 <span className="section-index">{String(index + 1).padStart(2, "0")}</span>
@@ -85,6 +85,9 @@ export function LocalizedGuidePage({ guide, locale }: { guide: LocalizedGuide; l
                 {section.bullets?.length ? <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul> : null}
               </section>
             ))}
+            <GuideExamples slug={guide.slug} locale={locale} />
+            <GuideActionPlan guideTitle={copy.title} locale={locale} tools={tools.map((tool) => ({ slug: tool.slug, title: tool.title[locale], href: toolPath(locale, tool.slug), prepare: tool.steps[locale][0], verify: tool.steps[locale][2] }))} />
+
             <GuideValidationLab guideTitle={copy.title} guideSummary={copy.description} locale={locale} tools={tools} />
           </div>
         </div>

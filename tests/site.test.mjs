@@ -24,8 +24,8 @@ test("global command search defers the full tool index until the keyboard shortc
 
 test("exports the complete four-language site", async () => {
   const [home, english, german, chinese, sitemap, robots, llms, manifest, worker] = await Promise.all([read("index.html"), read("en/index.html"), read("de/index.html"), read("zh/index.html"), read("sitemap.xml"), read("robots.txt"), read("llms.txt"), read("manifest.webmanifest"), read("sw.js")]);
-  assert.match(home, /Ne yapmak istediğinizi anlatın; ByteQuant AI doğru yolu hazırlasın/);
-  assert.match(english, /Describe what you need; ByteQuant AI will prepare the right path/);
+  assert.match(home, /Veriyi düzenleyin. Sonucu anlayın./);
+  assert.match(english, /Transform your data. Understand the result./);
   assert.match(home, /benzersiz yayımlanmış araç/);
   assert.match(home, /<html lang="tr"/);
   assert.match(english, /<html lang="en"/);
@@ -255,10 +255,10 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /HowTo/);
   assert.match(page, /BreadcrumbList/);
   assert.match(page, /WebApplication/);
-  assert.match(page, /tool-transparency/);
+  assert.match(page, /tool-editorial-review/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /İçerik ve arayüz incelemesi: 22 Ağustos 2026/);
+  assert.match(page, /Sayfa güncellemesi: 17 Eylül 2026/);
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /fetch\(|axios/i);
 });

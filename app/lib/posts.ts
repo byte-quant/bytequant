@@ -1,3 +1,4 @@
+import { exampleGuideTools } from "./editorial-examples";
 import { expansionPosts } from "./expansion-guides";
 import { essentialPosts } from "./essential-guides";
 import { precisionPosts } from "./precision-guides";
@@ -1283,3 +1284,5 @@ export function getPost(slug: string) {
   const canonicalSlug = legacyPostSlugs[slug as keyof typeof legacyPostSlugs] ?? slug;
   return posts.find((post) => post.slug === canonicalSlug);
 }
+
+for (const guide of posts) if (guide.slug in exampleGuideTools) guide.updated = "2026-09-17";

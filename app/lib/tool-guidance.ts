@@ -2,6 +2,7 @@ import type { Locale } from "./site";
 import type { ToolCategory } from "./tools";
 import { studioToolGuidance } from "./studio-tool-guidance";
 import { reviewedToolGuidance } from "./reviewed-tool-guidance";
+import { encodingToolGuidance, encodingWorkflows } from "./encoding-tool-guidance";
 
 type L = Record<Locale, string>;
 type GuidanceSource = { slug: string; category: ToolCategory; title: L; short: L };
@@ -152,41 +153,6 @@ function choose(tool: GuidanceSource): Profile {
 const clean = (value: string) => value.trim().replace(/[.!?。！？]+$/u, "");
 const lowerFirst = (value: string, locale: Locale) => value.charAt(0).toLocaleLowerCase(locale === "tr" ? "tr-TR" : locale) + value.slice(1);
 
-function contextualizeDetails(tool: GuidanceSource, goal: L, details: ToolGuidanceDetails): ToolGuidanceDetails {
-  return {
-    input: l(
-      `${tool.title.tr} için başlangıç girdisi: ${lowerFirst(clean(details.input.tr), "tr")}. Araç bu girdiyi “${goal.tr}” amacıyla kullanır.`,
-      `For ${tool.title.en}, provide ${lowerFirst(clean(details.input.en), "en")}. The requested outcome is to ${goal.en}.`,
-      `Für ${tool.title.de} verwenden Sie ${lowerFirst(clean(details.input.de), "de")}. Das konkrete Ziel lautet: ${goal.de}.`,
-      `${tool.title.zh}的输入应为${clean(details.input.zh)}。本次处理目标是：${goal.zh}。`,
-    ),
-    method: l(
-      `${tool.title.tr}, “${goal.tr}” hedefi için şu açıklanabilir yöntemi uygular: ${lowerFirst(clean(details.method.tr), "tr")}.`,
-      `${tool.title.en} uses this disclosed method to ${goal.en}: ${lowerFirst(clean(details.method.en), "en")}.`,
-      `${tool.title.de} nutzt für das Ziel „${goal.de}“ diese nachvollziehbare Methode: ${lowerFirst(clean(details.method.de), "de")}.`,
-      `${tool.title.zh}为实现“${goal.zh}”采用以下可解释方法：${clean(details.method.zh)}。`,
-    ),
-    output: l(
-      `${tool.title.tr} tamamlandığında ${lowerFirst(clean(details.output.tr), "tr")} sunar; bu çıktı “${goal.tr}” ihtiyacına göre düzenlenir.`,
-      `When ${tool.title.en} finishes, it returns ${lowerFirst(clean(details.output.en), "en")}, organised around the goal to ${goal.en}.`,
-      `${tool.title.de} liefert ${lowerFirst(clean(details.output.de), "de")}; die Ausgabe ist auf das Ziel „${goal.de}“ ausgerichtet.`,
-      `${tool.title.zh}完成后会提供${clean(details.output.zh)}，并围绕“${goal.zh}”组织结果。`,
-    ),
-    verification: l(
-      `${tool.title.tr} sonucunu kabul etmeden önce ${lowerFirst(clean(details.verification.tr), "tr")} kontrolünü tamamlayın; beklenen amaç “${goal.tr}” olmalıdır.`,
-      `Before accepting a ${tool.title.en} result, complete ${lowerFirst(clean(details.verification.en), "en")}; the evidence should support the goal to ${goal.en}.`,
-      `Vor der Abnahme eines Ergebnisses von ${tool.title.de} führen Sie ${lowerFirst(clean(details.verification.de), "de")} durch; der Nachweis muss zum Ziel „${goal.de}“ passen.`,
-      `接受${tool.title.zh}的结果前，请完成${clean(details.verification.zh)}；核验证据应与“${goal.zh}”这一目标一致。`,
-    ),
-    boundary: l(
-      `${tool.title.tr} için kullanım sınırı: ${clean(details.boundary.tr)}.`,
-      `${tool.title.en} limitation: ${clean(details.boundary.en)}.`,
-      `Nutzungsgrenze von ${tool.title.de}: ${clean(details.boundary.de)}.`,
-      `${tool.title.zh}的使用边界：${clean(details.boundary.zh)}。`,
-    ),
-  };
-}
-
 function formatSpecificInput(tool: GuidanceSource, fallback: L): L {
   const slug = tool.slug;
   if (/(jsonl|ndjson|json-lines)/.test(slug)) return l(
@@ -217,10 +183,10 @@ export function buildToolGuidance(tool: GuidanceSource) {
   const method = specific?.method ?? p.method;
   const output = specific?.output ?? p.output;
   const verification = specific?.verification ?? p.verification;
-  const workflow = specific?.workflow ?? p.workflow;
+  const workflow = encodingWorkflows[tool.slug as keyof typeof encodingWorkflows] ?? specific?.workflow ?? p.workflow;
   const goal = { tr: clean(tool.short.tr), en: lowerFirst(clean(tool.short.en), "en"), de: clean(tool.short.de), zh: clean(tool.short.zh) } satisfies L;
   const boundary = specific?.boundary ?? specificBoundaries[tool.slug] ?? boundaries[tool.category];
-  const details = reviewedToolGuidance[tool.slug] ?? contextualizeDetails(tool, goal, { input, method, output, verification, boundary });
+  const details = encodingToolGuidance[tool.slug] ?? reviewedToolGuidance[tool.slug] ?? { input, method, output, verification, boundary };
   const useCases: Record<Locale, string[]> = {
     tr: [`İhtiyaç: ${goal.tr}`, `${workflow.tr} öncesinde ${details.output.tr}`, details.verification.tr],
     en: [`Use ${tool.title.en} when you need to ${goal.en}`, `Before ${workflow.en}, ${details.output.en}`, details.verification.en],
