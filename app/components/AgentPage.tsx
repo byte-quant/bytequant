@@ -83,14 +83,17 @@ const scenarioContent = {
   },
 } as const;
 
+import { AgentWorkedGuide } from "./AgentWorkedGuide";
+import { AGENT_VERSION } from "../lib/agent-session";
+
 export function AgentPage({ locale }: { locale: Locale }) {
   const c = content[locale];
   const scenarios = scenarioContent[locale];
   const visualPrompt = { tr: "Bir görsel oluşturmak veya yüklediğim resmi düzenlemek istiyorum", en: "I want to create a visual or edit an image I upload", de: "Ich möchte ein Bild erstellen oder ein hochgeladenes Bild bearbeiten", zh: "我想创建视觉内容或编辑我上传的图片" }[locale];
   const pageUrl = absoluteUrl(pathFor(locale, "agent"));
-  const agentName = "ByteQuant AI";
+  const agentName = AGENT_VERSION;
   const schemas = [
-    { "@context": "https://schema.org", "@type": "WebApplication", "@id": `${pageUrl}#application`, name: `ByteQuant ${agentName}`, url: pageUrl, description: c.intro, applicationCategory: "ProductivityApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled; WebGPU is optional for the local generative model", inLanguage: languageTag(locale), isAccessibleForFree: true, creator: { "@id": organizationId }, isPartOf: { "@id": websiteId }, featureList: [...c.cards.map((item) => item[1]), c.faq[0][0], c.faq[3][0]], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
+    { "@context": "https://schema.org", "@type": "WebApplication", "@id": `${pageUrl}#application`, name: agentName, softwareVersion: AGENT_VERSION.replace("ByteQuant AI ", ""), url: pageUrl, description: c.intro, applicationCategory: "ProductivityApplication", operatingSystem: "Any modern browser", browserRequirements: "JavaScript enabled; WebGPU is optional for the local generative model", inLanguage: languageTag(locale), isAccessibleForFree: true, creator: { "@id": organizationId }, isPartOf: { "@id": websiteId }, featureList: [...c.cards.map((item) => item[1]), c.faq[0][0], c.faq[3][0]], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: locale === "tr" ? "Ana sayfa" : locale === "en" ? "Home" : locale === "de" ? "Startseite" : "首页", item: absoluteUrl(pathFor(locale, "home")) }, { "@type": "ListItem", position: 2, name: c.title, item: pageUrl }] },
     { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: languageTag(locale), mainEntity: c.faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
   ];
@@ -98,6 +101,7 @@ export function AgentPage({ locale }: { locale: Locale }) {
     <SchemaScript data={schemas} />
     <section className="agent-product-intro agent-product-intro-compact agent-product-intro-v74 agent-product-intro-v75"><div className="container agent-product-intro-grid"><div><span className="eyebrow"><i />{c.eyebrow}</span><h1>{c.title}</h1><p>{c.intro}</p><div className="agent-intro-actions"><a className="primary-button" href="#local-agent">{c.start} <span aria-hidden="true">↓</span></a><Link className="secondary-button" href={`${pathFor(locale, "agent")}?q=${encodeURIComponent(visualPrompt)}#local-agent`}>{c.visual} <span aria-hidden="true">→</span></Link><Link className="secondary-button" href={pathFor(locale, "workstation")}>{c.workspace} <span aria-hidden="true">→</span></Link></div></div><aside className="agent-simple-promise" aria-label={locale === "tr" ? "Nasıl çalışır" : locale === "de" ? "So funktioniert es" : locale === "zh" ? "使用步骤" : "How it works"}><span>01</span><strong>{c.steps[0][1]}</strong><i>→</i><span>02</span><strong>{c.steps[1][1]}</strong><i>→</i><span>03</span><strong>{c.steps[2][1]}</strong></aside></div></section>
     <section id="local-agent" className="section agent-console-section"><div className="container"><AgentConversation locale={locale} /></div></section>
+    <AgentWorkedGuide locale={locale} />
     <section id="agent-visual" className="section agent-visual-section"><div className="container"><AgentVisualStudioLoader locale={locale} /></div></section>
     <section className="section agent-how"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">LOCAL-FIRST</span><h2>{c.howTitle}</h2></div><p>{c.howIntro}</p></div><div className="agent-how-grid">{c.cards.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>
     <section className="section agent-scenarios"><div className="container"><div className="section-heading split-heading"><div><span className="kicker">{scenarios.kicker}</span><h2>{scenarios.title}</h2></div><p>{scenarios.intro}</p></div><div className="agent-scenario-grid">{scenarios.items.map(([label, prompt, result], index) => <article key={label}><span>{String(index + 1).padStart(2, "0")}</span><div><small>{label}</small><h3>{prompt}</h3><p>{result}</p></div></article>)}</div></div></section>

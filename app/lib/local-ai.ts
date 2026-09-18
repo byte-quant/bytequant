@@ -1,6 +1,7 @@
 import type { Locale } from "./site";
 import type { AgentPlan } from "./agent-core";
 import type { AppConfig } from "@mlc-ai/web-llm";
+import { percentageFollowUp, workedExampleAnswer } from "./agent-worked-answers";
 
 export const LOCAL_AI_MODEL_LICENSE = "Apache-2.0";
 /**
@@ -972,7 +973,22 @@ export function createFastConversationResponse(locale: Locale, goal: string, his
   const text = goal.toLocaleLowerCase(locale === "zh" ? "zh-CN" : locale);
   const copy = quickReplies[locale];
   const previous = [...history].reverse().find((turn) => turn.locale === locale && turn.answer.trim());
-  const previousName = [...history].reverse().map((turn) => turn.goal.match(/(?:benim adım|adım|my name is|ich hei(?:ß|ss)e|mein name ist|我叫)\s+([\p{L}\p{M}][\p{L}\p{M}'’-]{1,30})/iu)?.[1]).find((value) => value && !/^(?:ne|nedir|what|was|什么)$/iu.test(value));
+  const workedAnswer = workedExampleAnswer(locale, goal, previous?.goal);
+  if (workedAnswer) return workedAnswer;
+  let percentageContext = previous?.goal ?? "";
+  // Rebuild an adjacent chain of short corrections; never jump across a topic change.
+  if (previous) {
+    const localHistory = history.filter((turn) => turn.locale === locale).slice(-12);
+    let base = "";
+    for (const turn of localHistory) base = percentageFollowUp(turn.goal, base) ?? turn.goal;
+    percentageContext = base;
+  }
+  const correctedPercentage = previous ? percentageFollowUp(goal, percentageContext) : null;
+  if (correctedPercentage) {
+    const answer = createNaturalPercentageResponse(locale, correctedPercentage);
+    if (answer) return answer;
+  }
+  const previousName = [...history].reverse().filter((turn) => turn.locale === locale).map((turn) => turn.goal.match(/(?:benim adım|adım|my name is|ich hei(?:ß|ss)e|mein name ist|我叫)\s+([\p{L}\p{M}][\p{L}\p{M}'’-]{1,30})/iu)?.[1]).find((value) => value && !/^(?:ne|nedir|what|was|什么)$/iu.test(value));
   const introducedName = goal.match(/(?:benim adım|adım|my name is|ich hei(?:ß|ss)e|mein name ist|我叫)\s+([\p{L}\p{M}][\p{L}\p{M}'’-]{1,30})/iu)?.[1];
   if (introducedName && !/^(?:ne|nedir|what|was|什么)$/iu.test(introducedName)) {
     return locale === "tr" ? `Memnun oldum, ${introducedName}. Adınızı yalnızca bu sekmedeki konuşma bağlamında tutacağım.`

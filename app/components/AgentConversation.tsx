@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canAutomatePlan, runAgentAutomation, type AgentAutomationResult } from "../lib/agent-automation";
-import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, extractAgentPayload, prepareAgentInput, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
+import { AGENT_SESSION_KEY, AGENT_VERSION, createAgentPlan, prepareAgentInput, readAgentSession, semanticToolSearch, translateAgentError, type AgentPlan } from "../lib/agent-core";
 import { AGENT_AUTO_PREPARE_KEY } from "../lib/agent-session";
-import { acquireLocalAIEngine, buildLocalAIMessages, compactLocalAIConversationHistory, createFastConversationResponse, createFastFollowUpSuggestions, didFastConversationUseHistory, disposePooledLocalAIEngine, explainLocalAIError, inspectLocalAIEnvironment, isLikelyWorkflowRequest, LOCAL_AI_MODEL_ID, LOCAL_AI_PROFILES, readLocalAIAttachmentFile, readLocalAIConversationHistory, referencesLocalAIHistory, selectLocalAIConversationContext, streamLocalAI, supportsLocalAI, type LocalAIAttachment, type LocalAIConversationTurn, type LocalAIEnvironment, type LocalAILease, type LocalAIProfileId } from "../lib/local-ai";
+import { resolveAgentRequest } from "../lib/agent-request";
+import { acquireLocalAIEngine, buildLocalAIMessages, compactLocalAIConversationHistory, createFastConversationResponse, createFastFollowUpSuggestions, didFastConversationUseHistory, disposePooledLocalAIEngine, explainLocalAIError, inspectLocalAIEnvironment, LOCAL_AI_MODEL_ID, LOCAL_AI_PROFILES, readLocalAIAttachmentFile, readLocalAIConversationHistory, referencesLocalAIHistory, selectLocalAIConversationContext, streamLocalAI, supportsLocalAI, type LocalAIAttachment, type LocalAIConversationTurn, type LocalAIEnvironment, type LocalAILease, type LocalAIProfileId } from "../lib/local-ai";
 import { pathFor, toolPath, type Locale } from "../lib/site";
 import { publicTools as tools } from "../lib/tools";
 import { detectVisualIntent, VISUAL_MAX_FILE_BYTES } from "../lib/visual-studio";
@@ -288,16 +289,18 @@ export function AgentConversation({ locale }: { locale: Locale }) {
     }
     const submittedAttachment = attachment;
     const displayGoal = submittedAttachment ? `${text}\n📎 ${submittedAttachment.name}` : text;
-    const workflow = isLikelyWorkflowRequest(text) || Boolean(submittedAttachment);
+    const request = resolveAgentRequest(text, tools, locale, plan, !preparedInput || Boolean(automationError), Boolean(submittedAttachment));
+    const workflow = request.workflow;
     const runId = ++generationRef.current;
     activePromptRef.current = text; setBusy(true); setStreamingGoal(displayGoal); setStreamingResponse(""); setAutomation(null); setAutomationError(""); setGoal("");
     try {
-      const next = createAgentPlan(text, tools, locale, workflow ? lastWorkflowPlanRef.current : null);
+      const next = request.plan;
       const intent = workflow ? "workflow" : "conversation";
       const conversationContext = selectLocalAIConversationContext(turns, locale, text, intent);
       setShowWorkflowPlan(workflow);
-      const extractedInput = extractAgentPayload(text);
-      const inheritedInput = workflow && !extractedInput && !submittedAttachment?.text && next.conversation.isFollowUp ? automation?.output || preparedInput : "";
+      const extractedInput = request.payload;
+      const completedOutput = automation?.steps.every((step) => step.status === "completed") ? automation.output : "";
+      const inheritedInput = request.inheritInput && !extractedInput && !submittedAttachment?.text ? completedOutput || preparedInput : "";
       const sourceInput = extractedInput || submittedAttachment?.text || inheritedInput;
       const detectedInput = workflow ? prepareAgentInput(text, next, sourceInput) : "";
       let answer = workflow ? next.response : createFastConversationResponse(locale, text, turns);
@@ -355,7 +358,7 @@ export function AgentConversation({ locale }: { locale: Locale }) {
       const finalPlan = { ...next, response: answer };
       const usedContext = mode === "ai"
         ? conversationContext.length > 0 && (referencesLocalAIHistory(text) || next.conversation.isFollowUp)
-        : didFastConversationUseHistory(text, turns);
+        : (workflow && next.conversation.isFollowUp) || didFastConversationUseHistory(text, turns);
       const nextTurns = compactLocalAIConversationHistory([...turns, { locale, goal: displayGoal, answer, tools: workflow ? finalPlan.steps.map((step) => step.title) : [], time: Date.now(), mode, intent, usedContext }]);
       if (workflow) lastWorkflowPlanRef.current = finalPlan;
       setPlan(workflow ? finalPlan : null); setTurns(nextTurns); setPreparedInput(detectedInput); setData(detectedInput); setInputInherited(Boolean(inheritedInput)); setStreamingGoal(""); setStreamingResponse(""); setBusy(false); setAttachment(null);

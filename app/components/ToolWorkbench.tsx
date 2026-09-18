@@ -21,6 +21,7 @@ import { frontierToolSlugs } from "../lib/frontier-tools";
 import { stageTwoToolSlugs } from "../lib/stage-two-tools";
 import { studioToolSlugs } from "../lib/studio-tools";
 import { insightToolSlugs } from "../lib/insight-tools";
+import { csvDirection, sampleForMode, unwrapInputFence } from "../lib/input-assistance";
 import { StructuredToolOutput } from "./StructuredToolOutput";
 import { csvToJson, jsonToCsv, parseCsv, detectCsvDelimiter } from "../lib/csv-conversion";
 
@@ -411,6 +412,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   const [length, setLength] = useState(24);
   const [quantity, setQuantity] = useState(5);
   const [batch, setBatch] = useState(false);
+  const [exampleBackup, setExampleBackup] = useState<{ input: string; secondary: string; mode: string } | null>(null);
   const [output, setOutput] = useState("");
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [notice, setNotice] = useState<ToolNoticeData | null>(null);
@@ -436,13 +438,15 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
   }
 
   function clearWorkbench() {
-    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setBatch(false); resetResult();
+    setInput(""); setSecondary(""); setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setBatch(false); setExampleBackup(null); resetResult();
   }
 
   function loadDemo() {
-    setInput(legacyGenericSamples[slug]?.[locale] ?? "");
+    setExampleBackup({ input, secondary, mode });
+    setInput(sampleForMode(slug, mode, legacyGenericSamples[slug]?.[locale] ?? ""));
+    setBatch(false);
     setSecondary(secondarySample(slug, locale));
-    setFlags("gi"); setMode("default"); setLength(24); setQuantity(5); setOutput(""); setMetrics([]);
+    setFlags("gi"); setLength(24); setQuantity(5); setOutput(""); setMetrics([]);
     setNotice({ kind: "info", text: labels.demoLoaded });
   }
 
@@ -610,7 +614,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           break;
         }
         case "json-csv-donusturucu": {
-          if (mode === "csv-to-json") {
+          if (csvDirection(input, mode) === "csv-to-json") {
             const converted = csvToJson(input, locale);
             setResult(converted.output, [{ label: ui(locale, { tr: "Kayıt", en: "Records", de: "Datensätze", zh: "记录" }), value: converted.records }, { label: ui(locale, { tr: "Sütun", en: "Columns", de: "Spalten", zh: "列" }), value: converted.columns }, { label: ui(locale, { tr: "Algılanan ayraç", en: "Detected delimiter", de: "Erkanntes Trennzeichen", zh: "检测到的分隔符" }), value: converted.delimiter === "\t" ? "TAB" : converted.delimiter }]);
           } else {
@@ -762,6 +766,10 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
       <div className="workbench-bar"><span className="local-status"><i />{labels.local}<small>{labels.shortcut}</small></span><div className="workbench-bar-actions"><button type="button" className="demo-button" onClick={loadDemo} disabled={busy}>{labels.demo}</button><button type="button" className="ghost-button" onClick={clearWorkbench} disabled={busy}>{labels.clear}</button></div></div>
       <div className="workbench-grid">
         <div className="workbench-inputs">
+          {exampleBackup && <button type="button" className="ghost-button" onClick={() => { setInput(exampleBackup.input); setSecondary(exampleBackup.secondary); setMode(exampleBackup.mode); setExampleBackup(null); resetResult(); }}>{ui(locale, { tr: "Örnekten önceki girdiyi geri al", en: "Restore input from before example", de: "Eingabe vor dem Beispiel wiederherstellen", zh: "恢复加载示例前的输入" })}</button>}
+          {["json-bicimlendirici", "json-csv-donusturucu", "csv-inceleyici"].includes(slug) && unwrapInputFence(input) !== null && <button type="button" className="ghost-button" onClick={() => { setInput(unwrapInputFence(input) ?? input); resetResult(); }}>{ui(locale, { tr: "Markdown çerçevesini kaldır", en: "Remove Markdown fence", de: "Markdown-Codezaun entfernen", zh: "移除 Markdown 代码围栏" })}</button>}
+          {slug === "json-csv-donusturucu" && <p className="field-help">{ui(locale, { tr: "JSON dizisini veya tablonuzu doğrudan yapıştırın. Virgül, noktalı virgül ve Excel'den kopyalanan sekmeli sütunlar algılanır.", en: "Paste a JSON array or table directly. Commas, semicolons and tab-separated columns copied from a spreadsheet are detected.", de: "JSON-Array oder Tabelle direkt einfügen. Kommas, Semikolons und aus Tabellen kopierte Tabulatoren werden erkannt.", zh: "直接粘贴 JSON 数组或表格。可识别逗号、分号及从电子表格复制的制表符分列。" })}</p>}
+
           {!noInputTools.has(slug) && <label className="field-label"><span>{labels.input}</span><textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="input" value={input} maxLength={100000} rows={slug === "metin-benzerlik-analizi" ? 7 : 11} onChange={(event) => { setInput(event.target.value); resetResult(); }} spellCheck="false" /><small className="field-counter">{input.length.toLocaleString(localeTags[locale])} / 100.000</small></label>}
           {secondInputTools.has(slug) && <label className="field-label"><span>{labels.second}</span>{slug === "regex-test-araci" ? <input aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={500} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" /> : <textarea aria-invalid={operationState === "error"} aria-errormessage={operationState === "error" ? `${slug}-workbench-error` : undefined} data-agent-input data-agent-key="secondary" value={secondary} maxLength={50000} rows={5} onChange={(event) => { setSecondary(event.target.value); resetResult(); }} spellCheck="false" />}<small className="field-counter">{secondary.length.toLocaleString(localeTags[locale])} / {slug === "regex-test-araci" ? "500" : "50.000"}</small></label>}
           {slug === "regex-test-araci" && <label className="field-label compact-field"><span>{labels.flags}</span><input value={flags} maxLength={6} onChange={(event) => { setFlags(event.target.value.replace(/[^dgimsuvy]/g, "")); resetResult(); }} /></label>}
@@ -770,7 +778,7 @@ function GenericToolWorkbench({ slug, locale }: { slug: string; locale: Locale }
           {showMode && <label className="field-label compact-field"><span>{ui(locale, { tr: "İşlem", en: "Operation", de: "Vorgang", zh: "操作" })}</span><select data-agent-mode value={mode} onChange={(event) => { setMode(event.target.value); resetResult(); }}>
             {slug === "buyuk-kucuk-harf-donusturucu" && <><option value="default">{ui(locale, { tr: "Başlık biçimi", en: "Title case", de: "Titel-Schreibweise", zh: "标题格式" })}</option><option value="sentence">{ui(locale, { tr: "Cümle biçimi", en: "Sentence case", de: "Satz-Schreibweise", zh: "句子格式" })}</option><option value="upper">{ui(locale, { tr: "BÜYÜK HARF", en: "UPPERCASE", de: "GROSSBUCHSTABEN", zh: "大写" })}</option><option value="lower">{ui(locale, { tr: "küçük harf", en: "lowercase", de: "kleinbuchstaben", zh: "小写" })}</option></>}
             {slug === "json-bicimlendirici" && <><option value="default">{ui(locale, { tr: "Biçimlendir", en: "Pretty print", de: "Formatieren", zh: "格式化" })}</option><option value="minify">{ui(locale, { tr: "Küçült", en: "Minify", de: "Minifizieren", zh: "压缩" })}</option></>}
-            {slug === "json-csv-donusturucu" && <><option value="default">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
+            {slug === "json-csv-donusturucu" && <><option value="default">{ui(locale, { tr: "Girdiden otomatik algıla", en: "Detect from input", de: "Aus Eingabe erkennen", zh: "根据输入识别" })}</option><option value="json-to-csv">JSON → CSV</option><option value="csv-to-json">CSV → JSON</option></>}
             {(slug === "base64-kodlayici" || slug === "url-kodlayici") && <><option value="default">{ui(locale, { tr: "Kodla", en: "Encode", de: "Kodieren", zh: "编码" })}</option><option value="decode">{ui(locale, { tr: "Çöz", en: "Decode", de: "Dekodieren", zh: "解码" })}</option></>}
           </select></label>}
           {batchSlugs.has(slug) && <label className="batch-toggle"><input type="checkbox" checked={batch} onChange={(event) => { setBatch(event.target.checked); resetResult(); }} /><span><strong>{labels.batch}</strong><small>{labels.batchHelp}</small></span></label>}

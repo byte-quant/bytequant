@@ -1,5 +1,6 @@
 import type { AgentPlan } from "./agent-core";
 import type { Locale } from "./site";
+import { csvToJson, jsonToCsv, parseCsv, detectCsvDelimiter } from "./csv-conversion";
 
 export type AgentAutomationStep = {
   toolSlug: string;
@@ -23,45 +24,6 @@ const messages = {
   zh: { validated: "结构已验证，数据已传递到下一步。", transformed: "转换已在此设备完成。", empty: "没有可处理的数据。", large: "自动运行最多接受 200,000 个字符。", unsupported: "此步骤需要选择文件或进行可视交互，无法自动运行。", csv: "CSV 各行的列数不一致。", json: "需要有效的 JSON。" },
 } as const;
 
-function parseCsv(input: string) {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-  for (let index = 0; index < input.length; index += 1) {
-    const char = input[index];
-    if (char === '"') {
-      if (quoted && input[index + 1] === '"') { cell += '"'; index += 1; }
-      else quoted = !quoted;
-    } else if (char === "," && !quoted) { row.push(cell); cell = ""; }
-    else if ((char === "\n" || char === "\r") && !quoted) {
-      if (char === "\r" && input[index + 1] === "\n") index += 1;
-      row.push(cell); rows.push(row); row = []; cell = "";
-    } else cell += char;
-  }
-  if (quoted) throw new Error("CSV quote is not closed.");
-  row.push(cell);
-  if (row.some(Boolean) || rows.length === 0) rows.push(row);
-  return rows.filter((item) => item.some((value) => value.trim()));
-}
-
-function csvToJson(input: string, locale: Locale) {
-  const rows = parseCsv(input);
-  const headers = rows[0]?.map((value) => value.trim()) ?? [];
-  if (!headers.length || rows.some((row) => row.length !== headers.length)) throw new Error(messages[locale].csv);
-  return JSON.stringify(rows.slice(1).map((row) => Object.fromEntries(headers.map((header, index) => [header || `column_${index + 1}`, row[index] ?? ""]))), null, 2);
-}
-
-function jsonToCsv(input: string, locale: Locale) {
-  let parsed: unknown;
-  try { parsed = JSON.parse(input); } catch { throw new Error(messages[locale].json); }
-  if (!Array.isArray(parsed) || parsed.some((item) => !item || typeof item !== "object" || Array.isArray(item))) throw new Error(messages[locale].json);
-  const records = parsed as Array<Record<string, unknown>>;
-  const headers = [...new Set(records.flatMap((record) => Object.keys(record)))];
-  const escape = (value: unknown) => { const text = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value); return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
-  return [headers.map(escape).join(","), ...records.map((record) => headers.map((header) => escape(record[header])).join(","))].join("\n");
-}
-
 function maskPrivateData(input: string) {
   return input
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL]")
@@ -82,11 +44,11 @@ function encodeBase64(input: string) {
 
 function decodeBase64(input: string, locale: Locale) {
   const compact = input.trim().replace(/\s+/gu, "").replace(/-/g, "+").replace(/_/g, "/");
-  if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(compact) || compact.length % 4 === 1) throw new Error(messages[locale].json);
+  if (!/^[A-Za-z0-9+/]*={0,2}$/u.test(compact) || compact.length % 4 === 1) throw new Error(({ tr: "Geçerli UTF-8 metni içeren Base64 gerekli.", en: "Base64 containing valid UTF-8 text is required.", de: "Base64 mit gültigem UTF-8-Text ist erforderlich.", zh: "需要包含有效 UTF-8 文本的 Base64。" })[locale]);
   try {
     const bytes = Uint8Array.from(atob(compact.padEnd(Math.ceil(compact.length / 4) * 4, "=")), (char) => char.charCodeAt(0));
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch { throw new Error(messages[locale].json); }
+  } catch { throw new Error(({ tr: "Geçerli UTF-8 metni içeren Base64 gerekli.", en: "Base64 containing valid UTF-8 text is required.", de: "Base64 mit gültigem UTF-8-Text ist erforderlich.", zh: "需要包含有效 UTF-8 文本的 Base64。" })[locale]); }
 }
 
 function decodeJwt(input: string, locale: Locale) {
@@ -100,23 +62,25 @@ function decodeJwt(input: string, locale: Locale) {
 }
 
 function uniqueLines(input: string, locale: Locale) {
-  const rows = parseCsv(input);
+  let rows: string[][] = [];
+  try { rows = parseCsv(input, locale); } catch { /* ordinary lines need not be CSV */ }
+  const delimiter = detectCsvDelimiter(input);
   const csv = rows.length > 1 && (rows[0]?.length ?? 0) > 1 && rows.every((row) => row.length === rows[0].length);
   if (!csv) return [...new Set(input.split(/\r?\n/u).map((item) => item.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, locale)).join("\n");
-  const escape = (value: string) => /[",\r\n]/u.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+  const escape = (value: string) => (value.includes(delimiter) || /["\r\n]/u.test(value)) ? `"${value.replace(/"/g, '""')}"` : value;
   const header = rows[0];
   const records = [...new Map(rows.slice(1).map((row) => [JSON.stringify(row), row])).values()].sort((a, b) => a.join("\u0000").localeCompare(b.join("\u0000"), locale));
-  return [header, ...records].map((row) => row.map(escape).join(",")).join("\n");
+  return [header, ...records].map((row) => row.map(escape).join(delimiter)).join("\n");
 }
 
 function keyValueToJson(input: string, sections: boolean, locale: Locale) {
-  const root: Record<string, unknown> = {};
+  const root: Record<string, unknown> = Object.create(null);
   let target = root;
   for (const raw of input.split(/\r?\n/)) {
     const line = raw.trim();
     if (!line || /^[#!;]/.test(line)) continue;
     const section = sections ? line.match(/^\[([^\]]+)]$/) : null;
-    if (section) { const name = section[1].trim(); const bucket: Record<string, string> = {}; root[name] = bucket; target = bucket; continue; }
+    if (section) { const name = section[1].trim(); const bucket: Record<string, string> = Object.create(null); root[name] = bucket; target = bucket; continue; }
     const match = line.match(/^([^=:\s][^=:]*?)\s*[=:]\s*(.*)$/);
     if (!match) continue;
     target[match[1].trim()] = match[2].trim();
@@ -128,7 +92,7 @@ function keyValueToJson(input: string, sections: boolean, locale: Locale) {
 function runStep(step: AgentPlan["steps"][number], input: string, locale: Locale): { output: string; validated: boolean } {
   switch (step.toolSlug) {
     case "csv-inceleyici": {
-      const rows = parseCsv(input);
+      const rows = parseCsv(input, locale);
       const width = rows[0]?.length ?? 0;
       if (!width || rows.some((row) => row.length !== width)) throw new Error(messages[locale].csv);
       return { output: input, validated: true };
@@ -136,7 +100,7 @@ function runStep(step: AgentPlan["steps"][number], input: string, locale: Locale
     case "json-bicimlendirici": {
       try { return { output: JSON.stringify(JSON.parse(input), null, step.operation === "minify" ? 0 : 2), validated: false }; } catch { throw new Error(messages[locale].json); }
     }
-    case "json-csv-donusturucu": return { output: step.operation === "csv-to-json" || (step.operation !== "json-to-csv" && !input.trimStart().startsWith("[")) ? csvToJson(input, locale) : jsonToCsv(input, locale), validated: false };
+    case "json-csv-donusturucu": return { output: step.operation === "csv-to-json" || (step.operation !== "json-to-csv" && !input.trimStart().startsWith("[")) ? csvToJson(input, locale).output : jsonToCsv(input, locale).output, validated: false };
     case "kvkk-veri-maskeleyici": return { output: maskPrivateData(input), validated: false };
     case "e-posta-listesi-temizleyici": return { output: [...new Set(input.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)?.map((item) => item.toLocaleLowerCase()) ?? [])].sort().join("\n"), validated: false };
     case "satir-siralayici-tekillestirici": return { output: uniqueLines(input, locale), validated: false };
@@ -157,7 +121,7 @@ function runStep(step: AgentPlan["steps"][number], input: string, locale: Locale
 const supported = new Set(["csv-inceleyici", "json-bicimlendirici", "json-csv-donusturucu", "kvkk-veri-maskeleyici", "e-posta-listesi-temizleyici", "satir-siralayici-tekillestirici", "base64-kodlayici", "url-kodlayici", "jwt-decoder", "metin-temizleyici", "unicode-normalizasyon-inceleyici", "beyaz-alan-gorunurlestirici", "satir-sonu-donusturucu", "paragraf-ana-hat-cikarici", "ini-json-donusturucu", "properties-json-donusturucu"]);
 
 export function canAutomatePlan(plan: AgentPlan) {
-  return plan.steps.length > 0 && (!plan.coverage || plan.coverage.missing.length === 0) && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
+  return plan.matchQuality !== "review" && plan.steps.length > 0 && (!plan.coverage || plan.coverage.missing.length === 0) && plan.steps.every((step) => !step.requiresFile && supported.has(step.toolSlug));
 }
 
 export function runAgentAutomation(plan: AgentPlan, input: string, locale: Locale): AgentAutomationResult {

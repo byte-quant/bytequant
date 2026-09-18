@@ -376,8 +376,8 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
   const mask = has(/mask|maskele|redact|anonim|kisisel veri|hassas veri|kvkk|gdpr|personenbezogen|遮蔽|匿名/u);
   const deduplicate = has(/duplicate|deduplic|tekrar(?:lari|ları)? kaldir|tekillestir|yinelenen|duplikat|去重|重复/u);
   const sort = has(/alphabet|alfabetik|sirala|sort|排序/u);
-  const toJson = has(/json(?:a| a| olarak| format)|to json|into json|als json|zu json|转(?:为|成) json/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
-  const toCsv = has(/csv(?:ye| ye| olarak| format)|to csv|into csv|als csv|zu csv|转(?:为|成) csv/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
+  const toJson = has(/json(?:a| a| olarak| format)|to json|into json|als json|zu json|转(?:为|成)\s*json/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
+  const toCsv = has(/csv(?:ye| ye| olarak| format)|to csv|into csv|als csv|zu csv|转(?:为|成)\s*csv/u) && has(/cevir|donustur|convert|hazirla|prepare|\byap\b|\bmake\b|umwandel|konvertier|erstell|转/u);
 
   const imageMention = has(/gorsel|resim|foto|png|jpe?g|webp|image|picture|photo|bild|图片|照片/u);
   const pdfMention = has(/\bpdf\b/u);
@@ -444,7 +444,7 @@ function detectGoalIntents(goal: string, payload: string, locale: Locale): GoalI
 
 function operationFor(slug: string, goal: string, locale: Locale): AgentPlanStep["operation"] {
   const text = normalize(goal, locale);
-  if (slug === "json-csv-donusturucu") return /json(?:a| a| olarak)|to json|als json|zu json|转(?:为|成) json/u.test(text) ? "csv-to-json" : "json-to-csv";
+  if (slug === "json-csv-donusturucu") return /json(?:a| a| olarak)|to json|into json|als json|zu json|转(?:为|成)\s*json/u.test(text) ? "csv-to-json" : "json-to-csv";
   if (slug === "base64-kodlayici" || slug === "url-kodlayici") return /decode|coz|dekod|解码/u.test(text) ? "decode" : "encode";
   if (slug === "json-bicimlendirici") return /minif|kucult|sikistir|kompakt|压缩/u.test(text) ? "minify" : "format";
   if (slug === "kvkk-veri-maskeleyici") return "mask";
@@ -601,13 +601,14 @@ function frameGoal(goal: string, locale: Locale, extracted: AgentParameter[], st
 
 export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, previousPlan?: AgentPlan | null): AgentPlan {
   const cleanGoal = goal.trim().slice(0, 20_000);
-  const normalizedGoal = normalize(cleanGoal, locale);
   const payload = extractAgentPayload(cleanGoal);
+  const instruction = payload && cleanGoal.includes(payload) ? cleanGoal.slice(0, cleanGoal.indexOf(payload)).trim() : cleanGoal;
+  const normalizedGoal = normalize(instruction, locale);
   const signals: string[] = [];
   let selected: Tool[] = [];
   // Length alone is not conversational context. The former `<72` shortcut
   // caused short, unrelated requests (JWT, QR, Base64) to inherit an old plan.
-  const isFollowUp = Boolean(previousPlan && followUpPattern.test(cleanGoal));
+  const isFollowUp = Boolean(previousPlan && followUpPattern.test(instruction));
   const contextualGoal = isFollowUp && previousPlan ? `${previousPlan.goal}. ${cleanGoal}`.slice(0, 20_000) : cleanGoal;
   if (isFollowUp && previousPlan) {
     signals.push(local(locale, { tr: "Önceki plan bu sekmenin bağlamından devralındı", en: "The previous plan was carried forward from this tab's context", de: "Der vorige Plan wurde aus dem Kontext dieses Tabs übernommen", zh: "已从当前标签页语境继承上一份计划" }));
@@ -617,7 +618,7 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       signals.push(local(locale, { tr: "Sadeleştirme isteği: yalnızca başlangıç ve teslim için gerekli adımlar korundu", en: "Simplification request: only essential start and delivery steps were retained", de: "Vereinfachung: nur wesentliche Start- und Übergabeschritte bleiben", zh: "简化请求：仅保留必要的开始与交付步骤" }));
     }
   }
-  const detectedIntents = detectGoalIntents(cleanGoal, payload, locale);
+  const detectedIntents = detectGoalIntents(instruction, payload, locale);
   if (!selected.length && detectedIntents.length) {
     selected = detectedIntents.map((intent) => catalog.find((tool) => tool.slug === intent.slug)).filter((tool): tool is Tool => Boolean(tool));
     signals.push(local(locale, {
@@ -627,21 +628,21 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
       zh: `已按顺序识别 ${detectedIntents.length} 个明确操作`,
     }));
   }
-  const segments = splitGoal(cleanGoal);
+  const segments = splitGoal(instruction);
   if (!selected.length && segments.length > 1) {
     selected = segments.map((segment) => semanticToolSearch(segment, catalog, locale, 1)[0]?.tool).filter((tool): tool is Tool => Boolean(tool));
     signals.push(local(locale, { tr: "Açık çok adımlı sıra algılandı", en: "Explicit multi-step sequence detected", de: "Explizite Schrittfolge erkannt", zh: "检测到明确的多步骤顺序" }));
   }
   let matchedWorkflow = selected.length > 1 || detectedIntents.length > 0;
   if (!selected.length) {
-    const recipe = recipes.find((item) => recipeMatches(item, cleanGoal, normalizedGoal));
+    const recipe = recipes.find((item) => recipeMatches(item, instruction, normalizedGoal));
     if (recipe) {
       selected = recipe.steps.map((slug) => catalog.find((tool) => tool.slug === slug)).filter((tool): tool is Tool => Boolean(tool));
       matchedWorkflow = selected.length > 0;
       signals.push(recipe.signal[locale]);
     }
   }
-  const currentRanked = semanticToolSearch(cleanGoal, catalog, locale, 5);
+  const currentRanked = semanticToolSearch(instruction, catalog, locale, 5);
   const contextualRanked = isFollowUp ? semanticToolSearch(contextualGoal, catalog, locale, 5) : currentRanked;
   const ranked = currentRanked[0]?.score && currentRanked[0].score >= 12 ? currentRanked : contextualRanked;
   if (!selected.length && ranked.length) selected = [ranked[0].tool];
@@ -658,7 +659,7 @@ export function createAgentPlan(goal: string, catalog: Tool[], locale: Locale, p
     inputMode: fileTools.has(tool.slug) ? "manual" : index === 0 ? "goal" : "previous",
     requiresFile: fileTools.has(tool.slug),
     parameterHints: extracted.map((item) => `${item.label}: ${item.value}`).slice(0, 5),
-    operation: operationFor(tool.slug, cleanGoal, locale),
+    operation: operationFor(tool.slug, instruction, locale),
   }));
   const requested = detectedIntents.map((intent) => intent.label[locale]);
   const covered = detectedIntents.filter((intent) => steps.some((step) => step.toolSlug === intent.slug)).map((intent) => intent.label[locale]);

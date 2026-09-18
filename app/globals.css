@@ -4223,7 +4223,24 @@ main{isolation:isolate}
   .experience-v3 .agent-chat-v74>.agent-composer>div:last-child>span{width:100%}
 }
 
-/* ByteQuant AI 7.6 — compact, conversation-first layout with mobile-safe controls. */
+/* Guided input keeps the raw representation available for handoffs and advanced edits. */
+.guided-pair-editor { min-width: 0; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; }
+.guided-pair-editor > .field-help { margin: .5rem 0 1rem; }
+.guided-pair-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.guided-pair-editor details { margin-top: 1rem; }
+.guided-pair-editor summary { cursor: pointer; padding: .6rem 0; }
+.guided-pair-editor details > .field-label { margin-top: .75rem; }
+.guided-pair-fields input, .guided-pair-fields select { width: 100%; min-width: 0; }
+.agent-worked-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin-block: 1.5rem; }
+.agent-worked-grid article { min-width: 0; padding: 1.5rem; border: 1px solid var(--border); border-radius: 14px; }
+.agent-worked-grid dt { font-size: .8rem; font-weight: 700; margin-top: 1rem; }
+.agent-worked-grid dd { margin: .4rem 0; overflow-wrap: anywhere; }
+.agent-worked-grid pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.agent-worked-guide p { line-height: 1.8; }
+@media (max-width: 900px) { .agent-worked-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .guided-pair-fields { grid-template-columns: 1fr; } }
+
+/* ByteQuant AI — compact, conversation-first layout with mobile-safe controls. */
 .experience-v3 .agent-product-intro-v75{padding-block:18px 14px}
 .experience-v3 .agent-product-intro-v75 .agent-product-intro-grid{grid-template-columns:minmax(0,1.45fr) minmax(250px,.55fr);gap:20px}
 .experience-v3 .agent-product-intro-v75 h1{max-width:25ch;font-size:clamp(28px,2.8vw,38px);line-height:1.08;text-wrap:balance}
