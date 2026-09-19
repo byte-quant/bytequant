@@ -6,8 +6,24 @@ import { csvToJson, jsonToCsv } from "../app/lib/csv-conversion.ts";
 import { getTool } from "../app/lib/tools.ts";
 import { getPost } from "../app/lib/posts.ts";
 import { getLocalizedGuide } from "../app/lib/localized-guides.ts";
+import { runPrecisionTool } from "../app/components/PrecisionWorkbenches.tsx";
 
 const bySlug = (slug) => editorialExamples.find((example) => example.tool === slug);
+test("published month-end fixture clamps leap day before applying calendar days", () => {
+  const e = bySlug("tarih-ekle-cikar-hesaplayici");
+  for (const locale of ["tr", "en", "de", "zh"]) {
+    assert.ok(runPrecisionTool(e.tool, e.input, "", "default", locale).output.includes(e.output));
+    assert.ok(runPrecisionTool(e.tool, e.input.replace("\ndays=0", "\ndays=1"), "", "default", locale).output.includes("2024-03-01"));
+    assert.throws(() => runPrecisionTool(e.tool, e.counterexample, "", "default", locale));
+  }
+});
+test("published download header preserves Unicode and rejects an empty filename", () => {
+  const e = bySlug("content-disposition-olusturucu");
+  for (const locale of ["tr", "en", "de", "zh"]) {
+    assert.equal(runPrecisionTool(e.tool, e.input, "", "default", locale).output.split("\n")[0], e.output);
+    assert.throws(() => runPrecisionTool(e.tool, e.counterexample, "", "default", locale));
+  }
+});
 test("published JSON example preserves types and rejects a trailing comma", () => {
   const e = bySlug("json-bicimlendirici");
   assert.equal(JSON.stringify(JSON.parse(e.input), null, 2), e.output);

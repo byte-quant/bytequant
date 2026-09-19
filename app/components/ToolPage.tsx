@@ -1,3 +1,4 @@
+import { getEditorialExample } from "../lib/editorial-examples";
 import { TOOL_PAGE_UPDATED } from "../lib/editorial-release";
 import Link from "next/link";
 import { categories, getRelatedTools, getTool, publicTools as tools, type Tool } from "../lib/tools";
@@ -25,6 +26,7 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
   const currentLanguage = languageTag(locale);
   const guidance = getToolGuidanceDetails(tool);
   const deepDive = getToolDeepDive(tool.slug);
+  const example = getEditorialExample(tool.slug);
   const pageUrl = absoluteUrl(toolPath(locale, tool.slug));
   const alternateHref = toolPath(locale === "tr" ? "en" : "tr", tool.slug);
   const related = getRelatedTools(tool);
@@ -64,7 +66,7 @@ export function ToolPage({ tool, locale }: { tool: Tool; locale: Locale }) {
       <section className="tool-hero"><div className="container"><div className="tool-title-row"><span className={`tool-mark tool-mark-xl category-${tool.category}`}>{tool.mark}</span><div><span className="kicker">{categories[tool.category].label[locale]}</span><h1>{tool.title[locale]}</h1><p>{tool.description[locale]}</p></div></div><div className="tool-assurances"><span>✓ {localized("Ücretsiz", "Free", "Kostenlos", "免费")}</span><span>✓ {localized("Üyelik yok", "No account", "Kein Konto", "无需账户")}</span><span>✓ {localized("Tarayıcı içinde", "In-browser", "Im Browser", "浏览器内")}</span></div></div></section>
       <section className="container tool-answer-card" data-tool-intent="specific" aria-labelledby="tool-answer-title">
         <div className="tool-answer-copy"><span className="kicker">{localized("KISA CEVAP", "QUICK ANSWER", "KURZANTWORT", "简短回答")}</span><h2 id="tool-answer-title">{localized("Bu araç ne yapar?", "What does this tool do?", "Was macht dieses Werkzeug?", "这个工具能做什么？")}</h2><p>{answer}</p></div>
-        <nav aria-label={localized("Araç içi hızlı bağlantılar", "Tool quick links", "Werkzeug-Schnelllinks", "工具快捷链接")}><a className="primary-button" href="#tool-workbench">{localized("Aracı kullan", "Use the tool", "Werkzeug nutzen", "使用工具")} →</a>{deepDive ? <a href="#worked-example">{localized("Gerçek örnek", "Worked example", "Praxisbeispiel", "实践示例")}</a> : null}<a href="#how-to">{localized("Kullanım adımları", "Usage steps", "Anleitung", "使用步骤")}</a><a href="#tool-faq">FAQ</a></nav>
+        <nav aria-label={localized("Araç içi hızlı bağlantılar", "Tool quick links", "Werkzeug-Schnelllinks", "工具快捷链接")}><a className="primary-button" href="#tool-workbench">{localized("Aracı kullan", "Use the tool", "Werkzeug nutzen", "使用工具")} →</a>{(example || deepDive) ? <a href={example ? `#editorial-example-${tool.slug}` : "#worked-example"}>{localized("Gerçek örnek", "Worked example", "Praxisbeispiel", "实践示例")}</a> : null}<a href="#how-to">{localized("Kullanım adımları", "Usage steps", "Anleitung", "使用步骤")}</a><a href="#tool-faq">FAQ</a></nav>
       </section>
       <div className="container tool-workbench-stack tool-runtime-first" id="tool-workbench" data-stage-three-ready="true" data-tool-quality-contract="catalog-v2" data-input-output-contract="guided-v4" data-tool-slug={tool.slug} data-input-profile={guidance.input[locale]}><WorkspaceToolBridge slug={tool.slug} locale={locale} /><AgentToolBridge slug={tool.slug} locale={locale} /><div id={`run-${tool.slug}`} className="tool-runtime-anchor"><ToolWorkbench slug={tool.slug} locale={locale} /></div><ToolExperience slug={tool.slug} title={tool.title[locale]} locale={locale} compare={compareOutput} related={related.map((item) => ({ slug: item.slug, title: item.title[locale] }))} /></div>
       <div id="how-to"><ToolEditorialReview tool={tool} locale={locale} /></div>

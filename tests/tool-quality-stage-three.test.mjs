@@ -18,7 +18,12 @@ test("links high-intent pages to a uniquely addressable worked example", async (
     read("../app/components/ToolPage.tsx"),
     read("../app/components/ToolEditorialReview.tsx"),
   ]);
-  assert.match(page, /deepDive \? <a href="#worked-example">/);
+  for (const slug of ["json-bicimlendirici", "tarih-ekle-cikar-hesaplayici", "content-disposition-olusturucu"]) {
+    const html = await read(`../out/araclar/${slug}/index.html`);
+    const target = `editorial-example-${slug}`;
+    assert.ok(html.includes(`href="#${target}"`), `${slug}: example link missing`);
+    assert.equal(html.split(`id="${target}"`).length - 1, 1, `${slug}: example target must be unique`);
+  }
   assert.match(page, /deepDive\.fixture\[locale\]/);
   assert.match(page, /deepDive\.evidence\[locale\]/);
   assert.match(page, /deepDive\.failure\[locale\]/);

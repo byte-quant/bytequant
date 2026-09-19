@@ -60,9 +60,10 @@ export function AgentWorkedGuide({ locale }: { locale: Locale }) {
   const text = copy[locale];
   return <section className="section agent-worked-guide" id="agent-worked-examples"><div className="container">
     <div className="section-heading"><span className="kicker">BYTEQUANT AI 7.7</span><h2>{text.title}</h2><p>{text.intro}</p></div>
+    <aside className="agent-mode-boundary"><p>{text.limits}</p></aside>
     <div className="agent-worked-grid">{text.cases.map(([title, first, next, output, explanation, slug]) => <article key={slug}>
       <h3>{title}</h3><dl><dt>{text.steps[0]}</dt><dd>{first}</dd><dt>{text.steps[1]}</dt><dd><pre>{next}</pre></dd><dt>{text.steps[2]}</dt><dd><code>{output}</code></dd></dl>
       <p>{explanation}</p><Link href={toolPath(locale, slug)}>{text.open} →</Link>
-    </article>)}</div><p>{text.fields}</p><p>{text.limits}</p>
+    </article>)}</div><p>{text.fields}</p>
   </div></section>;
 }

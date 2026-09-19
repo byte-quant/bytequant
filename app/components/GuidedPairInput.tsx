@@ -30,7 +30,8 @@ export function GuidedPairInput({ slug, slot, locale, value, onChange, children 
     {parsed ? <div className="guided-pair-fields">{fields.map((field) => <label className="field-label" key={field.key}>
       <span>{field.label[locale]}</span>
       {["direction", "operation", "type"].includes(field.key) ? <select value={parsed[field.key] ?? ""} onChange={(event) => onChange(updateGuidedPair(value, field.key, event.target.value))}><option value="">—</option>{(field.key === "direction" ? ["asc", "desc"] : field.key === "operation" ? ["sum", "count", "avg"] : ["attachment", "inline"]).map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input type={field.type ?? "text"} step={field.type === "number" ? "any" : undefined} value={parsed[field.key] ?? ""} placeholder={field.example} maxLength={2000}
-        onChange={(event) => onChange(updateGuidedPair(value, field.key, event.target.value))} />}
+        onChange={(event) => onChange(updateGuidedPair(value, field.key, event.target.value))}
+        onInput={field.type === "date" ? (event) => onChange(updateGuidedPair(value, field.key, event.currentTarget.value)) : undefined} />}
     </label>)}</div> : <p role="status">{text[3]}</p>}
     <details open={rawOpen || !parsed} onToggle={(event) => setRawOpen(event.currentTarget.open)}><summary>{text[2]}</summary>{children}</details>
   </div>;

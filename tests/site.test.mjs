@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { TOOL_PAGE_UPDATED } from "../app/lib/editorial-release.ts";
 
 const root = new URL("../out/", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
@@ -258,7 +259,9 @@ test("tool pages explain local processing and expose structured data", async () 
   assert.match(page, /tool-editorial-review/);
   assert.match(page, /Bu araçla sık kullanılanlar/);
   assert.match(page, /Tamamen tarayıcıda çalışır/);
-  assert.match(page, /Sayfa güncellemesi: 17 Eylül 2026/);
+  const visibleDate = new Intl.DateTimeFormat("tr", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${TOOL_PAGE_UPDATED}T00:00:00Z`));
+  assert.ok(page.includes(`dateTime="${TOOL_PAGE_UPDATED}"`));
+  assert.ok(page.replace(/<!--.*?-->/gu, "").includes(`Sayfa güncellemesi: ${visibleDate}`));
   assert.match(page, /Örnek veri yükle/);
   assert.doesNotMatch(page, /fetch\(|axios/i);
 });

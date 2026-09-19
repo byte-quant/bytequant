@@ -11,7 +11,7 @@ const copy = {
 
 export function EditorialExample({ example, locale, link = false }: { example: Example; locale: Locale; link?: boolean }) {
   const t = copy[locale];
-  return <section className="editorial-example" data-editorial-example={example.tool} aria-labelledby={`example-${example.tool}`}>
+  return <section className="editorial-example" id={`editorial-example-${example.tool}`} data-editorial-example={example.tool} aria-labelledby={`example-${example.tool}`}>
     <span className="kicker">{t.label}</span>
     <h3 id={`example-${example.tool}`}>{example.title[locale]}</h3>
     <p>{example.explanation[locale]}</p>

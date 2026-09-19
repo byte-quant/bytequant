@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { absoluteUrl, languageTag, organizationId, pathFor, type Locale } from "../lib/site";
+import { CommunityReadingGuide } from "./CommunityReadingGuide";
 import { CommunityComposer } from "./CommunityComposer";
 import { CommunityFeed } from "./CommunityFeed";
 import { CommunityNetwork } from "./CommunityNetwork";
@@ -114,8 +115,9 @@ export function CommunityPage({ locale }: { locale: Locale }) {
   ];
   return <SiteShell locale={locale} alternateHref={pathFor(locale === "tr" ? "en" : "tr", "community")} languageHrefs={{ tr: pathFor("tr", "community"), en: pathFor("en", "community"), de: pathFor("de", "community"), zh: pathFor("zh", "community") }}>
     <SchemaScript data={schema} />
-    <section className="community-product-intro community-product-intro-compact community-x-intro"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#community-feed">{hero.read} ↓</a><a className="secondary-button" href="#community-compose">{hero.publish}</a></nav><div className="community-value-strip">{values.map(([icon, title, body]) => <article key={title}><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><small>{body}</small></div></article>)}</div></div></section>
+    <section className="community-product-intro community-product-intro-compact community-x-intro"><div className="container"><div><span className="eyebrow"><i />{hero.eyebrow}</span><h1>{hero.title}</h1><p>{hero.intro}</p></div><nav aria-label={hero.title}><a className="primary-button" href="#community-feed">{hero.read} ↓</a><a className="secondary-button" href="#community-compose">{hero.publish}</a><a className="secondary-button" href="#community-sharing-guide">{({ tr: "Paylaşım rehberi", en: "Sharing guide", de: "Leitfaden zum Teilen", zh: "分享指南" })[locale]}</a></nav><div className="community-value-strip">{values.map(([icon, title, body]) => <article key={title}><span aria-hidden="true">{icon}</span><div><strong>{title}</strong><small>{body}</small></div></article>)}</div></div></section>
     <section className="section community-network-section community-x-network-section" id="global-community"><div className="container wide-container"><CommunityNetwork locale={locale} /></div></section>
+    <CommunityReadingGuide locale={locale} />
     <section className="section community-secondary-tools community-x-secondary-tools"><div className="container">
       <details className="community-secondary-panel" id="community-private-tools"><summary><span>◇</span><div><strong>{hero.advancedTitle}</strong><small>{hero.advancedBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body">
         <details className="community-secondary-panel" id="community-local"><summary><span>▣</span><div><strong>{hero.archiveTitle}</strong><small>{hero.archiveBody}</small></div><b aria-hidden="true">+</b></summary><div className="community-secondary-panel-body"><CommunityComposer locale={locale} /><details className="community-local-archive"><summary><span>▤</span><div><strong>{hero.records}</strong><small>{hero.recordsHelp}</small></div><b aria-hidden="true">+</b></summary><div><CommunityFeed locale={locale} /></div></details></div></details>

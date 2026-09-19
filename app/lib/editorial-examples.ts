@@ -81,6 +81,45 @@ export const editorialExamples: EditorialExample[] = [
   },
 ];
 
+// These fixtures show the decisive result field/header, not the localized report around it.
+editorialExamples.push(
+  {
+    tool: "tarih-ekle-cikar-hesaplayici",
+    title: l("Ay sonu: 31 Ocak'a bir ay eklemek", "Month end: adding one month to January 31", "Monatsende: ein Monat nach dem 31. Januar", "月末：1 月 31 日加一个月"),
+    input: "date=2024-01-31\nyears=0\nmonths=1\ndays=0\nbusinessDays=0", output: "2024-02-29",
+    counterexample: "date=2023-02-29\nmonths=1",
+    explanation: l(
+      "Tarih alanına 2024-01-31, ay alanına 1, diğer fark alanlarına 0 yazın. Sonuç satırında 2024-02-29 görmelisiniz: araç önce yılı ve ayı değiştirir, ardından başlangıç gününü hedef ayın son geçerli gününe sınırlar. 2024 artık yıl olduğu için Şubat 29 gündür. Bu işlem 30 gün eklemekle aynı değildir. Ham girdi bölümüne aşağıdaki kaydı yapıştırarak aynı hesabı yeniden üretebilirsiniz.",
+      "Enter 2024-01-31 as the date, 1 as months, and 0 in the other offset fields. The result date must be 2024-02-29. The tool changes year and month first, then clamps the original day to the last valid day of that month. February has 29 days in leap year 2024. This differs from adding 30 days. Paste the record below into raw input to reproduce the same calculation.",
+      "Datum 2024-01-31, Monate 1 und alle anderen Abstände 0 eingeben. Das Ergebnisdatum muss 2024-02-29 sein. Das Werkzeug ändert zuerst Jahr und Monat und begrenzt dann den ursprünglichen Tag auf den letzten gültigen Tag im Zielmonat. Im Schaltjahr 2024 hat Februar 29 Tage. Das ist nicht dasselbe wie 30 Tage zu addieren. Mit der Roheingabe unten lässt sich die Rechnung wiederholen.",
+      "日期填 2024-01-31，月份填 1，其余偏移填 0。结果日期应为 2024-02-29。工具先修改年和月，再把原来的日限制在目标月份的最后一个有效日。2024 是闰年，二月有 29 天；这与增加 30 天不同。也可将下方记录粘贴到原始输入中复现。"),
+    caution: l(
+      "2023-02-29 takvimde yoktur ve reddedilmelidir; otomatik olarak Mart'a kaydırılmamalıdır. Gün farkı ay hesabından sonra, Pazartesi–Cuma farkı ise en son uygulanır. Örneğe days=1 eklerseniz 2024-03-01 elde edersiniz. İş günü alanı bölgesel tatilleri bilmez; bu sonuç bir sözleşmenin veya resmi sürenin son gününü doğrulamaz.",
+      "2023-02-29 does not exist and must fail rather than silently roll into March. Calendar days are applied after months; Monday–Friday offsets are applied last. Changing days to 1 in this fixture gives 2024-03-01. The business-day field has no regional holiday calendar and cannot certify a contractual or statutory deadline.",
+      "2023-02-29 existiert nicht und muss einen Fehler auslösen, statt in den März zu wechseln. Kalendertage folgen auf Monate, Montag–Freitag-Abstände zuletzt. Mit days=1 ergibt dieses Beispiel 2024-03-01. Das Werktagsfeld kennt keine regionalen Feiertage und bestätigt keine vertraglichen oder gesetzlichen Fristen.",
+      "2023-02-29 不存在，必须报错，不能默默顺延到三月。日偏移在月份之后执行，周一至周五偏移最后执行。把本例的 days 改为 1，应得到 2024-03-01。工作日字段不包含地区节假日，因此不能据此确认合同或法定期限。"),
+    source: { title: "MDN · Date.setUTCMonth (calendar overflow)", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setUTCMonth" },
+  },
+  {
+    tool: "content-disposition-olusturucu",
+    title: l("İndirme adı: Türkçe karakterleri koruyun", "Download names: preserve non-ASCII characters", "Downloadnamen: Sonderzeichen erhalten", "下载名称：保留非 ASCII 字符"),
+    input: "type=attachment\nfilename=çay raporu.pdf",
+    output: "Content-Disposition: attachment; filename=\"cay raporu.pdf\"; filename*=UTF-8''%C3%A7ay%20raporu.pdf",
+    counterexample: "type=attachment\nfilename=",
+    explanation: l(
+      "Tür olarak attachment, dosya adı olarak çay raporu.pdf girin. Çıktının ilk satırı aşağıdaki başlık olmalıdır. filename eski istemciler için ASCII yedeğini, filename* ise UTF-8 dosya adını taşır. Bu örnekte ç, UTF-8 baytlarıyla %C3%A7; boşluk ise %20 olur. Dosya adı sunucu yanıtında nasıl yorumlanıyorsa tarayıcıdaki önerilen kayıt adı da ona göre belirlenir; yalnız oluşturulan metne bakmak yeterli değildir.",
+      "Choose attachment and enter çay raporu.pdf as the filename. The first output line must match the header below. filename carries an ASCII fallback; filename* carries the UTF-8 name. In this fixture ç becomes its UTF-8 bytes %C3%A7 and the space becomes %20. Verify the suggested save name in the receiving browser as well as the generated text, because the actual server response determines how the name is interpreted.",
+      "attachment wählen und çay raporu.pdf als Dateinamen eingeben. Die erste Ausgabezeile muss dem Header unten entsprechen. filename enthält die ASCII-Ausweichform, filename* den UTF-8-Namen. Im Beispiel wird ç zu seinen UTF-8-Bytes %C3%A7 und das Leerzeichen zu %20. Neben dem erzeugten Text auch den vorgeschlagenen Speichernamen im Zielbrowser prüfen: Entscheidend ist die tatsächliche Serverantwort.",
+      "类型选择 attachment，文件名填 çay raporu.pdf。输出第一行应与下方标头一致。filename 提供 ASCII 回退名称，filename* 携带 UTF-8 名称。本例的 ç 变为 UTF-8 字节 %C3%A7，空格变为 %20。还需在接收浏览器中核验建议保存名称，因为最终解释取决于实际服务器响应。"),
+    caution: l(
+      "Boş filename alanı hata vermelidir. Bu araç dosya oluşturmaz, sunucu ayarını değiştirmez ve dosyanın güvenli olduğunu onaylamaz. Başlığı yanıtınıza eklerken yalnız ilk satırı kullanın; alttaki açıklama başlığın parçası değildir. Uygulamanız ayrıca yol parçalarını, uzantıları ve çakışan dosya adlarını kontrol etmelidir. Özel bilgiler içeren dosya adlarını herkese açık yanıtlarda kullanmayın.",
+      "An empty filename field must fail. This tool does not create a file, configure a server, or certify file safety. Use only the first line when setting a response header; the explanatory report is not part of the header. Your application must separately handle path components, extensions, and conflicting filenames. Avoid exposing private information through public download names.",
+      "Ein leeres filename-Feld muss scheitern. Das Werkzeug erzeugt keine Datei, konfiguriert keinen Server und bestätigt keine Dateisicherheit. Für einen Antwort-Header nur die erste Zeile verwenden; der erläuternde Bericht gehört nicht hinein. Pfadbestandteile, Erweiterungen und Namenskonflikte muss die Anwendung separat prüfen. Private Angaben gehören nicht in öffentliche Downloadnamen.",
+      "filename 为空时必须报错。此工具不会创建文件、配置服务器或证明文件安全。设置响应标头时只使用第一行，下方说明不是标头的一部分。应用仍需单独处理路径片段、扩展名和名称冲突。不要通过公开下载名称泄露私人信息。"),
+    source: { title: "MDN · Content-Disposition", url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Disposition" },
+  },
+);
+
 export const exampleGuideTools: Record<string, string[]> = {
   "browser-tool-handoff-json-csv-base64": ["json-csv-donusturucu", "base64-kodlayici"],
   "json-schema-image-hash-workflow": ["json-bicimlendirici"],
